@@ -402,10 +402,10 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('guest-posts.*') ? 'active' : '' }}" 
-                               href="{{ route('guest-posts.index') }}"
-                               aria-current="{{ request()->routeIs('guest-posts.*') ? 'page' : 'false' }}">
-                               <i class="fas fa-users me-1 d-lg-none"></i>Colaboraciones
+                            <a class="nav-link {{ request()->routeIs('columns.*') ? 'active' : '' }}" 
+                            href="{{ route('columns.index') }}"
+                            aria-current="{{ request()->routeIs('columns.*') ? 'page' : 'false' }}">
+                            <i class="fas fa-pen-fancy me-1 d-lg-none"></i>Columnas
                             </a>
                         </li>
                         <li class="nav-item">
@@ -551,7 +551,7 @@
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Inicio</a></li>
                         <li class="mb-2"><a href="{{ route('news.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Noticias</a></li>
                         <li class="mb-2"><a href="{{ route('research.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Investigación</a></li>
-                        <li class="mb-2"><a href="{{ route('guest-posts.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Colaboraciones</a></li>
+                        <li class="mb-2"><a href="{{ route('columns.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Columnas</a></li>
                         <li class="mb-2"><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Enviar Investigación</a></li>
                     </ul>
                 </div>
