@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 
 @section('content')
 <div class="container-fluid">
@@ -221,7 +221,7 @@
         }
     });
     
-    // Generar slug automáticamente si el campo está vacío
+    // Generar slug automáticamente
     const titleInput = document.getElementById('title');
     const slugInput = document.getElementById('slug');
     
@@ -233,7 +233,7 @@
     });
     
     titleInput.addEventListener('keyup', function() {
-        if (!slugEdited) {
+        if (!slugEdited && !slugInput.value) {
             const title = this.value;
             const slug = title.toLowerCase()
                              .replace(/[^\w ]+/g, '')

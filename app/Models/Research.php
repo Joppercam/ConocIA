@@ -20,6 +20,7 @@ class Research extends Model
         'excerpt',
         'content',
         'abstract',
+        'summary', // Añadido el campo summary
         'image',
         'type',
         'research_type',
@@ -194,6 +195,45 @@ class Research extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+
+
+    // Agregar estos métodos al modelo Research para asegurar compatibilidad
+
+    /**
+     * Accessor para obtener el resumen
+     */
+    public function getSummaryAttribute($value)
+    {
+        // Si el valor de summary ya existe, úsalo
+        if (!empty($value)) {
+            return $value;
+        }
+        
+        // Si no, intenta usar excerpt
+        if (isset($this->attributes['excerpt']) && !empty($this->attributes['excerpt'])) {
+            return $this->attributes['excerpt'];
+        }
+        
+        // Si no, intenta usar abstract
+        if (isset($this->attributes['abstract']) && !empty($this->attributes['abstract'])) {
+            return $this->attributes['abstract'];
+        }
+        
+        // Si ninguno existe, devuelve un string vacío
+        return '';
+    }
+
+    /**
+     * Mutator para establecer el resumen
+     */
+    public function setSummaryAttribute($value)
+    {
+        $this->attributes['summary'] = $value;
+        
+        // También actualiza excerpt para mantener consistencia
+        $this->attributes['excerpt'] = $value;
     }
 
     

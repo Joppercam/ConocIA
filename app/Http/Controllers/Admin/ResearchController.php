@@ -130,8 +130,19 @@ class ResearchController extends Controller
      */
     public function edit(Research $research)
     {
+        // Asegurarse de cargar todas las relaciones necesarias
+        $research->load(['category', 'tags', 'author']);
+        
+        // Asegurarse de que el resumen esté disponible
+        if (empty($research->summary) && !empty($research->excerpt)) {
+            $research->summary = $research->excerpt;
+        } else if (empty($research->summary) && !empty($research->abstract)) {
+            $research->summary = $research->abstract;
+        }
+        
         $categories = Category::all();
         $tags = Tag::all();
+        
         return view('admin.research.edit', compact('research', 'categories', 'tags'));
     }
 
@@ -154,6 +165,12 @@ class ResearchController extends Controller
             'research_type' => 'required|in:paper,report,analysis,study',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
         ]);
+        
+        // Transformar el campo 'summary' a 'excerpt' para la base de datos
+        if (isset($validated['summary'])) {
+            $validated['excerpt'] = $validated['summary'];
+            unset($validated['summary']);  // Eliminar el campo summary para evitar el error
+        }
         
         // Generar slug si no se proporcionó
         if (empty($validated['slug'])) {
@@ -185,9 +202,30 @@ class ResearchController extends Controller
         // Actualizar investigación
         $research->update($validated);
         
-        // Asociar etiquetas
+        // Asociar etiquetas con manejo de errores
         if (isset($validated['tags'])) {
-            $research->tags()->sync($validated['tags']);
+            try {
+                // Obtener IDs de etiquetas válidas
+                $tagIds = Tag::whereIn('id', $validated['tags'])->pluck('id')->toArray();
+                
+                // Sincronizar solo las etiquetas que realmente existen
+                if (!empty($tagIds)) {
+                    $research->tags()->sync($tagIds);
+                } else {
+                    // Si no hay etiquetas válidas, eliminar todas las asociaciones
+                    $research->tags()->detach();
+                }
+            } catch (\Exception $e) {
+                // Log el error pero no impedir que se guarden los demás cambios
+                \Log::error('Error al sincronizar etiquetas: ' . $e->getMessage());
+                
+                // Si falla la sincronización, simplemente eliminar todas las etiquetas
+                // para evitar que el error bloquee toda la actualización
+                $research->tags()->detach();
+            }
+        } else {
+            // Si no se enviaron etiquetas, eliminar todas las asociaciones
+            $research->tags()->detach();
         }
         
         return redirect()->route('admin.research.index')
