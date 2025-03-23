@@ -264,7 +264,7 @@
                                                 </span>
                                                 @endif
                                                 <!-- Indicador de nuevo si es menor a 48 horas -->
-                                                @if($recent->created_at->diffInHours(now()) < 48)
+                                                @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
                                                 <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-0 m-2 rounded-pill fs-9">
                                                     <i class="fas fa-star me-1"></i>NUEVO
                                                 </span>
@@ -395,7 +395,7 @@
                                                 {{ $popular->category->name }}
                                             </span>
                                             @endif
-                                            <span class="text-muted fs-9">{{ $popular->created_at->diffForHumans() }}</span>
+                                            <span class="text-muted fs-9">{{ $popular->created_at->locale('es')->diffForHumans() }}</span>
                                         </div>
                                         <!-- Estadísticas de popularidad -->
                                         <div class="d-flex align-items-center">
@@ -524,7 +524,7 @@
                                                 width="36" height="36" 
                                                 alt="{{ $research->author }}">
                                             <span class="fw-bold text-white" style="font-size: 0.85rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
-                                                {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->diffForHumans() }}</span>
+                                                {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->locale('es')->diffForHumans() }}</span>
                                             </span>
                                         </div>
                                     </div>
@@ -662,7 +662,7 @@
                                         class="rounded-circle me-1" 
                                         alt="{{ $commented->author }}">
                                     {{ $commented->author }}
-                                    <span class="ms-auto">{{ $commented->created_at->diffForHumans() }}</span>
+                                    <span class="ms-auto">{{ $commented->created_at->locale('es')->diffForHumans() }}</span>
                                 </div>
                             </a>
                             @endforeach
