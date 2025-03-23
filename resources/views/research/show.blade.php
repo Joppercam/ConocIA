@@ -58,13 +58,13 @@
             <!-- Imagen destacada -->
             @if($image)
             <div class="article-featured-image mb-4">
-                <img src="{{ asset('storage/' . $image) }}" alt="{{ $title }}" class="img-fluid rounded">
+                <img src="{{ asset('storage/' . $image) }}" alt="{{ $title }}" class="img-fluid rounded shadow-sm" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-large.jpg') }}';">
             </div>
             @endif
 
             <!-- Resumen -->
             @if($excerpt)
-            <div class="lead mb-4">
+            <div class="lead mb-4 p-3 bg-light rounded">
                 {{ $excerpt }}
             </div>
             @endif
@@ -78,7 +78,7 @@
             @if($citations)
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0">Citaciones</h5>
+                    <h5 class="mb-0"><i class="fas fa-quote-left text-primary me-2"></i>Citaciones</h5>
                 </div>
                 <div class="card-body">
                     {!! $citations !!}
@@ -88,7 +88,7 @@
 
             <!-- Compartir -->
             <div class="article-share mb-5">
-                <h5 class="mb-3">Compartir esta investigación</h5>
+                <h5 class="mb-3"><i class="fas fa-share-alt me-2"></i>Compartir esta investigación</h5>
                 <div class="d-flex flex-wrap">
                     <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" class="btn btn-outline-primary me-2 mb-2">
                         <i class="fab fa-facebook-f me-1"></i> Facebook
@@ -105,89 +105,48 @@
                 </div>
             </div>
 
-            <!-- Artículos Relacionados -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Investigaciones Relacionadas</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        @forelse($relatedResearch as $relatedItem)
-                            <div class="col-md-6">
-                                <div class="related-article d-flex">
-                                    <div class="related-article-img me-3">
-                                        @php
-                                            $relatedImage = is_array($relatedItem) ? ($relatedItem['image'] ?? null) : ($relatedItem->image ?? null);
-                                            $relatedTitle = is_array($relatedItem) ? ($relatedItem['title'] ?? 'Investigación') : ($relatedItem->title ?? 'Investigación');
-                                            $relatedId = is_array($relatedItem) ? ($relatedItem['id'] ?? 0) : ($relatedItem->id ?? 0);
-                                            $relatedCreatedAt = is_array($relatedItem) ? (isset($relatedItem['created_at']) ? \Carbon\Carbon::parse($relatedItem['created_at']) : now()) : ($relatedItem->created_at ?? now());
-                                        @endphp
-                                        
-                                        @if($relatedImage)
-                                            <a href="{{ route('research.show', $relatedId) }}">
-                                                <img src="{{ asset('storage/' . $relatedImage) }}" 
-                                                     class="img-fluid rounded" 
-                                                     alt="{{ $relatedTitle }}" 
-                                                     style="width: 100px; height: 70px; object-fit: cover;">
-                                            </a>
-                                        @else
-                                            <a href="{{ route('research.show', $relatedId) }}">
-                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                     style="width: 100px; height: 70px;">
-                                                    <i class="fas fa-flask text-secondary fa-2x"></i>
-                                                </div>
-                                            </a>
-                                        @endif
-                                    </div>
-                                    <div class="related-article-content">
-                                        <h6 class="mb-1">
-                                            <a href="{{ route('research.show', $relatedId) }}" class="text-decoration-none">
-                                                {{ Str::limit($relatedTitle, 60) }}
-                                            </a>
-                                        </h6>
-                                        <div class="small text-muted">
-                                            <i class="far fa-calendar-alt me-1"></i> 
-                                            {{ $relatedCreatedAt->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12">
-                                <p class="text-muted">No hay investigaciones relacionadas disponibles.</p>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
             <!-- Comentarios -->
-            <div class="mb-4">
-                <h4 class="mb-3">Comentarios ({{ $comments_count }})</h4>
+            <div class="comments-section mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0"><i class="far fa-comments text-primary me-2"></i>Comentarios ({{ $comments_count }})</h4>
+                </div>
                 
                 <!-- Formulario de comentario -->
                 <div class="card mb-4 border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Deja tu comentario</h5>
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3 d-flex align-items-center">
+                            <i class="far fa-edit me-2 text-primary"></i>Deja tu comentario
+                        </h5>
                         <form action="{{ url('/comments') }}" method="POST">
                             @csrf
                             <input type="hidden" name="commentable_type" value="App\Models\Research">
                             <input type="hidden" name="commentable_id" value="{{ $id }}">
                             
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="name" name="guest_name" value="{{ old('guest_name') }}" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="guest_email" value="{{ old('guest_email') }}" required>
-                                <div class="form-text">Tu email no será publicado.</div>
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="name" class="form-label">Nombre</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="far fa-user"></i></span>
+                                        <input type="text" class="form-control" id="name" name="guest_name" value="{{ old('guest_name') }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="far fa-envelope"></i></span>
+                                        <input type="email" class="form-control" id="email" name="guest_email" value="{{ old('guest_email') }}" required>
+                                    </div>
+                                    <div class="form-text small text-muted">Tu email no será publicado.</div>
+                                </div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="comment" class="form-label">Comentario</label>
-                                <textarea class="form-control" id="comment" name="content" rows="4" required>{{ old('content') }}</textarea>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="far fa-comment"></i></span>
+                                    <textarea class="form-control" id="comment" name="content" rows="4" required>{{ old('content') }}</textarea>
+                                </div>
                             </div>
                             
                             <div class="mb-3 form-check">
@@ -197,7 +156,9 @@
                                 </label>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary">Publicar comentario</button>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-paper-plane me-2"></i>Publicar comentario
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -205,7 +166,7 @@
                 <!-- Lista de comentarios -->
                 <div class="comments-list">
                     @forelse($comments as $comment)
-                        <div class="comment-item mb-4 pb-4 {{ !$loop->last ? 'border-bottom' : '' }}">
+                        <div class="comment-item mb-4 p-3 border-start border-primary border-3 bg-light rounded shadow-sm">
                             <div class="d-flex mb-2">
                                 <div class="comment-avatar me-3">
                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 20px;">
@@ -218,20 +179,23 @@
                                     </div>
                                 </div>
                                 <div class="comment-meta">
-                                    <h5 class="mb-1">{{ $commentName }}</h5>
+                                    <h5 class="mb-1 fs-6 fw-bold">{{ $commentName }}</h5>
                                     <div class="text-muted small">
                                         <i class="far fa-clock me-1"></i> 
                                         {{ $commentCreatedAt ? $commentCreatedAt->locale('es')->diffForHumans() : 'Hace algún tiempo' }}
                                     </div>
                                 </div>
                             </div>
-                            <div class="comment-content">
-                                <p>{{ $commentContent }}</p>
+                            <div class="comment-content mt-2 ps-5">
+                                <p class="mb-0">{{ $commentContent }}</p>
                             </div>
                         </div>
                     @empty
-                        <div class="alert alert-light">
-                            <p class="mb-0">No hay comentarios todavía. ¡Sé el primero en comentar!</p>
+                        <div class="alert alert-light shadow-sm">
+                            <p class="mb-0 text-center">
+                                <i class="far fa-comments me-2 text-muted"></i>
+                                No hay comentarios todavía. ¡Sé el primero en comentar!
+                            </p>
                         </div>
                     @endforelse
                 </div>
@@ -284,11 +248,69 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Artículos Relacionados (Movido aquí desde abajo) -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="fas fa-link text-primary me-2"></i> Investigaciones Relacionadas
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @forelse($relatedResearch as $relatedItem)
+                            @php
+                                $relatedImage = is_array($relatedItem) ? ($relatedItem['image'] ?? null) : ($relatedItem->image ?? null);
+                                $relatedTitle = is_array($relatedItem) ? ($relatedItem['title'] ?? 'Investigación') : ($relatedItem->title ?? 'Investigación');
+                                $relatedId = is_array($relatedItem) ? ($relatedItem['id'] ?? 0) : ($relatedItem->id ?? 0);
+                                $relatedCreatedAt = is_array($relatedItem) ? (isset($relatedItem['created_at']) ? \Carbon\Carbon::parse($relatedItem['created_at']) : now()) : ($relatedItem->created_at ?? now());
+                            @endphp
+                            <li class="list-group-item px-3 py-3 border-0">
+                                <div class="d-flex">
+                                    <div class="me-3" style="min-width: 70px;">
+                                        <a href="{{ route('research.show', $relatedId) }}">
+                                            @if($relatedImage)
+                                                <img src="{{ asset('storage/' . $relatedImage) }}" 
+                                                     class="img-fluid rounded" 
+                                                     alt="{{ $relatedTitle }}" 
+                                                     style="width: 70px; height: 70px; object-fit: cover;"
+                                                     onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
+                                            @else
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                                     style="width: 70px; height: 70px;">
+                                                    <i class="fas fa-flask text-secondary fa-2x"></i>
+                                                </div>
+                                            @endif
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold" style="line-height: 1.4;">
+                                            <a href="{{ route('research.show', $relatedId) }}" class="text-decoration-none text-dark">
+                                                {{ Str::limit($relatedTitle, 60) }}
+                                            </a>
+                                        </h6>
+                                        <div class="small text-muted">
+                                            <i class="far fa-calendar-alt me-1"></i> 
+                                            {{ $relatedCreatedAt->locale('es')->isoFormat('D MMM, YYYY') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        @empty
+                            <li class="list-group-item px-3 py-3 text-center text-muted border-0">
+                                <i class="fas fa-info-circle me-2"></i>No hay investigaciones relacionadas disponibles.
+                            </li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
 
             <!-- Tipos populares -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0">Tipos de investigación</h5>
+                    <h5 class="mb-0 d-flex align-items-center">
+                        <i class="fas fa-tags text-primary me-2"></i> Tipos de investigación
+                    </h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
@@ -297,8 +319,9 @@
                                 $itemType = is_array($typeItem) ? ($typeItem['type'] ?? '') : ($typeItem->type ?? '');
                                 $itemCount = is_array($typeItem) ? ($typeItem['count'] ?? 0) : ($typeItem->count ?? 0);
                             @endphp
-                            <a href="{{ route('research.type', $itemType) }}" class="badge bg-primary text-decoration-none">
-                                {{ $itemType }} <span class="badge bg-light text-dark">{{ $itemCount }}</span>
+                            <a href="{{ route('research.type', $itemType) }}" class="badge bg-primary text-white text-decoration-none p-2">
+                                <i class="fas fa-tag me-1"></i>{{ $itemType }} 
+                                <span class="badge bg-light text-dark ms-1">{{ $itemCount }}</span>
                             </a>
                         @endforeach
                     </div>
@@ -307,4 +330,20 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Estilos para mejorar la apariencia */
+.comment-item {
+    transition: all 0.3s ease;
+}
+.comment-item:hover {
+    transform: translateX(5px);
+}
+.most-read-item, .list-group-item {
+    transition: all 0.2s ease;
+}
+.most-read-item:hover, .list-group-item:hover {
+    background-color: rgba(0,0,0,0.01);
+}
+</style>
 @endsection
