@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ResearchController;
+use App\Http\Controllers\ResearchSubmitController;
 use App\Http\Controllers\GuestPostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
@@ -46,6 +47,11 @@ Route::get('/investigacion', [ResearchController::class, 'index'])->name('resear
 Route::get('/investigacion/{id}', [ResearchController::class, 'show'])->name('research.show');
 Route::get('/research/type/{type}', [ResearchController::class, 'byType'])->name('research.type');
 Route::get('/submit-research', [ResearchController::class, 'create'])->name('submit-research');
+// Ruta para mostrar el formulario de envío
+Route::get('/submit-research', [ResearchSubmitController::class, 'create'])->name('submit-research')->middleware('auth');
+
+// Ruta para procesar el envío
+Route::post('/submit-research', [ResearchSubmitController::class, 'store'])->name('research.store')->middleware('auth');
 
 // Ruta para newsletter
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
