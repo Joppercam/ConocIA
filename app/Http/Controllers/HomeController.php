@@ -65,17 +65,44 @@ class HomeController extends Controller
             ->take(10)
             ->get();
         
-        // Cargar últimas columnas
+        // Cargar bloque últimas columnas destacadas
         try {
             $latestColumns = Column::with('author')
+                ->where('featured', true)
                 ->latest()
-                ->take(3)
+                ->take(2)
                 ->get();
         } catch (\Exception $e) {
             // Si el modelo Column todavía no existe
             $latestColumns = collect([]);
         }
         
+
+        // Cargar seccion últimas columnas destacadas
+        try {
+            $latestColumnsSectionFeatured = Column::with('author')
+                ->where('featured', true)
+                ->latest()
+                ->take(8)
+                ->get();
+        } catch (\Exception $e) {
+            // Si el modelo Column todavía no existe
+            $latestColumnsSectionFeatured = collect([]);
+        }
+
+        // Cargar sección últimas columnas que NO sean destacadas
+        try {
+            $latestColumnsSection = Column::with('author')
+                ->where('featured', false)
+                ->latest()
+                ->take(4) // Cambiado de 8 a 4 según solicitas
+                ->get();
+        } catch (\Exception $e) {
+            // Si el modelo Column todavía no existe
+            $latestColumnsSection = collect([]);
+        }
+
+                
         // Cargar artículos secundarios 
         $secondaryNews = News::where('featured', false)
             ->with('category')
@@ -182,6 +209,8 @@ class HomeController extends Controller
             'recentNews',
             'popularNews',
             'latestColumns',
+            'latestColumnsSection',
+            'latestColumnsSectionFeatured',
             'secondaryNews',
             'featuredCategories',
             'researchArticles',
