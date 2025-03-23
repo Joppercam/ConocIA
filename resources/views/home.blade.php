@@ -476,7 +476,7 @@
         <div class="container">
             <div class="row mb-3">
                 <div class="col-md-8">
-                    <h3 class="section-title" style="font-size: 1.2rem;">Investigación y Análisis</h3>
+                    <h3 class="section-title fs-5">Investigación y Análisis</h3>
                 </div>
                 <div class="col-md-4 text-md-end">
                     <a href="{{ route('research.index') }}" class="btn btn-outline-primary btn-sm">
@@ -486,71 +486,69 @@
             </div>
             
             <div class="row g-3">
-                
-            
-            
-            
                 <!-- Contenido principal (izquierda) -->
                 <div class="col-lg-8">
-                    <div class="mb-4">
-                        <h3 class="border-start border-4 border-primary ps-3">Investigaciones Recientes</h3>
-                        <p class="text-muted">Descubre nuestros últimos artículos de investigación</p>
+                    <div class="mb-3">
+                        <h3 class="border-start border-4 border-primary ps-3 fs-6">Investigaciones Recientes</h3>
+                        <p class="text-muted small">Descubre nuestros últimos artículos de investigación</p>
                     </div>
                     
                     <div class="row g-4">
                         @foreach($researchArticles as $research)
-                        <div class="col-md-6">
-                            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
-                                <div class="position-relative">
-                                    <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="ratio ratio-16x9 overflow-hidden bg-light">
-                                        <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" 
-                                            class="card-img-top object-fit-cover" 
-                                            alt="{{ $research->title }}" 
-                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';">
-                                    </a>
-                                    @if(isset($research->category))
-                                    <div class="position-absolute top-0 start-0 m-3">
-                                        <span class="badge rounded-pill shadow-sm" style="{{ $getCategoryStyle($research->category) }} padding: 0.5rem 0.8rem; font-size: 0.75rem; font-weight: 600;">
-                                            <i class="fas {{ $getCategoryIcon($research->category) }} me-1"></i>
-                                            {{ $research->category->name }}
-                                        </span>
-                                    </div>
-                                    @endif
-                                    
-                                    <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 p-3">
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" 
-                                                class="rounded-circle border border-2 border-white me-2" 
-                                                width="36" height="36" 
-                                                alt="{{ $research->author }}">
-                                            <span class="fw-bold text-white" style="font-size: 0.85rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
-                                                {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->locale('es')->diffForHumans() }}</span>
+                            @if($research->status === 'published' || $research->status === 'active')
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
+                                    <div class="position-relative">
+                                        <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="ratio ratio-16x9 overflow-hidden bg-light">
+                                            <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" 
+                                                class="card-img-top object-fit-cover" 
+                                                alt="{{ $research->title }}" 
+                                                onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';">
+                                        </a>
+                                        @if(isset($research->category))
+                                        <div class="position-absolute top-0 start-0 m-3">
+                                            <span class="badge rounded-pill shadow-sm" style="{{ $getCategoryStyle($research->category) }} padding: 0.35rem 0.6rem; font-size: 0.65rem; font-weight: 600;">
+                                                <i class="fas {{ $getCategoryIcon($research->category) }} me-1"></i>
+                                                {{ $research->category->name }}
                                             </span>
+                                        </div>
+                                        @endif
+                                        
+                                        <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 p-2">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" 
+                                                    class="rounded-circle border border-2 border-white me-2" 
+                                                    width="28" height="28" 
+                                                    alt="{{ $research->author }}">
+                                                <span class="fw-bold text-white" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+                                                    {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->locale('es')->diffForHumans() }}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="card-body p-3">
+                                        <h5 class="card-title mb-2 fw-bold fs-6">
+                                            <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark stretched-link">
+                                                {{ $research->title }}
+                                            </a>
+                                        </h5>
+                                        <p class="card-text text-secondary mb-0 small">{{ Str::limit($research->excerpt, 100) }}</p>
+                                    </div>
+                                    
+                                    <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center p-3 pt-0">
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <i class="far fa-eye me-1"></i> {{ $research->views ?? 0 }}
+                                            <span class="mx-2">•</span>
+                                            <i class="far fa-comment me-1"></i> {{ $research->comments_count ?? 0 }}
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="btn btn-sm btn-outline-primary rounded-pill px-2" style="font-size: 0.7rem;">Leer más</span>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="card-body p-4">
-                                    <h5 class="card-title mb-3 fw-bold">
-                                        <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark stretched-link">
-                                            {{ $research->title }}
-                                        </a>
-                                    </h5>
-                                    <p class="card-text text-secondary mb-0">{{ Str::limit($research->excerpt, 120) }}</p>
-                                </div>
-                                
-                                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center p-4 pt-0">
-                                    <div class="d-flex align-items-center text-muted small">
-                                        <i class="far fa-eye me-1"></i> {{ $research->views ?? 0 }}
-                                        <span class="mx-2">•</span>
-                                        <i class="far fa-comment me-1"></i> {{ $research->comments_count ?? 0 }}
-                                    </div>
-                                    <div class="text-end">
-                                        <span class="btn btn-sm btn-outline-primary rounded-pill px-3">Leer más</span>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
+                            @endif
                         @endforeach
                     </div>
                     
@@ -565,66 +563,66 @@
 
                 <!-- Sidebar derecho: Investigaciones destacadas y más -->
                 <div class="col-lg-4">
-
-
                     <!-- Investigaciones Destacadas -->
                     <div class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden">
-                        <div class="card-header bg-gradient-primary text-white p-3">
-                            <h5 class="mb-0 d-flex align-items-center fw-bold">
+                        <div class="card-header bg-gradient-primary text-white p-2">
+                            <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
                                 <i class="fas fa-star me-2"></i> Investigaciones Destacadas
                             </h5>
                         </div>
                         <div class="card-body p-0">
                             <div class="featured-research-list">
                                 @foreach($featuredResearch as $featured)
-                                <!-- Investigación -->
-                                <div class="p-3 {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light transition-300">
-                                    <div class="row g-0">
-                                        <div class="col-auto position-relative me-3">
-                                            <div class="position-absolute top-0 start-0 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 24px; height: 24px; font-size: 0.7rem; z-index: 10;">
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}">
-                                                <div class="rounded overflow-hidden" style="width: 70px; height: 70px;">
-                                                    <img src="{{ $getImageUrl($featured->image, 'research', 'small') }}" 
-                                                        class="w-100 h-100" 
-                                                        alt="{{ $featured->title }}" 
-                                                        style="object-fit: cover;" 
-                                                        onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
+                                    @if($featured->status === 'published' || $featured->status === 'active')
+                                    <!-- Investigación -->
+                                    <div class="p-2 {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light transition-300">
+                                        <div class="row g-0">
+                                            <div class="col-auto position-relative me-2">
+                                                <div class="position-absolute top-0 start-0 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 20px; height: 20px; font-size: 0.65rem; z-index: 10;">
+                                                    <i class="fas fa-star"></i>
                                                 </div>
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <h6 class="mb-2 fw-semibold lh-sm">
-                                                <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}" class="text-decoration-none stretched-link text-dark">
-                                                    {{ Str::limit($featured->title, 60) }}
+                                                <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}">
+                                                    <div class="rounded overflow-hidden" style="width: 60px; height: 60px;">
+                                                        <img src="{{ $getImageUrl($featured->image, 'research', 'small') }}" 
+                                                            class="w-100 h-100" 
+                                                            alt="{{ $featured->title }}" 
+                                                            style="object-fit: cover;" 
+                                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
+                                                    </div>
                                                 </a>
-                                            </h6>
-                                            
-                                            @if(isset($featured->category))
-                                            <span class="badge rounded-pill mb-2" style="{{ $getCategoryStyle($featured->category) }}">
-                                                <i class="fas {{ $getCategoryIcon($featured->category) }} me-1"></i>
-                                                {{ $featured->category->name }}
-                                            </span>
-                                            @endif
-                                            
-                                            <div class="d-flex justify-content-between align-items-center small text-muted">
-                                                <div>
-                                                    <i class="fas fa-user-edit me-1"></i> {{ $featured->author }}
-                                                </div>
-                                                <div>
-                                                    <span class="me-2"><i class="fas fa-comment me-1"></i> {{ $featured->comments_count }}</span>
-                                                    <span><i class="fas fa-quote-right me-1"></i> {{ $featured->citations }}</span>
+                                            </div>
+                                            <div class="col">
+                                                <h6 class="mb-1 fw-semibold lh-sm fs-6">
+                                                    <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}" class="text-decoration-none stretched-link text-dark">
+                                                        {{ Str::limit($featured->title, 55) }}
+                                                    </a>
+                                                </h6>
+                                                
+                                                @if(isset($featured->category))
+                                                <span class="badge rounded-pill mb-1" style="{{ $getCategoryStyle($featured->category) }} font-size: 0.65rem; padding: 0.15rem 0.4rem;">
+                                                    <i class="fas {{ $getCategoryIcon($featured->category) }} me-1"></i>
+                                                    {{ $featured->category->name }}
+                                                </span>
+                                                @endif
+                                                
+                                                <div class="d-flex justify-content-between align-items-center" style="font-size: 0.7rem; color: #6c757d;">
+                                                    <div>
+                                                        <i class="fas fa-user-edit me-1"></i> {{ $featured->author }}
+                                                    </div>
+                                                    <div>
+                                                        <span class="me-2"><i class="fas fa-comment me-1"></i> {{ $featured->comments_count }}</span>
+                                                        <span><i class="fas fa-quote-right me-1"></i> {{ $featured->citations }}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>
-                        <div class="card-footer bg-light text-center p-3">
-                            <a href="{{ route('research.index') }}" class="btn btn-primary rounded-pill px-4">
+                        <div class="card-footer bg-light text-center p-2">
+                            <a href="{{ route('research.index') }}" class="btn btn-primary rounded-pill px-3" style="font-size: 0.75rem;">
                                 Ver todas las investigaciones
                             </a>
                         </div>
@@ -632,39 +630,41 @@
                     
                     <!-- Más comentados -->
                     <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                        <div class="card-header bg-gradient-info text-white p-3">
-                            <h5 class="mb-0 d-flex align-items-center fw-bold">
+                        <div class="card-header bg-gradient-info text-white p-2">
+                            <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
                                 <i class="fas fa-comments me-2"></i> Más Comentados
                             </h5>
                         </div>
                         <div class="list-group list-group-flush">
                             @foreach($mostCommented as $commented)
-                            <a href="{{ route('research.show', $commented->slug ?? $commented->id) }}" 
-                            class="list-group-item list-group-item-action px-3 py-3 border-bottom hover-bg-light transition-300">
-                                <div class="d-flex align-items-center mb-1">
-                                    @if(isset($commented->category) && $commented->category)
-                                    <span class="badge rounded-pill me-2" style="{{ $getCategoryStyle($commented->category) }}">
-                                        <i class="fas {{ $getCategoryIcon($commented->category) }} me-1"></i>
-                                        {{ $commented->category->name }}
-                                    </span>
-                                    @endif
-                                    <span class="text-info small fw-bold ms-auto">
-                                        <i class="fas fa-comment-dots me-1"></i> {{ $commented->comments_count }}
-                                    </span>
-                                </div>
-                                
-                                <h6 class="mb-2 fw-semibold">
-                                    {{ Str::limit($commented->title, 70) }}
-                                </h6>
-                                
-                                <div class="d-flex align-items-center text-muted small">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($commented->author) }}&size=20&background=random" 
-                                        class="rounded-circle me-1" 
-                                        alt="{{ $commented->author }}">
-                                    {{ $commented->author }}
-                                    <span class="ms-auto">{{ $commented->created_at->locale('es')->diffForHumans() }}</span>
-                                </div>
-                            </a>
+                                @if($commented->status === 'published' || $commented->status === 'active')
+                                <a href="{{ route('research.show', $commented->slug ?? $commented->id) }}" 
+                                class="list-group-item list-group-item-action px-3 py-2 border-bottom hover-bg-light transition-300">
+                                    <div class="d-flex align-items-center mb-1">
+                                        @if(isset($commented->category) && $commented->category)
+                                        <span class="badge rounded-pill me-2" style="{{ $getCategoryStyle($commented->category) }} font-size: 0.65rem; padding: 0.15rem 0.4rem;">
+                                            <i class="fas {{ $getCategoryIcon($commented->category) }} me-1"></i>
+                                            {{ $commented->category->name }}
+                                        </span>
+                                        @endif
+                                        <span class="text-info small fw-bold ms-auto" style="font-size: 0.7rem;">
+                                            <i class="fas fa-comment-dots me-1"></i> {{ $commented->comments_count }}
+                                        </span>
+                                    </div>
+                                    
+                                    <h6 class="mb-1 fw-semibold fs-6">
+                                        {{ Str::limit($commented->title, 65) }}
+                                    </h6>
+                                    
+                                    <div class="d-flex align-items-center text-muted" style="font-size: 0.7rem;">
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($commented->author) }}&size=18&background=random" 
+                                            class="rounded-circle me-1" 
+                                            alt="{{ $commented->author }}">
+                                        {{ $commented->author }}
+                                        <span class="ms-auto">{{ $commented->created_at->locale('es')->diffForHumans() }}</span>
+                                    </div>
+                                </a>
+                                @endif
                             @endforeach
                         </div>
                         
@@ -683,11 +683,11 @@
                         @endphp
                         
                         @if(count($availableCategories) > 0)
-                        <div class="bg-light p-3">
-                            <h6 class="fw-bold mb-2">Categorías populares</h6>
+                        <div class="bg-light p-2">
+                            <h6 class="fw-bold mb-2 fs-6">Categorías populares</h6>
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach($availableCategories as $category)
-                                <a href="{{ route('research.index', ['category' => $category->id]) }}" class="badge rounded-pill text-decoration-none" style="{{ $getCategoryStyle($category) }}">
+                                <a href="{{ route('research.index', ['category' => $category->id]) }}" class="badge rounded-pill text-decoration-none" style="{{ $getCategoryStyle($category) }} font-size: 0.7rem;">
                                     <i class="fas {{ $getCategoryIcon($category) }} me-1"></i> {{ $category->name }}
                                 </a>
                                 @endforeach
@@ -696,11 +696,6 @@
                         @endif
                     </div>
                 </div>
-
-
-
-
-
             </div>
         </div>
     </section>
