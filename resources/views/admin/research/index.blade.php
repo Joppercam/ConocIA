@@ -2,24 +2,24 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">Investigaciones</h1>
-        <a href="{{ route('admin.research.create') }}" class="btn btn-primary">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4">Investigaciones</h1>
+        <a href="{{ route('admin.research.create') }}" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Nueva Investigación
         </a>
     </div>
 
     <!-- Filtros -->
-    <div class="card mb-4">
-        <div class="card-body">
+    <div class="card mb-3">
+        <div class="card-body py-2">
             <form action="{{ route('admin.research.index') }}" method="GET" class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="search" class="form-label">Buscar</label>
-                    <input type="text" class="form-control" id="search" name="search" value="{{ request('search') }}" placeholder="Título, contenido...">
+                <div class="col-md-4 mb-2">
+                    <label for="search" class="form-label small">Buscar</label>
+                    <input type="text" class="form-control form-control-sm" id="search" name="search" value="{{ request('search') }}" placeholder="Título, contenido...">
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label for="category" class="form-label">Categoría</label>
-                    <select class="form-control" id="category" name="category">
+                <div class="col-md-3 mb-2">
+                    <label for="category" class="form-label small">Categoría</label>
+                    <select class="form-control form-control-sm" id="category" name="category">
                         <option value="">Todas las categorías</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
@@ -28,9 +28,9 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label for="status" class="form-label">Estado</label>
-                    <select class="form-control" id="status" name="status">
+                <div class="col-md-3 mb-2">
+                    <label for="status" class="form-label small">Estado</label>
+                    <select class="form-control form-control-sm" id="status" name="status">
                         <option value="">Todos los estados</option>
                         <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Publicado</option>
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Borrador</option>
@@ -38,8 +38,8 @@
                         <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rechazado</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end mb-3">
-                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <div class="col-md-2 d-flex align-items-end mb-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Filtrar</button>
                 </div>
             </form>
         </div>
@@ -49,7 +49,7 @@
     <div class="card">
         <div class="card-body">
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show py-2 small" role="alert">
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -58,25 +58,25 @@
             <form action="{{ route('admin.research.bulk-actions') }}" method="POST" id="bulk-form">
                 @csrf
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped table-sm">
                         <thead>
-                            <tr>
+                            <tr class="small">
                                 <th width="30">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="selectAll">
                                     </div>
                                 </th>
-                                <th width="80">ID</th>
+                                <th width="60">ID</th>
                                 <th>Título</th>
                                 <th>Tipo</th>
                                 <th>Categoría</th>
                                 <th>Autor</th>
                                 <th>Estado</th>
                                 <th>Fecha</th>
-                                <th width="150">Acciones</th>
+                                <th width="120">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="small">
                             @forelse($researches as $research)
                                 <tr>
                                     <td>
@@ -86,7 +86,7 @@
                                     </td>
                                     <td>{{ $research->id }}</td>
                                     <td>
-                                        <a href="{{ route('admin.research.edit', $research) }}">
+                                        <a href="{{ route('admin.research.edit', $research) }}" class="text-decoration-none">
                                             {{ Str::limit($research->title, 50) }}
                                         </a>
                                     </td>
@@ -108,7 +108,7 @@
                                     </td>
                                     <td>{{ $research->published_at ? $research->published_at->format('d/m/Y') : 'No publicado' }}</td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group btn-group-sm" role="group">
                                             <a href="{{ route('admin.research.edit', $research) }}" class="btn btn-sm btn-primary" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -136,18 +136,18 @@
                 @if($researches->count() > 0)
                     <div class="d-flex justify-content-between align-items-center mt-3">
                         <div class="bulk-actions">
-                            <div class="input-group" style="width: 300px;">
-                                <select name="action" class="form-control" id="bulk-action">
+                            <div class="input-group input-group-sm" style="width: 280px;">
+                                <select name="action" class="form-select form-select-sm" id="bulk-action">
                                     <option value="">Acciones en lote</option>
                                     <option value="publish">Publicar seleccionados</option>
                                     <option value="draft">Mover a borrador</option>
                                     <option value="delete">Eliminar seleccionados</option>
                                 </select>
-                                <button type="submit" class="btn btn-outline-secondary" id="apply-bulk-action">Aplicar</button>
+                                <button type="submit" class="btn btn-outline-secondary btn-sm" id="apply-bulk-action">Aplicar</button>
                             </div>
                         </div>
                         <div>
-                            <a href="{{ route('admin.research.export') }}" class="btn btn-success">
+                            <a href="{{ route('admin.research.export') }}" class="btn btn-success btn-sm">
                                 <i class="fas fa-file-export"></i> Exportar
                             </a>
                         </div>
@@ -155,7 +155,7 @@
                 @endif
             </form>
 
-            <div class="mt-4">
+            <div class="mt-3">
                 {{ $researches->appends(request()->query())->links() }}
             </div>
         </div>
@@ -164,21 +164,21 @@
 
 <!-- Modal de confirmación de eliminación -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+            <div class="modal-header py-2">
+                <h5 class="modal-title fs-6" id="deleteModalLabel">Confirmar eliminación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body small">
                 ¿Estás seguro de que deseas eliminar la investigación "<span id="delete-title"></span>"?
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
                 <form id="delete-form" method="POST" action="">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                 </form>
             </div>
         </div>
