@@ -97,7 +97,9 @@ Route::get('/paginas/privacidad', 'PageController@privacy')->name('pages.privacy
 Route::get('/paginas/terminos', 'PageController@terms')->name('pages.terms');
 Route::get('/paginas/cookies', 'PageController@cookies')->name('pages.cookies');
 
-
+Route::get('investigacion/categoria/{category:slug}', [App\Http\Controllers\ResearchController::class, 'category'])
+    ->name('research.category');
+    
 
 // Rutas de administración
 Route::prefix('admin')->name('admin.')->group(function () {

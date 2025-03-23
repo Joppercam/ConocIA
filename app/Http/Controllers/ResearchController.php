@@ -21,12 +21,15 @@ class ResearchController extends Controller
         $researches = Research::with('category')
             ->latest()
             ->paginate(12);
+
+        
             
         // Obtener categorías para el filtro lateral
         $categories = Category::withCount('research')
             ->orderBy('research_count', 'desc')
             ->take(10)
             ->get();
+
             
         // Obtener investigaciones destacadas
         $featuredResearch = Research::with('category')
@@ -244,36 +247,76 @@ class ResearchController extends Controller
 
 
 
-    public function category($slug)
+    public function category(Category $category)
     {
-        $category = Category::where('slug', $slug)->firstOrFail();
-        
+        // Obtener artículos de investigación de esta categoría
         $researches = Research::where('category_id', $category->id)
             ->latest()
             ->paginate(12);
             
+        // Obtener categorías para el filtro lateral (igual que en index)
         $categories = Category::withCount('research')
             ->orderBy('research_count', 'desc')
             ->take(10)
             ->get();
             
+        // Obtener investigaciones destacadas (igual que en index)
         $featuredResearch = Research::with('category')
             ->where('featured', true)
             ->orderBy('citations', 'desc')
             ->take(5)
             ->get();
-            
-        // Helper functions (igual que en el método index)
+        
+        // Reutilizar las mismas funciones helper que tienes en el método index
         $getImageUrl = function($imagePath, $type = 'research', $size = 'large') {
-            // Implementación igual que antes...
+            // Copia aquí el mismo código de la función del método index
+            $defaultImages = [
+                'news' => [
+                    'large' => 'storage/images/defaults/news-default-large.jpg',
+                    'medium' => 'storage/images/defaults/news-default-medium.jpg',
+                    'small' => 'storage/images/defaults/news-default-small.jpg',
+                ],
+                'research' => [
+                    'large' => 'storage/images/defaults/research-default-large.jpg',
+                    'medium' => 'storage/images/defaults/research-default-medium.jpg',
+                    'small' => 'storage/images/defaults/research-default-small.jpg',
+                ],
+                'profile' => 'storage/images/defaults/user-profile.jpg',
+                'avatars' => 'storage/images/defaults/avatar-default.jpg'
+            ];
+            
+            if (!$imagePath || $imagePath == '' || $imagePath == 'null') {
+                return asset($defaultImages[$type][$size] ?? $defaultImages[$type]['medium']);
+            }
+            
+            if (Str::startsWith($imagePath, 'storage/')) {
+                return asset($imagePath);
+            }
+            
+            return asset('storage/' . $imagePath);
         };
         
-        // Otras funciones auxiliares...
+        $getCategoryStyle = function($category) {
+            if (!$category || !isset($category->color)) {
+                return 'background-color: var(--primary-color);';
+            }
+            
+            return 'background-color: ' . $category->color . ';';
+        };
         
+        $getCategoryIcon = function($category) {
+            if (!$category || !isset($category->icon)) {
+                return 'fa-tag';
+            }
+            
+            return $category->icon;
+        };
+            
         return view('research.index', compact('researches', 'categories', 'featuredResearch', 'category'))
             ->with([
                 'getImageUrl' => $getImageUrl,
-                // Otras funciones auxiliares...
+                'getCategoryStyle' => $getCategoryStyle,
+                'getCategoryIcon' => $getCategoryIcon
             ]);
     }
 }

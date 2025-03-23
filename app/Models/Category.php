@@ -52,9 +52,9 @@ class Category extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function research(): HasMany
+    public function research()
     {
-        return $this->hasMany(Research::class);
+        return $this->hasMany(Research::class, 'category_id');
     }
 
 
