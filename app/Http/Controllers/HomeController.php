@@ -91,22 +91,34 @@ class HomeController extends Controller
             
         // Artículos de investigación
         $researchArticles = Research::with('category')
-            ->latest()
-            ->take(4)
-            ->get();
+        ->where(function($query) {
+            $query->where('status', 'published')
+                  ->orWhere('status', 'active');
+        })
+        ->latest()
+        ->take(8) // Mantener 8 para mostrar más investigaciones
+        ->get();
             
         // Investigaciones destacadas
         $featuredResearch = Research::with('category')
-            ->where('featured', true)
-            ->orderBy('citations', 'desc')
-            ->take(5)
-            ->get();
+        ->where('featured', true)
+        ->where(function($query) {
+            $query->where('status', 'published')
+                  ->orWhere('status', 'active');
+        })
+        ->orderBy('citations', 'desc')
+        ->take(5)
+        ->get();
             
         // Investigaciones más comentadas
         $mostCommented = Research::with('category')
-            ->orderBy('comments_count', 'desc')
-            ->take(3)
-            ->get();
+        ->where(function($query) {
+            $query->where('status', 'published')
+                  ->orWhere('status', 'active');
+        })
+        ->orderBy('comments_count', 'desc')
+        ->take(3)
+        ->get();
         
         // Helper function para manejar correctamente las rutas de imágenes
         $getImageUrl = function($imagePath, $type = 'news', $size = 'large') {

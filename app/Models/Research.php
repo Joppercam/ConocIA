@@ -85,12 +85,12 @@ class Research extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    /**
-     * Ámbito para investigaciones publicadas.
-     */
     public function scopePublished($query)
     {
-        return $query->where('is_published', true);
+        return $query->where(function($q) {
+            $q->where('status', 'published')
+              ->orWhere('status', 'active');
+        });
     }
 
     /**

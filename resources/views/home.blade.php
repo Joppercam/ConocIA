@@ -494,61 +494,59 @@
                     </div>
                     
                     <div class="row g-4">
-                        @foreach($researchArticles as $research)
-                            @if($research->status === 'published' || $research->status === 'active')
-                            <div class="col-md-6">
-                                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
-                                    <div class="position-relative">
-                                        <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="ratio ratio-16x9 overflow-hidden bg-light">
-                                            <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" 
-                                                class="card-img-top object-fit-cover" 
-                                                alt="{{ $research->title }}" 
-                                                onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';">
-                                        </a>
-                                        @if(isset($research->category))
-                                        <div class="position-absolute top-0 start-0 m-3">
-                                            <span class="badge rounded-pill shadow-sm" style="{{ $getCategoryStyle($research->category) }} padding: 0.35rem 0.6rem; font-size: 0.65rem; font-weight: 600;">
-                                                <i class="fas {{ $getCategoryIcon($research->category) }} me-1"></i>
-                                                {{ $research->category->name }}
+                    @foreach($researchArticles as $research)
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
+                                <div class="position-relative">
+                                    <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="ratio ratio-16x9 overflow-hidden bg-light">
+                                        <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" 
+                                            class="card-img-top object-fit-cover" 
+                                            alt="{{ $research->title }}" 
+                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';">
+                                    </a>
+                                    @if(isset($research->category))
+                                    <div class="position-absolute top-0 start-0 m-3">
+                                        <span class="badge rounded-pill shadow-sm" style="{{ $getCategoryStyle($research->category) }} padding: 0.35rem 0.6rem; font-size: 0.65rem; font-weight: 600;">
+                                            <i class="fas {{ $getCategoryIcon($research->category) }} me-1"></i>
+                                            {{ $research->category->name }}
+                                        </span>
+                                    </div>
+                                    @endif
+                                    
+                                    <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 p-2">
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" 
+                                                class="rounded-circle border border-2 border-white me-2" 
+                                                width="28" height="28" 
+                                                alt="{{ $research->author }}">
+                                            <span class="fw-bold text-white" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+                                                {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->locale('es')->diffForHumans() }}</span>
                                             </span>
-                                        </div>
-                                        @endif
-                                        
-                                        <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 p-2">
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" 
-                                                    class="rounded-circle border border-2 border-white me-2" 
-                                                    width="28" height="28" 
-                                                    alt="{{ $research->author }}">
-                                                <span class="fw-bold text-white" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
-                                                    {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->locale('es')->diffForHumans() }}</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="card-body p-3">
-                                        <h5 class="card-title mb-2 fw-bold fs-6">
-                                            <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark stretched-link">
-                                                {{ $research->title }}
-                                            </a>
-                                        </h5>
-                                        <p class="card-text text-secondary mb-0 small">{{ Str::limit($research->excerpt, 100) }}</p>
-                                    </div>
-                                    
-                                    <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center p-3 pt-0">
-                                        <div class="d-flex align-items-center text-muted small">
-                                            <i class="far fa-eye me-1"></i> {{ $research->views ?? 0 }}
-                                            <span class="mx-2">•</span>
-                                            <i class="far fa-comment me-1"></i> {{ $research->comments_count ?? 0 }}
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="btn btn-sm btn-outline-primary rounded-pill px-2" style="font-size: 0.7rem;">Leer más</span>
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div class="card-body p-3">
+                                    <h5 class="card-title mb-2 fw-bold fs-6">
+                                        <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark stretched-link">
+                                            {{ $research->title }}
+                                        </a>
+                                    </h5>
+                                    <p class="card-text text-secondary mb-0 small">{{ Str::limit($research->excerpt, 100) }}</p>
+                                </div>
+                                
+                                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center p-3 pt-0">
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <i class="far fa-eye me-1"></i> {{ $research->views ?? 0 }}
+                                        <span class="mx-2">•</span>
+                                        <i class="far fa-comment me-1"></i> {{ $research->comments_count ?? 0 }}
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="btn btn-sm btn-outline-primary rounded-pill px-2" style="font-size: 0.7rem;">Leer más</span>
+                                    </div>
+                                </div>
                             </div>
-                            @endif
+                        </div>
                         @endforeach
                     </div>
                     
