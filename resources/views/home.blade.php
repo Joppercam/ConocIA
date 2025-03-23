@@ -563,6 +563,9 @@
 
                 <!-- Sidebar derecho: Investigaciones destacadas y más -->
                 <div class="col-lg-4">
+
+
+
                     <!-- Investigaciones Destacadas -->
                     <div class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden">
                         <div class="card-header bg-gradient-primary text-white p-2">
@@ -592,7 +595,8 @@
                                                 </a>
                                             </div>
                                             <div class="col">
-                                                <h6 class="mb-1 fw-semibold lh-sm fs-6">
+                                                <!-- Cambio aquí: clase fs-7 en lugar de fs-6 -->
+                                                <h6 class="mb-1 fw-semibold lh-sm fs-7">
                                                     <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}" class="text-decoration-none stretched-link text-dark">
                                                         {{ Str::limit($featured->title, 55) }}
                                                     </a>
@@ -628,6 +632,10 @@
                         </div>
                     </div>
                     
+
+
+
+
                     <!-- Más comentados -->
                     <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
                         <div class="card-header bg-gradient-info text-white p-2">
@@ -652,7 +660,8 @@
                                         </span>
                                     </div>
                                     
-                                    <h6 class="mb-1 fw-semibold fs-6">
+                                    <!-- Cambio aquí: clase fs-7 en lugar de fs-6 -->
+                                    <h6 class="mb-1 fw-semibold fs-7">
                                         {{ Str::limit($commented->title, 65) }}
                                     </h6>
                                     
@@ -684,7 +693,8 @@
                         
                         @if(count($availableCategories) > 0)
                         <div class="bg-light p-2">
-                            <h6 class="fw-bold mb-2 fs-6">Categorías populares</h6>
+                            <!-- Cambio aquí: clase fs-7 en lugar de fs-6 -->
+                            <h6 class="fw-bold mb-2 fs-7">Categorías populares</h6>
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach($availableCategories as $category)
                                 <a href="{{ route('research.index', ['category' => $category->id]) }}" class="badge rounded-pill text-decoration-none" style="{{ $getCategoryStyle($category) }} font-size: 0.7rem;">
@@ -695,6 +705,12 @@
                         </div>
                         @endif
                     </div>
+
+
+
+
+
+
                 </div>
             </div>
         </div>
