@@ -471,60 +471,37 @@
 
    
     
-    <!-- Sección para enviar investigaciones -->
+    <!-- Sección para enviar investigaciones (versión mejorada y más compacta) -->
     @hasSection('exclude_submit_research')
     @else
-    <section class="py-5 bg-primary text-white submit-research-section no-animation">
+    <section class="py-4 bg-primary text-white submit-research-section no-animation">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-7 mb-4 mb-lg-0">
-                    <h2 class="mb-3">¿Tienes una investigación sobre IA o tecnología?</h2>
-                    <p class="lead mb-4">Comparte tus conocimientos y descubrimientos con nuestra comunidad. Buscamos colaboradores que aporten contenido de valor sobre inteligencia artificial, tecnología emergente, y sus aplicaciones en el mundo real.</p>
-                    <ul class="feature-list mb-0">
-                        <li><i class="fas fa-check-circle me-2"></i> Difunde tu investigación a una audiencia especializada</li>
-                        <li><i class="fas fa-check-circle me-2"></i> Conviértete en colaborador reconocido en nuestro portal</li>
-                        <li><i class="fas fa-check-circle me-2"></i> Conecta con otros investigadores y profesionales del sector</li>
-                    </ul>
-                </div>
-                <div class="col-lg-5">
-                    <div class="card border-0 shadow">
-                        <div class="card-body p-4">
-                            <h5 class="card-title text-dark mb-4">Proceso de envío</h5>
-                            <div class="d-flex mb-3">
-                                <div class="process-icon me-3">
-                                    <span class="bg-primary text-white">1</span>
-                                </div>
-                                <div>
-                                    <h6 class="text-dark">Prepara tu contenido</h6>
-                                    <p class="text-muted small mb-0">Artículos, papers, análisis o estudios de caso sobre IA y tecnología.</p>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-3">
-                                <div class="process-icon me-3">
-                                    <span class="bg-primary text-white">2</span>
-                                </div>
-                                <div>
-                                    <h6 class="text-dark">Envía tu propuesta</h6>
-                                    <p class="text-muted small mb-0">Utiliza nuestro formulario para enviar un resumen o propuesta inicial.</p>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-4">
-                                <div class="process-icon me-3">
-                                    <span class="bg-primary text-white">3</span>
-                                </div>
-                                <div>
-                                    <h6 class="text-dark">Revisión y publicación</h6>
-                                    <p class="text-muted small mb-0">Nuestro equipo editorial revisará tu contenido y te guiará en el proceso.</p>
-                                </div>
-                            </div>
-                            <a href="{{ route('submit-research') }}" class="btn btn-primary d-block">Enviar mi investigación</a>
+                <div class="col-lg-8 mb-3 mb-lg-0">
+                    <div class="d-flex align-items-center">
+                        <div class="me-4 d-none d-md-block">
+                            <i class="fas fa-flask fa-3x"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-2">¿Tienes una investigación sobre IA o tecnología?</h3>
+                            <p class="mb-0">Comparte tus conocimientos y descubrimientos con nuestra comunidad de expertos y entusiastas.</p>
                         </div>
                     </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{{ route('submit-research') }}" class="btn btn-light">
+                        <i class="fas fa-upload me-2"></i>Enviar mi investigación
+                    </a>
                 </div>
             </div>
         </div>
     </section>
     @endif
+
+
+
+
+
 
     <!-- Footer -->
     <footer class="pt-5 pb-3">
