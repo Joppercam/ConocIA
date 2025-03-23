@@ -282,7 +282,7 @@
                                             <!-- Metadatos en la parte superior -->
                                             <div class="d-flex align-items-center mb-2 flex-wrap">
                                                 <span class="text-muted small me-3">
-                                                    <i class="far fa-calendar-alt me-1"></i> {{ $recent->created_at->format('d F, Y') }}
+                                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
                                                 </span>
                                                 <span class="text-muted small me-3">
                                                     <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }} lecturas

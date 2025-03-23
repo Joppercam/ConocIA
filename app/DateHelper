@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Helpers;
+
+use Carbon\Carbon;
+
+class DateHelper
+{
+    /**
+     * Formatea una fecha en español
+     *
+     * @param \Carbon\Carbon|string|null $date La fecha a formatear
+     * @param string $format Formato de salida deseado
+     * @param string $locale Configuración regional
+     * @return string Fecha formateada
+     */
+    public static function formatSpanish($date, $format = 'D [de] MMMM, YYYY', $locale = 'es')
+    {
+        if (!$date) {
+            return '';
+        }
+
+        if (!($date instanceof Carbon)) {
+            $date = Carbon::parse($date);
+        }
+
+        return $date->locale($locale)->isoFormat($format);
+    }
+
+    /**
+     * Formatea una fecha en español para mostrar día y mes
+     *
+     * @param \Carbon\Carbon|string|null $date La fecha a formatear
+     * @return string Fecha formateada (ej: "15 de abril")
+     */
+    public static function formatDayMonth($date)
+    {
+        return self::formatSpanish($date, 'D [de] MMMM');
+    }
+
+    /**
+     * Formatea una fecha en español para mostrar el formato completo
+     *
+     * @param \Carbon\Carbon|string|null $date La fecha a formatear
+     * @return string Fecha formateada (ej: "15 de abril de 2023")
+     */
+    public static function formatFull($date)
+    {
+        return self::formatSpanish($date, 'D [de] MMMM [de] YYYY');
+    }
+
+    /**
+     * Formatea una fecha en español para mostrar el formato corto
+     *
+     * @param \Carbon\Carbon|string|null $date La fecha a formatear
+     * @return string Fecha formateada (ej: "15/04/2023")
+     */
+    public static function formatShort($date)
+    {
+        if (!$date) {
+            return '';
+        }
+
+        if (!($date instanceof Carbon)) {
+            $date = Carbon::parse($date);
+        }
+
+        return $date->format('d/m/Y');
+    }
+}
