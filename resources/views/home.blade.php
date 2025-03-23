@@ -60,6 +60,11 @@
 
 
 
+
+
+
+
+
                         <!-- Sección de Últimas Columnas -->
                         <div class="hero-columns-section h-100 shadow-lg rounded overflow-hidden">
                             <!-- Header compacto -->
@@ -77,15 +82,30 @@
                                     @foreach($latestColumns as $column)
                                     <!-- Columna con extracto más largo -->
                                     <a href="{{ route('columns.show', $column->slug ?? $column->id) }}" class="hero-column-item d-block text-decoration-none text-dark transition py-1 px-2">
+                                        
+                                    
+                                        <!-- Reemplaza el bloque original con este código actualizado -->
                                         <div class="hero-column-author d-flex align-items-center">
-                                            <img src="{{ $getImageUrl(is_object($column->author) ? ($column->author->avatar ?? null) : null, 'avatars', 'small') }}" 
+                                            @php
+                                                // Determina el nombre del autor de forma segura
+                                                $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor');
+                                                
+                                                // Obtiene el avatar con el helper actualizado
+                                                $avatarPath = App\ImageHelper::getImageUrl(
+                                                    is_object($column->author) && isset($column->author->avatar) ? $column->author->avatar : null,
+                                                    'avatars',
+                                                    'small'
+                                                );
+                                            @endphp
+                                            
+                                            <img src="{{ $avatarPath }}" 
                                                 class="hero-column-avatar rounded-circle border border-1 border-light" 
                                                 width="32" height="32"
                                                 loading="lazy"
-                                                alt="{{ is_object($column->author) ? $column->author->name : 'Autor' }}"
-                                                onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/avatar-default.jpg') }}';">
+                                                alt="{{ $authorName }}">
+                                            
                                             <div class="hero-column-author-info ms-1">
-                                                <h4 class="hero-column-author-name fw-semibold text-primary mb-0 fs-7">{{ is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor') }}</h4>
+                                                <h4 class="hero-column-author-name fw-semibold text-primary mb-0 fs-7">{{ $authorName }}</h4>
                                                 <div class="d-flex align-items-center">
                                                     <span class="hero-column-date text-muted fs-9">{{ $column->created_at->diffForHumans() }}</span>
                                                     <span class="text-muted fs-9 ms-1 ps-1 border-start">
@@ -94,6 +114,8 @@
                                                 </div>
                                             </div>
                                         </div>
+
+
                                         <!-- Título algo más corto para dar espacio al resumen -->
                                         <h5 class="hero-column-title mt-1 mb-0 fw-bold fs-7">{{ Str::limit($column->title, 100) }}</h5>
                                         
@@ -151,6 +173,15 @@
                             </div>
                             @endif
                         </div>
+
+
+
+
+
+
+
+
+
 
 
                     </div>
