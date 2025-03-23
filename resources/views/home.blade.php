@@ -443,30 +443,29 @@
 
 
 
-    <!-- Banner de título destacado para Investigación -->
-    <div class="py-4 bg-gradient-primary text-white mb-0 position-relative overflow-hidden">
+    <!-- Banner de título destacado para Investigación (estilo actualizado) -->
+    <div class="py-3 bg-dark text-white mb-0 position-relative overflow-hidden">
         <!-- Elementos decorativos de fondo -->
         <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
             <div class="position-absolute start-0 top-50 translate-middle-y opacity-10">
-                <i class="fas fa-brain fa-5x"></i>
+                <i class="fas fa-brain fa-3x"></i>
             </div>
             <div class="position-absolute end-0 top-50 translate-middle-y opacity-10">
-                <i class="fas fa-microchip fa-5x"></i>
+                <i class="fas fa-microchip fa-3x"></i>
             </div>
         </div>
         
         <div class="container position-relative">
             <div class="row justify-content-center">
-                <div class="col-lg-10 text-center">
-                    <h2 class="mb-0 text-uppercase fw-bold">
+                <div class="col-lg-8 text-center">
+                    <h3 class="mb-0 text-uppercase fw-bold fs-4">
                         <span class="d-inline-block border-bottom border-2 pb-1">Investigación y Análisis</span>
-                    </h2>
-                    <p class="lead mb-0 mt-2 text-light">Explorando la tecnología e inteligencia artificial del futuro</p>
+                    </h3>
+                    <p class="mb-0 mt-1 text-white-50 fs-6">Explorando la tecnología e inteligencia artificial del futuro</p>
                 </div>
             </div>
         </div>
     </div>
-
 
 
 
@@ -713,9 +712,263 @@
 
 
 
+
+
+
+   <!-- Banner de título para Columnas - Versión compacta -->
+    <div class="py-3 bg-dark text-white mb-0 position-relative overflow-hidden">
+        <!-- Elementos decorativos de fondo -->
+        <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+            <div class="position-absolute start-0 top-50 translate-middle-y opacity-10">
+                <i class="fas fa-feather-alt fa-3x"></i>
+            </div>
+            <div class="position-absolute end-0 top-50 translate-middle-y opacity-10">
+                <i class="fas fa-pen fa-3x"></i>
+            </div>
+        </div>
+        
+        <div class="container position-relative">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h3 class="mb-0 text-uppercase fw-bold fs-4">
+                        <span class="d-inline-block border-bottom border-2 pb-1">Columnas de Opinión</span>
+                    </h3>
+                    <p class="mb-0 mt-1 text-white-50 fs-6">Análisis y perspectivas exclusivas de nuestros columnistas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección Columnas con dos bloques principales -->
+    <section class="py-4 bg-white">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Bloque Izquierdo: Columna Destacada -->
+                <div class="col-lg-6">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary me-2" style="width: 4px; height: 20px;"></div>
+                            <h4 class="fs-5 mb-0">Columna Destacada</h4>
+                        </div>
+                    </div>
+                    
+                    @if($featuredColumn = $latestColumns->first())
+                    <div class="card border-0 shadow-sm rounded-3 hover-translate-y transition-300">
+                        <div class="card-body p-0">
+                            <div class="position-relative">
+                                <img src="{{ App\ImageHelper::getImageUrl($featuredColumn->image ?? null, 'columns', 'large') }}" 
+                                    class="card-img-top" 
+                                    alt="{{ $featuredColumn->title }}"
+                                    style="height: 240px; object-fit: cover;"
+                                    onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-large.jpg') }}';">
+                                
+                                <div class="position-absolute bottom-0 start-0 w-100 p-3" 
+                                    style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                                    <h4 class="text-white mb-2 fw-bold">{{ Str::limit($featuredColumn->title, 80) }}</h4>
+                                    <p class="text-white-50 mb-0">{{ Str::limit($featuredColumn->excerpt, 120) }}</p>
+                                </div>
+                                
+                                <!-- Etiqueta de destacado -->
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">
+                                        <i class="fas fa-star me-1"></i> Destacada
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3">
+                                <!-- Información del autor -->
+                                <div class="d-flex align-items-center mb-3">
+                                    @php
+                                        $authorName = is_object($featuredColumn->author) 
+                                            ? $featuredColumn->author->name 
+                                            : ($featuredColumn->author ?? 'Columnista');
+                                        
+                                        $avatarPath = App\ImageHelper::getImageUrl(
+                                            is_object($featuredColumn->author) && isset($featuredColumn->author->avatar) 
+                                                ? $featuredColumn->author->avatar 
+                                                : null,
+                                            'avatars',
+                                            'medium'
+                                        );
+                                    @endphp
+                                    
+                                    <img src="{{ $avatarPath }}" 
+                                        class="rounded-circle border border-3 border-light me-3 shadow-sm" 
+                                        width="60" height="60" 
+                                        alt="{{ $authorName }}"
+                                        style="object-fit: cover;">
+                                    
+                                    <div>
+                                        <h5 class="fw-bold mb-1">{{ $authorName }}</h5>
+                                        <div class="d-flex align-items-center text-muted small flex-wrap">
+                                            <span class="me-3">
+                                                <i class="far fa-calendar-alt me-1"></i>
+                                                {{ $featuredColumn->created_at->locale('es')->format('d M, Y') }}
+                                            </span>
+                                            <span class="me-3">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ ceil(str_word_count($featuredColumn->content ?? '') / 200) ?? 5 }} min lectura
+                                            </span>
+                                            <span>
+                                                <i class="far fa-eye me-1"></i>
+                                                {{ number_format($featuredColumn->views ?? rand(300, 1500)) }} lecturas
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ route('columns.show', $featuredColumn->slug ?? $featuredColumn->id) }}" 
+                                        class="btn btn-secondary">
+                                        Leer columna completa <i class="fas fa-arrow-right ms-2"></i>
+                                    </a>
+                                    
+                                    <!-- Botones de compartir -->
+                                    <div class="d-flex gap-2">
+                                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle" title="Compartir en Twitter">
+                                            <i class="fab fa-twitter"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle" title="Compartir en Facebook">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle" title="Compartir por WhatsApp">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                
+                <!-- Bloque Derecho: Últimas Columnas -->
+                <div class="col-lg-6">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-secondary me-2" style="width: 4px; height: 20px;"></div>
+                                <h4 class="fs-5 mb-0">Últimas Columnas</h4>
+                            </div>
+                            <a href="{{ route('columns.index') }}" class="btn btn-sm btn-outline-secondary">
+                                Ver todas <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="list-group list-group-flush rounded-3">
+                            @foreach($latestColumns->skip(1)->take(5) as $column)
+                            <div class="list-group-item border-0 border-bottom py-3 px-4 hover-bg-light transition-300">
+                                <div class="row g-0">
+                                    <!-- Avatar e info del autor -->
+                                    <div class="col-auto me-3">
+                                        @php
+                                            $authorName = is_object($column->author) 
+                                                ? $column->author->name 
+                                                : ($column->author ?? 'Columnista');
+                                            
+                                            $avatarPath = App\ImageHelper::getImageUrl(
+                                                is_object($column->author) && isset($column->author->avatar) 
+                                                    ? $column->author->avatar 
+                                                    : null,
+                                                'avatars',
+                                                'small'
+                                            );
+                                        @endphp
+                                        
+                                        <img src="{{ $avatarPath }}" 
+                                            class="rounded-circle border" 
+                                            width="48" height="48" 
+                                            alt="{{ $authorName }}"
+                                            style="object-fit: cover;">
+                                    </div>
+                                    
+                                    <!-- Contenido de la columna -->
+                                    <div class="col">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="fw-bold text-secondary mb-0 fs-7">{{ $authorName }}</h6>
+                                            <small class="text-muted">{{ $column->created_at->locale('es')->diffForHumans() }}</small>
+                                        </div>
+                                        
+                                        <h5 class="mb-2 fs-6">
+                                            <a href="{{ route('columns.show', $column->slug ?? $column->id) }}" class="text-decoration-none text-dark stretched-link">
+                                                {{ Str::limit($column->title, 80) }}
+                                            </a>
+                                        </h5>
+                                        
+                                        <p class="text-muted small mb-2 line-clamp-2">{{ Str::limit($column->excerpt, 100) }}</p>
+                                        
+                                        <!-- Metadatos adicionales -->
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <span class="me-3">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ ceil(str_word_count($column->content ?? '') / 200) ?? 5 }} min
+                                            </span>
+                                            <span class="me-3">
+                                                <i class="far fa-eye me-1"></i>
+                                                {{ number_format($column->views ?? rand(100, 800)) }}
+                                            </span>
+                                            <span>
+                                                <i class="far fa-comment me-1"></i>
+                                                {{ $column->comments_count ?? rand(0, 15) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        
+                        <!-- Footer con enlace a todas las columnas - versión móvil -->
+                        <div class="card-footer bg-light py-3 d-lg-none text-center">
+                            <a href="{{ route('columns.index') }}" class="btn btn-sm btn-secondary px-4">
+                                Ver todas las columnas <i class="fas fa-external-link-alt ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
 @endsection
 
 @push('styles')
+<!-- Estilos adicionales para la sección de columnas -->
+<style>
+    /* Efectos para las cards de columnas */
+    .hover-translate-y {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-translate-y:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .hover-bg-light:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .transition-300 {
+        transition: all 0.3s ease;
+    }
+    
+    /* Limitador de líneas para extractos */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
 <!-- Estilos para la sección Hero -->
 <style>
 /* Estilos para la nueva sección hero */
