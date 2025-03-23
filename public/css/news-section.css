@@ -1,0 +1,118 @@
+
+.section-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Reducción de padding general */
+.py-4 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+/* Reducción de espaciado entre cards */
+.g-3 {
+    --bs-gutter-y: 0.75rem;
+    --bs-gutter-x: 0.75rem;
+}
+
+/* Tamaño reducido para tarjetas de noticias */
+.card {
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card-img-top {
+    height: 140px;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.card-body {
+    padding: 0.75rem;
+}
+
+.card-footer {
+    padding: 0.5rem 0.75rem;
+}
+
+/* Badges más pequeñas */
+.badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    font-weight: 500;
+}
+
+/* Títulos de tarjetas más pequeños */
+.small-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Texto de tarjetas más pequeño */
+.small-text {
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: #5d6778;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Texto de meta información más pequeño */
+.meta-text {
+    font-size: 0.65rem;
+    color: #8c9bab;
+}
+
+/* Enlaces más pequeños */
+.small-link {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+/* Botón "Ver todas" más pequeño */
+.btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+}
+
+/* Avatar más pequeño */
+.rounded-circle {
+    width: 20px;
+    height: 20px;
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+    .card-img-top {
+        height: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .small-title {
+        font-size: 0.8rem;
+    }
+    
+    .small-text {
+        font-size: 0.7rem;
+        -webkit-line-clamp: 2;
+    }
+}
