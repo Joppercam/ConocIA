@@ -34,7 +34,7 @@
                                                 <h2 class="hero-news-title">{{ $featured->title }}</h2>
                                                 <p class="hero-news-excerpt">{{ $featured->excerpt }}</p>
                                                 <div class="hero-news-meta">
-                                                    <span><i class="far fa-clock"></i> {{ $featured->created_at->diffForHumans() }}</span>
+                                                    <span><i class="far fa-clock"></i> {{ $featured->created_at->locale('es')->diffForHumans() }}</span>
                                                     <span><i class="far fa-eye"></i> {{ number_format($featured->views / 1000, 1) }}k lecturas</span>
                                                 </div>
                                                 <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" class="btn btn-primary btn-sm">Leer artículo</a>
@@ -107,7 +107,7 @@
                                             <div class="hero-column-author-info ms-1">
                                                 <h4 class="hero-column-author-name fw-semibold text-primary mb-0 fs-7">{{ $authorName }}</h4>
                                                 <div class="d-flex align-items-center">
-                                                    <span class="hero-column-date text-muted fs-9">{{ $column->created_at->diffForHumans() }}</span>
+                                                    <span class="hero-column-date text-muted fs-9">{{ $column->created_at->locale('es')->diffForHumans() }}</span>
                                                     <span class="text-muted fs-9 ms-1 ps-1 border-start">
                                                         <i class="far fa-clock me-1"></i>{{ ceil(str_word_count($column->content ?? '') / 200) ?? 5 }} min
                                                     </span>
