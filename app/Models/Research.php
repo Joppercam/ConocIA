@@ -155,5 +155,46 @@ class Research extends Model
         return $this->save();
     }
 
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug');
+    }
 
+
+    /**
+     * Accessor para obtener el nombre del autor
+     * Si no tienes una relación author, pero almacenas el nombre como string
+     */
+    public function getAuthorAttribute()
+    {
+        // Si ya existe una relación author definida, usa esa
+        if ($this->relationLoaded('author') && $this->relations['author'] !== null) {
+            return $this->relations['author']->name;
+        }
+
+        // Si tienes un campo author_name, úsalo
+        if (isset($this->attributes['author_name'])) {
+            return $this->attributes['author_name'];
+        }
+
+        // Si solo tienes author_id pero no la relación cargada, devuelve valor por defecto
+        return 'Autor';
+    }
+
+
+        /**
+     * Get the author that wrote the research.
+     * Relación basada en el campo user_id (visto en el controlador)
+     */
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    
 }
