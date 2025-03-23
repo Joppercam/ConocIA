@@ -6,8 +6,8 @@
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="fs-2 mb-3">Investigación y Análisis</h1>
-            <p class="text-muted">Descubre los últimos avances, estudios y análisis en el campo de la inteligencia artificial y tecnología.</p>
+            <h1 class="fs-4 mb-3">Investigación y Análisis</h1>
+            <p class="text-muted fs-6 small">Descubre los últimos avances, estudios y análisis en el campo de la inteligencia artificial y tecnología.</p>
         </div>
     </div>
     
@@ -17,11 +17,12 @@
             <div class="row g-4">
                 @if($researches->count() > 0)
                     @foreach($researches as $research)
+                    @if($research->status === 'published' || $research->status === 'active')
                     <div class="col-md-6">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="position-relative">
                                 <a href="{{ route('research.show', $research->slug ?? $research->id) }}">
-                                    <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" class="card-img-top" alt="{{ $research->title }}" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';">
+                                    <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" class="card-img-top" alt="{{ $research->title }}" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';" style="height: 180px; object-fit: cover;">
                                 </a>
                                 @if(isset($research->category))
                                 <div class="position-absolute bottom-0 end-0 m-2">
@@ -33,13 +34,13 @@
                                 @endif
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">
+                                <h5 class="card-title fs-6">
                                     <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark">
                                         {{ $research->title }}
                                     </a>
                                 </h5>
-                                <p class="card-text text-muted small mb-2">{{ $research->created_at->format('d M, Y') }} • {{ $research->views }} lecturas</p>
-                                <p class="card-text">{{ Str::limit($research->excerpt, 120) }}</p>
+                                <p class="card-text text-muted small mb-2 fs-7">{{ $research->created_at->format('d M, Y') }} • {{ $research->views }} lecturas</p>
+                                <p class="card-text small">{{ Str::limit($research->excerpt, 120) }}</p>
                             </div>
                             <div class="card-footer bg-white border-0">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -47,16 +48,17 @@
                                         <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" class="rounded-circle me-2" width="30" height="30" alt="{{ $research->author }}">
                                         <span class="small text-muted">{{ $research->author }}</span>
                                     </div>
-                                    <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="btn btn-sm btn-outline-primary">Leer más</a>
+                                    <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem;">Leer más</a>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @endif
                     @endforeach
                 @else
                     <div class="col-12">
                         <div class="alert alert-info">
-                            <p class="mb-0">No se encontraron artículos de investigación.</p>
+                            <p class="mb-0 fs-6">No se encontraron artículos de investigación.</p>
                         </div>
                     </div>
                 @endif
@@ -73,16 +75,16 @@
             <!-- Filtro de Categorías -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0 fs-6">Categorías</h5>
+                    <h5 class="mb-0 fs-6 small">Categorías</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
                         @foreach($categories as $category)
-                            <a href="{{ route('research.category', $category->slug) }}" class="badge text-white text-decoration-none p-2 mb-2" style="{{ $getCategoryStyle($category) }}">
+                            <a href="{{ route('research.category', $category->slug) }}" class="badge text-white text-decoration-none p-1 mb-2" style="{{ $getCategoryStyle($category) }} font-size: 0.7rem;">
                                 <i class="fas {{ $getCategoryIcon($category) }} me-1"></i>
                                 {{ $category->name }}
                                 @if(isset($category->research_count))
-                                <span class="badge bg-light text-dark ms-1">{{ $category->research_count }}</span>
+                                <span class="badge bg-light text-dark ms-1" style="font-size: 0.65rem;">{{ $category->research_count }}</span>
                                 @endif
                             </a>
                         @endforeach
@@ -93,31 +95,39 @@
             <!-- Investigaciones Destacadas -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0 fs-6">Investigaciones Destacadas</h5>
+                    <h5 class="mb-0 fs-6 small">Investigaciones Destacadas</h5>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @foreach($featuredResearch as $featured)
-                        <li class="list-group-item px-3 py-2 border-0">
+                        @if($featured->status === 'published' || $featured->status === 'active')
+                        <li class="list-group-item px-2 py-1 border-0">
                             <div class="d-flex">
-                                <div class="me-2">
-                                    <img src="{{ $getImageUrl($featured->image, 'research', 'small') }}" class="rounded" width="60" height="60" alt="{{ $featured->title }}" style="object-fit: cover;">
+                                <div class="flex-shrink-0 me-2">
+                                    <img src="{{ $getImageUrl($featured->image, 'research', 'small') }}" 
+                                         class="rounded" 
+                                         width="50" 
+                                         height="50" 
+                                         alt="{{ $featured->title }}" 
+                                         style="object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
                                 </div>
-                                <div>
-                                    <h6 class="mb-1 fs-6">
-                                        <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}" class="text-decoration-none text-dark">{{ Str::limit($featured->title, 60) }}</a>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" style="font-size: 0.7rem; line-height: 1.1;">
+                                        <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}" class="text-decoration-none text-dark">{{ Str::limit($featured->title, 55) }}</a>
                                     </h6>
                                     <div class="d-flex align-items-center mt-1">
                                         @if(isset($featured->category))
-                                        <span class="badge me-2" style="{{ $getCategoryStyle($featured->category) }}">
+                                        <span class="badge me-1" style="{{ $getCategoryStyle($featured->category) }} font-size: 0.65rem; padding: 0.15rem 0.35rem;">
                                             {{ $featured->category->name }}
                                         </span>
                                         @endif
-                                        <small class="text-muted">{{ $featured->created_at->diffForHumans() }}</small>
+                                        <small class="text-muted" style="font-size: 0.65rem;">{{ $featured->created_at->locale('es')->diffForHumans() }}</small>
                                     </div>
                                 </div>
                             </div>
                         </li>
+                        @endif
                         @endforeach
                     </ul>
                 </div>
@@ -126,15 +136,15 @@
             <!-- Newsletter -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <h5 class="mb-3 fs-6">Suscríbete al newsletter</h5>
-                    <p class="text-muted small">Recibe las últimas investigaciones y análisis directamente en tu correo.</p>
+                    <h5 class="mb-3 small">Suscríbete al newsletter</h5>
+                    <p class="text-muted" style="font-size: 0.7rem;">Recibe las últimas investigaciones y análisis directamente en tu correo.</p>
                     <form action="{{ route('newsletter.subscribe') }}" method="POST">
                         @csrf
                         <input type="hidden" name="type" value="research">
                         <div class="mb-3">
-                            <input type="email" name="email" class="form-control" placeholder="Tu correo electrónico" required>
+                            <input type="email" name="email" class="form-control form-control-sm" placeholder="Tu correo electrónico" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Suscribirse</button>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">Suscribirse</button>
                     </form>
                 </div>
             </div>
