@@ -566,7 +566,7 @@
 
                     <!-- Investigaciones Destacadas -->
                     <div class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden">
-                        <div class="card-header bg-gradient-primary text-white p-2">
+                        <div class="card-header bg-primary text-white p-2">
                             <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
                                 <i class="fas fa-star me-2"></i> Investigaciones Destacadas
                             </h5>
@@ -636,14 +636,13 @@
 
                     <!-- Más comentados -->
                     <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                        <div class="card-header bg-gradient-info text-white p-2">
+                        <div class="card-header bg-info text-white p-2">
                             <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
                                 <i class="fas fa-comments me-2"></i> Más Comentados
                             </h5>
                         </div>
                         <div class="list-group list-group-flush">
                             @foreach($mostCommented as $commented)
-                                @if($commented->status === 'published' || $commented->status === 'active')
                                 <a href="{{ route('research.show', $commented->slug ?? $commented->id) }}" 
                                 class="list-group-item list-group-item-action px-3 py-2 border-bottom hover-bg-light transition-300">
                                     <div class="d-flex align-items-center mb-1">
@@ -658,8 +657,8 @@
                                         </span>
                                     </div>
                                     
-                                    <!-- Cambio aquí: clase fs-7 en lugar de fs-6 -->
-                                    <h6 class="mb-1 fw-semibold fs-7">
+                                    <!-- Cambio aquí: texto explícitamente en color oscuro -->
+                                    <h6 class="mb-1 fw-semibold fs-7 text-dark">
                                         {{ Str::limit($commented->title, 65) }}
                                     </h6>
                                     
@@ -671,7 +670,6 @@
                                         <span class="ms-auto">{{ $commented->created_at->locale('es')->diffForHumans() }}</span>
                                     </div>
                                 </a>
-                                @endif
                             @endforeach
                         </div>
                         
@@ -691,8 +689,7 @@
                         
                         @if(count($availableCategories) > 0)
                         <div class="bg-light p-2">
-                            <!-- Cambio aquí: clase fs-7 en lugar de fs-6 -->
-                            <h6 class="fw-bold mb-2 fs-7">Categorías populares</h6>
+                            <h6 class="fw-bold mb-2 fs-7 text-dark">Categorías populares</h6>
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach($availableCategories as $category)
                                 <a href="{{ route('research.index', ['category' => $category->id]) }}" class="badge rounded-pill text-decoration-none" style="{{ $getCategoryStyle($category) }} font-size: 0.7rem;">
