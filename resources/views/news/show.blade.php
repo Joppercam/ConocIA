@@ -115,75 +115,137 @@
            
 
            <!-- Comentarios -->
-            <div class="mb-4">
-                <h4 class="mb-3">Comentarios</h4>
+            <div class="comments-section mt-5 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0">
+                        <i class="far fa-comments text-primary me-2"></i>
+                        Comentarios
+                        @if(count($article->comments ?? []) > 0)
+                            <span class="badge bg-primary ms-2">{{ count($article->comments) }}</span>
+                        @endif
+                    </h4>
+                    
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#commentForm" aria-expanded="false" aria-controls="commentForm">
+                        <i class="fas fa-plus me-1"></i> Añadir comentario
+                    </button>
+                </div>
                 
-                <!-- Formulario de comentario -->
-                <div class="card mb-4 border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Deja tu comentario</h5>
-                        <form action="{{ url('/comments') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="commentable_type" value="App\Models\News">
-                            <input type="hidden" name="commentable_id" value="{{ $article->id }}">
-                            
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="name" name="guest_name" value="{{ old('guest_name') }}" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="guest_email" value="{{ old('guest_email') }}" required>
-                                <div class="form-text">Tu email no será publicado.</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Comentario</label>
-                                <textarea class="form-control" id="comment" name="content" rows="4" required>{{ old('content') }}</textarea>
-                            </div>
-                            
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="saveInfo" name="save_info" {{ old('save_info') ? 'checked' : '' }}>
-                                <label class="form-check-label small" for="saveInfo">
-                                    Guardar mi nombre y email para la próxima vez que comente.
-                                </label>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">Publicar comentario</button>
-                        </form>
+                <!-- Formulario de comentario (colapsable) -->
+                <div class="collapse mb-4" id="commentForm">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3 border-bottom pb-2">Deja tu comentario</h5>
+                            <form action="{{ url('/comments') }}" method="POST" id="newsCommentForm">
+                                @csrf
+                                <input type="hidden" name="commentable_type" value="App\Models\News">
+                                <input type="hidden" name="commentable_id" value="{{ $article->id }}">
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control @error('guest_name') is-invalid @enderror" 
+                                                id="name" name="guest_name" placeholder="Tu nombre"
+                                                value="{{ old('guest_name') ?? Cookie::get('comment_name') }}" required>
+                                            <label for="name">Nombre</label>
+                                            @error('guest_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control @error('guest_email') is-invalid @enderror" 
+                                                id="email" name="guest_email" placeholder="tu@email.com"
+                                                value="{{ old('guest_email') ?? Cookie::get('comment_email') }}" required>
+                                            <label for="email">Email</label>
+                                            @error('guest_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text">Tu email no será publicado.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-floating">
+                                        <textarea class="form-control @error('content') is-invalid @enderror" 
+                                                id="comment" name="content" style="height: 120px" 
+                                                placeholder="Escribe tu comentario aquí" required>{{ old('content') }}</textarea>
+                                        <label for="comment">Comentario</label>
+                                        @error('content')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="saveInfo" name="save_info" 
+                                            {{ old('save_info') || Cookie::has('comment_name') ? 'checked' : '' }}>
+                                        <label class="form-check-label small" for="saveInfo">
+                                            Guardar mi información para próximos comentarios
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i> Publicar comentario
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Lista de comentarios -->
                 <div class="comments-list">
                     @forelse($article->comments ?? [] as $comment)
-                        <div class="comment-item mb-4 pb-4 {{ !$loop->last ? 'border-bottom' : '' }}">
-                            <div class="d-flex mb-2">
-                                <div class="comment-avatar me-3">
-                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 20px;">
-                                        {{ strtoupper(substr($comment->guest_name ?? 'A', 0, 1)) }}
+                        <div class="comment-item card border-0 shadow-sm mb-3">
+                            <div class="card-body">
+                                <div class="d-flex mb-2">
+                                    <div class="comment-avatar me-3">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                            style="width: 48px; height: 48px; font-size: 18px;">
+                                            {{ strtoupper(substr($comment->guest_name ?? 'A', 0, 1)) }}
+                                        </div>
+                                    </div>
+                                    <div class="comment-meta flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 fs-5">{{ $comment->guest_name ?? 'Anónimo' }}</h5>
+                                            <span class="text-muted small">
+                                                <i class="far fa-clock me-1"></i> 
+                                                {{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Hace algún tiempo' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-comment-dots me-1"></i> Comentario #{{ $loop->iteration }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="comment-meta">
-                                    <h5 class="mb-1">{{ $comment->guest_name ?? 'Anónimo' }}</h5>
-                                    <div class="text-muted small">
-                                        <i class="far fa-clock me-1"></i> 
-                                        {{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Hace algún tiempo' }}
-                                    </div>
+                                <div class="comment-content mt-2 pt-2 border-top">
+                                    <p class="mb-0">{{ $comment->content ?? 'Sin contenido' }}</p>
                                 </div>
-                            </div>
-                            <div class="comment-content">
-                                <p>{{ $comment->content ?? 'Sin contenido' }}</p>
                             </div>
                         </div>
                     @empty
-                        <div class="alert alert-light">
-                            <p class="mb-0">No hay comentarios todavía. ¡Sé el primero en comentar!</p>
+                        <div class="alert alert-light shadow-sm">
+                            <div class="d-flex align-items-center">
+                                <i class="far fa-comment-dots text-primary me-3 fs-4"></i>
+                                <p class="mb-0">No hay comentarios todavía. ¡Sé el primero en comentar!</p>
+                            </div>
                         </div>
                     @endforelse
                 </div>
+                
+                <!-- Paginación de comentarios (si es necesario) -->
+                @if(isset($article->comments) && count($article->comments) > 0 && method_exists($article->comments, 'links'))
+                    <div class="mt-3">
+                        {{ $article->comments->links() }}
+                    </div>
+                @endif
             </div>
+
 
 
 
@@ -312,19 +374,45 @@
     </div>
 </div>
 
-<!-- Sección: También te puede interesar -->
-<section class="py-4 bg-light">
-    <div class="container">
-        <h3 class="mb-4">También te puede interesar</h3>
-        
-        <div class="row g-4">
-            
-        </div>
-    </div>
-</section>
+
 @endsection
 
 @push('styles')
+<!-- Estilos adicionales para los comentarios -->
+<style>
+    .comments-section .form-floating > .form-control {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+    
+    .comments-section .form-floating > label {
+        padding: 1rem 0.75rem;
+    }
+    
+    .comments-section .comment-item {
+        transition: all 0.3s ease;
+    }
+    
+    .comments-section .comment-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .comments-section .comment-avatar div {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Animación para nuevos comentarios */
+    @keyframes highlightComment {
+        0% { background-color: rgba(13, 110, 253, 0.1); }
+        100% { background-color: transparent; }
+    }
+    
+    .comment-new {
+        animation: highlightComment 2s ease-out;
+    }
+</style>
+
+
 <style>
     /* Estilos para el contenido principal */
     .news-content {
@@ -425,3 +513,30 @@
     }
 </style>
 @endpush
+
+
+<!-- JavaScript para el formulario de comentarios -->
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar formulario automáticamente si hay errores de validación
+        @if($errors->any())
+            var commentForm = document.getElementById('commentForm');
+            var bsCollapse = new bootstrap.Collapse(commentForm, {
+                toggle: true
+            });
+        @endif
+        
+        // Animar el comentario recién agregado (si existe)
+        @if(session('comment_added'))
+            const newCommentId = '{{ session('comment_added') }}';
+            const newComment = document.getElementById('comment-' + newCommentId);
+            if (newComment) {
+                newComment.classList.add('comment-new');
+                newComment.scrollIntoView({ behavior: 'smooth' });
+            }
+        @endif
+    });
+</script>
+@endpush
+Últ

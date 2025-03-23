@@ -148,13 +148,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('colaboraciones/{id}/aprobar', [AdminResearchController::class, 'approvePost'])->name('invitados.approve');
         Route::post('colaboraciones/{id}/rechazar', [AdminResearchController::class, 'rejectPost'])->name('invitados.reject');
   
-        // Gestión de comentarios
-        Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
-        Route::get('comments/pending', [CommentController::class, 'pending'])->name('comments.pending');
-        Route::post('comments/{id}/approve', [CommentController::class, 'approve'])->name('comments.approve');
-        Route::post('comments/{id}/reject', [CommentController::class, 'reject'])->name('comments.reject');
-        Route::delete('comments/{id}', [CommentController::class, 'destroy'])->name('comments.delete');
-  
+        // Lista principal de comentarios
+        Route::get('/comments', [App\Http\Controllers\Admin\CommentController::class, 'index'])->name('comments.index');
+            
+        // Filtrar por estado
+        Route::get('/comments/pending', [App\Http\Controllers\Admin\CommentController::class, 'pending'])->name('comments.pending');
+        Route::get('/comments/approved', [App\Http\Controllers\Admin\CommentController::class, 'approved'])->name('comments.approved');
+        Route::get('/comments/rejected', [App\Http\Controllers\Admin\CommentController::class, 'rejected'])->name('comments.rejected');
+
+        // Acciones sobre los comentarios
+        Route::patch('/comments/{comment}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('comments.approve');
+        Route::patch('/comments/{comment}/reject', [App\Http\Controllers\Admin\CommentController::class, 'reject'])->name('comments.reject');
+        Route::delete('/comments/{comment}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('comments.destroy');
+
+        // Respuesta a comentarios desde el panel de administración
+        Route::post('/comments/{comment}/reply', [App\Http\Controllers\Admin\CommentController::class, 'reply'])->name('comments.reply');
+
         Route::resource('users', UserController::class);
         Route::resource('newsletter', NewsletterController::class)->only(['index', 'destroy']);
 

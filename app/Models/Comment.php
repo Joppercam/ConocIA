@@ -12,28 +12,31 @@ class Comment extends Model
     /**
      * Los atributos que son asignables masivamente.
      *
-     * @var array<int, string>
+     * @var array
      */
     protected $fillable = [
-        'content',
+        'commentable_type',
+        'commentable_id',
         'user_id',
         'guest_name',
         'guest_email',
-        'is_approved',
+        'content',
+        'status',
         'parent_id',
     ];
 
     /**
-     * Los atributos que deben convertirse a tipos nativos.
+     * Los atributos que deben ser convertidos a tipos nativos.
      *
-     * @var array<string, string>
+     * @var array
      */
     protected $casts = [
-        'is_approved' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
-     * Obtiene el modelo comentable (polimórfico).
+     * Obtener el modelo comentable (polimórfico).
      */
     public function commentable()
     {
@@ -41,7 +44,7 @@ class Comment extends Model
     }
 
     /**
-     * Obtiene el usuario que realizó el comentario.
+     * Obtener el usuario que creó el comentario (si está autenticado).
      */
     public function user()
     {
@@ -49,7 +52,7 @@ class Comment extends Model
     }
 
     /**
-     * Obtiene el comentario padre (para respuestas).
+     * Obtener el comentario padre (si es una respuesta).
      */
     public function parent()
     {
@@ -57,7 +60,7 @@ class Comment extends Model
     }
 
     /**
-     * Obtiene las respuestas a este comentario.
+     * Obtener las respuestas a este comentario.
      */
     public function replies()
     {
@@ -65,18 +68,65 @@ class Comment extends Model
     }
 
     /**
-     * Ámbito para comentarios aprobados.
+     * Scope para comentarios aprobados.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeApproved($query)
     {
-        return $query->where('is_approved', true);
+        return $query->where('status', 'approved');
     }
 
     /**
-     * Ámbito para comentarios principales (no respuestas).
+     * Scope para comentarios pendientes.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeParents($query)
+    public function scopePending($query)
     {
-        return $query->whereNull('parent_id');
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope para comentarios rechazados.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    /**
+     * Verificar si un comentario está aprobado.
+     *
+     * @return bool
+     */
+    public function isApproved()
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * Verificar si un comentario está pendiente.
+     *
+     * @return bool
+     */
+    public function isPending()
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * Verificar si un comentario está rechazado.
+     *
+     * @return bool
+     */
+    public function isRejected()
+    {
+        return $this->status === 'rejected';
     }
 }
