@@ -17,26 +17,39 @@ class ResearchController extends Controller
      */
     public function index()
     {
-        // Obtener artículos de investigación, paginados y con sus categorías
+        // Obtener artículos de investigación PUBLICADOS, paginados y con sus categorías
         $researches = Research::with('category')
-            ->latest()
-            ->paginate(12);
+        ->where(function($query) {
+            $query->where('is_published', true)
+                ->orWhere('status', 'published');
+        })
+        ->latest()
+        ->paginate(12);
 
         
             
         // Obtener categorías para el filtro lateral
-        $categories = Category::withCount('research')
+        $categories = Category::withCount(['research' => function($query) {
+            $query->where(function($q) {
+                $q->where('is_published', true)
+                ->orWhere('status', 'published');
+            });
+        }])
             ->orderBy('research_count', 'desc')
             ->take(10)
             ->get();
 
             
-        // Obtener investigaciones destacadas
+        // Obtener investigaciones destacadas (también solo las publicadas)
         $featuredResearch = Research::with('category')
-            ->where('featured', true)
-            ->orderBy('citations', 'desc')
-            ->take(5)
-            ->get();
+        ->where('featured', true)
+        ->where(function($query) {
+            $query->where('is_published', true)
+                ->orWhere('status', 'published');
+        })
+        ->orderBy('citations', 'desc')
+        ->take(5)
+        ->get();
             
         // Helper function para manejar correctamente las rutas de imágenes
         $getImageUrl = function($imagePath, $type = 'research', $size = 'large') {
