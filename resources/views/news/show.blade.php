@@ -65,7 +65,7 @@
                         class="rounded-circle me-2" width="24" height="24" alt="{{ $article->author }}">
                     <span>Por <a href="{{ route('authors.show', $article->author) }}" class="text-decoration-none">{{ $article->author }}</a></span>
                     <span class="mx-2">•</span>
-                    <span><i class="far fa-calendar-alt me-1"></i> {{ $article->created_at->format('d M, Y') }}</span>
+                    <span><i class="far fa-calendar-alt me-1"></i> {{ $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}</span>
                     <span class="mx-2">•</span>
                     <span><i class="far fa-clock me-1"></i> {{ $article->reading_time }} min de lectura</span>
                 </div>

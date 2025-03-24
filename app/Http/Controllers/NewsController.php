@@ -9,19 +9,41 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\Category;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Log;
 
 class NewsController extends Controller
 {
+    /**
+     * Mostrar listado de noticias
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        // Usa inRandomOrder() que es un método de Query Builder
-        $news = News::latest()->paginate(10);
-        
-        // Obtener todas las categorías para el menú lateral
+        // Obtener noticias paginadas sin usar el scope published
+        // ya que podría estar causando problemas si no está definido correctamente
+        $news = News::with(['category', 'author'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+            
+        // Verificar si hay noticias
+        if ($news->isEmpty()) {
+            // Registrar para depuración
+            Log::info('No se encontraron noticias en el método index');
+        } else {
+            Log::info('Se encontraron ' . $news->count() . ' noticias');
+        }
+            
+        // Obtener todas las categorías
         $categories = Category::all();
         
-        // Usar la vista específica de noticias
-        return view('news.index', compact('news', 'categories'));
+        // Obtener artículos más leídos (sin usar published)
+        $mostReadArticles = News::with('category')
+            ->orderBy('views', 'desc')
+            ->take(5)
+            ->get();
+            
+        return view('news.index', compact('news', 'categories', 'mostReadArticles'));
     }
 
    
