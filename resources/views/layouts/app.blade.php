@@ -416,27 +416,26 @@
                             </a>
                         </li>
                     </ul>
-                    <div class="d-none d-lg-flex">
-                        <form action="{{ route('search') }}" method="GET" class="d-flex search-form">
-                            <div class="input-group">
-                                <input class="form-control" type="search" name="query" placeholder="Buscar..." aria-label="Search" required>
-                                <button class="btn btn-outline-light" type="submit" aria-label="Buscar"><i class="fas fa-search"></i></button>
+                    
+
+                    <div class="d-none d-lg-block ms-auto me-3">
+                        <form action="{{ route('newsletter.subscribe') }}" method="POST" class="d-flex header-subscribe-form">
+                            @csrf
+                            <div class="input-group input-group-sm">
+                                <input type="email" class="form-control form-control-sm" placeholder="Suscribirse" name="email" aria-label="Email" required 
+                                    style="width: 160px; border-radius: 20px 0 0 20px; background-color: rgba(255, 255, 255, 0.15); border: none; color: white;">
+                                <button class="btn btn-sm btn-light" type="submit" style="border-radius: 0 20px 20px 0; padding: 0.25rem 0.5rem;">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
                         </form>
                     </div>
+
+
                 </div>
             </div>
         </nav>
         
-        <!-- Barra de búsqueda móvil expandible -->
-        <div id="mobile-search" class="container">
-            <form action="{{ route('search') }}" method="GET" class="d-flex w-100">
-                <div class="input-group">
-                    <input class="form-control" type="search" name="query" placeholder="Buscar..." aria-label="Search" required>
-                    <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-        </div>
     </header>
 
     <!-- Notificaciones -->
@@ -553,8 +552,8 @@
                         </div>
                     </form>
                     <ul class="list-unstyled mt-4">
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@conocia.com</li>
-                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Madrid, España</li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@conocia.cl</li>
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Santiago, Chile</li>
                     </ul>
                 </div>
             </div>
