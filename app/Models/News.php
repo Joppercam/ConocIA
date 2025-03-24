@@ -15,10 +15,13 @@ class News extends Model
         'slug', 
         'excerpt', 
         'content', 
+        'summary',
         'image', 
+        'image_caption',
         'category_id', 
-        'author', 
+        'author_id',
         'views', 
+        'status',
         'tags', 
         'featured',
         'source',
@@ -37,6 +40,8 @@ class News extends Model
         'featured' => 'boolean',
         'views' => 'integer',
         'reading_time' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
     
     // Mutador para las fechas
@@ -52,6 +57,27 @@ class News extends Model
         return $this->save();
     }
 
+        /**
+     * Scope para obtener las noticias más leídas
+     */
+    public function scopeMostRead($query, $limit = 5)
+    {
+        return $query->published()
+                    ->orderBy('views', 'desc')
+                    ->limit($limit);
+    }
+
+        /**
+     * Scope para obtener noticias populares del último periodo
+     */
+    public function scopePopularRecent($query, $days = 7, $limit = 5)
+    {
+        return $query->published()
+                    ->where('created_at', '>=', now()->subDays($days))
+                    ->orderBy('views', 'desc')
+                    ->limit($limit);
+    }
+
     /**
      * Scope a query para obtener noticias publicadas.
      *
@@ -60,8 +86,16 @@ class News extends Model
      */
     public function scopePublished($query)
     {
-        return $query->whereNotNull('published_at')
+        return $query->where('status', 'published')
                     ->where('published_at', '<=', now());
+    }
+
+        /**
+     * Estadísticas diarias de vistas
+     */
+    public function viewStats()
+    {
+        return $this->hasMany('App\Models\NewsViewsStat');
     }
 
     // Añade este método al modelo News
@@ -69,6 +103,38 @@ class News extends Model
     {
         return $query->where('featured', true);
     }
+
+        /**
+     * Obtener tiempo de lectura en formato legible
+     *
+     * @return string
+     */
+    public function getReadingMinutesAttribute()
+    {
+        $minutes = $this->reading_time ?: 1;
+        return $minutes . ' min' . ($minutes > 1 ? 's' : '');
+    }
+
+        /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+        /**
+     * Obtener un título corto (para mostrar en listados)
+     *
+     * @return string
+     */
+    public function getShortTitleAttribute()
+    {
+        return \Illuminate\Support\Str::limit($this->title, 60);
+    }
+
 
     public function category()
     {

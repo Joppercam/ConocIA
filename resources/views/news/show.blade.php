@@ -294,6 +294,11 @@
                 </div>
             </div>
             
+
+
+
+
+
             <!-- Lo más leído -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -301,35 +306,65 @@
                         <i class="fas fa-chart-line text-primary me-2"></i> Lo más leído
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="most-read-list">
                         @forelse($mostReadArticles as $index => $mostReadArticle)
-                            <div class="most-read-item d-flex align-items-center mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
-                                <div class="most-read-number fs-4 me-3 text-primary fw-bold">
-                                    {{ $index + 1 }}
-                                </div>
-                                <div class="most-read-content">
-                                    <a href="{{ route('news.show', $mostReadArticle->slug) }}" class="text-decoration-none">
+                            <a href="{{ route('news.show', $mostReadArticle->slug) }}" class="text-decoration-none">
+                                <div class="most-read-item d-flex p-3 {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light">
+                                    <div class="most-read-number me-3 text-primary fw-bold" style="font-size: 1.5rem; min-width: 28px;">
+                                        {{ $index + 1 }}
+                                    </div>
+                                    <div class="most-read-content">
+                                        <div class="d-flex mb-2">
+                                            <span class="badge bg-{{ getStatusColor($mostReadArticle->category->name ?? 'General') }} me-2">
+                                                {{ $mostReadArticle->category->name ?? 'General' }}
+                                            </span>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="fas fa-eye me-1"></i> {{ number_format($mostReadArticle->views) }}
+                                            </span>
+                                        </div>
                                         <h6 class="mb-1">{{ $mostReadArticle->title }}</h6>
-                                    </a>
-                                    <div class="d-flex align-items-center small text-muted">
-                                        <span class="me-2">
-                                            <i class="fas fa-folder-open me-1"></i>
-                                            {{ $mostReadArticle->category->name }}
-                                        </span>
-                                        <span>
-                                            <i class="fas fa-eye me-1"></i>
-                                            {{ number_format($mostReadArticle->views) }} lecturas
-                                        </span>
+                                        <div class="text-muted small">
+                                            <i class="far fa-calendar-alt me-1"></i> 
+                                            {{ $mostReadArticle->created_at->format('d M, Y') }}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         @empty
-                            <p class="text-muted">No hay artículos disponibles en este momento.</p>
+                            <div class="p-3 text-center text-muted">
+                                <i class="fas fa-book-reader mb-2" style="font-size: 2rem;"></i>
+                                <p class="mb-0">No hay artículos disponibles en este momento.</p>
+                            </div>
                         @endforelse
                     </div>
                 </div>
             </div>
+
+            @php
+            /**
+            * Obtiene un color según la categoría
+            * @param string $category Nombre de la categoría
+            * @return string Clase CSS de color
+            */
+            function getStatusColor($category) {
+                $colors = [
+                    'Inteligencia Artificial' => 'primary',
+                    'Tecnología' => 'info',
+                    'Ciencia' => 'success',
+                    'Opinión' => 'warning',
+                    'Educación' => 'secondary',
+                    'Economía' => 'danger',
+                ];
+                
+                return $colors[$category] ?? 'primary';
+            }
+            @endphp
+
+
+
+
+            
             
             <!-- Newsletter -->
             <div class="card border-0 shadow-sm mb-4">
@@ -378,6 +413,23 @@
 @endsection
 
 @push('styles')
+<!-- lo mas leido -->
+<style>
+    .hover-bg-light:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+    }
+    
+    .most-read-item {
+        transition: transform 0.2s;
+    }
+    
+    .most-read-item:hover {
+        transform: translateX(5px);
+    }
+</style>
+
+
 <!-- Estilos adicionales para los comentarios -->
 <style>
     .comments-section .form-floating > .form-control {
@@ -539,4 +591,3 @@
     });
 </script>
 @endpush
-Últ
