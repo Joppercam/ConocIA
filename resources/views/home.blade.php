@@ -238,99 +238,130 @@
 
 
                 <!-- Columna izquierda: Noticias Recientes -->
-                <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
-                        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 d-flex align-items-center fs-6">
-                                <i class="fas fa-newspaper text-primary me-2"></i> Noticias Recientes
-                            </h5>
-                            <span class="badge bg-primary rounded-pill px-2 py-1 fs-9">
-                                {{ $recentNews->count() }} artículos
-                            </span>
+<div class="col-lg-8">
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 d-flex align-items-center fs-6">
+                <i class="fas fa-newspaper text-primary me-2"></i> Noticias Recientes
+            </h5>
+            <span class="badge bg-primary rounded-pill px-2 py-1 fs-9">
+                {{ $recentNews->count() }} artículos
+            </span>
+        </div>
+        <div class="card-body py-3">
+            <div class="row g-3">
+                @foreach($recentNews as $recent)
+                <!-- Noticia mejorada -->
+                <div class="col-12">
+                    <div class="row g-0 {{ !$loop->last ? 'border-bottom pb-3 mb-3' : '' }}">
+                        <!-- Verificamos si la noticia tiene imagen configurada -->
+                        @php
+                            $hasImage = isset($recent->image) && !empty(trim($recent->image));
+                        @endphp
+
+                        <!-- Si hay imagen, mostramos la columna de imagen -->
+                        @if($hasImage)
+                        <div class="col-md-4">
+                            <div class="position-relative overflow-hidden rounded">
+                                @if(isset($recent->category))
+                                <span class="position-absolute top-0 end-0 text-white px-2 py-0 m-2 rounded-pill"
+                                    style="{{ $getCategoryStyle($recent->category) }} font-size: 0.7rem;">
+                                    <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
+                                    {{ $recent->category->name }}
+                                </span>
+                                @endif
+                                <!-- Indicador de nuevo si es menor a 48 horas -->
+                                @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
+                                <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-0 m-2 rounded-pill fs-9">
+                                    <i class="fas fa-star me-1"></i>NUEVO
+                                </span>
+                                @endif
+                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="d-block overflow-hidden">
+                                    <img src="{{ $getImageUrl($recent->image, 'news', 'medium') }}" 
+                                        class="img-fluid rounded news-img w-100" 
+                                        loading="lazy" 
+                                        alt="{{ $recent->title }}"
+                                        onError="this.style.display='none'; this.parentElement.parentElement.parentElement.className='d-none'; this.closest('.row.g-0').querySelector('.content-column').className='col-12 content-column';">
+                                </a>
+                            </div>
                         </div>
-                        <div class="card-body py-3">
-                            <div class="row g-3">
-                                @foreach($recentNews as $recent)
-                                <!-- Noticia mejorada -->
-                                <div class="col-12">
-                                    <div class="row g-0 {{ !$loop->last ? 'border-bottom pb-3 mb-3' : '' }}">
-                                        <div class="col-md-4">
-                                            <div class="position-relative overflow-hidden rounded">
-                                                @if(isset($recent->category))
-                                                <span class="position-absolute top-0 end-0 text-white px-2 py-0 m-2 rounded-pill"
-                                                    style="{{ $getCategoryStyle($recent->category) }} font-size: 0.7rem;">
-                                                    <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
-                                                    {{ $recent->category->name }}
-                                                </span>
-                                                @endif
-                                                <!-- Indicador de nuevo si es menor a 48 horas -->
-                                                @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
-                                                <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-0 m-2 rounded-pill fs-9">
-                                                    <i class="fas fa-star me-1"></i>NUEVO
-                                                </span>
-                                                @endif
-                                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="d-block overflow-hidden">
-                                                    <img src="{{ $getImageUrl($recent->image, 'news', 'medium') }}" 
-                                                        class="img-fluid rounded news-img w-100" 
-                                                        loading="lazy" 
-                                                        alt="{{ $recent->title }}" 
-                                                        onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-medium.jpg') }}';">
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 ps-md-3 mt-3 mt-md-0">
-                                            <!-- Metadatos en la parte superior -->
-                                            <div class="d-flex align-items-center mb-2 flex-wrap">
-                                                <span class="text-muted small me-3">
-                                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
-                                                </span>
-                                                <span class="text-muted small me-3">
-                                                    <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }} lecturas
-                                                </span>
-                                                <span class="text-muted small">
-                                                    <i class="far fa-clock me-1"></i> {{ ceil(str_word_count($recent->content ?? '') / 200) ?? rand(3, 8) }} min lectura
-                                                </span>
-                                            </div>
-                                            
-                                            <!-- Título con enlace -->
-                                            <h6 class="card-title fw-bold mb-2">
-                                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
-                                                    {{ $recent->title }}
-                                                </a>
-                                            </h6>
-                                            
-                                            <!-- Extracto con limitador de líneas -->
-                                            <p class="card-text text-muted small line-clamp-3 mb-2">{{ $recent->excerpt }}</p>
-                                            
-                                            <!-- Autor y botón de lectura -->
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ $getImageUrl($recent->author->avatar ?? null, 'avatars', 'small') }}" 
-                                                        class="rounded-circle me-2" 
-                                                        width="24" height="24" 
-                                                        alt="{{ $recent->author->name ?? 'Autor' }}"
-                                                        loading="lazy"
-                                                        onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/avatar-default.jpg') }}';">
-                                                    <span class="small text-muted">{{ $recent->author->name ?? 'ConocIA' }}</span>
-                                                </div>
-                                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="btn btn-sm btn-outline-primary small">
-                                                    Leer más <i class="fas fa-arrow-right ms-1"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
+                        @endif
+
+                        <!-- Columna de contenido con clase para poder seleccionarla desde el error handler -->
+                        <div class="{{ $hasImage ? 'col-md-8 ps-md-3 mt-3 mt-md-0' : 'col-12' }} content-column">
+                            <!-- Etiquetas que siempre están visibles -->
+                            <div class="d-flex justify-content-between mb-2 flex-wrap">
+                                <!-- Categoría -->
+                                @if(isset($recent->category))
+                                <span class="badge text-white px-2 py-1 rounded-pill"
+                                    style="{{ $getCategoryStyle($recent->category) }} font-size: 0.7rem;">
+                                    <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
+                                    {{ $recent->category->name }}
+                                </span>
+                                @endif
+                                
+                                <!-- Indicador de nuevo -->
+                                @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
+                                <span class="badge bg-danger text-white px-2 py-1 rounded-pill fs-9">
+                                    <i class="fas fa-star me-1"></i>NUEVO
+                                </span>
+                                @endif
+                            </div>
+
+                            <!-- Metadatos en la parte superior -->
+                            <div class="d-flex align-items-center mb-2 flex-wrap">
+                                <span class="text-muted small me-3">
+                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
+                                </span>
+                                <span class="text-muted small me-3">
+                                    <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }} lecturas
+                                </span>
+                                <span class="text-muted small">
+                                    <i class="far fa-clock me-1"></i> {{ ceil(str_word_count($recent->content ?? '') / 200) ?? rand(3, 8) }} min lectura
+                                </span>
                             </div>
                             
-                            <div class="text-center mt-4">
-                                <a href="{{ route('news.index') }}" class="btn btn-primary btn-sm px-4">
-                                    Ver más noticias <i class="fas fa-newspaper ms-1"></i>
+                            <!-- Título ajustable -->
+                            <h6 class="card-title fw-bold mb-2 {{ !$hasImage ? 'h5' : '' }}">
+                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
+                                    {{ $recent->title }}
+                                </a>
+                            </h6>
+                            
+                            <!-- Extracto con líneas ajustables -->
+                            <p class="card-text text-muted small {{ !$hasImage ? 'line-clamp-4' : 'line-clamp-3' }} mb-2">{{ $recent->excerpt }}</p>
+                            
+                            <!-- Autor y botón de lectura -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ $getImageUrl($recent->author->avatar ?? null, 'avatars', 'small') }}" 
+                                        class="rounded-circle me-2" 
+                                        width="24" height="24" 
+                                        alt="{{ $recent->author->name ?? 'Autor' }}"
+                                        loading="lazy"
+                                        onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/avatar-default.jpg') }}';">
+                                    <span class="small text-muted">{{ $recent->author->name ?? 'ConocIA' }}</span>
+                                </div>
+                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="btn btn-sm btn-outline-primary small">
+                                    Leer más <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
+                @endforeach
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ route('news.index') }}" class="btn btn-primary btn-sm px-4">
+                    Ver más noticias <i class="fas fa-newspaper ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 
 
@@ -1344,5 +1375,24 @@
         // Intentar nuevamente después de 1 segundo para mayor seguridad
         setTimeout(initializeCarousel, 1000);
     });
+</script>
+<!-- Script para manejar errores de carga de imágenes -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar una clase CSS para facilitar el ajuste de texto
+    const style = document.createElement('style');
+    style.textContent = `
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .h5 {
+            font-size: 1.25rem;
+        }
+    `;
+    document.head.appendChild(style);
+});
 </script>
 @endpush

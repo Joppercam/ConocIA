@@ -5,14 +5,14 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-class CreateSimpleDefaultImages extends Command
+class CreateDefaultImages extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'images:create-simple-defaults';
+    protected $signature = 'images:create-defaults-images';
 
     /**
      * The console command description.

@@ -26,8 +26,8 @@
             return Storage::url('images/news/' . $imagePath);
         }
         
-        // Imagen predeterminada según el tamaño (usar asset directamente)
-        return asset('storage/images/defaults/news-default-' . $size . '.jpg');
+        // Ahora solo devolvemos null para manejar el caso sin imagen en la plantilla
+        return null;
     }
 @endphp
 
@@ -43,16 +43,23 @@
         <div class="col-lg-8">
             <!-- Noticias -->
             @foreach($news as $article)
+            @php
+                // Verificamos si la noticia tiene imagen
+                $imageSrc = getNewsImage($article->image, 'medium');
+                $hasImage = !empty($imageSrc);
+            @endphp
             <div class="card border-0 shadow-sm mb-3 news-card">
                 <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{ getNewsImage($article->image, 'medium') }}" 
+                    @if($hasImage)
+                    <div class="col-md-4 news-image-container">
+                        <img src="{{ $imageSrc }}" 
                              class="img-fluid rounded-start h-100" 
                              style="object-fit: cover;" 
                              alt="{{ $article->title }}"
-                             onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-medium.jpg') }}';">
+                             onError="this.style.display='none'; this.parentElement.classList.add('d-none'); this.closest('.row.g-0').querySelector('.news-content').classList.remove('col-md-8'); this.closest('.row.g-0').querySelector('.news-content').classList.add('col-12');">
                     </div>
-                    <div class="col-md-8">
+                    @endif
+                    <div class="col-md-{{ $hasImage ? '8' : '12' }} news-content">
                         <div class="card-body py-2 px-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="badge bg-primary">{{ $article->category->name ?? 'General' }}</span>
@@ -60,7 +67,7 @@
                                     <i class="far fa-calendar-alt me-1"></i>{{ $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}
                                 </small>
                             </div>
-                            <h5 class="card-title fs-5 mb-1">
+                            <h5 class="card-title fs-5 mb-1 {{ !$hasImage ? 'fs-4' : '' }}">
                                 <a href="{{ route('news.show', $article->slug) }}" class="text-decoration-none text-dark stretched-link">
                                     {{ $article->title }}
                                 </a>
@@ -73,7 +80,9 @@
                                     <i class="fas fa-eye me-1"></i>{{ number_format($article->views) }} lecturas
                                 </span>
                             </div>
-                            <p class="card-text small mb-2">{{ Str::limit($article->summary ?? $article->excerpt, 120) }}</p>
+                            <p class="card-text small mb-2 {{ !$hasImage ? 'larger-excerpt' : '' }}">
+                                {{ Str::limit($article->summary ?? $article->excerpt, $hasImage ? 120 : 200) }}
+                            </p>
                             <a href="{{ route('news.show', $article->slug) }}" class="btn btn-sm btn-outline-primary">
                                 Leer más <i class="fas fa-arrow-right ms-1"></i>
                             </a>
@@ -192,9 +201,18 @@
     font-weight: 600; /* Para mantener legibilidad */
 }
 
+.card-title.fs-4 {
+    font-size: 1rem !important; /* Título más grande cuando no hay imagen */
+}
+
 .card-text {
     font-size: 0.65rem; /* Reducido de 0.85rem */
     line-height: 1.4;
+}
+
+.card-text.larger-excerpt {
+    font-size: 0.75rem !important; /* Extracto más grande cuando no hay imagen */
+    line-height: 1.5;
 }
 
 .badge {

@@ -100,9 +100,9 @@ Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'uns
 
 Route::get('/eventos', 'EventController@index')->name('events.index');
 Route::get('/sobre-nosotros/colaboradores', 'AboutController@contributors')->name('about.contributors');
-Route::get('/paginas/privacidad', 'PageController@privacy')->name('pages.privacy');
-Route::get('/paginas/terminos', 'PageController@terms')->name('pages.terms');
-Route::get('/paginas/cookies', 'PageController@cookies')->name('pages.cookies');
+//Route::get('/paginas/privacidad', 'PageController@privacy')->name('pages.privacy');
+//Route::get('/paginas/terminos', 'PageController@terms')->name('pages.terms');
+//Route::get('/paginas/cookies', 'PageController@cookies')->name('pages.cookies');
 
 Route::get('investigacion/categoria/{category:slug}', [App\Http\Controllers\ResearchController::class, 'category'])
     ->name('research.category');
