@@ -233,5 +233,5 @@
     line-height: 1.3;
 }
 </style>
-@endpush
+@endpush 
 @endsection

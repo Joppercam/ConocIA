@@ -1338,7 +1338,7 @@
                 console.warn('El carousel solo tiene ' + items.length + ' elemento(s), no será visible la rotación');
                 return;
             }
-            
+             
             try {
                 // Intentar usar la API de Bootstrap 5
                 if (typeof bootstrap !== 'undefined' && typeof bootstrap.Carousel !== 'undefined') {
