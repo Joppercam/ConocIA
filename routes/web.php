@@ -160,7 +160,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/comments/{comment}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('comments.approve');
         Route::patch('/comments/{comment}/reject', [App\Http\Controllers\Admin\CommentController::class, 'reject'])->name('comments.reject');
         Route::delete('/comments/{comment}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('comments.destroy');
-
+        Route::delete('comments/{comment}', 'App\Http\Controllers\Admin\CommentController@destroy')->name('comments.delete');
+        
         // Respuesta a comentarios desde el panel de administración
         Route::post('/comments/{comment}/reply', [App\Http\Controllers\Admin\CommentController::class, 'reply'])->name('comments.reply');
 
