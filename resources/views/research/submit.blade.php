@@ -159,6 +159,52 @@
             <form action="{{ route('research.store') }}" method="POST" enctype="multipart/form-data" id="research-form">
                 @csrf
                 
+
+                    <!-- Agregar esta sección para usuarios no autenticados -->
+
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Información de Contacto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Como no has iniciado sesión, necesitamos información adicional para contactarte.
+                            <a href="{{ route('login') }}" class="alert-link">Inicia sesión</a> si ya tienes una cuenta.
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="author_name" class="form-label">Nombre completo *</label>
+                                <input type="text" class="form-control @error('author_name') is-invalid @enderror" 
+                                    id="author_name" name="author_name" value="{{ old('author_name') }}" required>
+                                @error('author_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="author_email" class="form-label">Correo electrónico *</label>
+                                <input type="email" class="form-control @error('author_email') is-invalid @enderror" 
+                                    id="author_email" name="author_email" value="{{ old('author_email') }}" required>
+                                @error('author_email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Te notificaremos a este correo cuando tu investigación sea revisada.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Si has instalado reCAPTCHA, descomenta esto
+                        <div class="mt-3">
+                            {!! NoCaptcha::renderJs() !!}
+                            {!! NoCaptcha::display() !!}
+                            @error('g-recaptcha-response')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        -->
+                    </div>
+                </div>
                 <!-- Información básica -->
                 <div class="form-section">
                     <h3><i class="fas fa-info-circle me-2"></i>Información Básica</h3>
@@ -310,6 +356,12 @@
                         </label>
                     </div>
                 </div>
+
+
+
+
+
+
                 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
                     <button type="button" class="btn btn-outline-secondary btn-sm me-md-2" onclick="window.history.back();">Cancelar</button>
@@ -413,7 +465,13 @@
         </div>
     </div>
 </div>
+
+
 @endsection
+
+
+
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

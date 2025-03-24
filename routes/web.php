@@ -47,11 +47,12 @@ Route::get('/investigacion', [ResearchController::class, 'index'])->name('resear
 Route::get('/investigacion/{id}', [ResearchController::class, 'show'])->name('research.show');
 Route::get('/research/type/{type}', [ResearchController::class, 'byType'])->name('research.type');
 Route::get('/submit-research', [ResearchController::class, 'create'])->name('submit-research');
-// Ruta para mostrar el formulario de envío
-Route::get('/submit-research', [ResearchSubmitController::class, 'create'])->name('submit-research')->middleware('auth');
 
-// Ruta para procesar el envío
-Route::post('/submit-research', [ResearchSubmitController::class, 'store'])->name('research.store')->middleware('auth');
+
+// Modificar las rutas de envío de investigación para eliminar el middleware 'auth'
+Route::get('/submit-research', [ResearchSubmitController::class, 'create'])->name('submit-research');
+Route::post('/submit-research', [ResearchSubmitController::class, 'store'])->name('research.store');
+
 
 // Ruta para newsletter
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');

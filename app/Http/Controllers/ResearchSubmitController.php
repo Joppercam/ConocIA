@@ -13,13 +13,11 @@ use Illuminate\Support\Facades\Log;
 
 class ResearchSubmitController extends Controller
 {
-    /**
-     * Constructor del controlador.
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    // Eliminar o comentar el constructor que tenía el middleware auth
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    // }
 
     /**
      * Muestra el formulario para subir una investigación.
@@ -34,8 +32,6 @@ class ResearchSubmitController extends Controller
         return view('research.submit', compact('categories', 'tags'));
     }
 
-    
-
     /**
      * Almacena una nueva investigación en la base de datos.
      *
@@ -44,7 +40,8 @@ class ResearchSubmitController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        // Reglas de validación base
+        $validationRules = [
             'title' => 'required|string|max:255',
             'abstract' => 'required|string|min:100',
             'content' => 'required|string|min:500',
@@ -58,7 +55,17 @@ class ResearchSubmitController extends Controller
             'additional_authors' => 'nullable|string',
             'institution' => 'nullable|string|max:255',
             'references' => 'nullable|string',
-        ]);
+        ];
+        
+        // Si el usuario no está autenticado, agregar reglas para información de contacto
+        if (!Auth::check()) {
+            $validationRules['author_name'] = 'required|string|max:255';
+            $validationRules['author_email'] = 'required|email|max:255';
+            // Si has instalado el paquete de captcha, descomenta la siguiente línea
+            // $validationRules['g-recaptcha-response'] = 'required|captcha'; 
+        }
+        
+        $validated = $request->validate($validationRules);
         
         $research = new Research();
         $research->title = $request->title;
@@ -68,8 +75,18 @@ class ResearchSubmitController extends Controller
         $research->content = $request->content;
         $research->type = $request->research_type;
         $research->research_type = $request->research_type;
-        $research->user_id = Auth::id();
-        $research->author = Auth::user()->name;
+        
+        // Determinar información del autor basado en si está autenticado o no
+        if (Auth::check()) {
+            $research->user_id = Auth::id();
+            $research->author = Auth::user()->name;
+            $research->author_email = Auth::user()->email;
+        } else {
+            $research->user_id = null; // No hay usuario asociado
+            $research->author = $request->author_name;
+            $research->author_email = $request->author_email;
+        }
+        
         $research->category_id = $request->category_id;
         $research->additional_authors = $request->additional_authors;
         $research->institution = $request->institution;
@@ -155,9 +172,12 @@ class ResearchSubmitController extends Controller
             }
         }
         
+        // Mensaje dependiendo de si está autenticado o no
+        $successMessage = Auth::check() 
+            ? 'Tu investigación ha sido enviada correctamente y está pendiente de revisión. Te notificaremos cuando sea aprobada.' 
+            : 'Tu investigación ha sido enviada correctamente y está pendiente de revisión. Te notificaremos al correo proporcionado cuando sea aprobada.';
+        
         return redirect()->route('research.index')
-            ->with('success', 'Tu investigación ha sido enviada correctamente y está pendiente de revisión. Te notificaremos cuando sea aprobada.');
+            ->with('success', $successMessage);
     }
-    
-
 }
