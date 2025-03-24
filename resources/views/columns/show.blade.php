@@ -34,7 +34,7 @@
                 </div>
                 @endif
                 
-                <div class="content">
+                <div class="content article-content">
                     {!! $column->content !!}
                 </div>
             </div>
@@ -80,7 +80,13 @@
                 </div>
             </div>
             
-            <!-- Comentarios (si implementas esta funcionalidad) -->
+            <!-- Sección de comentarios -->
+            @include('components.comments', [
+                'comments' => $column->comments ?? [],
+                'commentableType' => 'App\\Models\\Column',
+                'commentableId' => $column->id
+            ])
+
         </div>
         
         <!-- Sidebar -->
@@ -143,3 +149,113 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    /* Estilos para la barra lateral (sidebar) */
+    .col-lg-4 {
+        font-size: 0.8rem;
+    }
+    
+    .col-lg-4 h5 {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .col-lg-4 h6 {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .col-lg-4 .text-muted {
+        font-size: 0.75rem;
+    }
+    
+    /* Estilos para el contenido del artículo - Formato profesional con letra reducida */
+    .article-content {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        text-align: justify;
+    }
+    
+    .article-content p {
+        margin-bottom: 0.8rem;
+    }
+    
+    .article-content h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 0.8rem;
+        color: #222;
+    }
+    
+    .article-content h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-top: 1.2rem;
+        margin-bottom: 0.6rem;
+        color: #333;
+    }
+    
+    .article-content ul, .article-content ol {
+        margin-bottom: 0.8rem;
+        padding-left: 1.5rem;
+    }
+    
+    .article-content li {
+        margin-bottom: 0.3rem;
+    }
+    
+    .article-content blockquote {
+        border-left: 2px solid #ccc;
+        padding: 0.3rem 0 0.3rem 0.8rem;
+        margin: 0.8rem 0;
+        font-style: italic;
+        color: #666;
+    }
+    
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        margin: 0.8rem 0;
+    }
+    
+    .article-content a {
+        color: #444;
+        text-decoration: underline;
+    }
+    
+    .article-content table {
+        width: 100%;
+        margin: 0.8rem 0;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+    }
+    
+    .article-content table th,
+    .article-content table td {
+        padding: 0.4rem;
+        border: 1px solid #ddd;
+    }
+    
+    .article-content table th {
+        background-color: #f5f5f5;
+    }
+    
+    /* Ajuste para la sección lead */
+    .lead {
+        font-size: 0.9rem;
+        font-weight: normal;
+        color: #555;
+    }
+    
+    /* Estilos para comentarios */
+    .comments-section .form-floating > .form-control {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+</style>
+@endpush
