@@ -118,7 +118,7 @@
                             <div class="card-body">
                                 <select class="form-control tags-select @error('tags') is-invalid @enderror" id="tags" name="tags[]" multiple>
                                     @foreach($tags as $tag)
-                                        <option value="{{ $tag->id }}" {{ (old('tags') && in_array($tag->id, old('tags'))) || (isset($news) && $news->tags->contains($tag->id)) ? 'selected' : '' }}>
+                                        <option value="{{ $tag->id }}" {{ (old('tags') && in_array($tag->id, old('tags'))) || (isset($news) && $news->tags && $news->tags->contains($tag->id)) ? 'selected' : '' }}>
                                             {{ $tag->name }}
                                         </option>
                                     @endforeach
