@@ -833,8 +833,13 @@
             <div class="row">
                 <div class="col-lg-8 mx-auto">
                     <div class="card border-0 shadow-sm rounded-3">
-                        <div class="list-group list-group-flush rounded-3">
-                            @foreach($latestColumnsSection->skip(4)->take(5) as $column)
+                        
+                    
+                        
+
+                    <div class="list-group list-group-flush rounded-3">
+                        @if($latestColumnsSection->count() > 0)
+                            @foreach($latestColumnsSection->take(5) as $column)
                             <div class="list-group-item border-0 border-bottom py-3 px-4 hover-bg-light transition-300">
                                 <div class="row g-0">
                                     <!-- Avatar e info del autor -->
@@ -894,7 +899,13 @@
                                 </div>
                             </div>
                             @endforeach
-                        </div>
+                        @else
+                            <div class="list-group-item border-0 py-4 text-center">
+                                <p class="text-muted mb-0">No hay columnas recientes disponibles en este momento.</p>
+                            </div>
+                        @endif
+                    </div>
+
                         
                         <!-- Footer con enlace a todas las columnas -->
                         <div class="card-footer bg-light py-3 text-center">

@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class HomeController extends Controller
 {
@@ -69,25 +70,22 @@ class HomeController extends Controller
             ->take(10)
             ->get();
         
-        // Cargar bloque últimas columnas destacadas
+        // Cargar bloque últimas columnas destacadas - CORREGIDO SIN FILTRO DE STATUS
         try {
             $latestColumns = Column::with('author')
                 ->where('featured', true)
-                ->where('status', 'published')  // Añadido filtro para estado published
                 ->latest()
                 ->take(2)
                 ->get();
         } catch (\Exception $e) {
-            // Si el modelo Column todavía no existe
+            // Si el modelo Column todavía no existe o hay otro error
             $latestColumns = collect([]);
         }
         
-
-        // Cargar seccion últimas columnas destacadas
+        // Cargar seccion últimas columnas destacadas - CORREGIDO SIN FILTRO DE STATUS
         try {
             $latestColumnsSectionFeatured = Column::with('author')
                 ->where('featured', true)
-                ->where('status', 'published')  // Añadido filtro para estado published
                 ->latest()
                 ->take(8)
                 ->get();
@@ -96,19 +94,25 @@ class HomeController extends Controller
             $latestColumnsSectionFeatured = collect([]);
         }
 
-        // Cargar sección últimas columnas que NO sean destacadas
+        // Cargar sección últimas columnas que NO sean destacadas - CORREGIDO 
+        // Aumentando el número a tomar para compensar el skip(4) en la vista
         try {
             $latestColumnsSection = Column::with('author')
                 ->where('featured', false)
-                ->where('status', 'published')  // Añadido filtro para estado published
                 ->latest()
-                ->take(4) // Cambiado de 8 a 4 según solicitas
+                ->take(9)  // Aumentado de 4 a 9 para compensar el skip(4)
                 ->get();
         } catch (\Exception $e) {
             // Si el modelo Column todavía no existe
             $latestColumnsSection = collect([]);
         }
 
+        // Debug: Verificar cuántas columnas hay de cada tipo
+        $columnsFeaturedCount = $latestColumnsSectionFeatured->count();
+        $columnsNonFeaturedCount = $latestColumnsSection->count();
+        
+        // Log para depuración (opcional)
+        \Log::info("Columnas destacadas: $columnsFeaturedCount, Columnas no destacadas: $columnsNonFeaturedCount");
                 
         // Cargar artículos secundarios 
         $secondaryNews = News::where('featured', false)
@@ -232,6 +236,8 @@ class HomeController extends Controller
             'getCategoryIcon' => $getCategoryIcon
         ]);
     }
+    
+    // Resto del controlador se mantiene igual...
     
     /**
      * Mostrar la página "Acerca de".
