@@ -21,9 +21,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Primero intentar obtener noticias destacadas
+        // Primero intentar obtener noticias destacadas y publicadas
         $featuredNews = News::with('category')
         ->where('featured', true)  // Priorizar noticias marcadas como destacadas
+        ->where('status', 'published')  // Añadido filtro para estado published
         ->latest()
         ->take(5)
         ->get();
@@ -36,6 +37,7 @@ class HomeController extends Controller
         // Obtener noticias adicionales para completar 5 en total
         $additionalNews = News::with('category')
                 ->where('featured', false)
+                ->where('status', 'published')  // Añadido filtro para estado published
                 ->whereNotIn('id', $existingIds)
                 ->latest()
                 ->take(5 - $featuredNews->count())
@@ -50,6 +52,7 @@ class HomeController extends Controller
 
         // Obtener últimas noticias (para otras secciones)
         $latestNews = News::with('category')
+            ->where('status', 'published')  // Añadido filtro para estado published
             ->whereNotIn('id', $featuredNewsIds)  // Excluir las que ya están en destacados
             ->latest()
             ->take(28)  // Puedes mantener esto o ajustarlo
@@ -61,6 +64,7 @@ class HomeController extends Controller
 
         // Cargar noticias populares
         $popularNews = News::with('category')
+            ->where('status', 'published')  // Añadido filtro para estado published
             ->orderBy('views', 'desc')
             ->take(10)
             ->get();
@@ -69,6 +73,7 @@ class HomeController extends Controller
         try {
             $latestColumns = Column::with('author')
                 ->where('featured', true)
+                ->where('status', 'published')  // Añadido filtro para estado published
                 ->latest()
                 ->take(2)
                 ->get();
@@ -82,6 +87,7 @@ class HomeController extends Controller
         try {
             $latestColumnsSectionFeatured = Column::with('author')
                 ->where('featured', true)
+                ->where('status', 'published')  // Añadido filtro para estado published
                 ->latest()
                 ->take(8)
                 ->get();
@@ -94,6 +100,7 @@ class HomeController extends Controller
         try {
             $latestColumnsSection = Column::with('author')
                 ->where('featured', false)
+                ->where('status', 'published')  // Añadido filtro para estado published
                 ->latest()
                 ->take(4) // Cambiado de 8 a 4 según solicitas
                 ->get();
@@ -105,13 +112,16 @@ class HomeController extends Controller
                 
         // Cargar artículos secundarios 
         $secondaryNews = News::where('featured', false)
+            ->where('status', 'published')  // Añadido filtro para estado published
             ->with('category')
             ->latest()
             ->take(2)
             ->get();
             
         // Categorías destacadas
-        $featuredCategories = Category::withCount('news')
+        $featuredCategories = Category::withCount(['news' => function($query) {
+                $query->where('status', 'published');  // Contar solo noticias publicadas
+            }])
             ->orderBy('news_count', 'desc')
             ->take(10)
             ->get();
