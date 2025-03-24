@@ -105,101 +105,168 @@
                 </div>
             </div>
 
+            
+            
+            
+            
             <!-- Comentarios -->
             <div class="comments-section mb-4">
+                <!-- Mensaje de éxito para comentarios (aparecerá solo cuando session('comment_added') está presente) -->
+                @if(session('comment_added'))
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Tu comentario ha sido recibido y está pendiente de aprobación. Gracias por participar.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                @endif
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0"><i class="far fa-comments text-primary me-2"></i>Comentarios ({{ $comments_count }})</h4>
+                    <h4 class="mb-0">
+                        <i class="far fa-comments text-primary me-2"></i>
+                        Comentarios
+                        @php
+                            // Contar solo comentarios aprobados
+                            $approvedCount = is_array($comments) 
+                                ? collect($comments)->where('status', 'approved')->count() 
+                                : $comments->where('status', 'approved')->count();
+                        @endphp
+                        @if($approvedCount > 0)
+                            <span class="badge bg-primary ms-2">{{ $approvedCount }}</span>
+                        @endif
+                    </h4>
+                    
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#commentForm" aria-expanded="false" aria-controls="commentForm">
+                        <i class="fas fa-plus me-1"></i> Añadir comentario
+                    </button>
                 </div>
                 
-                <!-- Formulario de comentario -->
-                <div class="card mb-4 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h5 class="card-title mb-3 d-flex align-items-center">
-                            <i class="far fa-edit me-2 text-primary"></i>Deja tu comentario
-                        </h5>
-                        <form action="{{ url('/comments') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="commentable_type" value="App\Models\Research">
-                            <input type="hidden" name="commentable_id" value="{{ $id }}">
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6 mb-3 mb-md-0">
-                                    <label for="name" class="form-label">Nombre</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="far fa-user"></i></span>
-                                        <input type="text" class="form-control" id="name" name="guest_name" value="{{ old('guest_name') }}" required>
+                <!-- Formulario de comentario (colapsable) -->
+                <div class="collapse mb-4" id="commentForm">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3 border-bottom pb-2">Deja tu comentario</h5>
+                            <form action="{{ url('/comments') }}" method="POST" id="researchCommentForm">
+                                @csrf
+                                <input type="hidden" name="commentable_type" value="App\Models\Research">
+                                <input type="hidden" name="commentable_id" value="{{ $id }}">
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control @error('guest_name') is-invalid @enderror" 
+                                                id="name" name="guest_name" placeholder="Tu nombre"
+                                                value="{{ old('guest_name') ?? Cookie::get('comment_name') }}" required>
+                                            <label for="name">Nombre</label>
+                                            @error('guest_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control @error('guest_email') is-invalid @enderror" 
+                                                id="email" name="guest_email" placeholder="tu@email.com"
+                                                value="{{ old('guest_email') ?? Cookie::get('comment_email') }}" required>
+                                            <label for="email">Email</label>
+                                            @error('guest_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text">Tu email no será publicado.</div>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">Email</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="far fa-envelope"></i></span>
-                                        <input type="email" class="form-control" id="email" name="guest_email" value="{{ old('guest_email') }}" required>
+                                <div class="mb-3">
+                                    <div class="form-floating">
+                                        <textarea class="form-control @error('content') is-invalid @enderror" 
+                                                id="comment" name="content" style="height: 120px" 
+                                                placeholder="Escribe tu comentario aquí" required>{{ old('content') }}</textarea>
+                                        <label for="comment">Comentario</label>
+                                        @error('content')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <div class="form-text small text-muted">Tu email no será publicado.</div>
                                 </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Comentario</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="far fa-comment"></i></span>
-                                    <textarea class="form-control" id="comment" name="content" rows="4" required>{{ old('content') }}</textarea>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="saveInfo" name="save_info" 
+                                            {{ old('save_info') || Cookie::has('comment_name') ? 'checked' : '' }}>
+                                        <label class="form-check-label small" for="saveInfo">
+                                            Guardar mi información para próximos comentarios
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i> Publicar comentario
+                                    </button>
                                 </div>
-                            </div>
-                            
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="saveInfo" name="save_info" {{ old('save_info') ? 'checked' : '' }}>
-                                <label class="form-check-label small" for="saveInfo">
-                                    Guardar mi nombre y email para la próxima vez que comente.
-                                </label>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="fas fa-paper-plane me-2"></i>Publicar comentario
-                            </button>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Lista de comentarios -->
+                <!-- Lista de comentarios filtrados (solo aprobados) -->
                 <div class="comments-list">
-                    @forelse($comments as $comment)
-                        <div class="comment-item mb-4 p-3 border-start border-primary border-3 bg-light rounded shadow-sm">
-                            <div class="d-flex mb-2">
-                                <div class="comment-avatar me-3">
-                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 20px;">
-                                        @php
-                                            $commentName = is_array($comment) ? ($comment['guest_name'] ?? 'A') : ($comment->guest_name ?? 'A');
-                                            $commentContent = is_array($comment) ? ($comment['content'] ?? 'Sin contenido') : ($comment->content ?? 'Sin contenido');
-                                            $commentCreatedAt = is_array($comment) ? (isset($comment['created_at']) ? \Carbon\Carbon::parse($comment['created_at']) : null) : ($comment->created_at ?? null);
-                                        @endphp
-                                        {{ strtoupper(substr($commentName, 0, 1)) }}
+                    @php
+                        // Filtrar solo los comentarios aprobados
+                        $approvedComments = is_array($comments) 
+                            ? collect($comments)->where('status', 'approved') 
+                            : $comments->where('status', 'approved');
+                    @endphp
+
+                    @forelse($approvedComments as $comment)
+                        <div class="comment-item card border-0 shadow-sm mb-3" id="comment-{{ is_array($comment) ? ($comment['id'] ?? '') : ($comment->id ?? '') }}">
+                            <div class="card-body">
+                                <div class="d-flex mb-2">
+                                    <div class="comment-avatar me-3">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                            style="width: 48px; height: 48px; font-size: 18px;">
+                                            @php
+                                                $commentName = is_array($comment) ? ($comment['guest_name'] ?? 'A') : ($comment->guest_name ?? 'A');
+                                                $commentContent = is_array($comment) ? ($comment['content'] ?? 'Sin contenido') : ($comment->content ?? 'Sin contenido');
+                                                $commentCreatedAt = is_array($comment) ? (isset($comment['created_at']) ? \Carbon\Carbon::parse($comment['created_at']) : null) : ($comment->created_at ?? null);
+                                            @endphp
+                                            {{ strtoupper(substr($commentName, 0, 1)) }}
+                                        </div>
+                                    </div>
+                                    <div class="comment-meta flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 fs-5">{{ $commentName }}</h5>
+                                            <span class="text-muted small">
+                                                <i class="far fa-clock me-1"></i> 
+                                                {{ $commentCreatedAt ? $commentCreatedAt->locale('es')->diffForHumans() : 'Hace algún tiempo' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-comment-dots me-1"></i> Comentario #{{ $loop->iteration }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="comment-meta">
-                                    <h5 class="mb-1 fs-6 fw-bold">{{ $commentName }}</h5>
-                                    <div class="text-muted small">
-                                        <i class="far fa-clock me-1"></i> 
-                                        {{ $commentCreatedAt ? $commentCreatedAt->locale('es')->diffForHumans() : 'Hace algún tiempo' }}
-                                    </div>
+                                <div class="comment-content mt-2 pt-2 border-top">
+                                    <p class="mb-0">{{ $commentContent }}</p>
                                 </div>
-                            </div>
-                            <div class="comment-content mt-2 ps-5">
-                                <p class="mb-0">{{ $commentContent }}</p>
                             </div>
                         </div>
                     @empty
                         <div class="alert alert-light shadow-sm">
-                            <p class="mb-0 text-center">
-                                <i class="far fa-comments me-2 text-muted"></i>
-                                No hay comentarios todavía. ¡Sé el primero en comentar!
-                            </p>
+                            <div class="d-flex align-items-center">
+                                <i class="far fa-comment-dots text-primary me-3 fs-4"></i>
+                                <p class="mb-0">No hay comentarios aprobados todavía. ¡Sé el primero en comentar!</p>
+                            </div>
                         </div>
                     @endforelse
                 </div>
             </div>
+
+
+
+
+
+
+
         </div>
         
         <!-- Sidebar -->
@@ -249,7 +316,7 @@
                 </div>
             </div>
             
-            <!-- Artículos Relacionados (Movido aquí desde abajo) -->
+            <!-- Artículos Relacionados -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
                     <h5 class="mb-0 d-flex align-items-center">
@@ -330,9 +397,11 @@
         </div>
     </div>
 </div>
+@endsection
 
+@push('styles')
+<!-- Estilos para mejorar la apariencia general -->
 <style>
-/* Estilos para mejorar la apariencia */
 .comment-item {
     transition: all 0.3s ease;
 }
@@ -345,5 +414,380 @@
 .most-read-item:hover, .list-group-item:hover {
     background-color: rgba(0,0,0,0.01);
 }
+
+/* Estilos para los comentarios */
+.comments-section .form-floating > .form-control {
+    height: calc(3.5rem + 2px);
+    line-height: 1.25;
+}
+
+.comments-section .form-floating > label {
+    padding: 1rem 0.75rem;
+}
+
+.comments-section .comment-item {
+    transition: all 0.3s ease;
+}
+
+.comments-section .comment-item:hover {
+    transform: translateY(-2px);
+}
+
+.comments-section .comment-avatar div {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Animación para nuevos comentarios */
+@keyframes highlightComment {
+    0% { background-color: rgba(13, 110, 253, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.comment-new {
+    animation: highlightComment 2s ease-out;
+}
 </style>
-@endsection
+
+
+<!-- Estilos mejorados para el contenido de investigación -->
+<style>
+    /* Estilos para mejorar el formato del contenido de investigación */
+.article-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #333;
+}
+
+/* Encabezados */
+.article-content h2 {
+    font-size: 1.8rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.article-content h3 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.article-content h4 {
+    font-size: 1.25rem;
+    margin-top: 1.8rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Párrafos */
+.article-content p {
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+/* Listas */
+.article-content ul, 
+.article-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.article-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* Citas */
+.article-content blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid #0d6efd;
+    background-color: #f8f9fa;
+    font-style: italic;
+    color: #555;
+}
+
+.article-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Código */
+.article-content pre,
+.article-content code {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.article-content code {
+    padding: 0.2em 0.4em;
+}
+
+.article-content pre {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    border: 1px solid #eaeaea;
+}
+
+/* Enlaces */
+.article-content a {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.article-content a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+/* Imágenes */
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.article-content figure {
+    margin: 2rem 0;
+}
+
+.article-content figure figcaption {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+/* Tablas */
+.article-content table {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-collapse: collapse;
+}
+
+.article-content table th,
+.article-content table td {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+}
+
+.article-content table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-align: left;
+}
+
+.article-content table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Destacados y notas */
+.article-content .note {
+    background-color: #e7f5ff;
+    border-left: 4px solid #0d6efd;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.article-content .warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Resolución móvil */
+@media (max-width: 768px) {
+    .article-content {
+        font-size: 1rem;
+    }
+    
+    .article-content h2 {
+        font-size: 1.6rem;
+    }
+    
+    .article-content h3 {
+        font-size: 1.35rem;
+    }
+    
+    .article-content h4 {
+        font-size: 1.2rem;
+    }
+}
+</style>
+
+<!-- Estilos para reducir el tamaño de letra en toda la página -->
+<style>
+    /* Reducción general del tamaño de letra para toda la página de investigación */
+
+/* Contenido principal */
+.article-content {
+    font-size: 0.95rem !important;
+    line-height: 1.6;
+}
+
+.article-content h2 {
+    font-size: 1.5rem !important;
+}
+
+.article-content h3 {
+    font-size: 1.3rem !important;
+}
+
+.article-content h4 {
+    font-size: 1.15rem !important;
+}
+
+.article-content p, 
+.article-content li,
+.article-content blockquote {
+    font-size: 0.95rem !important;
+}
+
+.article-content pre, 
+.article-content code {
+    font-size: 0.85rem !important;
+}
+
+/* Título principal */
+.col-lg-8 h1 {
+    font-size: 1.8rem !important;
+}
+
+/* Metadatos del artículo */
+.article-meta {
+    font-size: 0.8rem !important;
+}
+
+/* Resumen o extracto */
+.lead {
+    font-size: 0.95rem !important;
+}
+
+/* Citaciones */
+.card .card-header h5 {
+    font-size: 1rem !important;
+}
+
+.card .card-body {
+    font-size: 0.9rem !important;
+}
+
+/* Sidebar (columna derecha) */
+.col-lg-4 .card-header h5 {
+    font-size: 0.9rem !important;
+}
+
+.col-lg-4 .card-body {
+    font-size: 0.85rem !important;
+}
+
+.col-lg-4 h6 {
+    font-size: 0.85rem !important;
+    line-height: 1.4;
+}
+
+.col-lg-4 .small, 
+.col-lg-4 .most-read-content .small {
+    font-size: 0.75rem !important;
+}
+
+.col-lg-4 .badge {
+    font-size: 0.7rem !important;
+}
+
+.most-read-number {
+    font-size: 1.2rem !important;
+}
+
+/* Comentarios */
+.comments-section h4 {
+    font-size: 1.2rem !important;
+}
+
+.comments-section h5 {
+    font-size: 1rem !important;
+}
+
+.comments-section .card-body {
+    font-size: 0.9rem !important;
+}
+
+.comments-section .comment-meta h5 {
+    font-size: 0.95rem !important;
+}
+
+.comments-section .comment-meta .small, 
+.comments-section .comment-content p {
+    font-size: 0.85rem !important;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    font-size: 0.8rem !important;
+}
+
+/* Botones y enlaces */
+.btn {
+    font-size: 0.85rem !important;
+}
+
+/* Ajustes específicos */
+.form-text {
+    font-size: 0.75rem !important;
+}
+
+.form-check-label {
+    font-size: 0.8rem !important;
+}
+
+/* Formularios */
+.form-control, 
+.form-control::placeholder, 
+.form-floating label {
+    font-size: 0.85rem !important;
+}
+</style>
+
+
+@endpush
+
+@push('scripts')
+<!-- JavaScript para el formulario de comentarios -->
+<!-- JavaScript para el formulario de comentarios -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar formulario automáticamente si hay errores de validación
+        @if($errors->any())
+            var commentForm = document.getElementById('commentForm');
+            var bsCollapse = new bootstrap.Collapse(commentForm, {
+                toggle: true
+            });
+        @endif
+        
+        // Si hay un mensaje de comentario añadido, scroll al principio de la página
+        @if(session('comment_added'))
+            // Hacemos scroll al principio de la página después de un pequeño retraso
+            // para asegurar que la página se ha cargado completamente
+            setTimeout(function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        @endif
+    });
+</script>
+@endpush
