@@ -104,6 +104,7 @@ class NewsController extends Controller
             }])
             ->firstOrFail();
             
+            
         // IMPORTANTE: Incrementar contador de vistas directamente aquí
         // sin llamar a ningún método privado o protegido
         $this->incrementArticleViews($article);
@@ -118,10 +119,14 @@ class NewsController extends Controller
                 }
                 
                 // O por etiquetas si están disponibles
-                if ($article->tags && $article->tags->count() > 0) {
-                    $tagIds = $article->tags->pluck('id')->toArray();
-                    $query->orWhereHas('tags', function($q) use ($tagIds) {
-                        $q->whereIn('tags.id', $tagIds);
+                if ($article->tags && !empty($article->tags)) {
+                    // Convertir el string de etiquetas en un array
+                    $tagArray = explode(',', $article->tags);
+                    // Buscar noticias que tengan estas etiquetas
+                    $query->orWhere(function($q) use ($tagArray) {
+                        foreach ($tagArray as $tag) {
+                            $q->orWhere('tags', 'like', '%' . trim($tag) . '%');
+                        }
                     });
                 }
             })
@@ -129,7 +134,7 @@ class NewsController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(6)
             ->get();
-            
+           
         // Obtener artículos más leídos usando el contador real de vistas
         $mostReadArticles = News::with('category')
             ->published()
