@@ -107,6 +107,11 @@ Route::get('investigacion/categoria/{category:slug}', [App\Http\Controllers\Rese
     ->name('research.category');
     
 
+// Rutas para páginas legales
+Route::get('/privacidad', [App\Http\Controllers\PagesController::class, 'privacy'])->name('pages.privacy');
+Route::get('/terminos', [App\Http\Controllers\PagesController::class, 'terms'])->name('pages.terms');
+Route::get('/cookies', [App\Http\Controllers\PagesController::class, 'cookies'])->name('pages.cookies');    
+
 // Rutas de administración
 Route::prefix('admin')->name('admin.')->group(function () {
     // Rutas para usuarios no autenticados
