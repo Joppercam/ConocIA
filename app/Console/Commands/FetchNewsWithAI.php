@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use OpenAI\Laravel\Facades\OpenAI;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Artisan;
 
 class FetchNewsWithAI extends Command
 {
@@ -315,6 +316,7 @@ class FetchNewsWithAI extends Command
                     // Encolar el job para descargar la imagen de forma asíncrona
                     \App\Jobs\DownloadNewsImage::dispatch($news->id, $newsItem['image'], $categorySlug);
                     $this->info("Descarga de imagen programada en cola para el artículo.");
+
                 }
                 
                 $this->info("Noticia guardada correctamente.");
@@ -359,6 +361,14 @@ class FetchNewsWithAI extends Command
             sleep(1);
         }
         
+        // Procesar toda la cola después de haber encolado todas las imágenes
+        Artisan::call('queue:work', [
+            '--stop-when-empty' => true,
+            '--tries' => 3,
+            '--timeout' => 300, // 5 minutos
+        ]);
+
+
         $bar->finish();
         $this->newLine();
         $this->info("Noticias obtenidas y guardadas correctamente: {$savedCount} nuevas noticias de {$categoryName}.");
@@ -531,16 +541,27 @@ class FetchNewsWithAI extends Command
         try {
             $this->info("Procesando con IA el artículo: {$news['title']}");
             
+            // Extraer palabras clave del título y contenido para enriquecer el contexto
+            $keywords = $this->extractKeywords($news['title'] . ' ' . $news['content']);
+            
             // Preparamos el prompt para la IA específico para noticias de tecnología
             $prompt = "Actúa como un periodista especializado en tecnología y noticias tech, con enfoque en {$categoryName}. A continuación hay un fragmento de una noticia:\n\n";
             $prompt .= "Título: {$news['title']}\n";
-            $prompt .= "Contenido: {$news['content']}\n\n";
-            $prompt .= "Por favor, reescribe y expande esta noticia en un formato periodístico profesional en español, con un enfoque especializado en {$categoryName}. ";
-            $prompt .= "Si la noticia está en inglés, tradúcela al español. ";
-            $prompt .= "Mantén los hechos principales pero mejora el estilo, añade más contexto técnico y detalles relevantes. ";
-            $prompt .= "Utiliza terminología precisa del campo de {$categoryName}. ";
-            $prompt .= "No inventes hechos que no estén en el contenido original, pero sí puedes añadir contexto relevante sobre la tecnología mencionada. ";
-            $prompt .= "Devuelve tu respuesta en formato JSON con estas claves: 'title' (título mejorado en español), 'content' (contenido completo en español con formato HTML), 'excerpt' (resumen breve de 2-3 oraciones en español).";
+            $prompt .= "Contenido: {$news['content']}\n";
+            $prompt .= "Palabras clave: " . implode(', ', $keywords) . "\n\n";
+            $prompt .= "Por favor, reescribe y expande esta noticia en un formato periodístico profesional en español, con un enfoque especializado en {$categoryName}, siguiendo estas instrucciones:\n\n";
+            $prompt .= "1. Si la noticia está en inglés, tradúcela al español manteniendo la terminología técnica precisa.\n";
+            $prompt .= "2. El artículo debe tener una extensión mínima de 600 palabras, estructurado con introducción, desarrollo (dividido en 2-3 subtemas) y conclusión.\n";
+            $prompt .= "3. Mantén los hechos principales pero mejora el estilo, añade más contexto técnico y detalles relevantes.\n";
+            $prompt .= "4. Incluye subtítulos en formato <h2> para estructurar el contenido.\n";
+            $prompt .= "5. Si es relevante, menciona el impacto de esta noticia en el campo de {$categoryName} y su posible evolución futura.\n";
+            $prompt .= "6. Utiliza terminología precisa del campo de {$categoryName}.\n";
+            $prompt .= "7. No inventes hechos que no estén en el contenido original, pero sí puedes añadir contexto relevante sobre la tecnología mencionada.\n";
+            $prompt .= "8. Asegúrate de que el excerpt sea atractivo y capture la esencia de la noticia en 2-3 oraciones (máximo 200 caracteres).\n\n";
+            $prompt .= "Devuelve tu respuesta en formato JSON con estas claves:\n";
+            $prompt .= "- 'title' (título mejorado en español, atractivo y SEO-friendly)\n";
+            $prompt .= "- 'content' (contenido completo en español con formato HTML, bien estructurado con párrafos y subtítulos)\n";
+            $prompt .= "- 'excerpt' (resumen atractivo de 2-3 oraciones en español que capture la esencia de la noticia)";
             
             // Configuración directa del cliente HTTP
             $this->info("Configurando cliente OpenAI...");
@@ -561,12 +582,14 @@ class FetchNewsWithAI extends Command
             $this->info("Enviando solicitud a OpenAI...");
             
             $result = $client->chat()->create([
-                'model' => 'gpt-3.5-turbo', // Usamos gpt-3.5-turbo porque es más rápido y barato
+                'model' => 'gpt-4o', // Actualizado a un modelo más potente para contenido de mayor calidad
                 'messages' => [
-                    ['role' => 'system', 'content' => "Eres un periodista especializado en tecnología, con enfoque particular en {$categoryName}. Eres experto en redactar noticias técnicas precisas y accesibles. Si el contenido está en otro idioma, tradúcelo al español manteniendo toda la terminología técnica correcta."],
+                    ['role' => 'system', 'content' => "Eres un periodista especializado en tecnología, con enfoque particular en {$categoryName}. Eres experto en redactar noticias técnicas extensas, precisas y accesibles. Tu objetivo es crear contenido de alta calidad que explique conceptos técnicos de manera comprensible, manteniendo el rigor técnico. Estructuras tus artículos con introducción, desarrollo y conclusión, usando subtítulos adecuados."],
                     ['role' => 'user', 'content' => $prompt],
                 ],
                 'response_format' => ['type' => 'json_object'],
+                'temperature' => 0.7, // Temperatura moderada para balancear creatividad y precisión
+                'max_tokens' => 2500, // Asegurar suficiente espacio para respuestas largas
             ]);
             
             $this->info("Respuesta recibida de OpenAI");
@@ -580,6 +603,35 @@ class FetchNewsWithAI extends Command
                 return null;
             }
             
+            // Verificar y garantizar que tenemos un excerpt
+            if (empty($enhancedContent['excerpt'])) {
+                $this->warn("Excerpt vacío en la respuesta de IA, generando uno a partir del contenido...");
+                $enhancedContent['excerpt'] = Str::limit(strip_tags($enhancedContent['content']), 200);
+            }
+            
+            // Verificar longitud mínima del contenido
+            $contentLength = str_word_count(strip_tags($enhancedContent['content']));
+            if ($contentLength < 300) { // Si el contenido es muy corto
+                $this->warn("Contenido demasiado corto ($contentLength palabras), solicitando ampliación...");
+                
+                // Intento de expandir el contenido con una segunda llamada a la API
+                $expansionPrompt = "El siguiente es un artículo corto sobre {$categoryName}. Por favor, expándelo significativamente añadiendo más contexto, detalles técnicos, y posibles implicaciones futuras, manteniendo el tono periodístico profesional:\n\n" . $enhancedContent['content'];
+                
+                $expansionResult = $client->chat()->create([
+                    'model' => 'gpt-4o',
+                    'messages' => [
+                        ['role' => 'system', 'content' => "Expande este artículo sobre {$categoryName} a una longitud de al menos 600 palabras, añadiendo contexto, detalles técnicos y estructura con subtítulos."],
+                        ['role' => 'user', 'content' => $expansionPrompt],
+                    ],
+                    'temperature' => 0.7,
+                    'max_tokens' => 2500,
+                ]);
+                
+                $expandedContent = $expansionResult->choices[0]->message->content;
+                $enhancedContent['content'] = $expandedContent;
+                $this->info("Contenido expandido exitosamente");
+            }
+            
             $this->info("Contenido mejorado con IA correctamente");
             return $enhancedContent;
             
@@ -587,5 +639,33 @@ class FetchNewsWithAI extends Command
             $this->error("Error al procesar con IA: {$news['title']} - " . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Extrae palabras clave de un texto para mejorar el contexto
+     */
+    private function extractKeywords($text)
+    {
+        // Eliminar palabras comunes y extraer términos relevantes
+        $commonWords = ['el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'de', 'del', 'a', 'en', 'con', 'por', 'para', 'es', 'son', 'fue', 'fueron', 'como', 'pero', 'si', 'no', 'que', 'al', 'ha', 'han', 'se', 'su', 'sus', 'the', 'a', 'an', 'and', 'of', 'to', 'in', 'on', 'for', 'with', 'is', 'are', 'was', 'were'];
+        
+        // Convertir a minúsculas y eliminar caracteres especiales
+        $text = strtolower($text);
+        $text = preg_replace('/[^\p{L}\p{N}\s]/u', '', $text);
+        
+        // Dividir en palabras y filtrar
+        $words = explode(' ', $text);
+        $filteredWords = array_filter($words, function($word) use ($commonWords) {
+            return strlen($word) > 3 && !in_array($word, $commonWords);
+        });
+        
+        // Contar frecuencia
+        $wordCounts = array_count_values($filteredWords);
+        
+        // Ordenar por frecuencia
+        arsort($wordCounts);
+        
+        // Devolver las 10 palabras más frecuentes
+        return array_slice(array_keys($wordCounts), 0, 10);
     }
 }
