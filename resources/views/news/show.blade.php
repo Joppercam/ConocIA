@@ -63,7 +63,7 @@
                 <div class="d-flex align-items-center text-muted small mb-3">
                     <img src="{{ $article->author->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($article->author) . '&background=random' }}" 
                         class="rounded-circle me-2" width="24" height="24" alt="{{ $article->author }}">
-                    <span>Por <a href="{{ route('authors.show', $article->author) }}" class="text-decoration-none">{{ $article->author }}</a></span>
+                    <span>Por {{ $article->author }}</span>
                     <span class="mx-2">•</span>
                     <span><i class="far fa-calendar-alt me-1"></i> {{ $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}</span>
                     <span class="mx-2">•</span>
