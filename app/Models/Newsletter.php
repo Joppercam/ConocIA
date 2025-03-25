@@ -16,8 +16,9 @@ class Newsletter extends Model
      */
     protected $fillable = [
         'email',
-        'active',
-        'unsubscribed_at',
+        'is_active',       // Cambio de 'active' a 'is_active'
+        'verified_at',     // Cambio de 'unsubscribed_at' a 'verified_at'
+        'token',
     ];
 
     /**
@@ -26,7 +27,7 @@ class Newsletter extends Model
      * @var array
      */
     protected $casts = [
-        'active' => 'boolean',
-        'unsubscribed_at' => 'datetime',
+        'is_active' => 'boolean',   // Cambio de 'active' a 'is_active'
+        'verified_at' => 'datetime', // Cambio de 'unsubscribed_at' a 'verified_at'
     ];
 }

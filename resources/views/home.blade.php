@@ -230,6 +230,8 @@
     </section>
 
 
+  
+
     <!-- Sección Noticias Recientes y Lo Más Leído (COMPLETA) -->
     <section class="py-3 border-top">
         <div class="container">
@@ -408,22 +410,58 @@
                                 @endforeach
                             </div>
                             
-                            <!-- Newsletter dentro de lo más leído -->
+                                                        
+                            <!-- Newsletter dentro de lo más leído - Estilo mejorado -->
                             <div class="mt-3 pt-3 border-top">
-                                <h5 class="text-center fs-6 mb-3">Suscríbete al newsletter</h5>
-                                <form action="{{ route('newsletter.subscribe') }}" method="POST" class="newsletter-form">
-                                    @csrf
-                                    <div class="input-group mb-2">
-                                        <input type="email" class="form-control" name="email" placeholder="Tu correo electrónico" required>
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="fas fa-paper-plane"></i>
-                                        </button>
+                                <div class="bg-dark text-white py-3 rounded position-relative overflow-hidden">
+                                    <!-- Elementos decorativos de fondo -->
+                                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+                                        <div class="position-absolute end-0 top-50 translate-middle-y opacity-10">
+                                            <i class="fas fa-paper-plane fa-2x"></i>
+                                        </div>
                                     </div>
-                                    <p class="text-muted text-center small mb-0">
-                                        <i class="fas fa-shield-alt me-1"></i> Recibirás las últimas noticias sin spam
-                                    </p>
-                                </form>
+                                    
+                                    <div class="position-relative px-3">
+                                        <h5 class="text-center mb-2 fs-6 fw-bold">
+                                            <span class="d-inline-block border-bottom border-2 pb-1">Suscríbete al Newsletter</span>
+                                        </h5>
+                                        
+                                        <form id="newsletterForm" class="newsletter-form" action="{{ route('newsletter.subscribe') }}" method="POST">
+                                            @csrf
+                                            <div class="input-group mb-2">
+                                                <input type="email" class="form-control" id="newsletterEmail" name="email" placeholder="Tu correo electrónico" required>
+                                                <button class="btn btn-primary" type="submit" id="newsletterSubmit">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </button>
+                                            </div>
+                                            <p class="text-white-50 text-center small mb-0">
+                                                <i class="fas fa-shield-alt me-1"></i> Recibirás las últimas noticias sin spam
+                                            </p>
+                                            
+                                            <!-- Contenedor para mensajes de respuesta -->
+                                            <div id="newsletterResponse" class="mt-2">
+                                                @if(session('subscription_success'))
+                                                <div class="alert alert-success alert-dismissible fade show p-2 small" role="alert">
+                                                    <i class="fas fa-check-circle me-1"></i> {{ session('subscription_success') }}
+                                                    <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                                @endif
+                                                
+                                                @if(session('subscription_info'))
+                                                <div class="alert alert-info alert-dismissible fade show p-2 small" role="alert">
+                                                    <i class="fas fa-info-circle me-1"></i> {{ session('subscription_info') }}
+                                                    <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
+
+
+
+
                         </div>
                     </div>
                 </div>
@@ -917,7 +955,28 @@
     </section>
 
 
-
+<!-- Al final de tu archivo de vista -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <!-- Toast para éxito -->
+    <div id="subscriptionSuccessToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i> {{ session('subscription_success') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+    
+    <!-- Toast para información -->
+    <div id="subscriptionInfoToast" class="toast align-items-center text-white bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-info-circle me-2"></i> {{ session('subscription_info') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
 
 
 @endsection
@@ -1284,6 +1343,110 @@
 @endpush
 
 @push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('newsletterForm');
+    if (!form) return;
+    
+    const responseDiv = document.getElementById('newsletterResponse');
+    const submitButton = document.getElementById('newsletterSubmit');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Cambiar estado del botón
+        const originalButtonHtml = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        
+        // Limpiar mensajes anteriores
+        responseDiv.innerHTML = '';
+        
+        // Obtener datos del formulario
+        const formData = new FormData(form);
+        
+        // Enviar solicitud al servidor
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restaurar botón
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+            
+            // Manejar respuesta
+            if (data.success) {
+                // Éxito
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show p-2 mt-2 small" role="alert">
+                        <i class="fas fa-check-circle me-1"></i> ${data.message}
+                        <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                form.reset();
+                
+                // Mostrar SweetAlert si está disponible
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Suscripción Exitosa!',
+                        text: data.message,
+                        timer: 3000
+                    });
+                }
+            } else if (data.info) {
+                // Información (por ejemplo, ya suscrito)
+                responseDiv.innerHTML = `
+                    <div class="alert alert-info alert-dismissible fade show p-2 mt-2 small" role="alert">
+                        <i class="fas fa-info-circle me-1"></i> ${data.message}
+                        <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                // Mostrar SweetAlert si está disponible
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Información',
+                        text: data.message
+                    });
+                }
+            } else {
+                // Error genérico
+                responseDiv.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show p-2 mt-2 small" role="alert">
+                        <i class="fas fa-exclamation-circle me-1"></i> ${data.message || 'Ocurrió un error al procesar tu solicitud.'}
+                        <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            // Error de red u otra causa
+            console.error('Error:', error);
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+            
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show p-2 mt-2 small" role="alert">
+                    <i class="fas fa-exclamation-circle me-1"></i> Error de conexión. Inténtalo de nuevo más tarde.
+                    <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        });
+    });
+});
+</script>
+
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Función para inicializar el carousel con logging para depuración
