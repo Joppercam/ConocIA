@@ -124,8 +124,8 @@
                                         
                                         <!-- Estadísticas mínimas -->
                                         <div class="d-flex align-items-center text-muted fs-9">
-                                            <span class="me-2"><i class="far fa-eye me-1"></i>{{ $column->views ?? rand(100, 999) }}</span>
-                                            <span><i class="far fa-comment me-1"></i>{{ $column->comments_count ?? rand(0, 15) }}</span>
+                                            <span class="me-2"><i class="far fa-eye me-1"></i>{{ $column->views ?? 0 }}</span>
+                                            <span><i class="far fa-comment me-1"></i>{{ $column->comments_count ?? 0 }}</span>
                                         </div>
                                         
                                         @if(!$loop->last)
