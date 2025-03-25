@@ -12,47 +12,47 @@
                 
                     <div class="col-lg-8">
                         <!-- Slider de noticias principales -->
-                        <div id="heroNewsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" data-bs-wrap="true">
-                            <div class="carousel-indicators">
-                                @foreach($featuredNews as $index => $featured)
-                                <button type="button" data-bs-target="#heroNewsCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
-                                @endforeach
-                            </div>
-                            <div class="carousel-inner">
-                                @foreach($featuredNews as $index => $featured)
-                                <div class="carousel-item {{ $index == 0 ? 'active' : '' }}" data-bs-interval="5000">
-                                    <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" class="hero-news-link">
-                                        <div class="hero-news-item">
-                                            <img src="{{ $getImageUrl($featured->image, 'news', 'large') }}" class="d-block w-100" alt="{{ $featured->title }}" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-large.jpg') }}';">
-                                            <div class="hero-news-content">
-                                                @if(isset($featured->category))
-                                                <span class="hero-news-category" style="{{ $getCategoryStyle($featured->category) }}">
-                                                    <i class="fas {{ $getCategoryIcon($featured->category) }} me-1"></i>
-                                                    {{ $featured->category->name }}
-                                                </span>
-                                                @endif
-                                                <h2 class="hero-news-title">{{ $featured->title }}</h2>
-                                                <p class="hero-news-excerpt">{{ $featured->excerpt }}</p>
-                                                <div class="hero-news-meta">
-                                                    <span><i class="far fa-clock"></i> {{ $featured->created_at->locale('es')->diffForHumans() }}</span>
-                                                    <span><i class="far fa-eye"></i> {{ number_format($featured->views / 1000, 1) }}k lecturas</span>
-                                                </div>
-                                                <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" class="btn btn-primary btn-sm">Leer artículo</a>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                @endforeach
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#heroNewsCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Anterior</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#heroNewsCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Siguiente</span>
-                            </button>
+                    <div id="heroNewsCarousel" class="carousel slide carousel-fade" data-bs-ride="false">
+                        <div class="carousel-indicators">
+                            @foreach($featuredNews as $index => $featured)
+                            <button type="button" data-bs-target="#heroNewsCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                            @endforeach
                         </div>
+                        <div class="carousel-inner">
+                            @foreach($featuredNews as $index => $featured)
+                            <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" class="hero-news-link">
+                                    <div class="hero-news-item">
+                                        <img src="{{ $getImageUrl($featured->image, 'news', 'large') }}" class="d-block w-100" alt="{{ $featured->title }}" loading="lazy" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-large.jpg') }}';">
+                                        <div class="hero-news-content">
+                                            @if(isset($featured->category))
+                                            <span class="hero-news-category" style="{{ $getCategoryStyle($featured->category) }}">
+                                                <i class="fas {{ $getCategoryIcon($featured->category) }} me-1"></i>
+                                                {{ $featured->category->name }}
+                                            </span>
+                                            @endif
+                                            <h2 class="hero-news-title">{{ $featured->title }}</h2>
+                                            <p class="hero-news-excerpt">{{ $featured->excerpt }}</p>
+                                            <div class="hero-news-meta">
+                                                <span><i class="far fa-clock"></i> {{ $featured->created_at->locale('es')->diffForHumans() }}</span>
+                                                <span><i class="far fa-eye"></i> {{ number_format($featured->views / 1000, 1) }}k lecturas</span>
+                                            </div>
+                                            <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" class="btn btn-primary btn-sm">Leer artículo</a>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            @endforeach
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#heroNewsCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#heroNewsCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+                    </div>
                     </div>
 
             
@@ -1029,6 +1029,93 @@
 <!-- Estilos para la sección Hero -->
 <style>
 /* Estilos para la nueva sección hero */
+/* Mejoras para el carrusel de la sección hero */
+
+/* Transiciones más suaves */
+.carousel-fade .carousel-item {
+    opacity: 0;
+    transition: opacity .8s ease-in-out;
+}
+
+.carousel-fade .carousel-item.active {
+    opacity: 1;
+}
+
+/* Mejorar controles del carrusel */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#heroNewsCarousel:hover .carousel-control-prev,
+#heroNewsCarousel:hover .carousel-control-next {
+    opacity: 0.7;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    opacity: 0.9 !important;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-size: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Indicadores más estilizados */
+.carousel-indicators {
+    bottom: -5px;
+}
+
+.carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.carousel-indicators button.active {
+    background-color: var(--bs-primary, #007bff);
+    width: 12px;
+    height: 12px;
+}
+
+/* Animación para noticias */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.carousel-item.active .hero-news-content {
+    animation: fadeUp 0.5s ease-out forwards;
+}
+
+/* Efecto de escala para imágenes al hacer hover */
+.hero-news-item img {
+    transition: transform 0.5s ease-in-out;
+}
+
+.hero-news-item:hover img {
+    transform: scale(1.05);
+}
+
 .hero-news-section {
     position: relative;
     background: #ffffff; /* Fondo blanco */
@@ -1448,63 +1535,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Función para inicializar el carousel con logging para depuración
-        function initializeCarousel() {
-            console.log('Inicializando carousel...');
-            
-            var myCarousel = document.getElementById('heroNewsCarousel');
-            if (!myCarousel) {
-                console.error('Carousel no encontrado en el DOM');
-                return;
-            }
-            
-            // Verificar cuántos slides hay
-            var items = myCarousel.querySelectorAll('.carousel-item');
-            console.log('El carousel tiene ' + items.length + ' elementos');
-            
-            if (items.length <= 1) {
-                console.warn('El carousel solo tiene ' + items.length + ' elemento(s), no será visible la rotación');
-                return;
-            }
-             
-            try {
-                // Intentar usar la API de Bootstrap 5
-                if (typeof bootstrap !== 'undefined' && typeof bootstrap.Carousel !== 'undefined') {
-                    var carousel = new bootstrap.Carousel(myCarousel, {
-                        interval: 5000,    // Tiempo entre slides (5 segundos)
-                        keyboard: true,    // Permitir control con teclado
-                        pause: false,      // No pausar al hover
-                        ride: 'carousel',  // Iniciar automáticamente
-                        wrap: true         // Volver al principio cuando termina
-                    });
-                    console.log('Carousel inicializado con Bootstrap 5');
-                    
-                    // Iniciar manualmente el carousel
-                    carousel.cycle();
-                } else {
-                    // Implementación fallback cuando Bootstrap no está disponible
-                    console.warn('Bootstrap no disponible, usando fallback manual');
-                    
-                    var currentIndex = 0;
-                    setInterval(function() {
-                        items[currentIndex].classList.remove('active');
-                        currentIndex = (currentIndex + 1) % items.length;
-                        items[currentIndex].classList.add('active');
-                    }, 5000);
-                }
-            } catch (error) {
-                console.error('Error al inicializar el carousel:', error);
-            }
+/**
+ * Script mejorado para el carrusel de la sección hero
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar a que todos los recursos se carguen completamente
+    window.addEventListener('load', function() {
+        initializeCarousel();
+    });
+    
+    function initializeCarousel() {
+        const carouselElement = document.getElementById('heroNewsCarousel');
+        
+        if (!carouselElement) {
+            console.error('Carousel no encontrado en el DOM');
+            return;
         }
         
-        // Inicializar después de que el DOM esté completamente cargado
-        initializeCarousel();
+        // Primero, verificar si hay un carrusel ya inicializado y destruirlo
+        if (carouselElement.carousel) {
+            carouselElement.carousel.dispose();
+        }
         
-        // Intentar nuevamente después de 1 segundo para mayor seguridad
-        setTimeout(initializeCarousel, 1000);
-    });
+        // Verificar cuántos slides hay
+        const items = carouselElement.querySelectorAll('.carousel-item');
+        
+        if (items.length <= 1) {
+            console.warn('El carousel tiene muy pocos elementos para mostrar transiciones');
+            return;
+        }
+        
+        try {
+            // Configuración óptima para transiciones suaves
+            const carouselOptions = {
+                interval: 5000,         // 5 segundos entre transiciones
+                keyboard: true,         // Permitir navegación con teclado
+                pause: 'hover',         // Pausar en hover para mejor UX
+                ride: 'carousel',       // Iniciar automáticamente
+                wrap: true,             // Continuar al inicio después del último slide
+                touch: true             // Habilitar gestos táctiles
+            };
+            
+            // Inicializar carrusel con opciones optimizadas
+            const carousel = new bootstrap.Carousel(carouselElement, carouselOptions);
+            
+            // Guardar referencia para posible uso futuro
+            carouselElement.carousel = carousel;
+            
+            // Mejorar las transiciones mediante CSS personalizado
+            const transitionStyle = document.createElement('style');
+            transitionStyle.textContent = `
+                #heroNewsCarousel .carousel-item {
+                    transition: transform 0.8s ease-in-out;
+                }
+                
+                #heroNewsCarousel .carousel-fade .carousel-item {
+                    opacity: 0;
+                    transition: opacity 0.8s ease-in-out;
+                }
+                
+                #heroNewsCarousel .carousel-fade .carousel-item.active {
+                    opacity: 1;
+                }
+            `;
+            document.head.appendChild(transitionStyle);
+            
+            // Forzar un ciclo inicial después de un breve retraso
+            setTimeout(() => {
+                carousel.cycle();
+            }, 200);
+            
+            console.log('Carrusel inicializado correctamente con transiciones mejoradas');
+        } catch (error) {
+            console.error('Error al inicializar el carrusel:', error);
+        }
+    }
+});
 </script>
+
+
 <!-- Script para manejar errores de carga de imágenes -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
