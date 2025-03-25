@@ -118,7 +118,11 @@ class ResearchController extends Controller
     public function show($slug)
     {
         // Intentar encontrar por slug, si no, por ID
-        $research = Research::where('slug', $slug)->first() ?? Research::findOrFail($slug);
+        // Cargar la relación 'category' para tener acceso a su nombre y slug
+        $research = Research::with('category')
+            ->where('slug', $slug)
+            ->first() 
+            ?? Research::with('category')->findOrFail($slug);
         
         // Incrementar contador de vistas
         $research->increment('views');

@@ -42,7 +42,7 @@
                 @if($type)
                 <div class="me-4 mb-2">
                     <i class="fas fa-tag me-1"></i> 
-                    <a href="{{ route('research.type', $type) }}" class="text-decoration-none">{{ $type }}</a>
+                    <a href="{{ route('research.category', $research->category->slug) }}" class="text-decoration-none">{{ $research->category->name }}</a>
                 </div>
                 @endif
                 <div class="me-4 mb-2">
