@@ -302,7 +302,7 @@ class FetchNewsWithAI extends Command
                     'author' => $newsItem['source'] ?? 'AI News Service',
                     'source' => $newsItem['source'] ?? 'News Service',
                     'source_url' => $newsItem['url'] ?? '',
-                    'featured' => false,
+                    'featured' => true,
                     'reading_time' => $readingTime,
                     'views' => rand(50, 500),
                     'published_at' => now(),
