@@ -32,12 +32,13 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
    
    
-       //  Enviar newsletter cada lunes a las 8:30 AM
-       $schedule->command('newsletter:send')
-       ->weekly()
-       ->mondays()
-       ->at('8:30')
-       ->appendOutputTo(storage_path('logs/newsletter.log'));
+            $schedule->command('newsletter:send --news=5 --include-research --include-columns')
+            ->weekly()
+            ->mondays()
+            ->at('08:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/newsletter-cron.log'));
+   
 
 
        // Ejecutar el comando de aprobación automática de comentarios cada 3 minutos

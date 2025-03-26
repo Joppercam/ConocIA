@@ -2,72 +2,159 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\NewsletterMail;
 use App\Models\Newsletter;
 use App\Models\News;
+use App\Models\Research;
+use App\Models\Column;
+use App\Mail\NewsletterMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class SendNewsletter extends Command
 {
-    protected $signature = 'newsletter:send {--count=5 : Cantidad de noticias a incluir} {--subject=Últimas noticias de ConocIA : Asunto del correo}';
-    protected $description = 'Envía el newsletter con las últimas noticias a todos los suscriptores activos';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'newsletter:send 
+                            {--subject= : Asunto del newsletter}
+                            {--news=5 : Cantidad de noticias a incluir}
+                            {--research=2 : Cantidad de investigaciones a incluir}
+                            {--columns=2 : Cantidad de columnas a incluir}
+                            {--include-research : Incluir investigaciones recientes}
+                            {--include-columns : Incluir columnas recientes}
+                            {--dry-run : Simular el envío sin enviar emails}';
 
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Envía el newsletter con las últimas noticias a los suscriptores activos';
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
     public function handle()
     {
-        $count = $this->option('count');
-        $subject = $this->option('subject');
-        
+        // Obtener opciones
+        $subject = $this->option('subject') ?: 'Boletín de Noticias - ' . now()->format('d/m/Y');
+        $newsCount = (int) $this->option('news');
+        $includeResearch = $this->option('include-research');
+        $includeColumns = $this->option('include-columns');
+        $researchCount = (int) $this->option('research');
+        $columnsCount = (int) $this->option('columns');
+        $dryRun = $this->option('dry-run');
+
+        // Validar parámetros
+        if ($newsCount < 1 || $newsCount > 10) {
+            $this->error('La cantidad de noticias debe estar entre 1 y 10');
+            return 1;
+        }
+
+        if ($researchCount < 0 || $researchCount > 5) {
+            $this->error('La cantidad de investigaciones debe estar entre 0 y 5');
+            return 1;
+        }
+
+        if ($columnsCount < 0 || $columnsCount > 5) {
+            $this->error('La cantidad de columnas debe estar entre 0 y 5');
+            return 1;
+        }
+
+        // Obtener suscriptores activos
         $subscribers = Newsletter::where('is_active', true)->get();
         
         if ($subscribers->isEmpty()) {
             $this->error('No hay suscriptores activos.');
-            return Command::FAILURE;
+            return 1;
+        }
+
+        $this->info("Se enviarán emails a {$subscribers->count()} suscriptores.");
+        
+        // Obtener las últimas noticias
+        $news = News::published()->latest()->take($newsCount)->get();
+        $this->info("Noticias encontradas: {$news->count()}");
+        
+        // Obtener noticias destacadas
+        $featuredNews = News::published()->featured()->latest()->take(1)->get();
+        $this->info("Noticias destacadas: {$featuredNews->count()}");
+        
+        // Obtener investigaciones recientes si se solicitaron
+        $researches = collect();
+        if ($includeResearch) {
+            $researches = Research::published()->latest()->take($researchCount)->get();
+            $this->info("Investigaciones encontradas: {$researches->count()}");
         }
         
-        $news = News::latest()->take($count)->get();
-        
-        if ($news->isEmpty()) {
-            $this->error('No hay noticias disponibles para enviar.');
-            return Command::FAILURE;
+        // Obtener columnas recientes si se solicitaron
+        $columns = collect();
+        if ($includeColumns) {
+            $columns = Column::published()->latest()->take($columnsCount)->get();
+            $this->info("Columnas encontradas: {$columns->count()}");
         }
         
-        $this->info("Enviando newsletter a {$subscribers->count()} suscriptores...");
-        $progressBar = $this->output->createProgressBar($subscribers->count());
-        $progressBar->start();
+        // Si no hay contenido para enviar
+        if ($news->isEmpty() && $researches->isEmpty() && $columns->isEmpty()) {
+            $this->error('No hay contenido disponible para enviar.');
+            return 1;
+        }
         
+        // Enviar el newsletter a cada suscriptor
         $sentCount = 0;
         $errorCount = 0;
         
+        $this->output->progressStart($subscribers->count());
+        
         foreach ($subscribers as $subscriber) {
             try {
-                // Si el token es null, generar uno nuevo
-                if ($subscriber->token === null) {
+                // Generar token si no existe
+                if (!$subscriber->token) {
                     $subscriber->token = Str::random(60);
                     $subscriber->save();
                 }
                 
-                Mail::to($subscriber->email)
-                    ->send(new NewsletterMail($news, $subject, $subscriber->token));
+                if (!$dryRun) {
+                    Mail::to($subscriber->email)
+                        ->send(new NewsletterMail(
+                            $news,
+                            $subject,
+                            $subscriber->token,
+                            $featuredNews,
+                            $researches,
+                            $columns,
+                            $subscriber
+                        ));
+                }
+                
                 $sentCount++;
             } catch (\Exception $e) {
-                $this->newLine();
-                $this->warn("Error enviando a {$subscriber->email}: " . $e->getMessage());
+                // Registrar error
+                Log::error("Error enviando newsletter a {$subscriber->email}: " . $e->getMessage());
+                $this->error("Error enviando a {$subscriber->email}: " . $e->getMessage());
                 $errorCount++;
             }
             
-            $progressBar->advance();
+            $this->output->progressAdvance();
         }
         
-        $progressBar->finish();
-        $this->newLine(2);
+        $this->output->progressFinish();
         
-        $this->info("Newsletter enviado a {$sentCount} suscriptores.");
+        if ($dryRun) {
+            $this->info("SIMULACIÓN: Se enviaría el newsletter a {$sentCount} suscriptores.");
+        } else {
+            $this->info("Newsletter enviado a {$sentCount} suscriptores.");
+        }
+        
         if ($errorCount > 0) {
             $this->warn("Hubo {$errorCount} errores durante el envío.");
         }
         
-        return Command::SUCCESS;
+        return 0;
     }
 }

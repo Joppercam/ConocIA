@@ -22,6 +22,7 @@ class NewsletterSendController extends Controller
     
     public function send(Request $request)
     {
+        dd($request);
         $request->validate([
             'subject' => 'required|string|max:100',
             'news_count' => 'required|integer|min:1|max:10',

@@ -421,7 +421,7 @@
                     
                     <!-- CONTENT -->
                     <div class="content">
-                        <p class="greeting">Hola {{ isset($subscriber) ? $subscriber->name : '' }},</p>
+                        <p class="greeting">Hola,</p>
                         <p class="intro">Bienvenido a nuestra newsletter semanal donde encontrarás las novedades más interesantes sobre Inteligencia Artificial, tecnología e investigación.</p>
                         
                         <!-- NOTICIAS DESTACADAS -->
