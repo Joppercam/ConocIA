@@ -190,44 +190,44 @@
         </div>
     </section>
 
-<!-- Sección de Categorías Destacadas - Diseño Sobrio -->
-<!-- Sección de Categorías Destacadas - Diseño Equilibrado -->
-<section class="py-3 border-bottom" style="background-color: #f9f9f9;">
-   <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-3">
-                <h5 class="mb-md-0 mb-3 d-flex align-items-center fw-semibold" style="font-size: 0.95rem;">
-                    <i class="fas fa-th-large text-primary me-2"></i> Categorías Destacadas
-                    <span class="badge bg-primary bg-opacity-75 rounded-pill ms-2 fs-9">{{ $featuredCategories->count() }}</span>
-                </h5>
-            </div>
-            <div class="col-md-9">
-                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                    @foreach($featuredCategories as $category)
-                    <a href="{{ route('news.by.category', $category->slug) }}" class="text-decoration-none" aria-label="Ver artículos de {{ $category->name }}">
-                        <span class="badge category-badge mb-1" 
-                            style="{{ $getCategoryStyle($category) }} opacity: 0.85; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;">
-                            <i class="fas {{ $getCategoryIcon($category) }} me-1"></i>
-                            {{ $category->name }}
-                            @if(isset($category->news_count))
-                            <span class="badge bg-white text-dark ms-1 rounded-pill" style="opacity: 0.9;">{{ $category->news_count }}</span>
-                            @endif
-                            @php
-                                $newArticles = $category->news_count_recent ?? rand(1, 5);
-                            @endphp
-                            @if($newArticles > 0)
-                                <span class="badge bg-white text-primary border-start ms-1 fs-9 d-none d-lg-inline-block">
-                                    +{{ $newArticles }}
-                                </span>
-                            @endif
-                        </span>
-                    </a>
-                    @endforeach
+    
+    <!-- Sección de Categorías Destacadas - Diseño Equilibrado -->
+    <section class="py-3 border-bottom" style="background-color: #f9f9f9;">
+    <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h5 class="mb-md-0 mb-3 d-flex align-items-center fw-semibold" style="font-size: 0.95rem;">
+                        <i class="fas fa-th-large text-primary me-2"></i> Categorías Destacadas
+                        <span class="badge bg-primary bg-opacity-75 rounded-pill ms-2 fs-9">{{ $featuredCategories->count() }}</span>
+                    </h5>
+                </div>
+                <div class="col-md-9">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                        @foreach($featuredCategories as $category)
+                        <a href="{{ route('news.by.category', $category->slug) }}" class="text-decoration-none" aria-label="Ver artículos de {{ $category->name }}">
+                            <span class="badge category-badge mb-1" 
+                                style="{{ $getCategoryStyle($category) }} opacity: 0.85; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;">
+                                <i class="fas {{ $getCategoryIcon($category) }} me-1"></i>
+                                {{ $category->name }}
+                                @if(isset($category->news_count))
+                                <span class="badge bg-white text-dark ms-1 rounded-pill" style="opacity: 0.9;">{{ $category->news_count }}</span>
+                                @endif
+                                @php
+                                    $newArticles = $category->news_count_recent ?? rand(1, 5);
+                                @endphp
+                                @if($newArticles > 0)
+                                    <span class="badge bg-white text-primary border-start ms-1 fs-9 d-none d-lg-inline-block">
+                                        +{{ $newArticles }}
+                                    </span>
+                                @endif
+                            </span>
+                        </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
 
   
@@ -241,83 +241,98 @@
 
                 
                 <!-- Columna izquierda: Noticias Recientes - Diseño compacto sin imágenes -->
-                <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
-                        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 d-flex align-items-center fs-6">
-                                <i class="fas fa-newspaper text-primary me-2"></i> Noticias Recientes
-                            </h5>
-                            <span class="badge bg-primary rounded-pill px-2 py-1 fs-9">
-                                {{ $recentNews->count() }} artículos
+<!-- Columna izquierda: Noticias Recientes - Diseño compacto sin imágenes -->
+<div class="col-lg-8">
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 d-flex align-items-center fs-6">
+                <i class="fas fa-newspaper text-primary me-2"></i> Noticias Recientes
+            </h5>
+            <span class="badge bg-primary rounded-pill px-2 py-1 fs-9">
+                {{ $recentNews->count() }} artículos
+            </span>
+        </div>
+        <div class="card-body py-3">
+            <!-- Uso de grilla para mostrar dos columnas en pantallas medianas y grandes -->
+            <div class="row g-3">
+                <!-- Aumentamos el número de noticias al doble -->
+                @foreach($recentNews->take(16) as $recent)
+                <!-- Noticia en formato reducido - 6 columnas en pantallas md y superiores -->
+                <div class="col-md-6">
+                    <div class="border-bottom pb-2 mb-2 h-100">
+                        <!-- Metadatos superiores más compactos -->
+                        <div class="d-flex justify-content-between mb-1 flex-wrap">
+                            <!-- Categoría - Ahora con color en el texto en lugar del fondo -->
+                            @if(isset($recent->category))
+                            <span class="badge bg-light border px-2 py-1 rounded-pill"
+                                style="color: {{ str_replace('background-color:', '', $getCategoryStyle($recent->category)) }} font-size: 0.65rem;">
+                                <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
+                                {{ $recent->category->name }}
+                            </span>
+                            @endif
+                            
+                            <!-- Indicador de nuevo más sobrio -->
+                            @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
+                            <span class="badge bg-light text-secondary px-2 py-1 rounded-pill fs-9 border">
+                                <i class="far fa-clock me-1"></i>Nuevo
+                            </span>
+                            @endif
+                        </div>
+
+                        <!-- Título completo con letra más pequeña -->
+                        <h6 class="fw-bold mb-1 fs-7">
+                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
+                                {{ $recent->title }}
+                            </a>
+                        </h6>
+                        
+                        <!-- Extracto más corto -->
+                        <p class="card-text text-muted small line-clamp-2 mb-2">{{ Str::limit($recent->excerpt, 100) }}</p>
+                        
+                        <!-- Fuente con URL -->
+                        @if($recent->source)
+                        <div class="mb-2">
+                            <span class="text-muted small">
+                                <i class="fas fa-external-link-alt me-1"></i> 
+                                @if($recent->source_url)
+                                    <a href="{{ $recent->source_url }}" class="text-primary" target="_blank">{{ $recent->source }}</a>
+                                @else
+                                    {{ $recent->source }}
+                                @endif
                             </span>
                         </div>
-                        <div class="card-body py-3">
-                            <!-- Uso de grilla para mostrar dos columnas en pantallas medianas y grandes -->
-                            <div class="row g-3">
-                                <!-- Aumentamos el número de noticias al doble -->
-                                @foreach($recentNews->take(16) as $recent)
-                                <!-- Noticia en formato reducido - 6 columnas en pantallas md y superiores -->
-                                <div class="col-md-6">
-                                    <div class="border-bottom pb-2 mb-2 h-100">
-                                        <!-- Metadatos superiores más compactos -->
-                                        <div class="d-flex justify-content-between mb-1 flex-wrap">
-                                            <!-- Categoría -->
-                                            @if(isset($recent->category))
-                                            <span class="badge text-white px-2 py-1 rounded-pill"
-                                                style="{{ $getCategoryStyle($recent->category) }} font-size: 0.65rem;">
-                                                <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
-                                                {{ $recent->category->name }}
-                                            </span>
-                                            @endif
-                                            
-                                            <!-- Indicador de nuevo más sobrio -->
-                                            @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
-                                            <span class="badge bg-light text-secondary px-2 py-1 rounded-pill fs-9 border">
-                                                <i class="far fa-clock me-1"></i>Nuevo
-                                            </span>
-                                            @endif
-                                        </div>
-
-                                        <!-- Título más pequeño -->
-                                        <h6 class="fw-bold mb-1">
-                                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
-                                                {{ Str::limit($recent->title, 60) }}
-                                            </a>
-                                        </h6>
-                                        
-                                        <!-- Extracto más corto -->
-                                        <p class="card-text text-muted small line-clamp-2 mb-2">{{ Str::limit($recent->excerpt, 100) }}</p>
-                                        
-                                        <!-- Metadatos inferiores más compactos -->
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                                <span class="text-muted small me-2">
-                                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->format('d/m/Y') }}
-                                                </span>
-                                                <span class="text-muted small me-2">
-                                                    <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }}
-                                                </span>
-                                                <span class="text-muted small">
-                                                    <i class="far fa-comment me-1"></i> {{ number_format($recent->comments_count ?? 0) }}
-                                                </span>
-                                            </div>
-                                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="btn btn-sm btn-link text-primary p-0 small">
-                                                Leer <i class="fas fa-arrow-right ms-1"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
+                        @endif
+                        
+                        <!-- Metadatos inferiores más compactos -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted small me-2">
+                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->format('d/m/Y') }}
+                                </span>
+                                <span class="text-muted small me-2">
+                                    <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }}
+                                </span>
+                                <span class="text-muted small">
+                                    <i class="far fa-comment me-1"></i> {{ number_format($recent->comments_count ?? 0) }}
+                                </span>
                             </div>
-                            
-                            <div class="text-center mt-4">
-                                <a href="{{ route('news.index') }}" class="btn btn-primary btn-sm px-4">
-                                    Ver más noticias <i class="fas fa-newspaper ms-1"></i>
-                                </a>
-                            </div>
+                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="btn btn-sm btn-link text-primary p-0 small">
+                                Leer <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
+                @endforeach
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ route('news.index') }}" class="btn btn-primary btn-sm px-4">
+                    Ver más noticias <i class="fas fa-newspaper ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -347,58 +362,58 @@
                     <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
                         <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
                             <h5 class="mb-0 d-flex align-items-center fs-6">
-                                <i class="fas fa-chart-line text-primary me-2"></i> Lo más leído
+                                <i class="fas fa-chart-line text-primary me-2"></i> Lo más leído - Noticias
                             </h5>
-                            <span class="badge bg-danger rounded-pill px-2 fs-9">POPULAR</span>
+                           
                         </div>
                         <div class="card-body py-3">
-                            <div class="most-read-list">
-                                @foreach($popularNews as $index => $popular)
-                                <!-- Artículo mejorado -->
-                                <div class="d-flex mb-3 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
-                                    <div class="position-relative me-3 flex-shrink-0">
-                                        <div class="position-absolute top-0 start-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                            style="width: 24px; height: 24px; font-size: 0.75rem; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                            {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
-                                        </div>
-                                        <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="d-block overflow-hidden rounded">
-                                            <img src="{{ $getImageUrl($popular->image, 'news', 'small') }}" 
-                                                class="rounded popular-news-img" 
-                                                width="60" height="60" 
-                                                alt="{{ $popular->title }}" 
-                                                loading="lazy"
-                                                style="object-fit: cover;" 
-                                                onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
-                                        </a>
+                        <div class="most-read-list">
+                            @foreach($popularNews as $index => $popular)
+                            <!-- Artículo mejorado -->
+                            <div class="d-flex mb-3 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                <div class="position-relative me-3 flex-shrink-0">
+                                    <div class="position-absolute top-0 start-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                        style="width: 24px; height: 24px; font-size: 0.75rem; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
                                     </div>
-                                    <div class="overflow-hidden">
-                                        <h6 class="mb-1 fs-7 line-clamp-2">
-                                            <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="text-decoration-none text-dark">
-                                                {{ $popular->title }}
-                                            </a>
-                                        </h6>
-                                        <div class="d-flex flex-wrap align-items-center mb-1">
-                                            @if(isset($popular->category))
-                                            <span class="badge me-2" style="{{ $getCategoryStyle($popular->category) }} font-size: 0.65rem;">
-                                                <i class="fas {{ $getCategoryIcon($popular->category) }} me-1"></i>
-                                                {{ $popular->category->name }}
-                                            </span>
-                                            @endif
-                                            <span class="text-muted fs-9">{{ $popular->created_at->locale('es')->diffForHumans() }}</span>
-                                        </div>
-                                        <!-- Estadísticas de popularidad -->
-                                        <div class="d-flex align-items-center">
-                                            <span class="me-2 text-muted fs-9">
-                                                <i class="far fa-eye me-1"></i>{{ number_format($popular->views ?? rand(1500, 10000)) }}
-                                            </span>
-                                            <span class="me-2 text-muted fs-9">
-                                                <i class="fas fa-fire text-danger me-1"></i>{{ rand(20, 95) }}% 
-                                            </span>
-                                        </div>
+                                    <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="d-block overflow-hidden rounded">
+                                        <img src="{{ $getImageUrl($popular->image, 'news', 'small') }}" 
+                                            class="rounded popular-news-img" 
+                                            width="60" height="60" 
+                                            alt="{{ $popular->title }}" 
+                                            loading="lazy"
+                                            style="object-fit: cover;" 
+                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
+                                    </a>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h6 class="mb-1 fs-7 line-clamp-2">
+                                        <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="text-decoration-none text-dark">
+                                            {{ $popular->title }}
+                                        </a>
+                                    </h6>
+                                    <div class="d-flex flex-wrap align-items-center mb-1">
+                                        @if(isset($popular->category))
+                                        <span class="badge bg-light border me-2" style="color: {{ str_replace('background-color:', '', $getCategoryStyle($popular->category)) }} font-size: 0.65rem;">
+                                            <i class="fas {{ $getCategoryIcon($popular->category) }} me-1"></i>
+                                            {{ $popular->category->name }}
+                                        </span>
+                                        @endif
+                                        <span class="text-muted fs-9">{{ $popular->created_at->locale('es')->diffForHumans() }}</span>
+                                    </div>
+                                    <!-- Estadísticas de popularidad -->
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2 text-muted fs-9">
+                                            <i class="far fa-eye me-1"></i>{{ number_format($popular->views ?? 0) }}
+                                        </span>
+                                        <span class="me-2 text-muted fs-9">
+                                            <i class="fas fa-fire text-danger me-1"></i>{{ rand(20, 95) }}% 
+                                        </span>
                                     </div>
                                 </div>
-                                @endforeach
                             </div>
+                            @endforeach
+                        </div>
                             
                                                         
                             <!-- Newsletter dentro de lo más leído - Estilo mejorado -->
@@ -510,60 +525,64 @@
             </div>
             
             <div class="row g-3">
-                <!-- Contenido principal (izquierda) -->
-                <div class="col-lg-8">
-                    <div class="mb-3">
-                        <h3 class="border-start border-4 border-primary ps-3 fs-6">Investigaciones Recientes</h3>
-                        <p class="text-muted small">Descubre nuestros últimos artículos de investigación</p>
-                    </div>
-                    
-                    <div class="row g-4">
-                    @foreach($researchArticles as $research)
-                        <div class="col-md-6">
-                            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
-                                <div class="position-relative">
-                                    <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="ratio ratio-16x9 overflow-hidden bg-light">
-                                        <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" 
-                                            class="card-img-top object-fit-cover" 
-                                            alt="{{ $research->title }}" 
-                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';">
+                
+            
+            
+            
+            
+           <!-- Contenido principal (izquierda) -->
+            <div class="col-lg-8">
+                <div class="mb-3">
+                    <h3 class="border-start border-4 border-primary ps-3 fs-6">Investigaciones Recientes</h3>
+                    <p class="text-muted small">Descubre nuestros últimos artículos de investigación</p>
+                </div>
+                
+                <div class="row g-4">
+                @foreach($researchArticles as $research)
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
+                            <div class="p-3 border-left border-3" style="border-color: {{ str_replace('background-color:', '', $getCategoryStyle($research->category)) }} !important;">
+                                <!-- Categoría -->
+                                @if(isset($research->category))
+                                <div class="mb-2">
+                                    <span class="badge bg-light border rounded-pill" 
+                                        style="color: {{ str_replace('background-color:', '', $getCategoryStyle($research->category)) }}; padding: 0.35rem 0.6rem; font-size: 0.65rem; font-weight: 600;">
+                                        <i class="fas {{ $getCategoryIcon($research->category) }} me-1"></i>
+                                        {{ $research->category->name }}
+                                    </span>
+                                </div>
+                                @endif
+                                
+                                <!-- Título -->
+                                <h5 class="card-title mb-2 fw-bold fs-6">
+                                    <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark stretched-link">
+                                        {{ $research->title }}
                                     </a>
-                                    @if(isset($research->category))
-                                    <div class="position-absolute top-0 start-0 m-3">
-                                        <span class="badge rounded-pill shadow-sm" style="{{ $getCategoryStyle($research->category) }} padding: 0.35rem 0.6rem; font-size: 0.65rem; font-weight: 600;">
-                                            <i class="fas {{ $getCategoryIcon($research->category) }} me-1"></i>
-                                            {{ $research->category->name }}
-                                        </span>
+                                </h5>
+                                
+                                <!-- Texto extracto -->
+                                <p class="card-text text-secondary mb-3 small">{{ Str::limit($research->excerpt, 120) }}</p>
+                                
+                                <!-- Información del autor y fecha -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                        <i class="fas fa-user-circle"></i>
                                     </div>
-                                    @endif
-                                    
-                                    <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 p-2">
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" 
-                                                class="rounded-circle border border-2 border-white me-2" 
-                                                width="28" height="28" 
-                                                alt="{{ $research->author }}">
-                                            <span class="fw-bold text-white" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
-                                                {{ $research->author }} <span class="ms-1 fw-normal opacity-75">· {{ $research->created_at->locale('es')->diffForHumans() }}</span>
-                                            </span>
+                                    <div>
+                                        <span class="fw-bold text-dark" style="font-size: 0.75rem;">
+                                            {{ $research->author }}
+                                        </span>
+                                        <div class="text-muted" style="font-size: 0.7rem;">
+                                            <i class="far fa-calendar-alt me-1"></i>{{ $research->created_at->locale('es')->diffForHumans() }}
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="card-body p-3">
-                                    <h5 class="card-title mb-2 fw-bold fs-6">
-                                        <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none text-dark stretched-link">
-                                            {{ $research->title }}
-                                        </a>
-                                    </h5>
-                                    <p class="card-text text-secondary mb-0 small">{{ Str::limit($research->excerpt, 100) }}</p>
-                                </div>
-                                
-                                <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center p-3 pt-0">
+                                <!-- Métricas y botón de leer más -->
+                                <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-auto">
                                     <div class="d-flex align-items-center text-muted small">
-                                        <i class="far fa-eye me-1"></i> {{ $research->views ?? 0 }}
-                                        <span class="mx-2">•</span>
-                                        <i class="far fa-comment me-1"></i> {{ $research->comments_count ?? 0 }}
+                                        <span class="me-2"><i class="far fa-eye me-1"></i>{{ $research->views ?? 0 }}</span>
+                                        <span><i class="far fa-comment me-1"></i>{{ $research->comments_count ?? 0 }}</span>
                                     </div>
                                     <div class="text-end">
                                         <span class="btn btn-sm btn-outline-primary rounded-pill px-2" style="font-size: 0.7rem;">Leer más</span>
@@ -571,16 +590,17 @@
                                 </div>
                             </div>
                         </div>
-                        @endforeach
                     </div>
-                    
-                    <!-- Paginación (solo si es una instancia de paginación) -->
-                    @if(isset($researchArticles) && method_exists($researchArticles, 'hasPages') && $researchArticles->hasPages())
-                    <div class="d-flex justify-content-center mt-5">
-                        {{ $researchArticles->links('pagination::bootstrap-5') }}
-                    </div>
-                    @endif
+                @endforeach
                 </div>
+                
+                <!-- Paginación (solo si es una instancia de paginación) -->
+                @if(isset($researchArticles) && method_exists($researchArticles, 'hasPages') && $researchArticles->hasPages())
+                <div class="d-flex justify-content-center mt-5">
+                    {{ $researchArticles->links('pagination::bootstrap-5') }}
+                </div>
+                @endif
+            </div>
 
 
                 <!-- Sidebar derecho: Investigaciones destacadas y más -->
@@ -600,37 +620,32 @@
                                 @foreach($featuredResearch as $featured)
                                     @if($featured->status === 'published' || $featured->status === 'active')
                                     <!-- Investigación -->
-                                    <div class="p-2 {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light transition-300">
+                                    <div class="p-3 {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light transition-300">
                                         <div class="row g-0">
-                                            <div class="col-auto position-relative me-2">
-                                                <div class="position-absolute top-0 start-0 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 20px; height: 20px; font-size: 0.65rem; z-index: 10;">
-                                                    <i class="fas fa-star"></i>
-                                                </div>
-                                                <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}">
-                                                    <div class="rounded overflow-hidden" style="width: 60px; height: 60px;">
-                                                        <img src="{{ $getImageUrl($featured->image, 'research', 'small') }}" 
-                                                            class="w-100 h-100" 
-                                                            alt="{{ $featured->title }}" 
-                                                            style="object-fit: cover;" 
-                                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
-                                                    </div>
-                                                </a>
-                                            </div>
                                             <div class="col">
-                                                <!-- Cambio aquí: clase fs-7 en lugar de fs-6 -->
-                                                <h6 class="mb-1 fw-semibold lh-sm fs-7">
+                                                <!-- Indicador de destacado -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="badge bg-warning text-white rounded-pill me-2" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">
+                                                        <i class="fas fa-star me-1"></i> Destacado
+                                                    </span>
+                                                    
+                                                    @if(isset($featured->category))
+                                                    <span class="badge bg-light border rounded-pill" 
+                                                        style="color: {{ str_replace('background-color:', '', $getCategoryStyle($featured->category)) }}; font-size: 0.65rem; padding: 0.15rem 0.5rem;">
+                                                        <i class="fas {{ $getCategoryIcon($featured->category) }} me-1"></i>
+                                                        {{ $featured->category->name }}
+                                                    </span>
+                                                    @endif
+                                                </div>
+                                                
+                                                <!-- Título -->
+                                                <h6 class="mb-2 fw-semibold lh-sm fs-7">
                                                     <a href="{{ route('research.show', $featured->slug ?? $featured->id) }}" class="text-decoration-none stretched-link text-dark">
-                                                        {{ Str::limit($featured->title, 55) }}
+                                                        {{ Str::limit($featured->title, 80) }}
                                                     </a>
                                                 </h6>
                                                 
-                                                @if(isset($featured->category))
-                                                <span class="badge rounded-pill mb-1" style="{{ $getCategoryStyle($featured->category) }} font-size: 0.65rem; padding: 0.15rem 0.4rem;">
-                                                    <i class="fas {{ $getCategoryIcon($featured->category) }} me-1"></i>
-                                                    {{ $featured->category->name }}
-                                                </span>
-                                                @endif
-                                                
+                                                <!-- Información adicional -->
                                                 <div class="d-flex justify-content-between align-items-center" style="font-size: 0.7rem; color: #6c757d;">
                                                     <div>
                                                         <i class="fas fa-user-edit me-1"></i> {{ $featured->author }}
@@ -657,73 +672,71 @@
 
 
 
-
                     <!-- Más comentados -->
-                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                        <div class="card-header bg-info text-white p-2">
-                            <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
-                                <i class="fas fa-comments me-2"></i> Más Comentados
-                            </h5>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            @foreach($mostCommented as $commented)
-                                <a href="{{ route('research.show', $commented->slug ?? $commented->id) }}" 
-                                class="list-group-item list-group-item-action px-3 py-2 border-bottom hover-bg-light transition-300">
-                                    <div class="d-flex align-items-center mb-1">
-                                        @if(isset($commented->category) && $commented->category)
-                                        <span class="badge rounded-pill me-2" style="{{ $getCategoryStyle($commented->category) }} font-size: 0.65rem; padding: 0.15rem 0.4rem;">
-                                            <i class="fas {{ $getCategoryIcon($commented->category) }} me-1"></i>
-                                            {{ $commented->category->name }}
-                                        </span>
-                                        @endif
-                                        <span class="text-info small fw-bold ms-auto" style="font-size: 0.7rem;">
-                                            <i class="fas fa-comment-dots me-1"></i> {{ $commented->comments_count }}
-                                        </span>
-                                    </div>
-                                    
-                                    <!-- Cambio aquí: texto explícitamente en color oscuro -->
-                                    <h6 class="mb-1 fw-semibold fs-7 text-dark">
-                                        {{ Str::limit($commented->title, 65) }}
-                                    </h6>
-                                    
-                                    <div class="d-flex align-items-center text-muted" style="font-size: 0.7rem;">
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($commented->author) }}&size=18&background=random" 
-                                            class="rounded-circle me-1" 
-                                            alt="{{ $commented->author }}">
-                                        {{ $commented->author }}
-                                        <span class="ms-auto">{{ $commented->created_at->locale('es')->diffForHumans() }}</span>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                        
-                        <!-- Panel de categorías populares -->
-                        @php
-                            $availableCategories = collect();
-                            
-                            // Intentar obtener categorías de las colecciones existentes
-                            if(isset($researchCategories) && count($researchCategories) > 0) {
-                                $availableCategories = $researchCategories;
-                            } elseif(isset($featuredResearch)) {
-                                $availableCategories = $featuredResearch->pluck('category')
-                                                    ->filter(function($category) { return !is_null($category); })
-                                                    ->unique('id');
-                            }
-                        @endphp
-                        
-                        @if(count($availableCategories) > 0)
-                        <div class="bg-light p-2">
-                            <h6 class="fw-bold mb-2 fs-7 text-dark">Categorías populares</h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($availableCategories as $category)
-                                <a href="{{ route('research.index', ['category' => $category->id]) }}" class="badge rounded-pill text-decoration-none" style="{{ $getCategoryStyle($category) }} font-size: 0.7rem;">
-                                    <i class="fas {{ $getCategoryIcon($category) }} me-1"></i> {{ $category->name }}
-                                </a>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
-                    </div>
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="card-header bg-info text-white p-2">
+        <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
+            <i class="fas fa-comments me-2"></i> Más Comentados - Investigaciones
+        </h5>
+    </div>
+    <div class="list-group list-group-flush">
+        @foreach($mostCommented as $commented)
+            <a href="{{ route('research.show', $commented->slug ?? $commented->id) }}" 
+            class="list-group-item list-group-item-action px-3 py-2 border-bottom hover-bg-light transition-300">
+                <div class="d-flex align-items-center mb-1">
+                    @if(isset($commented->category) && $commented->category)
+                    <span class="badge bg-light border rounded-pill me-2" style="color: {{ str_replace('background-color:', '', $getCategoryStyle($commented->category)) }}; font-size: 0.65rem; padding: 0.15rem 0.4rem;">
+                        <i class="fas {{ $getCategoryIcon($commented->category) }} me-1"></i>
+                        {{ $commented->category->name }}
+                    </span>
+                    @endif
+                    <span class="text-info small fw-bold ms-auto" style="font-size: 0.7rem;">
+                        <i class="fas fa-comment-dots me-1"></i> {{ $commented->comments_count }}
+                    </span>
+                </div>
+                
+                <h6 class="mb-1 fw-semibold fs-7 text-dark">
+                    {{ Str::limit($commented->title, 65) }}
+                </h6>
+                
+                <div class="d-flex align-items-center text-muted" style="font-size: 0.7rem;">
+                    <i class="fas fa-user-circle me-1"></i>
+                    {{ $commented->author }}
+                    <span class="ms-auto"><i class="far fa-clock me-1"></i>{{ $commented->created_at->locale('es')->diffForHumans() }}</span>
+                </div>
+            </a>
+        @endforeach
+    </div>
+    
+    <!-- Panel de categorías populares -->
+    @php
+        $availableCategories = collect();
+        
+        // Intentar obtener categorías de las colecciones existentes
+        if(isset($researchCategories) && count($researchCategories) > 0) {
+            $availableCategories = $researchCategories;
+        } elseif(isset($featuredResearch)) {
+            $availableCategories = $featuredResearch->pluck('category')
+                                ->filter(function($category) { return !is_null($category); })
+                                ->unique('id');
+        }
+    @endphp
+    
+    @if(count($availableCategories) > 0)
+    <div class="bg-light p-2">
+        <h6 class="fw-bold mb-2 fs-7 text-dark">Categorías populares</h6>
+        <div class="d-flex flex-wrap gap-2">
+            @foreach($availableCategories as $category)
+            <a href="{{ route('research.index', ['category' => $category->id]) }}" 
+               class="badge bg-light border rounded-pill text-decoration-none" 
+               style="color: {{ str_replace('background-color:', '', $getCategoryStyle($category)) }}; font-size: 0.7rem;">
+                <i class="fas {{ $getCategoryIcon($category) }} me-1"></i> {{ $category->name }}
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+</div>
 
 
 

@@ -12,6 +12,7 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -24,11 +25,18 @@ class HomeController extends Controller
     {
         // Primero intentar obtener noticias destacadas y publicadas
         $featuredNews = News::with('category')
-        ->where('featured', true)  // Priorizar noticias marcadas como destacadas
-        ->where('status', 'published')  // Añadido filtro para estado published
-        ->latest()
-        ->take(5)
-        ->get();
+            ->where('status', 'published')
+            ->whereNotNull('image')
+            ->where(function($query) {
+                $query->where('image', '!=', '')
+                      ->where('image', '!=', 'null')
+                      ->where('image', '!=', 'default.jpg')
+                      ->whereRaw("image NOT LIKE '%default%'")
+                      ->whereRaw("image NOT LIKE '%placeholder%'");
+            })
+            ->latest('published_at')
+            ->take(5)
+            ->get();
 
         // Si no hay suficientes noticias destacadas (menos de 5), obtener más noticias recientes
         if ($featuredNews->count() < 5) {
@@ -120,7 +128,7 @@ class HomeController extends Controller
         $columnsNonFeaturedCount = $latestColumnsSection->count();
         
         // Log para depuración (opcional)
-        \Log::info("Columnas destacadas: $columnsFeaturedCount, Columnas no destacadas: $columnsNonFeaturedCount");
+        Log::info("Columnas destacadas: $columnsFeaturedCount, Columnas no destacadas: $columnsNonFeaturedCount");
                 
         // Cargar artículos secundarios 
         $secondaryNews = News::where('featured', false)

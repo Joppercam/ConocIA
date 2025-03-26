@@ -26,6 +26,55 @@
             </div>
             @endif
             
+            <!-- Redes sociales flotantes a la izquierda -->
+            <div class="social-share-vertical d-none d-lg-flex">
+                <div class="d-flex flex-column align-items-center">
+                    <p class="text-muted mb-2 small">Compartir</p>
+                    
+                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}" 
+                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
+                       title="Compartir en Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('columns.show', $column->slug)) }}" 
+                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
+                       title="Compartir en Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('columns.show', $column->slug)) }}&title={{ urlencode($column->title) }}" 
+                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
+                       title="Compartir en LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    
+                    <a href="https://api.whatsapp.com/send?text={{ urlencode($column->title . ' ' . route('columns.show', $column->slug)) }}" 
+                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
+                       title="Compartir en WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    
+                    <a href="https://t.me/share/url?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
+                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
+                       title="Compartir en Telegram">
+                        <i class="fab fa-telegram-plane"></i>
+                    </a>
+                    
+                    <a href="mailto:?subject={{ $column->title }}&body={{ route('columns.show', $column->slug) }}" 
+                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2"
+                       title="Compartir por Email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                    
+                    <button onclick="copyToClipboard('{{ route('columns.show', $column->slug) }}')" 
+                            class="btn btn-sm btn-outline-secondary rounded-circle copy-link"
+                            title="Copiar enlace">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Contenido -->
             <div class="content-wrapper mb-5">
                 @if($column->excerpt)
@@ -39,26 +88,44 @@
                 </div>
             </div>
             
-            <!-- Compartir -->
-            <div class="mb-5">
+            <!-- Compartir (versión horizontal para móviles y tablets) -->
+            <div class="mb-5 d-block d-lg-none">
                 <h5>Compartir</h5>
-                <div class="d-flex gap-2">
+                <div class="d-flex flex-wrap gap-2">
                     <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank">
+                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                         <i class="fab fa-twitter"></i> Twitter
                     </a>
+                    
                     <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('columns.show', $column->slug)) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank">
+                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                         <i class="fab fa-facebook-f"></i> Facebook
                     </a>
+                    
                     <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('columns.show', $column->slug)) }}&title={{ urlencode($column->title) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank">
+                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                         <i class="fab fa-linkedin-in"></i> LinkedIn
                     </a>
+                    
+                    <a href="https://api.whatsapp.com/send?text={{ urlencode($column->title . ' ' . route('columns.show', $column->slug)) }}" 
+                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    
+                    <a href="https://t.me/share/url?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
+                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                        <i class="fab fa-telegram-plane"></i> Telegram
+                    </a>
+                    
                     <a href="mailto:?subject={{ $column->title }}&body={{ route('columns.show', $column->slug) }}" 
                        class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-envelope"></i> Email
                     </a>
+                    
+                    <button onclick="copyToClipboard('{{ route('columns.show', $column->slug) }}')" 
+                            class="btn btn-sm btn-outline-primary copy-link">
+                        <i class="fas fa-link"></i> Copiar enlace
+                    </button>
                 </div>
             </div>
             
@@ -252,10 +319,94 @@
         color: #555;
     }
     
+    /* Estilos para compartir en redes sociales vertical */
+    .social-share-vertical {
+        position: sticky;
+        top: 100px;
+        float: left;
+        margin-left: -80px;
+        height: 0;
+    }
+    
+    .social-share-vertical .btn {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .social-share-vertical .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-outline-secondary.copy-link {
+        position: relative;
+    }
+    
+    .btn-outline-secondary.copy-link:after {
+        content: "¡Copiado!";
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+    
+    .btn-outline-secondary.copy-link.copied:after {
+        opacity: 1;
+    }
+    
     /* Estilos para comentarios */
     .comments-section .form-floating > .form-control {
         height: calc(3.5rem + 2px);
         line-height: 1.25;
     }
+    
+    /* Media queries para pantallas pequeñas */
+    @media (max-width: 991px) {
+        .social-share-vertical {
+            display: none !important;
+        }
+    }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    function copyToClipboard(text) {
+        // Crear un elemento input temporal
+        const input = document.createElement('input');
+        input.style.position = 'fixed';
+        input.style.opacity = 0;
+        input.value = text;
+        document.body.appendChild(input);
+        
+        // Seleccionar y copiar el texto
+        input.select();
+        document.execCommand('copy');
+        
+        // Eliminar el elemento input
+        document.body.removeChild(input);
+        
+        // Mostrar feedback visual
+        const copyButton = document.querySelector('.copy-link');
+        copyButton.classList.add('copied');
+        
+        // Eliminar la clase después de 2 segundos
+        setTimeout(() => {
+            copyButton.classList.remove('copied');
+        }, 2000);
+    }
+</script>
 @endpush
