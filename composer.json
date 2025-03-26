@@ -62,7 +62,10 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [],
+            "providers": [
+                "App\\Providers\\CommentServiceProvider"
+            ]
         }
     },
     "config": {

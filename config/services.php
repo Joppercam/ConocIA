@@ -46,4 +46,10 @@ return [
         'organization' => env('OPENAI_ORGANIZATION'),
     ],
 
+    
+    'text_analysis' => [
+        'api_key' => env('TEXT_ANALYSIS_API_KEY'),
+        'api_url' => env('TEXT_ANALYSIS_API_URL'),
+    ],
+
 ];

@@ -7,6 +7,19 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+
+     /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        Commands\ApproveCommentsCommand::class,
+        Commands\PublishCommentsConfigCommand::class,
+        Commands\TestCommentValidationCommand::class,
+    ];
+
+    
     /**
      * Define the application's command schedule.
      */
@@ -25,6 +38,12 @@ class Kernel extends ConsoleKernel
        ->mondays()
        ->at('8:30')
        ->appendOutputTo(storage_path('logs/newsletter.log'));
+
+
+       // Ejecutar el comando de aprobación automática de comentarios cada 3 minutos
+       $schedule->command('comments:auto-approve')
+       ->everyThreeMinutes()
+       ->appendOutputTo(storage_path('logs/comments-auto-approve.log'));
    
     }
 
