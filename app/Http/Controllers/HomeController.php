@@ -59,8 +59,16 @@ class HomeController extends Controller
             ->take(28)  // Puedes mantener esto o ajustarlo
             ->get();
 
-        // Tomar 4 para la sección de noticias recientes
-        $recentNews = $latestNews->take(6);
+
+         // Modificación: Obtener 20 noticias recientes, incluir la cantidad de comentarios y aplicar orden aleatorio
+         $recentNews = News::with(['category', 'author'])
+         ->withCount('comments')  // Agregar conteo de comentarios
+         ->where('status', 'published')
+         ->whereNotIn('id', $featuredNewsIds)
+         ->latest()
+         ->take(28)
+         ->get()
+         ->shuffle();  // Orden aleatorio
 
 
         // Cargar noticias populares

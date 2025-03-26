@@ -190,44 +190,44 @@
         </div>
     </section>
 
-
-    <!-- Sección de Categorías Destacadas -->
-    <section class="py-3 border-bottom bg-light">
-       <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <h5 class="mb-md-0 mb-3 d-flex align-items-center fw-bold" style="font-size: 0.95rem;">
-                        <i class="fas fa-tags text-primary me-2"></i> Categorías Destacadas
-                        <span class="badge bg-primary rounded-pill ms-2 fs-9">{{ $featuredCategories->count() }}</span>
-                    </h5>
-                </div>
-                <div class="col-md-9">
-                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                        @foreach($featuredCategories as $category)
-                        <a href="{{ route('news.by.category', $category->slug) }}" class="text-decoration-none" aria-label="Ver artículos de {{ $category->name }}">
-                            <span class="badge category-badge mb-1 position-relative" 
-                                style="{{ $getCategoryStyle($category) }} font-size: 0.8rem; transition: all 0.3s ease;">
-                                <i class="fas {{ $getCategoryIcon($category) }} me-1"></i>
-                                {{ $category->name }}
-                                @if(isset($category->news_count))
-                                <span class="badge bg-light text-dark ms-1 rounded-pill">{{ $category->news_count }}</span>
-                                @endif
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none d-lg-inline-block fs-9">
-                                    @php
-                                        $newArticles = $category->news_count_recent ?? rand(1, 5);
-                                    @endphp
-                                    @if($newArticles > 0)
-                                        +{{ $newArticles }} <span class="d-none d-xl-inline">nuevo{{ $newArticles > 1 ? 's' : '' }}</span>
-                                    @endif
+<!-- Sección de Categorías Destacadas - Diseño Sobrio -->
+<!-- Sección de Categorías Destacadas - Diseño Equilibrado -->
+<section class="py-3 border-bottom" style="background-color: #f9f9f9;">
+   <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <h5 class="mb-md-0 mb-3 d-flex align-items-center fw-semibold" style="font-size: 0.95rem;">
+                    <i class="fas fa-th-large text-primary me-2"></i> Categorías Destacadas
+                    <span class="badge bg-primary bg-opacity-75 rounded-pill ms-2 fs-9">{{ $featuredCategories->count() }}</span>
+                </h5>
+            </div>
+            <div class="col-md-9">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                    @foreach($featuredCategories as $category)
+                    <a href="{{ route('news.by.category', $category->slug) }}" class="text-decoration-none" aria-label="Ver artículos de {{ $category->name }}">
+                        <span class="badge category-badge mb-1" 
+                            style="{{ $getCategoryStyle($category) }} opacity: 0.85; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;">
+                            <i class="fas {{ $getCategoryIcon($category) }} me-1"></i>
+                            {{ $category->name }}
+                            @if(isset($category->news_count))
+                            <span class="badge bg-white text-dark ms-1 rounded-pill" style="opacity: 0.9;">{{ $category->news_count }}</span>
+                            @endif
+                            @php
+                                $newArticles = $category->news_count_recent ?? rand(1, 5);
+                            @endphp
+                            @if($newArticles > 0)
+                                <span class="badge bg-white text-primary border-start ms-1 fs-9 d-none d-lg-inline-block">
+                                    +{{ $newArticles }}
                                 </span>
-                            </span>
-                        </a>
-                        @endforeach
-                    </div>
+                            @endif
+                        </span>
+                    </a>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
 
   
@@ -239,7 +239,8 @@
 
 
 
-                <!-- Columna izquierda: Noticias Recientes -->
+                
+                <!-- Columna izquierda: Noticias Recientes - Diseño compacto sin imágenes -->
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
                         <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
@@ -251,69 +252,58 @@
                             </span>
                         </div>
                         <div class="card-body py-3">
+                            <!-- Uso de grilla para mostrar dos columnas en pantallas medianas y grandes -->
                             <div class="row g-3">
-                                @foreach($recentNews as $recent)
-                                <!-- Noticia sin imagen -->
-                                <div class="col-12">
-                                    <div class="row g-0 {{ !$loop->last ? 'border-bottom pb-3 mb-3' : '' }}">
-                                        <div class="col-12">
-                                            <!-- Etiquetas en la parte superior -->
-                                            <div class="d-flex justify-content-between mb-2 flex-wrap">
-                                                <!-- Categoría -->
-                                                @if(isset($recent->category))
-                                                <span class="badge text-white px-2 py-1 rounded-pill"
-                                                    style="{{ $getCategoryStyle($recent->category) }} font-size: 0.7rem;">
-                                                    <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
-                                                    {{ $recent->category->name }}
-                                                </span>
-                                                @endif
-                                                
-                                                <!-- Indicador de nuevo -->
-                                                @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
-                                                <span class="badge bg-danger text-white px-2 py-1 rounded-pill fs-9">
-                                                    <i class="fas fa-star me-1"></i>NUEVO
-                                                </span>
-                                                @endif
-                                            </div>
+                                <!-- Aumentamos el número de noticias al doble -->
+                                @foreach($recentNews->take(16) as $recent)
+                                <!-- Noticia en formato reducido - 6 columnas en pantallas md y superiores -->
+                                <div class="col-md-6">
+                                    <div class="border-bottom pb-2 mb-2 h-100">
+                                        <!-- Metadatos superiores más compactos -->
+                                        <div class="d-flex justify-content-between mb-1 flex-wrap">
+                                            <!-- Categoría -->
+                                            @if(isset($recent->category))
+                                            <span class="badge text-white px-2 py-1 rounded-pill"
+                                                style="{{ $getCategoryStyle($recent->category) }} font-size: 0.65rem;">
+                                                <i class="fas {{ $getCategoryIcon($recent->category) }} me-1"></i>
+                                                {{ $recent->category->name }}
+                                            </span>
+                                            @endif
+                                            
+                                            <!-- Indicador de nuevo más sobrio -->
+                                            @if($recent->created_at->locale('es')->diffInHours(now()) < 48)
+                                            <span class="badge bg-light text-secondary px-2 py-1 rounded-pill fs-9 border">
+                                                <i class="far fa-clock me-1"></i>Nuevo
+                                            </span>
+                                            @endif
+                                        </div>
 
-                                            <!-- Metadatos en la parte superior -->
-                                            <div class="d-flex align-items-center mb-2 flex-wrap">
-                                                <span class="text-muted small me-3">
-                                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
+                                        <!-- Título más pequeño -->
+                                        <h6 class="fw-bold mb-1">
+                                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
+                                                {{ Str::limit($recent->title, 60) }}
+                                            </a>
+                                        </h6>
+                                        
+                                        <!-- Extracto más corto -->
+                                        <p class="card-text text-muted small line-clamp-2 mb-2">{{ Str::limit($recent->excerpt, 100) }}</p>
+                                        
+                                        <!-- Metadatos inferiores más compactos -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <span class="text-muted small me-2">
+                                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($recent->created_at)->locale('es')->format('d/m/Y') }}
                                                 </span>
-                                                <span class="text-muted small me-3">
-                                                    <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }} lecturas
+                                                <span class="text-muted small me-2">
+                                                    <i class="far fa-eye me-1"></i> {{ number_format($recent->views ?? rand(150, 3000)) }}
                                                 </span>
                                                 <span class="text-muted small">
-                                                    <i class="far fa-clock me-1"></i> {{ ceil(str_word_count($recent->content ?? '') / 200) ?? rand(3, 8) }} min lectura
+                                                    <i class="far fa-comment me-1"></i> {{ number_format($recent->comments_count ?? 0) }}
                                                 </span>
                                             </div>
-                                            
-                                            <!-- Título ajustado -->
-                                            <h5 class="card-title fw-bold mb-2">
-                                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
-                                                    {{ $recent->title }}
-                                                </a>
-                                            </h5>
-                                            
-                                            <!-- Extracto con líneas uniformes -->
-                                            <p class="card-text text-muted small line-clamp-4 mb-3">{{ $recent->excerpt }}</p>
-                                            
-                                            <!-- Autor y botón de lectura -->
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ $getImageUrl($recent->author->avatar ?? null, 'avatars', 'small') }}" 
-                                                        class="rounded-circle me-2" 
-                                                        width="24" height="24" 
-                                                        alt="{{ $recent->author->name ?? 'Autor' }}"
-                                                        loading="lazy"
-                                                        onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/avatar-default.jpg') }}';">
-                                                    <span class="small text-muted">{{ $recent->author->name ?? 'ConocIA' }}</span>
-                                                </div>
-                                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="btn btn-sm btn-outline-primary small">
-                                                    Leer más <i class="fas fa-arrow-right ms-1"></i>
-                                                </a>
-                                            </div>
+                                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="btn btn-sm btn-link text-primary p-0 small">
+                                                Leer <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
