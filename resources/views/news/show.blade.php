@@ -93,7 +93,7 @@
     </div>
 
     <!-- Imagen principal - Solo mostrar si existe -->
-    @if($article->image && $article->image != 'default.jpg' && !str_contains($article->image, 'default'))
+    @if($article->image && $article->image != 'default.jpg' && !str_contains($article->image, 'default') && !str_contains($article->image, 'placeholder'))
     <div class="mb-4">
         <img src="{{ getImageUrl($article->image, 'news', 'large') }}" class="img-fluid rounded w-100" alt="{{ $article->title }}">
         @if($article->image_caption)
