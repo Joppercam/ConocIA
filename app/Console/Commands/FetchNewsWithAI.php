@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use OpenAI\Laravel\Facades\OpenAI;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class FetchNewsWithAI extends Command
 {
@@ -169,6 +170,13 @@ class FetchNewsWithAI extends Command
         $this->imageDownloader = $imageDownloader;
     }
 
+    
+    
+    
+    
+    
+    
+    
     /**
      * Execute the console command.
      */
@@ -237,6 +245,9 @@ class FetchNewsWithAI extends Command
         
         $savedCount = 0;
         
+        // Colección de imágenes para descargar en lote al final
+        $imagesToDownload = [];
+        
         foreach ($newsData as $newsItem) {
             // Utilizamos OpenAI para mejorar y extender el contenido
             $enhancedContent = $this->enhanceContentWithAI($newsItem, $categoryName);
@@ -255,30 +266,8 @@ class FetchNewsWithAI extends Command
             try {
                 $this->info("Guardando en la base de datos: {$enhancedContent['title']}");
                 
-                // Procesar la imagen - Descargar físicamente
-                $imageUrl = null;
-                
-                /* if (!empty($newsItem['image'])) {
-                    $this->info("Descargando imagen de la noticia...");
-                    $imageUrl = $this->imageDownloader->download($newsItem['image'], $categorySlug);
-                    
-                    if ($imageUrl) {
-                        $this->info("Imagen descargada correctamente: {$imageUrl}");
-                    } else {
-                        $this->warn("No se pudo descargar la imagen original. Usando imagen predeterminada.");
-                        $imageUrl = $this->getDefaultImageForCategory($categorySlug);
-                    }
-                } else {
-                    $this->warn("La noticia no tiene imagen. Usando imagen predeterminada.");
-                    $imageUrl = $this->getDefaultImageForCategory($categorySlug);
-                } */
-
+                // Inicialmente usamos la imagen predeterminada
                 $imageUrl = $this->getDefaultImageForCategory($categorySlug);
-
-                if (!empty($newsItem['image'])) {
-                    $this->info("Programando descarga asíncrona de imagen...");
-                    // Usamos imagen predeterminada inicialmente, y luego la actualizaremos con el Job
-                }
                 
                 // Verificar si existe una noticia con el mismo título
                 $slug = Str::slug($enhancedContent['title']);
@@ -313,12 +302,13 @@ class FetchNewsWithAI extends Command
                 // Asignar categoría
                 $news->category_id = $category->id;
                 $news->save();
-
+                
+                // Agregar a la lista de imágenes por descargar en lote
                 if (!empty($newsItem['image'])) {
-                    // Encolar el job para descargar la imagen de forma asíncrona
-                    \App\Jobs\DownloadNewsImage::dispatch($news->id, $newsItem['image'], $categorySlug);
-                    $this->info("Descarga de imagen programada en cola para el artículo.");
-
+                    $imagesToDownload[$newsItem['image']] = [
+                        'categorySlug' => $categorySlug,
+                        'newsId' => $news->id
+                    ];
                 }
                 
                 $this->info("Noticia guardada correctamente.");
@@ -352,6 +342,17 @@ class FetchNewsWithAI extends Command
                         'updated_at' => now(),
                     ]);
                     
+                    // Obtenemos el ID de la noticia recién insertada
+                    $newsId = DB::getPdo()->lastInsertId();
+                    
+                    // Agregar a la lista de imágenes por descargar en lote
+                    if (!empty($newsItem['image'])) {
+                        $imagesToDownload[$newsItem['image']] = [
+                            'categorySlug' => $categorySlug,
+                            'newsId' => $newsId
+                        ];
+                    }
+                    
                     $this->info("Noticia guardada correctamente mediante método alternativo.");
                     $savedCount++;
                 } catch (\Exception $innerEx) {
@@ -365,13 +366,39 @@ class FetchNewsWithAI extends Command
             sleep(1);
         }
         
-        // Procesar toda la cola después de haber encolado todas las imágenes
-        Artisan::call('queue:work', [
-            '--stop-when-empty' => true,
-            '--tries' => 3,
-            '--timeout' => 300, // 5 minutos
-        ]);
-
+        // Después de guardar todas las noticias, intentar descargar las imágenes en lote
+        if (!empty($imagesToDownload)) {
+            $this->info("\nDescargando " . count($imagesToDownload) . " imágenes en paralelo...");
+            
+            // Descargar múltiples imágenes en paralelo
+            $downloadResults = $this->imageDownloader->downloadMultiple($imagesToDownload);
+            
+            $successCount = 0;
+            $failCount = 0;
+            
+            // Actualizar las noticias con las rutas de imágenes
+            foreach ($downloadResults as $imageUrl => $localPath) {
+                if ($localPath) {
+                    $newsId = $imagesToDownload[$imageUrl]['newsId'];
+                    
+                    try {
+                        // Actualizar la noticia con la ruta de la imagen
+                        News::where('id', $newsId)->update(['image' => $localPath]);
+                        $this->info("Imagen actualizada para noticia #$newsId");
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        $this->error("Error al actualizar imagen para noticia #$newsId: " . $e->getMessage());
+                        $failCount++;
+                    }
+                } else {
+                    $newsId = $imagesToDownload[$imageUrl]['newsId'];
+                    $this->warn("No se pudo descargar imagen para noticia #$newsId");
+                    $failCount++;
+                }
+            }
+            
+            $this->info("Resumen de descarga de imágenes: $successCount exitosas, $failCount fallidas");
+        }
 
         $bar->finish();
         $this->newLine();
@@ -379,6 +406,15 @@ class FetchNewsWithAI extends Command
         
         return 0;
     }
+
+
+
+
+
+
+
+
+
     
     /**
      * Obtiene un icono FontAwesome para la categoría
@@ -428,6 +464,10 @@ class FetchNewsWithAI extends Command
         return $icons[$categorySlug] ?? 'fa-tag';
     }
     
+    
+    
+    
+    
     /**
      * Método para obtener una imagen predeterminada para una categoría
      */
@@ -443,31 +483,38 @@ class FetchNewsWithAI extends Command
         // Intentar descargar el placeholder (solo la primera vez)
         $localPath = 'news/' . $categorySlug . '/default.jpg';
         
-        if (!Storage::disk('public')->exists($localPath)) {
+        if (!Storage::disk('custom_public')->exists($localPath)) {
             $this->info("Descargando imagen predeterminada para {$categorySlug}...");
             
             try {
                 $imageContent = @file_get_contents($placeholderUrl);
                 if ($imageContent !== false) {
                     // Asegurar que el directorio existe
-                    if (!Storage::disk('public')->exists('news/' . $categorySlug)) {
-                        Storage::disk('public')->makeDirectory('news/' . $categorySlug);
+                    if (!Storage::disk('custom_public')->exists('news/' . $categorySlug)) {
+                        Storage::disk('custom_public')->makeDirectory('news/' . $categorySlug, 0755, true);
                     }
                     
                     // Guardar la imagen
-                    Storage::disk('public')->put($localPath, $imageContent);
-                    return 'storage/' . $localPath;
+                    Storage::disk('custom_public')->put($localPath, $imageContent);
+                    return '/storage/' . $localPath;
                 }
             } catch (\Exception $e) {
                 $this->warn("Error al descargar imagen predeterminada: " . $e->getMessage());
             }
         } else {
-            return 'storage/' . $localPath;
+            return '/storage/' . $localPath;
         }
         
         // Si todo falla, devolver la URL del placeholder
         return $placeholderUrl;
     }
+    
+
+
+
+
+
+
     
     /**
      * Obtiene noticias del endpoint "everything" de NewsAPI

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage; 
 
 class HomeController extends Controller
 {
@@ -24,7 +25,7 @@ class HomeController extends Controller
     public function index()
     {
         // Primero intentar obtener noticias destacadas y publicadas
-        $featuredNews = News::with('category')
+        $allPublishedNews = News::with('category')
             ->where('status', 'published')
             ->whereNotNull('image')
             ->where(function($query) {
@@ -37,6 +38,11 @@ class HomeController extends Controller
             ->latest('published_at')
             ->take(5)
             ->get();
+
+
+            // Filtrar para obtener solo las que tienen imágenes físicas
+        $featuredNews = $this->filterNewsWithPhysicalImages($allPublishedNews, 5);
+
 
         // Si no hay suficientes noticias destacadas (menos de 5), obtener más noticias recientes
         if ($featuredNews->count() < 5) {
@@ -252,6 +258,54 @@ class HomeController extends Controller
             'getCategoryIcon' => $getCategoryIcon
         ]);
     }
+
+
+
+
+
+
+    /**
+     * Filtra noticias para incluir solo aquellas con imágenes físicamente disponibles
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $news Colección de noticias
+     * @param int $minCount Número mínimo de noticias a retornar
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    private function filterNewsWithPhysicalImages($news, $minCount = 5)
+    {
+        // Filtrar noticias con imágenes físicamente existentes
+        $newsWithValidImages = $news->filter(function ($item) {
+            // Si la imagen no comienza con 'storage/', no es una imagen local
+            if (!Str::startsWith($item->image, 'storage/')) {
+                return false;
+            }
+            
+            // Obtener la ruta física del archivo sin 'storage/'
+            $physicalPath = str_replace('storage/', '', $item->image);
+            
+            // Verificar si el archivo existe físicamente
+            $exists = Storage::disk('public')->exists($physicalPath);
+            
+            return $exists;
+        });
+        
+        // Si tenemos suficientes noticias con imágenes válidas, devolver esas
+        if ($newsWithValidImages->count() >= $minCount) {
+            return $newsWithValidImages->take($minCount);
+        }
+        
+        // Si no hay suficientes, complementar con otras noticias
+        $additionalCount = $minCount - $newsWithValidImages->count();
+        $newsWithoutValidImages = $news->diff($newsWithValidImages);
+        
+        return $newsWithValidImages->concat($newsWithoutValidImages->take($additionalCount));
+    }
+
+
+
+
+
+
     
     // Resto del controlador se mantiene igual...
     

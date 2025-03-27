@@ -15,41 +15,71 @@ class DownloadNewsImage implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $newsId;
+    /**
+     * Número de intentos para el job
+     */
+    public $tries = 3;
+    
+    /**
+     * Tiempo de espera entre reintentos en segundos
+     */
+    public $backoff = 5;
+    
+    /**
+     * La URL de la imagen a descargar
+     */
     protected $imageUrl;
+    
+    /**
+     * El ID de la noticia
+     */
+    protected $newsId;
+    
+    /**
+     * La categoría (slug) para organizar directorios
+     */
     protected $categorySlug;
 
     /**
      * Create a new job instance.
+     *
+     * @param string $imageUrl
+     * @param int $newsId
+     * @param string $categorySlug
+     * @return void
      */
-    public function __construct($newsId, $imageUrl, $categorySlug)
+    public function __construct($imageUrl, $newsId, $categorySlug)
     {
-        $this->newsId = $newsId;
         $this->imageUrl = $imageUrl;
+        $this->newsId = $newsId;
         $this->categorySlug = $categorySlug;
     }
 
     /**
      * Execute the job.
+     *
+     * @return void
      */
-    public function handle(): void
+    public function handle(SimpleImageDownloader $downloader)
     {
+        Log::info('Iniciando descarga asíncrona de imagen', [
+            'news_id' => $this->newsId,
+            'image_url' => $this->imageUrl
+        ]);
+        
         try {
-            // Obtener la noticia
+            // Buscar la noticia
             $news = News::find($this->newsId);
+            
             if (!$news) {
-                Log::error('Noticia no encontrada para descarga de imagen', [
-                    'news_id' => $this->newsId,
-                    'image_url' => $this->imageUrl
+                Log::error('Noticia no encontrada para actualizar imagen', [
+                    'news_id' => $this->newsId
                 ]);
                 return;
             }
-
-            // Instanciar el servicio de descarga de imágenes
-            $imageDownloader = app(SimpleImageDownloader::class);
             
             // Descargar la imagen
-            $localPath = $imageDownloader->download($this->imageUrl, $this->categorySlug);
+            $localPath = $downloader->download($this->imageUrl, $this->categorySlug);
             
             if ($localPath) {
                 // Actualizar la noticia con la ruta de la imagen
@@ -64,13 +94,18 @@ class DownloadNewsImage implements ShouldQueue
                     'news_id' => $this->newsId,
                     'image_url' => $this->imageUrl
                 ]);
+                
+                // No hacemos actualización, mantenemos la imagen predeterminada
             }
         } catch (\Exception $e) {
-            Log::error('Error al descargar imagen', [
+            Log::error('Error en job de descarga de imagen', [
                 'news_id' => $this->newsId,
                 'image_url' => $this->imageUrl,
                 'error' => $e->getMessage()
             ]);
+            
+            // Relanzar la excepción para que Laravel gestione los reintentos
+            throw $e;
         }
     }
 }
