@@ -350,6 +350,99 @@
                                 </ul>
                             </div>
 
+
+
+
+                            <!-- Inserta este código después de las notificaciones de redes sociales y antes del dropdown de usuario -->
+
+                            <!-- Nav Item - Notificaciones -->
+                            <div class="dropdown mx-2">
+                                <a class="nav-link position-relative notification-bell" href="#" role="button" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-bell"></i>
+                                    <!-- Counter - Alerts -->
+                                    @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-count">
+                                            {{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}
+                                            <span class="visually-hidden">notificaciones sin leer</span>
+                                        </span>
+                                    @endif
+                                </a>
+                                <!-- Dropdown - Notificaciones -->
+                                <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in notification-dropdown" style="width: 300px;">
+                                    <h6 class="dropdown-header">
+                                        Centro de Notificaciones
+                                    </h6>
+                                    
+                                    <div class="notifications-container">
+                                        @if(isset($notifications) && count($notifications) > 0)
+                                            @foreach($notifications as $notification)
+                                                <a class="dropdown-item d-flex align-items-center notification-item" href="{{ route('admin.notifications.index') }}" data-id="{{ $notification->id }}">
+                                                    <div class="me-3">
+                                                        @if($notification->type == 'comment')
+                                                            <div class="rounded-circle bg-info p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-comment text-white"></i>
+                                                            </div>
+                                                        @elseif($notification->type == 'subscription')
+                                                            <div class="rounded-circle bg-primary p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-user-check text-white"></i>
+                                                            </div>
+                                                        @elseif($notification->type == 'comment_approved' || $notification->type == 'comment_reply')
+                                                            <div class="rounded-circle bg-success p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-check-circle text-white"></i>
+                                                            </div>
+                                                        @else
+                                                            <div class="rounded-circle bg-warning p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="fas fa-exclamation-circle text-white"></i>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <div class="small text-muted">{{ $notification->created_at->diffForHumans() }}</div>
+                                                        
+                                                        @if($notification->type == 'comment')
+                                                            <span class="fw-bold">Nuevo comentario en: {{ Str::limit($notification->data['article_title'] ?? 'Artículo', 20) }}</span>
+                                                        @elseif($notification->type == 'subscription')
+                                                            <span class="fw-bold">Nueva suscripción: {{ $notification->data['email'] ?? 'Usuario' }}</span>
+                                                        @elseif($notification->type == 'comment_approved')
+                                                            <span class="fw-bold">Tu comentario ha sido aprobado</span>
+                                                        @elseif($notification->type == 'comment_reply')
+                                                            <span class="fw-bold">Respuesta a tu comentario</span>
+                                                        @else
+                                                            <span class="fw-bold">{{ $notification->data['message'] ?? 'Notificación del sistema' }}</span>
+                                                        @endif
+                                                    </div>
+                                                </a>
+                                            @endforeach
+                                            
+                                            <div class="dropdown-item text-center">
+                                                <a href="{{ route('admin.notifications.index') }}" class="text-primary">Ver todas las notificaciones</a>
+                                            </div>
+                                        @else
+                                            <div class="dropdown-item text-center py-3">
+                                                <span class="text-muted">No tienes notificaciones sin leer</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                                        <div class="dropdown-item text-center border-top pt-2">
+                                            <form action="{{ route('admin.notifications.read-all') }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-light">Marcar todas como leídas</button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+
+
+
+
+
+
                             <!-- Dropdown de usuario (ya existente) -->
                             <div class="dropdown">
                                 <!-- Resto del código del dropdown del usuario -->
@@ -411,6 +504,15 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    <script>
+        // Definir rutas de notificaciones para uso en JavaScript
+        window.routes = {
+            notificationsGet: "{{ route('admin.notifications.get') }}",
+            notificationsIndex: "{{ route('admin.notifications.index') }}",
+            notificationsMarkRead: "{{ route('admin.notifications.read', ['id' => '__id__']) }}" // Reemplazar __id__ en JavaScript
+        };
+</script>
     <script>
         // Sidebar Toggle
         document.addEventListener('DOMContentLoaded', function() {

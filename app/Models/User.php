@@ -138,4 +138,13 @@ class User extends Authenticatable
     {
         return $this->role_id == 1;
     }
+
+
+    /**
+     * Obtener las notificaciones del usuario.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 }

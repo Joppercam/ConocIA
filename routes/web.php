@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Admin\NewsletterAdminController;
 use App\Http\Controllers\Admin\NewsApiController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 /*
@@ -201,6 +202,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ->name('queue.destroy');
             Route::post('/queue/store', [App\Http\Controllers\Admin\SocialMediaQueueController::class, 'store'])
                 ->name('queue.store');
+        });
+
+
+        // Rutas de notificaciones
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::get('/get', [NotificationController::class, 'getNotifications'])->name('get');
+            Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+            Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('read-all');
+            Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
         });
 
 
