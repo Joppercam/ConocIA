@@ -74,11 +74,11 @@
                                     <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
                                         <a href="{{ $item->manual_url }}" target="_blank" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-external-link-alt"></i> Publicar
+                                            <i class="fas fa-external-link-alt"></i> 
                                         </a>
                                         
                                         <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#markPublishedModal{{ $item->id }}">
-                                            <i class="fas fa-check"></i> Marcar Publicado
+                                            <i class="fas fa-check"></i> 
                                         </button>
                                         
                                         <form action="{{ route('admin.social-media.queue.destroy', $item->id) }}" method="POST" class="d-inline">
@@ -94,7 +94,7 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="markPublishedModalLabel{{ $item->id }}">Marcar como Publicado</h5>
+                                                        <h5 class="modal-title" id="markPublishedModalLabel{{ $item->id }}"></h5>
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
@@ -113,7 +113,7 @@
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                                            <button type="submit" class="btn btn-success">Marcar como Publicado</button>
+                                                            <button type="submit" class="btn btn-success"></button>
                                                         </div>
                                                     </form>
                                                 </div>

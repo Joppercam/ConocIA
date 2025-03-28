@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\News;
 use App\Models\Category;
+// Añadir el modelo de cola de social media
+use App\Models\SocialMediaQueue;
 use App\Services\SimpleImageDownloader;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +24,7 @@ class FetchNewsWithAI extends Command
      *
      * @var string
      */
-    protected $signature = 'news:fetch {--category=} {--count=5} {--language=es}';
+    protected $signature = 'news:fetch {--category=} {--count=5} {--language=es} {--queue-social=1}';
 
     /**
      * The console command description.
@@ -170,19 +172,13 @@ class FetchNewsWithAI extends Command
         $this->imageDownloader = $imageDownloader;
     }
 
-    
-    
-    
-    
-    
-    
-    
     /**
      * Execute the console command.
      */
     public function handle()
     {
         $categorySlug = $this->option('category');
+        $queueSocial = $this->option('queue-social');
         
         if (empty($categorySlug)) {
             // Si no se especifica categoría, mostrar lista de categorías disponibles
@@ -248,6 +244,9 @@ class FetchNewsWithAI extends Command
         // Colección de imágenes para descargar en lote al final
         $imagesToDownload = [];
         
+        // Colección de noticias creadas para luego crear las entradas en la cola de redes sociales
+        $createdNews = [];
+        
         foreach ($newsData as $newsItem) {
             // Utilizamos OpenAI para mejorar y extender el contenido
             $enhancedContent = $this->enhanceContentWithAI($newsItem, $categoryName);
@@ -303,6 +302,9 @@ class FetchNewsWithAI extends Command
                 $news->category_id = $category->id;
                 $news->save();
                 
+                // Guardar la noticia en la colección para luego crear entradas en la cola
+                $createdNews[] = $news;
+                
                 // Agregar a la lista de imágenes por descargar en lote
                 if (!empty($newsItem['image'])) {
                     $imagesToDownload[$newsItem['image']] = [
@@ -344,6 +346,12 @@ class FetchNewsWithAI extends Command
                     
                     // Obtenemos el ID de la noticia recién insertada
                     $newsId = DB::getPdo()->lastInsertId();
+                    
+                    // Crear objeto News para nuestra colección con los datos recién insertados
+                    $insertedNews = News::find($newsId);
+                    if ($insertedNews) {
+                        $createdNews[] = $insertedNews;
+                    }
                     
                     // Agregar a la lista de imágenes por descargar en lote
                     if (!empty($newsItem['image'])) {
@@ -400,21 +408,18 @@ class FetchNewsWithAI extends Command
             $this->info("Resumen de descarga de imágenes: $successCount exitosas, $failCount fallidas");
         }
 
+        // NUEVO: Crear entradas en la cola de redes sociales si está activada la opción
+        if ($queueSocial && count($createdNews) > 0) {
+            $this->info("\nCreando entradas en la cola de redes sociales...");
+            $this->queueSocialMediaPosts($createdNews, $categoryName);
+        }
+
         $bar->finish();
         $this->newLine();
         $this->info("Noticias obtenidas y guardadas correctamente: {$savedCount} nuevas noticias de {$categoryName}.");
         
         return 0;
     }
-
-
-
-
-
-
-
-
-
     
     /**
      * Obtiene un icono FontAwesome para la categoría
@@ -464,10 +469,6 @@ class FetchNewsWithAI extends Command
         return $icons[$categorySlug] ?? 'fa-tag';
     }
     
-    
-    
-    
-    
     /**
      * Método para obtener una imagen predeterminada para una categoría
      */
@@ -508,13 +509,6 @@ class FetchNewsWithAI extends Command
         // Si todo falla, devolver la URL del placeholder
         return $placeholderUrl;
     }
-    
-
-
-
-
-
-
     
     /**
      * Obtiene noticias del endpoint "everything" de NewsAPI
@@ -718,5 +712,153 @@ class FetchNewsWithAI extends Command
         
         // Devolver las 10 palabras más frecuentes
         return array_slice(array_keys($wordCounts), 0, 10);
+    }
+    
+    /**
+     * Crea entradas automáticas en la cola de redes sociales para cada noticia
+     * 
+     * @param array $newsItems Lista de objetos News para los que crear entradas
+     * @param string $categoryName Nombre de la categoría para incluir en los mensajes
+     * @return void
+     */
+    private function queueSocialMediaPosts($newsItems, $categoryName)
+    {
+        if (empty($newsItems)) {
+            $this->warn("No hay noticias para crear entradas en redes sociales.");
+            return;
+        }
+        
+        $this->info("Creando entradas en la cola de redes sociales para " . count($newsItems) . " noticias...");
+        
+        $successCount = 0;
+        $failCount = 0;
+        
+        // Redes sociales disponibles
+        //$networks = ['twitter', 'facebook', 'linkedin'];
+        $networks = ['twitter'];
+        
+        foreach ($newsItems as $news) {
+            try {
+                // Generar un mensaje para cada red social con formato adecuado
+                foreach ($networks as $network) {
+                    try {
+                        // Generar contenido específico según la red social
+                        $content = $this->generateSocialContent($news, $network, $categoryName);
+                        
+                        // Generar la URL para publicación manual (similar a lo que hace la vista)
+                        $manualUrl = $this->generateManualUrl($news, $network, $content);
+                        
+                        // Crear entrada en la tabla de cola de social media
+                        $queueItem = new SocialMediaQueue([
+                            'news_id' => $news->id,
+                            'network' => $network,
+                            'content' => $content,
+                            'status' => 'pending', // Pendiente de publicación
+                            'manual_url' => $manualUrl,
+                            'media_paths' => [], // Array vacío para medios
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                        
+                        $queueItem->save();
+                        $this->info("Entrada creada para noticia '{$news->title}' en $network");
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        $this->error("Error al crear entrada para {$news->title} en $network: " . $e->getMessage());
+                        $failCount++;
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->error("Error general al procesar noticia para redes sociales: " . $e->getMessage());
+                $failCount++;
+            }
+        }
+        
+        $this->info("Resumen de creación de entradas en la cola: $successCount exitosas, $failCount fallidas");
+    }
+    
+    /**
+     * Genera contenido específico para cada red social
+     * 
+     * @param News $news Noticia para la que generar contenido
+     * @param string $network Red social (twitter, facebook, linkedin)
+     * @param string $categoryName Nombre de la categoría
+     * @return string Contenido formateado para la red social
+     */
+    private function generateSocialContent($news, $network, $categoryName)
+    {
+        // URL base del sitio para incluir en los posts
+        $siteUrl = config('app.url');
+        $newsUrl = "{$siteUrl}/noticias/{$news->slug}";
+        
+        // Hashtags relacionados con la categoría (máximo 3)
+        $hashtag = '#' . Str::camel($categoryName);
+        $hashtag = str_replace(' ', '', $hashtag);
+        
+        // Extraer palabras clave para hashtags adicionales
+        $keywords = $this->extractKeywords($news->title);
+        $additionalHashtags = [];
+        foreach (array_slice($keywords, 0, 2) as $keyword) {
+            if (strlen($keyword) > 3) {
+                $additionalHashtags[] = '#' . Str::camel($keyword);
+            }
+        }
+        
+        $allHashtags = array_merge([$hashtag], $additionalHashtags);
+        
+        // Formatear el contenido según la red social
+        switch ($network) {
+            case 'twitter':
+                // Twitter tiene un límite de 280 caracteres
+                $title = Str::limit($news->title, 100);
+                $hashtagString = implode(' ', $allHashtags);
+                $content = "📰 {$title}\n\n{$newsUrl}\n\n{$hashtagString}";
+                // Asegurar que no exceda el límite de Twitter
+                return Str::limit($content, 280);
+                
+            case 'facebook':
+                // Facebook permite contenido más extenso
+                $excerpt = Str::limit($news->excerpt, 150);
+                $hashtagString = implode(' ', $allHashtags);
+                return "📰 {$news->title}\n\n{$excerpt}\n\n👉 Lee más en: {$newsUrl}\n\n{$hashtagString}";
+                
+            case 'linkedin':
+                // LinkedIn es más profesional, usamos el excerpt completo
+                $hashtagString = implode(' ', $allHashtags);
+                return "📰 {$news->title}\n\n{$news->excerpt}\n\n👉 Artículo completo: {$newsUrl}\n\n{$hashtagString}";
+                
+            default:
+                // Formato genérico para otras redes
+                return "{$news->title}\n\n{$newsUrl}";
+        }
+    }
+    
+    /**
+     * Genera una URL para publicación manual en redes sociales
+     * 
+     * @param News $news Noticia a publicar
+     * @param string $network Red social
+     * @param string $content Contenido preparado
+     * @return string URL para publicación manual
+     */
+    private function generateManualUrl($news, $network, $content)
+    {
+        $siteUrl = config('app.url');
+        $newsUrl = "{$siteUrl}/noticias/{$news->slug}";
+        $encodedContent = urlencode($content);
+        
+        switch ($network) {
+            case 'twitter':
+                return "https://twitter.com/intent/tweet?text={$encodedContent}";
+                
+            case 'facebook':
+                return "https://www.facebook.com/sharer/sharer.php?u={$newsUrl}";
+                
+            case 'linkedin':
+                return "https://www.linkedin.com/shareArticle?mini=true&url={$newsUrl}&title=" . urlencode($news->title);
+                
+            default:
+                return "";
+        }
     }
 }
