@@ -63,7 +63,7 @@ return [
         'custom_public' => [
             'driver' => 'local',
             'root' => '/home/conociac/public_html/storage',
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL').'storage',
             'visibility' => 'public',
         ],
 

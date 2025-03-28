@@ -44,6 +44,7 @@ class HomeController extends Controller
         $featuredNews = $this->filterNewsWithPhysicalImages($allPublishedNews, 5);
 
 
+        //dd($featuredNews);
         // Si no hay suficientes noticias destacadas (menos de 5), obtener más noticias recientes
         if ($featuredNews->count() < 5) {
         // Obtener IDs de las noticias que ya están incluidas
