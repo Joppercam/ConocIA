@@ -173,6 +173,81 @@
                 </div>
             </div>
         </div>
+
+
+
+
+        <!-- Fila para Redes Sociales -->
+        <div class="row">
+            <!-- Cola de Publicación en Redes Sociales -->
+            <div class="col-12 mb-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Publicaciones Pendientes en Redes Sociales</h6>
+                        <a href="{{ route('admin.social-media.queue') }}" class="btn btn-sm btn-primary">
+                            Ver Todas
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        @if(isset($pendingSocialPosts) && $pendingSocialPosts->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Red Social</th>
+                                            <th>Contenido</th>
+                                            <th>Noticia</th>
+                                            <th>Fecha</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pendingSocialPosts as $item)
+                                            <tr>
+                                                <td>
+                                                    @if($item->network == 'twitter')
+                                                        <i class="fab fa-twitter text-info"></i> Twitter
+                                                    @elseif($item->network == 'facebook')
+                                                        <i class="fab fa-facebook text-primary"></i> Facebook
+                                                    @elseif($item->network == 'linkedin')
+                                                        <i class="fab fa-linkedin text-primary"></i> LinkedIn
+                                                    @else
+                                                        {{ ucfirst($item->network) }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ Str::limit($item->content, 60) }}</td>
+                                                <td>
+                                                    @if($item->news)
+                                                        <a href="{{ route('news.show', $item->news->slug) }}" target="_blank">
+                                                            {{ Str::limit($item->news->title, 30) }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted">No disponible</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
+                                                <td>
+                                                    <a href="{{ $item->manual_url }}" target="_blank" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-external-link-alt"></i> Publicar
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-center">No hay publicaciones pendientes en la cola</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        
+
     </div>
 </div>
 @endsection

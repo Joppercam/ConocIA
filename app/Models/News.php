@@ -215,4 +215,40 @@ class News extends Model
         return $this->belongsToMany(Tag::class, 'news_tag');
     }
 
+
+    /**
+     * Obtiene las publicaciones en redes sociales de esta noticia
+     */
+    public function socialPosts()
+    {
+        return $this->hasMany(SocialMediaPost::class);
+    }
+
+    /**
+     * Verifica si esta noticia ha sido publicada en la red social especificada
+     *
+     * @param string $network Nombre de la red social
+     * @return bool
+     */
+    public function isPublishedOnSocialMedia($network)
+    {
+        return $this->socialPosts()
+            ->where('network', $network)
+            ->where('status', 'success')
+            ->exists();
+    }
+
+    /**
+     * Obtiene las redes sociales donde esta noticia ha sido publicada
+     *
+     * @return array
+     */
+    public function getPublishedSocialNetworks()
+    {
+        return $this->socialPosts()
+            ->where('status', 'success')
+            ->pluck('network')
+            ->toArray();
+    }
+
 }

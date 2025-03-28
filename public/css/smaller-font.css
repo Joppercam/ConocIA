@@ -1,0 +1,39 @@
+/* Estilos para reducir el tamaño de la letra */
+.container-fluid {
+    font-size: 0.9rem;
+}
+
+.table {
+    font-size: 0.85rem;
+}
+
+.card-header h6 {
+    font-size: 0.95rem;
+}
+
+.modal-body {
+    font-size: 0.9rem;
+}
+
+.form-text, .form-label {
+    font-size: 0.85rem;
+}
+
+.btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.alert {
+    font-size: 0.85rem;
+}
+
+/* Para reducir el espacio entre filas de tabla */
+.table td, .table th {
+    padding: 0.5rem;
+}
+
+/* Hacer el contenido más compacto */
+.card-body {
+    padding: 1rem;
+}

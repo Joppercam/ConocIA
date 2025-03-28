@@ -43,8 +43,43 @@ class Kernel extends ConsoleKernel
 
        // Ejecutar el comando de aprobación automática de comentarios cada 3 minutos
        $schedule->command('comments:auto-approve')
-       ->everyThreeMinutes()
-       ->appendOutputTo(storage_path('logs/comments-auto-approve.log'));
+            ->everyThreeMinutes()
+            ->appendOutputTo(storage_path('logs/comments-auto-approve.log'));
+
+
+  
+             
+        // Publicación principal - 3 veces al día en días laborables
+        $schedule->command('news:publish-twitter --limit=1')
+        ->weekdays()
+        ->at('09:00')
+        ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+
+        $schedule->command('news:publish-twitter --limit=1')
+            ->weekdays()
+            ->at('13:00')
+            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+
+        $schedule->command('news:publish-twitter --limit=1')
+            ->weekdays()
+            ->at('18:00')
+            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+
+        // Fines de semana - Una publicación por día
+        $schedule->command('news:publish-twitter --limit=1')
+            ->saturdays()
+            ->at('12:00')
+            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+
+        $schedule->command('news:publish-twitter --limit=1')
+            ->sundays()
+            ->at('17:00')
+            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+
+        // Monitoreo diario - Para mantener registro del uso de la API
+        $schedule->command('news:publish-twitter --dry-run')
+            ->dailyAt('00:01')
+            ->appendOutputTo(storage_path('logs/twitter-usage-stats.log'));
    
     }
 

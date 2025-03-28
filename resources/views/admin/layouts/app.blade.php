@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Styles -->
+    <link rel="stylesheet" href="{{ asset('css/smaller-font.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -212,6 +213,19 @@
                         <li><a href="{{ route('admin.newsletter.send') }}">Enviar Newsletter</a></li>
                     </ul>
                 </li>
+                <li class="{{ request()->routeIs('admin.social-media.*') ? 'active' : '' }}">
+                    <a href="#socialMediaSubmenu" data-bs-toggle="collapse" 
+                    aria-expanded="{{ request()->routeIs('admin.social-media.*') ? 'true' : 'false' }}" 
+                    class="dropdown-toggle">
+                        <i class="fas fa-share-alt"></i> Redes Sociales 
+                        @if(isset($pendingSocialCount) && $pendingSocialCount > 0)
+                            <span class="badge bg-danger float-end">{{ $pendingSocialCount }}</span>
+                        @endif
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.social-media.*') ? 'show' : '' }}" id="socialMediaSubmenu">
+                        <li><a href="{{ route('admin.social-media.queue') }}">Cola de Publicación</a></li>
+                    </ul>
+                </li>
                 <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <a href="#usuariosSubmenu" data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.usuarios.*') ? 'true' : 'false' }}" class="dropdown-toggle">
                         <i class="fas fa-users me-2"></i> Usuarios
@@ -254,12 +268,94 @@
         <div id="content" class="content">
             <!-- Top Navbar -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+                
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapseDesktop" class="btn d-none d-md-block">
                         <i class="fas fa-bars"></i>
                     </button>
 
                     <div class="ms-auto d-flex">
+
+
+
+
+                        <!-- Localiza esta parte en tu layout -->
+                        <div class="ms-auto d-flex">
+                            <!-- Añade el código de notificación aquí, justo antes del dropdown del usuario -->
+                            
+                            <!-- Nav Item - Social Media Alerts -->
+                            <div class="dropdown mx-2">
+                                <a class="nav-link position-relative" href="#" role="button" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-share-alt"></i>
+                                    <!-- Counter - Alerts -->
+                                    @if(isset($pendingSocialCount) && $pendingSocialCount > 0)
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {{ $pendingSocialCount }}
+                                            <span class="visually-hidden">publicaciones pendientes</span>
+                                        </span>
+                                    @endif
+                                </a>
+                                <!-- Dropdown - Social Media Alerts -->
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <h6 class="dropdown-header">Publicaciones Pendientes</h6>
+                                    </li>
+                                    
+                                    @if(isset($pendingSocialPosts) && $pendingSocialPosts->count() > 0)
+                                        @foreach($pendingSocialPosts as $item)
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.social-media.queue') }}">
+                                                    <div class="me-3">
+                                                        <div class="rounded-circle bg-primary p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                            @if($item->network == 'twitter')
+                                                                <i class="fab fa-twitter text-white"></i>
+                                                            @elseif($item->network == 'facebook')
+                                                                <i class="fab fa-facebook-f text-white"></i>
+                                                            @elseif($item->network == 'linkedin')
+                                                                <i class="fab fa-linkedin-in text-white"></i>
+                                                            @else
+                                                                <i class="fas fa-share-alt text-white"></i>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="small text-muted">{{ $item->created_at->format('d/m/Y H:i') }}</div>
+                                                        <span>{{ Str::limit($item->content, 40) }}</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                        
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-center" href="{{ route('admin.social-media.queue') }}">
+                                                Ver todas las publicaciones pendientes
+                                            </a>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                                <div class="me-3">
+                                                    <div class="rounded-circle bg-success p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-check text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span>No hay publicaciones pendientes</span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
+
+                            <!-- Dropdown de usuario (ya existente) -->
+                            <div class="dropdown">
+                                <!-- Resto del código del dropdown del usuario -->
+
+
+
                         <div class="dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" 
                                data-bs-toggle="dropdown" aria-expanded="false">
