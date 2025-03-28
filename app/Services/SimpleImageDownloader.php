@@ -291,7 +291,7 @@ class SimpleImageDownloader
         $success = Storage::disk('custom_public')->put($fullPath, $imageContent);
         
         if ($success) {
-            return '/storage/' . $fullPath;
+            return 'storage/' . $fullPath;
         } else {
             Log::error('Error al guardar imagen: ' . $url);
             return null;
