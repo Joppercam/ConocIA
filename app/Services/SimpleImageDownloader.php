@@ -109,7 +109,7 @@ class SimpleImageDownloader
             Log::info('Imagen guardada correctamente en: ' . $fullPath);
             
             // Devolver ruta relativa para usar en HTML
-            return '/storage/' . $fullPath;
+            return 'storage/' . $fullPath;
             
         } catch (RequestException $e) {
             Log::error('Error al realizar la petición HTTP: ' . $e->getMessage());
