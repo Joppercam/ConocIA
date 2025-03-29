@@ -80,6 +80,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('news:publish-twitter --dry-run')
             ->dailyAt('00:01')
             ->appendOutputTo(storage_path('logs/twitter-usage-stats.log'));
+
+        $schedule->command('news:archive')->dailyAt('02:00');
    
     }
 

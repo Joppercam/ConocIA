@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\News;
+use App\Models\NewsHistoric;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Category;
@@ -95,19 +96,35 @@ class NewsController extends Controller
      */
     public function show($slug)
     {
-        // Obtener la noticia por su slug
+        // Intentar obtener la noticia de la tabla principal primero
         $article = News::where('slug', $slug)
             ->with(['category', 'tags', 'author', 'comments' => function($query) {
                 $query->where('status', 'approved') // Solo comentarios aprobados
-                      ->whereNull('parent_id') // Solo comentarios principales (no respuestas)
-                      ->orderBy('created_at', 'desc');
+                    ->whereNull('parent_id') // Solo comentarios principales (no respuestas)
+                    ->orderBy('created_at', 'desc');
             }])
-            ->firstOrFail();
-            
-            
-        // IMPORTANTE: Incrementar contador de vistas directamente aquí
-        // sin llamar a ningún método privado o protegido
-        $this->incrementArticleViews($article);
+            ->first();
+        
+        // Si no se encuentra en la tabla principal, buscar en la tabla histórica
+        if (!$article) {
+            $article = NewsHistoric::where('slug', 'like', $slug . '%')
+                ->with(['category', 'author', 'comments' => function($query) {
+                    $query->where('status', 'approved')
+                        ->whereNull('parent_id')
+                        ->orderBy('created_at', 'desc');
+                }])
+                ->first();
+                
+            if (!$article) {
+                abort(404); // Si no se encuentra en ninguna tabla
+            }
+        }
+        
+        // IMPORTANTE: Incrementar contador de vistas para noticias activas
+        // Solo incrementar si es un modelo News (no para NewsHistoric)
+        if ($article instanceof News) {
+            $this->incrementArticleViews($article);
+        }
         
         // Obtener artículos relacionados
         $relatedArticles = News::where('id', '!=', $article->id)
@@ -134,8 +151,9 @@ class NewsController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(6)
             ->get();
-           
+        
         // Obtener artículos más leídos usando el contador real de vistas
+        // Incluir solo las noticias activas para las más leídas
         $mostReadArticles = News::with('category')
             ->published()
             ->orderBy('views', 'desc')

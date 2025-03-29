@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\App;
+use App\Models\NewsHistoric;
+use App\Observers\NewsHistoricObserver;
 use Carbon\Carbon;
 use App\ImageHelper;
 use App\Models\SocialMediaQueue;
@@ -28,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Configurar el locale predeterminado para Carbon
         Carbon::setLocale(config('app.locale', 'es'));
+
+        NewsHistoric::observe(NewsHistoricObserver::class);
 
         Carbon::macro('formatSpanish', function ($format = 'D [de] MMMM, YYYY') {
             return $this->locale('es')->isoFormat($format);
