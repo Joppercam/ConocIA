@@ -191,15 +191,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('columns', AdminColumnController::class);
 
 
-            // Rutas para la cola de redes sociales
-        Route::group(['prefix' => 'social-media', 'as' => 'social-media.'], function () {
+        Route::prefix('social-media')->name('social-media.')->group(function () {
+            // Cambiar esta línea
             Route::get('/queue', [App\Http\Controllers\Admin\SocialMediaQueueController::class, 'index'])
-                ->name('queue');
+                ->name('queue'); // En lugar de queue.index
+            
+            // Las otras rutas permanecen igual
             Route::post('/queue/{id}/mark-published', [App\Http\Controllers\Admin\SocialMediaQueueController::class, 'markAsPublished'])
                 ->name('queue.mark-published');
+            
             Route::delete('/queue/{id}', [App\Http\Controllers\Admin\SocialMediaQueueController::class, 'destroy'])
                 ->name('queue.destroy');
-            Route::post('/queue/store', [App\Http\Controllers\Admin\SocialMediaQueueController::class, 'store'])
+            
+            Route::post('/queue', [App\Http\Controllers\Admin\SocialMediaQueueController::class, 'store'])
                 ->name('queue.store');
         });
 

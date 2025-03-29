@@ -328,7 +328,7 @@
                                         @endforeach
                                         
                                         <li><hr class="dropdown-divider"></li>
-                                        <li>
+                                        <li>                                                     
                                             <a class="dropdown-item text-center" href="{{ route('admin.social-media.queue') }}">
                                                 Ver todas las publicaciones pendientes
                                             </a>
