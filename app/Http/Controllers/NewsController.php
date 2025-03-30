@@ -11,6 +11,7 @@ use App\Models\Category;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str; 
 
 class NewsController extends Controller
 {
@@ -89,93 +90,159 @@ class NewsController extends Controller
 
    
     /**
-     * Mostrar una noticia específica
-     *
-     * @param string $slug
-     * @return \Illuminate\View\View
-     */
-    public function show($slug)
-    {
-        // Intentar obtener la noticia de la tabla principal primero
-        $article = News::where('slug', $slug)
-            ->with(['category', 'tags', 'author', 'comments' => function($query) {
-                $query->where('status', 'approved') // Solo comentarios aprobados
-                    ->whereNull('parent_id') // Solo comentarios principales (no respuestas)
+ * Mostrar una noticia específica
+ *
+ * @param string $slug
+ * @return \Illuminate\View\View
+ */
+public function show($slug)
+{
+    // Intentar obtener la noticia de la tabla principal primero
+    $article = News::where('slug', $slug)
+        ->with(['category', 'tags', 'author', 'comments' => function($query) {
+            $query->where('status', 'approved') // Solo comentarios aprobados
+                ->whereNull('parent_id') // Solo comentarios principales (no respuestas)
+                ->orderBy('created_at', 'desc');
+        }])
+        ->first();
+    
+    // Si no se encuentra en la tabla principal, buscar en la tabla histórica
+    if (!$article) {
+        $article = NewsHistoric::where('slug', 'like', $slug . '%')
+            ->with(['category', 'author', 'comments' => function($query) {
+                $query->where('status', 'approved')
+                    ->whereNull('parent_id')
                     ->orderBy('created_at', 'desc');
             }])
             ->first();
-        
-        // Si no se encuentra en la tabla principal, buscar en la tabla histórica
+            
         if (!$article) {
-            $article = NewsHistoric::where('slug', 'like', $slug . '%')
-                ->with(['category', 'author', 'comments' => function($query) {
-                    $query->where('status', 'approved')
-                        ->whereNull('parent_id')
-                        ->orderBy('created_at', 'desc');
-                }])
-                ->first();
-                
-            if (!$article) {
-                abort(404); // Si no se encuentra en ninguna tabla
+            abort(404); // Si no se encuentra en ninguna tabla
+        }
+    }
+    
+    // IMPORTANTE: Incrementar contador de vistas para noticias activas
+    // Solo incrementar si es un modelo News (no para NewsHistoric)
+    if ($article instanceof News) {
+        $this->incrementArticleViews($article);
+    }
+    
+    // Obtener artículos relacionados
+    $relatedArticles = News::where('id', '!=', $article->id)
+        ->with('category')
+        ->where(function ($query) use ($article) {
+            // Relacionados por categoría
+            if ($article->category) {
+                $query->where('category_id', $article->category->id);
+            }
+            
+            // O por etiquetas si están disponibles
+            if ($article->tags && !empty($article->tags)) {
+                // Convertir el string de etiquetas en un array
+                $tagArray = explode(',', $article->tags);
+                // Buscar noticias que tengan estas etiquetas
+                $query->orWhere(function($q) use ($tagArray) {
+                    foreach ($tagArray as $tag) {
+                        $q->orWhere('tags', 'like', '%' . trim($tag) . '%');
+                    }
+                });
+            }
+        })
+        ->published()
+        ->orderBy('created_at', 'desc')
+        ->take(6)
+        ->get();
+    
+    // Obtener artículos más leídos usando el contador real de vistas
+    // Incluir solo las noticias activas para las más leídas
+    $mostReadArticles = News::with('category')
+        ->published()
+        ->orderBy('views', 'desc')
+        ->take(5)
+        ->get();
+        
+    // Obtener etiquetas populares (versión más simple)
+    $popularTags = Tag::select('tags.*')
+        ->join('news_tag', 'tags.id', '=', 'news_tag.tag_id')
+        ->groupBy('tags.id')
+        ->selectRaw('COUNT(news_tag.news_id) as news_count')
+        ->orderByDesc('news_count')
+        ->limit(10)
+        ->get();
+    
+    // Helper function para manejar correctamente las rutas de imágenes
+    $getImageUrl = function($imagePath, $type = 'news', $size = 'large') {
+        // Ruta para imágenes predeterminadas según el tipo y tamaño
+        $defaultImages = [
+            'news' => [
+                'large' => 'storage/images/defaults/news-default-large.jpg',
+                'medium' => 'storage/images/defaults/news-default-medium.jpg',
+                'small' => 'storage/images/defaults/news-default-small.jpg',
+            ],
+            'research' => [
+                'large' => 'storage/images/defaults/research-default-large.jpg',
+                'medium' => 'storage/images/defaults/research-default-medium.jpg',
+                'small' => 'storage/images/defaults/research-default-small.jpg',
+            ],
+            'profile' => 'storage/images/defaults/user-profile.jpg',
+            'avatars' => 'storage/images/defaults/avatar-default.jpg'
+        ];
+        
+        // Si no hay imagen, devolver la imagen predeterminada según el tipo
+        if (!$imagePath || $imagePath == '' || $imagePath == 'null') {
+            // Verificar si el tipo tiene diferentes tamaños (es un array) o es una imagen única
+            if (is_array($defaultImages[$type] ?? [])) {
+                return asset($defaultImages[$type][$size] ?? $defaultImages[$type]['medium']);
+            } else {
+                // Si es una cadena (string), devolver directamente
+                return asset($defaultImages[$type] ?? 'storage/images/defaults/default.jpg');
             }
         }
         
-        // IMPORTANTE: Incrementar contador de vistas para noticias activas
-        // Solo incrementar si es un modelo News (no para NewsHistoric)
-        if ($article instanceof News) {
-            $this->incrementArticleViews($article);
+        // Si la ruta ya comienza con 'storage/', solo usamos asset()
+        if (Str::startsWith($imagePath, 'storage/')) {
+            return asset($imagePath);
         }
         
-        // Obtener artículos relacionados
-        $relatedArticles = News::where('id', '!=', $article->id)
-            ->with('category')
-            ->where(function ($query) use ($article) {
-                // Relacionados por categoría
-                if ($article->category) {
-                    $query->where('category_id', $article->category->id);
-                }
-                
-                // O por etiquetas si están disponibles
-                if ($article->tags && !empty($article->tags)) {
-                    // Convertir el string de etiquetas en un array
-                    $tagArray = explode(',', $article->tags);
-                    // Buscar noticias que tengan estas etiquetas
-                    $query->orWhere(function($q) use ($tagArray) {
-                        foreach ($tagArray as $tag) {
-                            $q->orWhere('tags', 'like', '%' . trim($tag) . '%');
-                        }
-                    });
-                }
-            })
-            ->published()
-            ->orderBy('created_at', 'desc')
-            ->take(6)
-            ->get();
+        // De lo contrario, construimos la ruta completa
+        return asset('storage/' . $imagePath);
+    };
+    
+    // Función para obtener el estilo de una categoría
+    $getCategoryStyle = function($category) {
+        if (!$category || !isset($category->color)) {
+            return 'background-color: var(--primary-color);';
+        }
         
-        // Obtener artículos más leídos usando el contador real de vistas
-        // Incluir solo las noticias activas para las más leídas
-        $mostReadArticles = News::with('category')
-            ->published()
-            ->orderBy('views', 'desc')
-            ->take(5)
-            ->get();
-            
-        // Obtener etiquetas populares (versión más simple)
-        $popularTags = Tag::select('tags.*')
-            ->join('news_tag', 'tags.id', '=', 'news_tag.tag_id')
-            ->groupBy('tags.id')
-            ->selectRaw('COUNT(news_tag.news_id) as news_count')
-            ->orderByDesc('news_count')
-            ->limit(10)
-            ->get();
-            
-        return view('news.show', compact(
-            'article', 
-            'relatedArticles', 
-            'mostReadArticles', 
-            'popularTags'
-        ));
-    }
+        return 'background-color: ' . $category->color . ';';
+    };
+    
+    // Función para obtener el icono de una categoría
+    $getCategoryIcon = function($category) {
+        if (!$category || !isset($category->icon)) {
+            return 'fa-tag';
+        }
+        
+        return $category->icon;
+    };
+    
+    return view('news.show', compact(
+        'article', 
+        'relatedArticles', 
+        'mostReadArticles', 
+        'popularTags'
+    ))->with([
+        'getImageUrl' => $getImageUrl,
+        'getCategoryStyle' => $getCategoryStyle,
+        'getCategoryIcon' => $getCategoryIcon
+    ]);
+}
+
+
+
+
+
+
     
     /**
      * Incrementa el contador de vistas de un artículo

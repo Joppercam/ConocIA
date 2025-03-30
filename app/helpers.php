@@ -1,19 +1,37 @@
 <?php
 
 use Illuminate\Support\Str;
+use App\Helpers\ImageHelper;
 
-if (!function_exists('getImageUrl')) {
-    function getImageUrl($path, $folder = 'default', $size = 'medium') {
-        if (empty($path)) {
-            return asset("storage/images/defaults/{$folder}-default-{$size}.jpg");
+if (!function_exists('seo_image')) {
+    /**
+     * Genera HTML de imagen optimizada para SEO
+     */
+    function seo_image($image, $alt, $type = 'news', $size = 'medium', $attributes = [])
+    {
+        return ImageHelper::getSeoImage($image, $alt, $type, $size, $attributes);
+    }
+}
+
+
+if (!function_exists('seo_image')) {
+    /**
+     * Genera HTML de imagen optimizada para SEO
+     */
+    function seo_image($image, $alt, $type = 'news', $size = 'medium', $attributes = []) {
+        // Utiliza la función getImageUrl existente
+        $url = getImageUrl($image, $type, $size);
+        
+        // Preparar atributos
+        $attributesStr = '';
+        foreach ($attributes as $key => $value) {
+            $attributesStr .= " {$key}=\"{$value}\"";
         }
         
-        // Si la ruta ya comienza con 'storage/', solo usamos asset()
-        if (Str::startsWith($path, 'storage/')) {
-            return asset($path);
-        }
+        // Sanear el texto alt para evitar problemas con comillas
+        $safeAlt = htmlspecialchars($alt, ENT_QUOTES, 'UTF-8');
         
-        // De lo contrario, construimos la ruta completa
-        return asset('storage/' . $path);
+        // Generar HTML con loading="lazy" para mejor rendimiento
+        return "<img src=\"{$url}\" alt=\"{$safeAlt}\" loading=\"lazy\"{$attributesStr}>";
     }
 }

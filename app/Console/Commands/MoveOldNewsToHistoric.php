@@ -16,6 +16,7 @@ class MoveOldNewsToHistoric extends Command
 
     public function handle()
     {
+        $this->info("moviendo noticias a tabla historica");
         // Configuración
         $days = $this->option('days');
         $batchSize = $this->option('batch');

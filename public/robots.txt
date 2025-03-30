@@ -1,2 +1,12 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Proteger rutas administrativas
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /registro
+Disallow: /admin/login
+
+# Sitemap
+Sitemap: https://conocia.cl/sitemap.xml

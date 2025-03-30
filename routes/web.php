@@ -28,6 +28,17 @@ use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 |--------------------------------------------------------------------------
 */
 
+
+// Rutas para sitemaps
+Route::get('sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index']);
+Route::get('sitemap-main.xml', function() {
+    return response()->view('sitemap.main')->header('Content-Type', 'text/xml');
+});
+Route::get('sitemap-news.xml', [App\Http\Controllers\SitemapController::class, 'news']);
+Route::get('sitemap-categories.xml', [App\Http\Controllers\SitemapController::class, 'categories']);
+Route::get('sitemap-research.xml', [App\Http\Controllers\SitemapController::class, 'research']);
+Route::get('sitemap-columns.xml', [App\Http\Controllers\SitemapController::class, 'columns']);
+
 // Rutas públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/acerca-de', [HomeController::class, 'about'])->name('about');

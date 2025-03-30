@@ -2,34 +2,44 @@
 @extends('layouts.app')
 
 @section('title', $article->title . ' - ConocIA')
-
 @php
-    use Illuminate\Support\Facades\Storage;
-    
-    /**
-     * Obtiene la URL de la imagen de la noticia o una imagen predeterminada
-     * @param string|null $imageName Nombre de la imagen
-     * @param string $size Tamaño deseado: 'small', 'medium', o 'large'
-     * @return string URL de la imagen
-     */
-  
-    /**
-     * Obtiene la URL de la imagen de la noticia o una imagen predeterminada
-     * @param string|null $imageName Nombre de la imagen
-     * @param string $size Tamaño deseado: 'small', 'medium', o 'large'
-     * @return string URL de la imagen
-     */
-    function getNewsImage($imageName, $size = 'medium') {
-        // Si la imagen existe en el almacenamiento, devuelve su URL
-        if ($imageName && Storage::disk('public')->exists('images/news/' . $imageName)) {
-            return Storage::url('images/news/' . $imageName);
-        }
-        
-        // Si no, devuelve la imagen predeterminada según el tamaño
-        return Storage::url('images/defaults/news-default-' . $size . '.jpg');
-    }
+// Preparar metadatos SEO para esta noticia
+$metaTitle = $article->title . ' - ConocIA';
+$metaDescription = $article->summary ?? $article->excerpt ?? substr(strip_tags($article->content), 0, 160);
+$metaKeywords = is_object($article->category) ? $article->category->name : 'noticias, tecnología, IA';
+
+// Agregar tags si existen
+if(isset($article->tags) && count($article->tags) > 0) {
+    $tagNames = collect($article->tags)->pluck('name')->implode(', ');
+    $metaKeywords .= ', ' . $tagNames;
+}
+
+$metaImage = !empty($article->image) && !str_contains($article->image, 'default') 
+    ? $getImageUrl($article->image, 'news', 'large') 
+    : asset('storage/images/defaults/social-share.jpg');
+
+$metaType = 'article';
+$metaUrl = route('news.show', $article->slug ?? $article->id);
+$metaAuthor = is_object($article->author) ? $article->author->name : ($article->author ?? 'ConocIA');
+$metaPublished = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
+$metaModified = $article->updated_at ? $article->updated_at->toIso8601String() : null;
 @endphp
 
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle' => $metaTitle,
+        'metaDescription' => $metaDescription,
+        'metaKeywords' => $metaKeywords,
+        'metaImage' => $metaImage,
+        'metaType' => $metaType,
+        'metaUrl' => $metaUrl,
+        'metaAuthor' => $metaAuthor,
+        'metaPublished' => $metaPublished,
+        'metaModified' => $metaModified
+    ])
+    
+    @include('partials.schema-news', ['article' => $article])
+@endsection
 @section('content')
 <!-- Breadcrumbs -->
 <div class="bg-light py-2">
@@ -95,7 +105,10 @@
     <!-- Imagen principal - Solo mostrar si existe -->
     @if($article->image && $article->image != 'default.jpg' && !str_contains($article->image, 'default') && !str_contains($article->image, 'placeholder'))
     <div class="mb-4">
-        <img src="{{ getImageUrl($article->image, 'news', 'large') }}" class="img-fluid rounded w-100" alt="{{ $article->title }}">
+    <img src="{{ $getImageUrl($article->image, 'news', 'large') }}" 
+     class="img-fluid rounded w-100" 
+     alt="{{ $article->title }}"
+     onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-large.jpg') }}';">
         @if($article->image_caption)
             <p class="text-muted small mt-1 fst-italic">{{ $article->image_caption }}</p>
         @endif
@@ -279,11 +292,11 @@
                                 <div class="related-article d-flex">
                                     <div class="related-article-img me-3">
                                         <a href="{{ route('news.show', $relatedArticle->slug) }}">
-                                            <img src="{{ getImageUrl($relatedArticle->image, 'news', 'small') }}" 
-                                                class="img-fluid rounded" 
-                                                alt="{{ $relatedArticle->title }}" 
-                                                style="width: 100px; height: 70px; object-fit: cover;"
-                                                onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
+                                        <img src="{{ $getImageUrl($relatedArticle->image, 'news', 'small') }}" 
+                                            class="img-fluid rounded" 
+                                            alt="{{ $relatedArticle->title }}" 
+                                            style="width: 100px; height: 70px; object-fit: cover;"
+                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
                                         </a>
                                     </div>
                                     <div class="related-article-content">

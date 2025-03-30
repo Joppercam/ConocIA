@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use App\ImageHelper;
 use App\Models\SocialMediaQueue;
 use Illuminate\Support\Facades\View;
+use App\Observers\NewsObserver;
+use App\Models\News;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        // Registrar observer para News
+        News::observe(NewsObserver::class);
 
         // Configurar el locale predeterminado para Carbon
         Carbon::setLocale(config('app.locale', 'es'));
