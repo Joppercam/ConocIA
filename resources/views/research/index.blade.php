@@ -19,9 +19,9 @@
                     @foreach($researches as $research)
                     @if($research->status === 'published' || $research->status === 'active')
                     @php
-                        // Método directo: Nunca usar getImageUrl, construir manualmente la URL solo si hay imagen
-                        $imageSrc = null;
+                        // Método optimizado: Usar el método del modelo Research
                         $hasImage = false;
+                        $imageSrc = null;
                         
                         if (!empty($research->image) && 
                             $research->image != 'default.jpg' && 
@@ -47,6 +47,7 @@
                                          class="card-img-top" 
                                          alt="{{ $research->title }}" 
                                          style="height: 180px; object-fit: cover;"
+                                         loading="lazy"
                                          onError="this.style.display='none';">
                                     @else
                                     <div style="height: 120px; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center;">
@@ -69,13 +70,21 @@
                                         {{ $research->title }}
                                     </a>
                                 </h5>
-                                <p class="card-text text-muted small mb-2 fs-7">{{ $research->created_at->format('d M, Y') }} • {{ $research->views }} lecturas</p>
-                                <p class="card-text small">{{ Str::limit($research->excerpt, 120) }}</p>
+                                <p class="card-text text-muted small mb-2 fs-7">
+                                    {{ $research->published_at ? $research->published_at->format('d M, Y') : $research->created_at->format('d M, Y') }} 
+                                    • {{ $research->views }} lecturas
+                                </p>
+                                <p class="card-text small">{{ Str::limit($research->excerpt ?? $research->abstract ?? '', 120) }}</p>
                             </div>
                             <div class="card-footer bg-white border-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" class="rounded-circle me-2" width="30" height="30" alt="{{ $research->author }}">
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($research->author) }}&background=random" 
+                                             class="rounded-circle me-2" 
+                                             width="30" 
+                                             height="30" 
+                                             alt="{{ $research->author }}"
+                                             loading="lazy">
                                         <span class="small text-muted">{{ $research->author }}</span>
                                     </div>
                                     <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem;">Leer más</a>
@@ -100,8 +109,9 @@
             </div>
         </div>
         
-        <!-- Sidebar -->
+        <!-- Sidebar - Cacheable -->
         <div class="col-lg-4">
+       
             <!-- Filtro de Categorías -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -109,12 +119,14 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach($categories as $category)
-                            <a href="{{ route('research.category', $category->slug) }}" class="badge text-white text-decoration-none p-1 mb-2" style="{{ $getCategoryStyle($category) }} font-size: 0.7rem;">
-                                <i class="fas {{ $getCategoryIcon($category) }} me-1"></i>
-                                {{ $category->name }}
-                                @if(isset($category->research_count))
-                                <span class="badge bg-light text-dark ms-1" style="font-size: 0.65rem;">{{ $category->research_count }}</span>
+                        @foreach($categories as $cat)
+                            <a href="{{ route('research.category', $cat->slug) }}" 
+                               class="badge text-white text-decoration-none p-1 mb-2" 
+                               style="{{ $getCategoryStyle($cat) }} font-size: 0.7rem;">
+                                <i class="fas {{ $getCategoryIcon($cat) }} me-1"></i>
+                                {{ $cat->name }}
+                                @if(isset($cat->research_count))
+                                <span class="badge bg-light text-dark ms-1" style="font-size: 0.65rem;">{{ $cat->research_count }}</span>
                                 @endif
                             </a>
                         @endforeach
@@ -161,6 +173,7 @@
                                          height="50" 
                                          alt="{{ $featured->title }}" 
                                          style="object-fit: cover;"
+                                         loading="lazy"
                                          onError="this.style.display='none'; this.parentElement.innerHTML='<div class=\'rounded bg-light d-flex align-items-center justify-content-center\' style=\'width:50px;height:50px;\'><i class=\'fas fa-microscope text-muted\'></i></div>';">
                                     @else
                                     <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
@@ -178,7 +191,9 @@
                                             {{ $featured->category->name }}
                                         </span>
                                         @endif
-                                        <small class="text-muted" style="font-size: 0.65rem;">{{ $featured->created_at->locale('es')->diffForHumans() }}</small>
+                                        <small class="text-muted" style="font-size: 0.65rem;">
+                                            {{ ($featured->published_at ?? $featured->created_at)->locale('es')->diffForHumans() }}
+                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -204,6 +219,7 @@
                     </form>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>

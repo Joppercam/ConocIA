@@ -4,6 +4,8 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class ImageHelper
 {
@@ -53,5 +55,40 @@ class ImageHelper
         
         // Imagen predeterminada
         return Storage::url("images/defaults/{$type}-default-{$size}.jpg");
+    }
+    
+    /**
+     * Método optimizado para plantillas Blade que verifican directamente
+     * Esta función evita llamadas a Storage y usa lógica directa de strings
+     * Puede ser utilizada en las plantillas para mejorar el rendimiento sin
+     * modificar el comportamiento existente
+     *
+     * @param string|null $imageName Nombre de la imagen
+     * @param string $type Tipo (news, author, etc)
+     * @return array [boolean $hasImage, string|null $imageSrc]
+     */
+    public static function getOptimizedImageInfo($imageName, $type = 'research')
+    {
+        // Valores por defecto
+        $hasImage = false;
+        $imageSrc = null;
+        
+        // Verificación rápida sin consultar almacenamiento
+        if (!empty($imageName) && 
+            $imageName != 'default.jpg' && 
+            !str_contains($imageName, 'default') && 
+            !str_contains($imageName, 'placeholder')) {
+                
+            // Construir la URL directamente sin verificar existencia física
+            if (Str::startsWith($imageName, 'storage/')) {
+                $imageSrc = asset($imageName);
+            } else {
+                $imageSrc = asset("storage/{$type}/" . $imageName);
+            }
+                
+            $hasImage = true;
+        }
+        
+        return [$hasImage, $imageSrc];
     }
 }

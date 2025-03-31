@@ -17,6 +17,19 @@ return [
 
     'default' => env('CACHE_STORE', 'database'),
 
+     /*
+    |--------------------------------------------------------------------------
+    | Default Cache TTL (Time To Live)
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the default "time to live" in seconds for all
+    | cache values that don't have an explicitly specified expiration.
+    | Used by the Blade cache directive.
+    |
+    */
+
+    'ttl' => env('CACHE_TTL', 3600), // Añadir esta línea
+
     /*
     |--------------------------------------------------------------------------
     | Cache Stores

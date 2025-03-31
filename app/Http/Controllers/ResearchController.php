@@ -5,11 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Research;
 use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use App\Helpers\ImageHelper;
+use App\Helpers\CategoryHelper;
 
 class ResearchController extends Controller
 {
+    /**
+     * Tiempo de caché en segundos (1 hora)
+     */
+    protected const CACHE_TIME = 3600;
+    
     /**
      * Display a listing of research articles.
      *
@@ -17,70 +26,60 @@ class ResearchController extends Controller
      */
     public function index()
     {
-        // Obtener artículos de investigación PUBLICADOS, paginados y con sus categorías
-        $researches = Research::with('category')
-        ->where(function($query) {
-            $query->where('is_published', true)
-                ->orWhere('status', 'published');
-        })
-        ->latest()
-        ->paginate(12);
-
-        
-            
-        // Obtener categorías para el filtro lateral
-        $categories = Category::withCount(['research' => function($query) {
-            $query->where(function($q) {
-                $q->where('is_published', true)
-                ->orWhere('status', 'published');
-            });
-        }])
-            ->orderBy('research_count', 'desc')
-            ->take(10)
-            ->get();
-
-            
-        // Obtener investigaciones destacadas (también solo las publicadas)
-        $featuredResearch = Research::with('category')
-        ->where('featured', true)
-        ->where(function($query) {
-            $query->where('is_published', true)
-                ->orWhere('status', 'published');
-        })
-        ->orderBy('citations', 'desc')
-        ->take(5)
-        ->get();
-            
-        // Helper function para manejar correctamente las rutas de imágenes
-        $getImageUrl = function($imagePath, $type = 'research', $size = 'large') {
-            // Ruta para imágenes predeterminadas según el tipo y tamaño
-            $defaultImages = [
-                'news' => [
-                    'large' => 'storage/images/defaults/news-default-large.jpg',
-                    'medium' => 'storage/images/defaults/news-default-medium.jpg',
-                    'small' => 'storage/images/defaults/news-default-small.jpg',
-                ],
-                'research' => [
-                    'large' => 'storage/images/defaults/research-default-large.jpg',
-                    'medium' => 'storage/images/defaults/research-default-medium.jpg',
-                    'small' => 'storage/images/defaults/research-default-small.jpg',
-                ],
-                'profile' => 'storage/images/defaults/user-profile.jpg',
-                'avatars' => 'storage/images/defaults/avatar-default.jpg'
+        // Usar una única clave de caché para todos los datos de la página
+        $viewData = Cache::remember('research_page_data', self::CACHE_TIME, function () {
+            // Obtener artículos de investigación PUBLICADOS con un scope
+            $researches = Research::with(['category', 'author', 'tags'])
+                ->published()
+                ->latest('published_at')
+                ->paginate(12);
+                
+            // Obtener categorías para el filtro lateral - Compatible con SQLite
+            $categories = Category::withCount(['research' => function($query) {
+                    $query->published();
+                }])
+                ->orderBy('research_count', 'desc')
+                ->get()
+                ->filter(function($category) {
+                    return $category->research_count > 0;
+                })
+                ->take(10);
+    
+            // Obtener investigaciones destacadas
+            $featuredResearch = Research::with(['category', 'author'])
+                ->featured()
+                ->published()
+                ->cited() // Ordenar por número de citas
+                ->take(5)
+                ->get();
+                
+            return [
+                'researches' => $researches,
+                'categories' => $categories,
+                'featuredResearch' => $featuredResearch
             ];
-            
-            // Si no hay imagen, devolver la imagen predeterminada según el tipo
-            if (!$imagePath || $imagePath == '' || $imagePath == 'null') {
-                return asset($defaultImages[$type][$size] ?? $defaultImages[$type]['medium']);
+        });
+        
+        // Extraer datos de la caché
+        extract($viewData);
+        
+        // Helper functions para la vista
+        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
+            // Verificar si la imagen existe
+            if (!empty($imageName) && $imageName != 'default.jpg' && 
+                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
+                
+                // Si la ruta ya comienza con 'storage/', solo usamos asset()
+                if (Str::startsWith($imageName, 'storage/')) {
+                    return asset($imageName);
+                }
+                
+                // De lo contrario, construimos la ruta completa
+                return asset('storage/' . $type . '/' . $imageName);
             }
             
-            // Si la ruta ya comienza con 'storage/', solo usamos asset()
-            if (Str::startsWith($imagePath, 'storage/')) {
-                return asset($imagePath);
-            }
-            
-            // De lo contrario, construimos la ruta completa
-            return asset('storage/' . $imagePath);
+            // Imagen predeterminada
+            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
         };
         
         // Función para obtener el estilo de una categoría
@@ -101,15 +100,18 @@ class ResearchController extends Controller
             return $category->icon;
         };
             
-        return view('research.index', compact('researches', 'categories', 'featuredResearch'))
-            ->with([
-                'getImageUrl' => $getImageUrl,
-                'getCategoryStyle' => $getCategoryStyle,
-                'getCategoryIcon' => $getCategoryIcon
-            ]);
+        return view('research.index', compact(
+            'researches', 
+            'categories', 
+            'featuredResearch'
+        ))->with([
+            'getImageUrl' => $getImageUrl,
+            'getCategoryStyle' => $getCategoryStyle,
+            'getCategoryIcon' => $getCategoryIcon
+        ]);
     }
 
-   /**
+    /**
      * Display the specified research article.
      *
      * @param  string  $slug
@@ -117,104 +119,104 @@ class ResearchController extends Controller
      */
     public function show($slug)
     {
-        // Intentar encontrar por slug, si no, por ID
-        // Cargar la relación 'category' para tener acceso a su nombre y slug
-        $research = Research::with('category')
-            ->where('slug', $slug)
-            ->first() 
-            ?? Research::with('category')->findOrFail($slug);
+        // Generar una clave de caché única para este artículo
+        $cacheKey = "research_article_{$slug}";
         
-        // Incrementar contador de vistas
-        $research->increment('views');
-        
-        // Obtener investigaciones relacionadas
-        try {
-            $relatedResearch = Research::where('id', '!=', $research->id)
-                ->latest()
-                ->take(3)
+        $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($slug) {
+            // Intentar encontrar por slug, si no, por ID con eager loading
+            $research = Research::with(['category', 'author', 'tags', 'comments' => function($query) {
+                    $query->latest()->take(5); // Solo cargar los 5 comentarios más recientes
+                }])
+                ->where('slug', $slug)
+                ->first() 
+                ?? Research::with(['category', 'author', 'tags', 'comments'])
+                   ->findOrFail($slug);
+            
+            // Obtener investigaciones relacionadas - Por categoría y tags
+            $relatedResearch = $this->getRelatedResearch($research);
+                
+            // Obtener las investigaciones más vistas
+            $mostViewedResearch = Research::with('category')
+                ->where('id', '!=', $research->id)
+                ->published()
+                ->popular()
+                ->take(4)
                 ->get();
-        } catch (\Exception $e) {
-            $relatedResearch = collect([]);
-        }
             
-        // Obtener las investigaciones más vistas
-        $mostViewedResearch = Research::orderBy('views', 'desc')
-            ->where('id', '!=', $research->id)
-            ->take(4)
-            ->get();
-        
-        // Añadir la propiedad 'type' que la vista espera
-        $popularTypes = [
-            [
-                'name' => 'Inteligencia Artificial',
-                'icon' => 'fas fa-brain',
-                'color' => '#4285f4',
-                'count' => 24,
-                'type' => 'ia'
-            ],
-            [
-                'name' => 'Machine Learning',
-                'icon' => 'fas fa-cogs',
-                'color' => '#ea4335',
-                'count' => 18,
-                'type' => 'ml'
-            ],
-            [
-                'name' => 'Robótica',
-                'icon' => 'fas fa-robot',
-                'color' => '#fbbc05',
-                'count' => 15,
-                'type' => 'robotica'
-            ],
-            [
-                'name' => 'Blockchain',
-                'icon' => 'fas fa-link',
-                'color' => '#34a853',
-                'count' => 9,
-                'type' => 'blockchain'
-            ],
-            [
-                'name' => 'Ética y AI',
-                'icon' => 'fas fa-balance-scale',
-                'color' => '#9c27b0',
-                'count' => 12,
-                'type' => 'etica'
-            ]
-        ];
-            
-        // Helper functions - definir todas las funciones antes de usarlas
-        $getImageUrl = function($imagePath, $type = 'research', $size = 'large') {
-            // Ruta para imágenes predeterminadas según el tipo y tamaño
-            $defaultImages = [
-                'news' => [
-                    'large' => 'storage/images/defaults/news-default-large.jpg',
-                    'medium' => 'storage/images/defaults/news-default-medium.jpg',
-                    'small' => 'storage/images/defaults/news-default-small.jpg',
+            // Tipos populares 
+            $popularTypes = [
+                [
+                    'name' => 'Inteligencia Artificial',
+                    'icon' => 'fas fa-brain',
+                    'color' => '#4285f4',
+                    'count' => 24,
+                    'type' => 'ia'
                 ],
-                'research' => [
-                    'large' => 'storage/images/defaults/research-default-large.jpg',
-                    'medium' => 'storage/images/defaults/research-default-medium.jpg',
-                    'small' => 'storage/images/defaults/research-default-small.jpg',
+                [
+                    'name' => 'Machine Learning',
+                    'icon' => 'fas fa-cogs',
+                    'color' => '#ea4335',
+                    'count' => 18,
+                    'type' => 'ml'
                 ],
-                'profile' => 'storage/images/defaults/user-profile.jpg',
-                'avatars' => 'storage/images/defaults/avatar-default.jpg'
+                [
+                    'name' => 'Robótica',
+                    'icon' => 'fas fa-robot',
+                    'color' => '#fbbc05',
+                    'count' => 15,
+                    'type' => 'robotica'
+                ],
+                [
+                    'name' => 'Blockchain',
+                    'icon' => 'fas fa-link',
+                    'color' => '#34a853',
+                    'count' => 9,
+                    'type' => 'blockchain'
+                ],
+                [
+                    'name' => 'Ética y AI',
+                    'icon' => 'fas fa-balance-scale',
+                    'color' => '#9c27b0',
+                    'count' => 12,
+                    'type' => 'etica'
+                ]
             ];
-            
-            // Si no hay imagen, devolver la imagen predeterminada según el tipo
-            if (!$imagePath || $imagePath == '' || $imagePath == 'null') {
-                return asset($defaultImages[$type][$size] ?? $defaultImages[$type]['medium']);
+                
+            return [
+                'research' => $research,
+                'relatedResearch' => $relatedResearch,
+                'mostViewedResearch' => $mostViewedResearch,
+                'popularTypes' => $popularTypes
+            ];
+        });
+        
+        // Extraer datos de la caché
+        extract($viewData);
+        
+        // Incrementar contador de vistas (fuera del caché)
+        // Usando el método del modelo
+        $research->incrementViews();
+        
+        // Helper functions para la vista
+        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
+            // Verificar si la imagen existe
+            if (!empty($imageName) && $imageName != 'default.jpg' && 
+                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
+                
+                // Si la ruta ya comienza con 'storage/', solo usamos asset()
+                if (Str::startsWith($imageName, 'storage/')) {
+                    return asset($imageName);
+                }
+                
+                // De lo contrario, construimos la ruta completa
+                return asset('storage/' . $type . '/' . $imageName);
             }
             
-            // Si la ruta ya comienza con 'storage/', solo usamos asset()
-            if (Str::startsWith($imagePath, 'storage/')) {
-                return asset($imagePath);
-            }
-            
-            // De lo contrario, construimos la ruta completa
-            return asset('storage/' . $imagePath);
+            // Imagen predeterminada
+            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
         };
         
-        // Definir getCategoryStyle antes de usarlo
+        // Función para obtener el estilo de una categoría
         $getCategoryStyle = function($category) {
             if (!$category || !isset($category->color)) {
                 return 'background-color: var(--primary-color);';
@@ -223,7 +225,7 @@ class ResearchController extends Controller
             return 'background-color: ' . $category->color . ';';
         };
         
-        // Definir getCategoryIcon antes de usarlo
+        // Función para obtener el icono de una categoría
         $getCategoryIcon = function($category) {
             if (!$category || !isset($category->icon)) {
                 return 'fa-tag';
@@ -232,9 +234,8 @@ class ResearchController extends Controller
             return $category->icon;
         };
         
-        // Ahora que todas las variables están definidas, pasarlas a la vista
         return view('research.show', compact(
-            'research', 
+            'research',
             'relatedResearch',
             'mostViewedResearch',
             'popularTypes'
@@ -245,8 +246,7 @@ class ResearchController extends Controller
         ]);
     }
 
-
-        /**
+    /**
      * Muestra investigaciones filtradas por tipo.
      *
      * @param string $type
@@ -254,65 +254,54 @@ class ResearchController extends Controller
      */
     public function byType($type)
     {
-        $research = Research::where('type', $type)
-            ->where('is_published', true)
-            ->latest()
-            ->paginate(10);
-            
-        return view('research.by_type', compact('research', 'type'));
-    }
-
-
-
-    public function category(Category $category)
-    {
-        // Obtener artículos de investigación de esta categoría
-        $researches = Research::where('category_id', $category->id)
-            ->latest()
-            ->paginate(12);
-            
-        // Obtener categorías para el filtro lateral (igual que en index)
-        $categories = Category::withCount('research')
-            ->orderBy('research_count', 'desc')
-            ->take(10)
-            ->get();
-            
-        // Obtener investigaciones destacadas (igual que en index)
-        $featuredResearch = Research::with('category')
-            ->where('featured', true)
-            ->orderBy('citations', 'desc')
-            ->take(5)
-            ->get();
+        $cacheKey = "research_by_type_{$type}";
         
-        // Reutilizar las mismas funciones helper que tienes en el método index
-        $getImageUrl = function($imagePath, $type = 'research', $size = 'large') {
-            // Copia aquí el mismo código de la función del método index
-            $defaultImages = [
-                'news' => [
-                    'large' => 'storage/images/defaults/news-default-large.jpg',
-                    'medium' => 'storage/images/defaults/news-default-medium.jpg',
-                    'small' => 'storage/images/defaults/news-default-small.jpg',
-                ],
-                'research' => [
-                    'large' => 'storage/images/defaults/research-default-large.jpg',
-                    'medium' => 'storage/images/defaults/research-default-medium.jpg',
-                    'small' => 'storage/images/defaults/research-default-small.jpg',
-                ],
-                'profile' => 'storage/images/defaults/user-profile.jpg',
-                'avatars' => 'storage/images/defaults/avatar-default.jpg'
+        $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($type) {
+            // Obtener investigaciones del tipo indicado
+            $research = Research::with(['category', 'author'])
+                ->where('type', $type)
+                ->published()
+                ->latest('published_at')
+                ->paginate(10);
+                
+            // Obtener etiquetas relacionadas con este tipo
+            $relatedTags = Tag::whereHas('research', function($query) use ($type) {
+                    $query->where('type', $type);
+                })
+                ->withCount('research')
+                ->orderBy('research_count', 'desc')
+                ->take(10)
+                ->get();
+                
+            return [
+                'research' => $research,
+                'relatedTags' => $relatedTags
             ];
-            
-            if (!$imagePath || $imagePath == '' || $imagePath == 'null') {
-                return asset($defaultImages[$type][$size] ?? $defaultImages[$type]['medium']);
+        });
+        
+        // Extraer datos de la caché
+        extract($viewData);
+        
+        // Helper functions para la vista
+        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
+            // Verificar si la imagen existe
+            if (!empty($imageName) && $imageName != 'default.jpg' && 
+                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
+                
+                // Si la ruta ya comienza con 'storage/', solo usamos asset()
+                if (Str::startsWith($imageName, 'storage/')) {
+                    return asset($imageName);
+                }
+                
+                // De lo contrario, construimos la ruta completa
+                return asset('storage/' . $type . '/' . $imageName);
             }
             
-            if (Str::startsWith($imagePath, 'storage/')) {
-                return asset($imagePath);
-            }
-            
-            return asset('storage/' . $imagePath);
+            // Imagen predeterminada
+            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
         };
         
+        // Función para obtener el estilo de una categoría
         $getCategoryStyle = function($category) {
             if (!$category || !isset($category->color)) {
                 return 'background-color: var(--primary-color);';
@@ -321,6 +310,7 @@ class ResearchController extends Controller
             return 'background-color: ' . $category->color . ';';
         };
         
+        // Función para obtener el icono de una categoría
         $getCategoryIcon = function($category) {
             if (!$category || !isset($category->icon)) {
                 return 'fa-tag';
@@ -329,11 +319,158 @@ class ResearchController extends Controller
             return $category->icon;
         };
             
-        return view('research.index', compact('researches', 'categories', 'featuredResearch', 'category'))
-            ->with([
-                'getImageUrl' => $getImageUrl,
-                'getCategoryStyle' => $getCategoryStyle,
-                'getCategoryIcon' => $getCategoryIcon
-            ]);
+        return view('research.by_type', compact(
+            'research', 
+            'type', 
+            'relatedTags'
+        ))->with([
+            'getImageUrl' => $getImageUrl,
+            'getCategoryStyle' => $getCategoryStyle,
+            'getCategoryIcon' => $getCategoryIcon
+        ]);
+    }
+
+    /**
+     * Muestra investigaciones filtradas por categoría.
+     *
+     * @param Category $category
+     * @return \Illuminate\View\View
+     */
+    public function category(Category $category)
+    {
+        $cacheKey = "research_by_category_{$category->id}";
+        
+        $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($category) {
+            // Obtener artículos de investigación de esta categoría
+            $researches = Research::with(['author', 'tags'])
+                ->where('category_id', $category->id)
+                ->published()
+                ->latest('published_at')
+                ->paginate(12);
+                
+            // Obtener categorías para el filtro lateral - Compatible con SQLite
+            $categories = Category::withCount(['research' => function($query) {
+                    $query->published();
+                }])
+                ->orderBy('research_count', 'desc')
+                ->get()
+                ->filter(function($category) {
+                    return $category->research_count > 0;
+                })
+                ->take(10);
+                
+            // Obtener investigaciones destacadas de esta categoría
+            $featuredResearch = Research::with('author')
+                ->where('category_id', $category->id)
+                ->featured()
+                ->published()
+                ->cited()
+                ->take(5)
+                ->get();
+                
+            return [
+                'researches' => $researches,
+                'categories' => $categories,
+                'featuredResearch' => $featuredResearch
+            ];
+        });
+        
+        // Extraer datos de la caché
+        extract($viewData);
+        
+        // Helper functions para la vista
+        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
+            // Verificar si la imagen existe
+            if (!empty($imageName) && $imageName != 'default.jpg' && 
+                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
+                
+                // Si la ruta ya comienza con 'storage/', solo usamos asset()
+                if (Str::startsWith($imageName, 'storage/')) {
+                    return asset($imageName);
+                }
+                
+                // De lo contrario, construimos la ruta completa
+                return asset('storage/' . $type . '/' . $imageName);
+            }
+            
+            // Imagen predeterminada
+            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
+        };
+        
+        // Función para obtener el estilo de una categoría
+        $getCategoryStyle = function($category) {
+            if (!$category || !isset($category->color)) {
+                return 'background-color: var(--primary-color);';
+            }
+            
+            return 'background-color: ' . $category->color . ';';
+        };
+        
+        // Función para obtener el icono de una categoría
+        $getCategoryIcon = function($category) {
+            if (!$category || !isset($category->icon)) {
+                return 'fa-tag';
+            }
+            
+            return $category->icon;
+        };
+            
+        return view('research.index', compact(
+            'researches', 
+            'categories', 
+            'featuredResearch', 
+            'category'
+        ))->with([
+            'getImageUrl' => $getImageUrl,
+            'getCategoryStyle' => $getCategoryStyle,
+            'getCategoryIcon' => $getCategoryIcon
+        ]);
+    }
+    
+    /**
+     * Obtiene investigaciones relacionadas basadas en categoría y tags.
+     *
+     * @param Research $research
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function getRelatedResearch(Research $research)
+    {
+        // Si el artículo tiene tags, buscar por tags comunes
+        if ($research->relationLoaded('tags') && $research->tags->count() > 0) {
+            $tagIds = $research->tags->pluck('id')->toArray();
+            
+            $relatedByTags = Research::with('category')
+                ->where('id', '!=', $research->id)
+                ->whereHas('tags', function($query) use ($tagIds) {
+                    $query->whereIn('tags.id', $tagIds);
+                })
+                ->published()
+                ->take(2)
+                ->get();
+                
+            // Si encontramos suficientes relacionados por tags, devolver esos
+            if ($relatedByTags->count() >= 2) {
+                return $relatedByTags;
+            }
+            
+            // Si no, combinar con relacionados por categoría
+            $relatedByCategory = Research::with('category')
+                ->where('id', '!=', $research->id)
+                ->where('category_id', $research->category_id)
+                ->whereNotIn('id', $relatedByTags->pluck('id')->toArray())
+                ->published()
+                ->take(3 - $relatedByTags->count())
+                ->get();
+                
+            return $relatedByTags->concat($relatedByCategory);
+        }
+        
+        // Si no tiene tags, relacionar solo por categoría
+        return Research::with('category')
+            ->where('id', '!=', $research->id)
+            ->where('category_id', $research->category_id)
+            ->published()
+            ->take(3)
+            ->get();
     }
 }
