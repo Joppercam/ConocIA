@@ -1,6 +1,11 @@
 <!-- resources/views/news/show.blade.php -->
 @extends('layouts.app')
 
+@php
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Str;
+@endphp
+
 @section('title', $article->title . ' - ConocIA')
 @php
 // Preparar metadatos SEO para esta noticia
@@ -14,9 +19,21 @@ if(isset($article->tags) && count($article->tags) > 0) {
     $metaKeywords .= ', ' . $tagNames;
 }
 
-$metaImage = !empty($article->image) && !str_contains($article->image, 'default') 
-    ? $getImageUrl($article->image, 'news', 'large') 
-    : asset('storage/images/defaults/social-share.jpg');
+// Verificar si la imagen existe físicamente para metadatos
+$metaImage = asset('storage/images/defaults/social-share.jpg'); // Imagen por defecto
+if (!empty($article->image) && !str_contains($article->image, 'default')) {
+    // Extraer el nombre del archivo si es una ruta completa
+    $imageName = $article->image;
+    if (Str::startsWith($imageName, 'storage/') || Str::startsWith($imageName, '/storage/')) {
+        $imageName = basename($imageName);
+    }
+    
+    // Verificar si la imagen existe físicamente
+    $imagePath = "images/news/{$imageName}";
+    if (Storage::disk('public')->exists($imagePath)) {
+        $metaImage = asset('storage/' . $imagePath);
+    }
+}
 
 $metaType = 'article';
 $metaUrl = route('news.show', $article->slug ?? $article->id);
@@ -58,225 +75,271 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     <div class="row">
         <!-- Contenido Principal (Izquierda) -->
         <div class="col-lg-8">
-    <!-- Categoría y Título -->
-    <div class="mb-3">
-        <span class="badge bg-primary mb-2">
-            @if(is_object($article->category))
-                {{ $article->category->name }}
-            @else
-                {{ $article->category }}
-            @endif
-        </span>
-        <h1 class="mb-2">{{ $article->title }}</h1>
-        
-        <!-- Autor y fecha -->
-        <div class="d-flex align-items-center text-muted small mb-3">
-            <img src="{{ $article->author->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($article->author) . '&background=random' }}" 
-                class="rounded-circle me-2" width="24" height="24" alt="{{ $article->author }}">
-            <span>Por {{ $article->author }}</span>
-            <span class="mx-2">•</span>
-            <span><i class="far fa-calendar-alt me-1"></i> {{ $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}</span>
-            <span class="mx-2">•</span>
-            <span><i class="far fa-clock me-1"></i> {{ $article->reading_time }} min de lectura</span>
-        </div>
+            <!-- Categoría y Título -->
+            <div class="mb-3">
+                <span class="badge bg-primary mb-2">
+                    @if(is_object($article->category))
+                        {{ $article->category->name }}
+                    @else
+                        {{ $article->category }}
+                    @endif
+                </span>
+                <h1 class="mb-2">{{ $article->title }}</h1>
+                
+                <!-- Autor y fecha -->
+                <div class="d-flex align-items-center text-muted small mb-3">
+                    <img src="{{ $article->author->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($article->author) . '&background=random' }}" 
+                        class="rounded-circle me-2" width="24" height="24" alt="{{ $article->author }}">
+                    <span>Por {{ $article->author }}</span>
+                    <span class="mx-2">•</span>
+                    <span><i class="far fa-calendar-alt me-1"></i> {{ $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}</span>
+                    <span class="mx-2">•</span>
+                    <span><i class="far fa-clock me-1"></i> {{ $article->reading_time }} min de lectura</span>
+                </div>
 
-        <!-- Compartir en redes sociales -->
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="small text-muted">Compartir:</span>
-            <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('news.show', $article)) }}&text={{ urlencode($article->title) }}" 
-            class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
-                <i class="fab fa-twitter"></i>
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('news.show', $article)) }}" 
-            class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('news.show', $article)) }}&title={{ urlencode($article->title) }}" 
-            class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
-                <i class="fab fa-linkedin-in"></i>
-            </a>
-            <a href="mailto:?subject={{ $article->title }}&body={{ route('news.show', $article) }}" 
-            class="btn btn-sm btn-outline-secondary rounded-circle">
-                <i class="fas fa-envelope"></i>
-            </a>
-        </div>
-    </div>
+                <!-- Compartir en redes sociales -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="small text-muted">Compartir:</span>
+                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('news.show', $article)) }}&text={{ urlencode($article->title) }}" 
+                    class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('news.show', $article)) }}" 
+                    class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('news.show', $article)) }}&title={{ urlencode($article->title) }}" 
+                    class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="mailto:?subject={{ $article->title }}&body={{ route('news.show', $article) }}" 
+                    class="btn btn-sm btn-outline-secondary rounded-circle">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
 
-    <!-- Imagen principal - Solo mostrar si existe -->
-    @if($article->image && $article->image != 'default.jpg' && !str_contains($article->image, 'default') && !str_contains($article->image, 'placeholder'))
-    <div class="mb-4">
-    <img src="{{ $getImageUrl($article->image, 'news', 'large') }}" 
-     class="img-fluid rounded w-100" 
-     alt="{{ $article->title }}"
-     onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-large.jpg') }}';">
-        @if($article->image_caption)
-            <p class="text-muted small mt-1 fst-italic">{{ $article->image_caption }}</p>
-        @endif
-    </div>
-    @endif
+            <!-- Verificación de imagen mejorada con rutas alternativas -->
+            @php
+                // Variable para controlar si mostrar o no la imagen
+                $showImage = false;
+                $imageSrc = null;
+                
+                // Solo verificar si existe una imagen para evitar consultas innecesarias
+                if (!empty($article->image) && 
+                    $article->image != 'default.jpg' && 
+                    !str_contains($article->image, 'default') && 
+                    !str_contains($article->image, 'placeholder')) {
+                    
+                    // Extraer el nombre del archivo si es una ruta completa
+                    $imageName = $article->image;
+                    if (Str::startsWith($imageName, 'storage/') || Str::startsWith($imageName, '/storage/')) {
+                        $imagePath = str_replace('storage/', '', $imageName);
+                        // Verificar si el archivo existe físicamente en la ruta directa
+                        if (Storage::disk('public')->exists($imagePath)) {
+                            $showImage = true;
+                            $imageSrc = asset('storage/' . $imagePath);
+                        }
+                    } else {
+                        // Probar múltiples rutas posibles donde podría estar la imagen
+                        $possiblePaths = [
+                            "images/news/{$imageName}",
+                            "news/{$imageName}",
+                            "{$imageName}"
+                        ];
+                        
+                        foreach ($possiblePaths as $path) {
+                            if (Storage::disk('public')->exists($path)) {
+                                $showImage = true;
+                                $imageSrc = asset('storage/' . $path);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Si todavía no encontramos la imagen, usar getImageUrl como respaldo
+                    if (!$showImage && isset($getImageUrl) && is_callable($getImageUrl)) {
+                        $imageSrc = $getImageUrl($article->image, 'news', 'large');
+                        // Verificar que la URL generada no contiene 'default'
+                        if (!str_contains($imageSrc, 'default')) {
+                            $showImage = true;
+                        }
+                    }
+                }
+            @endphp
 
-    <!-- Fuente con URL si existe -->
-    @if($article->source)
-    <div class="mb-4">
-        <div class="d-flex align-items-center">
-            <span class="badge bg-light text-dark me-2">
-                <i class="fas fa-external-link-alt me-1"></i> Fuente:
-            </span>
-            @if($article->source_url)
-                <a href="{{ $article->source_url }}" class="text-primary" target="_blank">{{ $article->source }}</a>
-            @else
-                {{ $article->source }}
-            @endif
-        </div>
-    </div>
-    @endif
-
-    <!-- Resumen -->
-    <div class="card border-0 bg-light mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Resumen</h5>
-            <p class="card-text">{{ $article->summary }}</p>
-        </div>
-    </div>
-
-    <!-- Contenido Principal -->
-    <div class="news-content mb-4">
-        {!! $article->content !!}
-    </div>
-   
-
-   <!-- Comentarios -->
-    <div class="comments-section mt-5 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0">
-                <i class="far fa-comments text-primary me-2"></i>
-                Comentarios
-                @if(count($article->comments ?? []) > 0)
-                    <span class="badge bg-primary ms-2">{{ count($article->comments) }}</span>
+            @if($showImage)
+            <div class="mb-4">
+                <img src="{{ $imageSrc }}" 
+                    class="img-fluid rounded w-100" 
+                    alt="{{ $article->title }}">
+                @if($article->image_caption)
+                    <p class="text-muted small mt-1 fst-italic">{{ $article->image_caption }}</p>
                 @endif
-            </h4>
-            
-            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#commentForm" aria-expanded="false" aria-controls="commentForm">
-                <i class="fas fa-plus me-1"></i> Añadir comentario
-            </button>
-        </div>
-        
-        <!-- Formulario de comentario (colapsable) -->
-        <div class="collapse mb-4" id="commentForm">
-            <div class="card border-0 shadow-sm">
+            </div>
+            @endif
+
+            <!-- Fuente con URL si existe -->
+            @if($article->source)
+            <div class="mb-4">
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-light text-dark me-2">
+                        <i class="fas fa-external-link-alt me-1"></i> Fuente:
+                    </span>
+                    @if($article->source_url)
+                        <a href="{{ $article->source_url }}" class="text-primary" target="_blank">{{ $article->source }}</a>
+                    @else
+                        {{ $article->source }}
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            <!-- Resumen -->
+            <div class="card border-0 bg-light mb-4">
                 <div class="card-body">
-                    <h5 class="card-title mb-3 border-bottom pb-2">Deja tu comentario</h5>
-                    <form action="{{ url('/comments') }}" method="POST" id="newsCommentForm">
-                        @csrf
-                        <input type="hidden" name="commentable_type" value="App\Models\News">
-                        <input type="hidden" name="commentable_id" value="{{ $article->id }}">
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control @error('guest_name') is-invalid @enderror" 
-                                        id="name" name="guest_name" placeholder="Tu nombre"
-                                        value="{{ old('guest_name') ?? Cookie::get('comment_name') }}" required>
-                                    <label for="name">Nombre</label>
-                                    @error('guest_name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <div class="form-floating">
-                                    <input type="email" class="form-control @error('guest_email') is-invalid @enderror" 
-                                        id="email" name="guest_email" placeholder="tu@email.com"
-                                        value="{{ old('guest_email') ?? Cookie::get('comment_email') }}" required>
-                                    <label for="email">Email</label>
-                                    @error('guest_email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">Tu email no será publicado.</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-floating">
-                                <textarea class="form-control @error('content') is-invalid @enderror" 
-                                        id="comment" name="content" style="height: 120px" 
-                                        placeholder="Escribe tu comentario aquí" required>{{ old('content') }}</textarea>
-                                <label for="comment">Comentario</label>
-                                @error('content')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="saveInfo" name="save_info" 
-                                    {{ old('save_info') || Cookie::has('comment_name') ? 'checked' : '' }}>
-                                <label class="form-check-label small" for="saveInfo">
-                                    Guardar mi información para próximos comentarios
-                                </label>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-1"></i> Publicar comentario
-                            </button>
-                        </div>
-                    </form>
+                    <h5 class="card-title">Resumen</h5>
+                    <p class="card-text">{{ $article->summary }}</p>
                 </div>
             </div>
-        </div>
-        
-        <!-- Lista de comentarios -->
-        <div class="comments-list">
-            @forelse($article->comments ?? [] as $comment)
-                <div class="comment-item card border-0 shadow-sm mb-3">
-                    <div class="card-body">
-                        <div class="d-flex mb-2">
-                            <div class="comment-avatar me-3">
-                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
-                                    style="width: 48px; height: 48px; font-size: 18px;">
-                                    {{ strtoupper(substr($comment->guest_name ?? 'A', 0, 1)) }}
+
+            <!-- Contenido Principal -->
+            <div class="news-content mb-4">
+                {!! $article->content !!}
+            </div>
+           
+            <!-- Comentarios -->
+            <div class="comments-section mt-5 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0">
+                        <i class="far fa-comments text-primary me-2"></i>
+                        Comentarios
+                        @if(count($article->comments ?? []) > 0)
+                            <span class="badge bg-primary ms-2">{{ count($article->comments) }}</span>
+                        @endif
+                    </h4>
+                    
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#commentForm" aria-expanded="false" aria-controls="commentForm">
+                        <i class="fas fa-plus me-1"></i> Añadir comentario
+                    </button>
+                </div>
+                
+                <!-- Formulario de comentario (colapsable) -->
+                <div class="collapse mb-4" id="commentForm">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3 border-bottom pb-2">Deja tu comentario</h5>
+                            <form action="{{ url('/comments') }}" method="POST" id="newsCommentForm">
+                                @csrf
+                                <input type="hidden" name="commentable_type" value="App\Models\News">
+                                <input type="hidden" name="commentable_id" value="{{ $article->id }}">
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control @error('guest_name') is-invalid @enderror" 
+                                                id="name" name="guest_name" placeholder="Tu nombre"
+                                                value="{{ old('guest_name') ?? Cookie::get('comment_name') }}" required>
+                                            <label for="name">Nombre</label>
+                                            @error('guest_name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control @error('guest_email') is-invalid @enderror" 
+                                                id="email" name="guest_email" placeholder="tu@email.com"
+                                                value="{{ old('guest_email') ?? Cookie::get('comment_email') }}" required>
+                                            <label for="email">Email</label>
+                                            @error('guest_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text">Tu email no será publicado.</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="comment-meta flex-grow-1">
+                                
+                                <div class="mb-3">
+                                    <div class="form-floating">
+                                        <textarea class="form-control @error('content') is-invalid @enderror" 
+                                                id="comment" name="content" style="height: 120px" 
+                                                placeholder="Escribe tu comentario aquí" required>{{ old('content') }}</textarea>
+                                        <label for="comment">Comentario</label>
+                                        @error('content')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0 fs-5">{{ $comment->guest_name ?? 'Anónimo' }}</h5>
-                                    <span class="text-muted small">
-                                        <i class="far fa-clock me-1"></i> 
-                                        {{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Hace algún tiempo' }}
-                                    </span>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="saveInfo" name="save_info" 
+                                            {{ old('save_info') || Cookie::has('comment_name') ? 'checked' : '' }}>
+                                        <label class="form-check-label small" for="saveInfo">
+                                            Guardar mi información para próximos comentarios
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i> Publicar comentario
+                                    </button>
                                 </div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-comment-dots me-1"></i> Comentario #{{ $loop->iteration }}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lista de comentarios -->
+                <div class="comments-list">
+                    @forelse($article->comments ?? [] as $comment)
+                        <div class="comment-item card border-0 shadow-sm mb-3">
+                            <div class="card-body">
+                                <div class="d-flex mb-2">
+                                    <div class="comment-avatar me-3">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                            style="width: 48px; height: 48px; font-size: 18px;">
+                                            {{ strtoupper(substr($comment->guest_name ?? 'A', 0, 1)) }}
+                                        </div>
+                                    </div>
+                                    <div class="comment-meta flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 fs-5">{{ $comment->guest_name ?? 'Anónimo' }}</h5>
+                                            <span class="text-muted small">
+                                                <i class="far fa-clock me-1"></i> 
+                                                {{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Hace algún tiempo' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-comment-dots me-1"></i> Comentario #{{ $loop->iteration }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-content mt-2 pt-2 border-top">
+                                    <p class="mb-0">{{ $comment->content ?? 'Sin contenido' }}</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="comment-content mt-2 pt-2 border-top">
-                            <p class="mb-0">{{ $comment->content ?? 'Sin contenido' }}</p>
+                    @empty
+                        <div class="alert alert-light shadow-sm">
+                            <div class="d-flex align-items-center">
+                                <i class="far fa-comment-dots text-primary me-3 fs-4"></i>
+                                <p class="mb-0">No hay comentarios todavía. ¡Sé el primero en comentar!</p>
+                            </div>
                         </div>
-                    </div>
+                    @endforelse
                 </div>
-            @empty
-                <div class="alert alert-light shadow-sm">
-                    <div class="d-flex align-items-center">
-                        <i class="far fa-comment-dots text-primary me-3 fs-4"></i>
-                        <p class="mb-0">No hay comentarios todavía. ¡Sé el primero en comentar!</p>
+                
+                <!-- Paginación de comentarios (si es necesario) -->
+                @if(isset($article->comments) && count($article->comments) > 0 && method_exists($article->comments, 'links'))
+                    <div class="mt-3">
+                        {{ $article->comments->links() }}
                     </div>
-                </div>
-            @endforelse
-        </div>
-        
-        <!-- Paginación de comentarios (si es necesario) -->
-        @if(isset($article->comments) && count($article->comments) > 0 && method_exists($article->comments, 'links'))
-            <div class="mt-3">
-                {{ $article->comments->links() }}
+                @endif
             </div>
-        @endif
-    </div>
-</div>
+        </div>
         
         <!-- Sidebar (Derecha) -->
         <div class="col-lg-4">
@@ -287,45 +350,89 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        @forelse($relatedArticles as $relatedArticle)
-                            <div class="col-md-6">
-                                <div class="related-article d-flex">
-                                    <div class="related-article-img me-3">
-                                        <a href="{{ route('news.show', $relatedArticle->slug) }}">
-                                        <img src="{{ $getImageUrl($relatedArticle->image, 'news', 'small') }}" 
+                    @forelse($relatedArticles as $relatedArticle)
+                        <div class="col-md-6">
+                            <div class="related-article d-flex">
+                                @php
+                                    // Verificación similar para cada artículo relacionado
+                                    $relShowImage = false;
+                                    $relImageSrc = null;
+                                    
+                                    // Solo verificar si existe una imagen para evitar consultas innecesarias
+                                    if (!empty($relatedArticle->image) && 
+                                        $relatedArticle->image != 'default.jpg' && 
+                                        !str_contains($relatedArticle->image, 'default') && 
+                                        !str_contains($relatedArticle->image, 'placeholder')) {
+                                        
+                                        // Extraer el nombre del archivo si es una ruta completa
+                                        $relImageName = $relatedArticle->image;
+                                        if (Str::startsWith($relImageName, 'storage/') || Str::startsWith($relImageName, '/storage/')) {
+                                            $relImagePath = str_replace('storage/', '', $relImageName);
+                                            // Verificar si el archivo existe físicamente en la ruta directa
+                                            if (Storage::disk('public')->exists($relImagePath)) {
+                                                $relShowImage = true;
+                                                $relImageSrc = asset('storage/' . $relImagePath);
+                                            }
+                                        } else {
+                                            // Probar múltiples rutas posibles donde podría estar la imagen
+                                            $possiblePaths = [
+                                                "images/news/{$relImageName}",
+                                                "news/{$relImageName}",
+                                                "{$relImageName}"
+                                            ];
+                                            
+                                            foreach ($possiblePaths as $path) {
+                                                if (Storage::disk('public')->exists($path)) {
+                                                    $relShowImage = true;
+                                                    $relImageSrc = asset('storage/' . $path);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Si todavía no encontramos la imagen, usar getImageUrl como respaldo
+                                        if (!$relShowImage && isset($getImageUrl) && is_callable($getImageUrl)) {
+                                            $relImageSrc = $getImageUrl($relatedArticle->image, 'news', 'small');
+                                            // Verificar que la URL generada no contiene 'default'
+                                            if (!str_contains($relImageSrc, 'default')) {
+                                                $relShowImage = true;
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                
+                                @if($relShowImage)
+                                <div class="related-article-img me-3">
+                                    <a href="{{ route('news.show', $relatedArticle->slug) }}">
+                                        <img src="{{ $relImageSrc }}" 
                                             class="img-fluid rounded" 
                                             alt="{{ $relatedArticle->title }}" 
-                                            style="width: 100px; height: 70px; object-fit: cover;"
-                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
+                                            style="width: 100px; height: 70px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                @endif
+                                <div class="related-article-content" style="{{ !$relShowImage ? 'width: 100%;' : '' }}">
+                                    <h6 class="mb-1">
+                                        <a href="{{ route('news.show', $relatedArticle->slug) }}" class="text-decoration-none">
+                                            {{ Str::limit($relatedArticle->title, 60) }}
                                         </a>
-                                    </div>
-                                    <div class="related-article-content">
-                                        <h6 class="mb-1">
-                                            <a href="{{ route('news.show', $relatedArticle->slug) }}" class="text-decoration-none">
-                                                {{ Str::limit($relatedArticle->title, 60) }}
-                                            </a>
-                                        </h6>
-                                        <div class="small text-muted">
-                                            <i class="far fa-calendar-alt me-1"></i> 
-                                            {{ $relatedArticle->created_at->format('d M, Y') }}
-                                        </div>
+                                    </h6>
+                                    <div class="small text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i> 
+                                        {{ $relatedArticle->created_at->format('d M, Y') }}
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                            <div class="col-12">
-                                <p class="text-muted">No hay artículos relacionados disponibles.</p>
-                            </div>
-                        @endforelse
+                        </div>
+                    @empty
+                        <div class="col-12">
+                            <p class="text-muted">No hay artículos relacionados disponibles.</p>
+                        </div>
+                    @endforelse
                     </div>
                 </div>
             </div>
             
-
-
-
-
-
             <!-- Lo más leído -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -343,9 +450,11 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                                     </div>
                                     <div class="most-read-content">
                                         <div class="d-flex mb-2">
+                                            @if(isset($mostReadArticle->category) && is_object($mostReadArticle->category))
                                             <span class="badge bg-{{ getStatusColor($mostReadArticle->category->name ?? 'General') }} me-2">
                                                 {{ $mostReadArticle->category->name ?? 'General' }}
                                             </span>
+                                            @endif
                                             <span class="badge bg-light text-dark">
                                                 <i class="fas fa-eye me-1"></i> {{ number_format($mostReadArticle->views) }}
                                             </span>
@@ -387,11 +496,6 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                 return $colors[$category] ?? 'primary';
             }
             @endphp
-
-
-
-
-            
             
             <!-- Newsletter -->
             <div class="card border-0 shadow-sm mb-4">

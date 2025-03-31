@@ -18,11 +18,41 @@
                 @if($researches->count() > 0)
                     @foreach($researches as $research)
                     @if($research->status === 'published' || $research->status === 'active')
+                    @php
+                        // Método directo: Nunca usar getImageUrl, construir manualmente la URL solo si hay imagen
+                        $imageSrc = null;
+                        $hasImage = false;
+                        
+                        if (!empty($research->image) && 
+                            $research->image != 'default.jpg' && 
+                            !str_contains($research->image, 'default') && 
+                            !str_contains($research->image, 'placeholder')) {
+                            
+                            // Construir la URL directamente sin pasar por getImageUrl
+                            if (Str::startsWith($research->image, 'storage/')) {
+                                $imageSrc = asset($research->image);
+                            } else {
+                                $imageSrc = asset('storage/research/' . $research->image);
+                            }
+                            
+                            $hasImage = true;
+                        }
+                    @endphp
                     <div class="col-md-6">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="position-relative">
                                 <a href="{{ route('research.show', $research->slug ?? $research->id) }}">
-                                    <img src="{{ $getImageUrl($research->image, 'research', 'medium') }}" class="card-img-top" alt="{{ $research->title }}" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-medium.jpg') }}';" style="height: 180px; object-fit: cover;">
+                                    @if($hasImage)
+                                    <img src="{{ $imageSrc }}" 
+                                         class="card-img-top" 
+                                         alt="{{ $research->title }}" 
+                                         style="height: 180px; object-fit: cover;"
+                                         onError="this.style.display='none';">
+                                    @else
+                                    <div style="height: 120px; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-microscope text-muted" style="font-size: 2rem;"></i>
+                                    </div>
+                                    @endif
                                 </a>
                                 @if(isset($research->category))
                                 <div class="position-absolute bottom-0 end-0 m-2">
@@ -101,16 +131,42 @@
                     <ul class="list-group list-group-flush">
                         @foreach($featuredResearch as $featured)
                         @if($featured->status === 'published' || $featured->status === 'active')
+                        @php
+                            // Método directo para las imágenes de investigaciones destacadas
+                            $featuredImageSrc = null;
+                            $featuredHasImage = false;
+                            
+                            if (!empty($featured->image) && 
+                                $featured->image != 'default.jpg' && 
+                                !str_contains($featured->image, 'default') && 
+                                !str_contains($featured->image, 'placeholder')) {
+                                
+                                // Construir la URL directamente
+                                if (Str::startsWith($featured->image, 'storage/')) {
+                                    $featuredImageSrc = asset($featured->image);
+                                } else {
+                                    $featuredImageSrc = asset('storage/research/' . $featured->image);
+                                }
+                                
+                                $featuredHasImage = true;
+                            }
+                        @endphp
                         <li class="list-group-item px-2 py-1 border-0">
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-2">
-                                    <img src="{{ $getImageUrl($featured->image, 'research', 'small') }}" 
+                                    @if($featuredHasImage)
+                                    <img src="{{ $featuredImageSrc }}" 
                                          class="rounded" 
                                          width="50" 
                                          height="50" 
                                          alt="{{ $featured->title }}" 
                                          style="object-fit: cover;"
-                                         onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
+                                         onError="this.style.display='none'; this.parentElement.innerHTML='<div class=\'rounded bg-light d-flex align-items-center justify-content-center\' style=\'width:50px;height:50px;\'><i class=\'fas fa-microscope text-muted\'></i></div>';">
+                                    @else
+                                    <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
+                                        <i class="fas fa-microscope text-muted"></i>
+                                    </div>
+                                    @endif
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1" style="font-size: 0.7rem; line-height: 1.1;">

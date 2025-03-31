@@ -431,19 +431,6 @@
                     </ul>
                     
 
-                    <div class="d-none d-lg-block ms-auto me-3">
-                        <form action="{{ route('newsletter.subscribe') }}" method="POST" class="d-flex header-subscribe-form">
-                            @csrf
-                            <div class="input-group input-group-sm">
-                                <input type="email" class="form-control form-control-sm" placeholder="Suscribirse" name="email" aria-label="Email" required 
-                                    style="width: 160px; border-radius: 20px 0 0 20px; background-color: rgba(255, 255, 255, 0.15); border: none; color: white;">
-                                <button class="btn btn-sm btn-light" type="submit" style="border-radius: 0 20px 20px 0; padding: 0.25rem 0.5rem;">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
 
                 </div>
             </div>

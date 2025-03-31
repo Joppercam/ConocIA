@@ -3,32 +3,6 @@
 @php
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Str;
-    
-    /**
-     * Obtiene la URL de la imagen de la noticia o una imagen predeterminada
-     * @param string|null $imagePath Ruta de la imagen
-     * @param string $size Tamaño deseado: 'small', 'medium', o 'large'
-     * @return string URL de la imagen
-     */
-    function getNewsImage($imagePath, $size = 'medium') {
-        // Si es una ruta que comienza con 'storage/'
-        if ($imagePath && Str::startsWith($imagePath, 'storage/')) {
-            return asset($imagePath); // Agrega la URL base
-        }
-        
-        // Si es una URL completa (comienza con http o https)
-        if ($imagePath && (Str::startsWith($imagePath, 'http://') || Str::startsWith($imagePath, 'https://'))) {
-            return $imagePath;
-        }
-        
-        // Si es solo un nombre de archivo
-        if ($imagePath && Storage::disk('public')->exists('images/news/' . $imagePath)) {
-            return Storage::url('images/news/' . $imagePath);
-        }
-        
-        // Ahora solo devolvemos null para manejar el caso sin imagen en la plantilla
-        return null;
-    }
 @endphp
 
 @section('content')
@@ -44,9 +18,24 @@
             <!-- Noticias -->
             @foreach($news as $article)
             @php
-                // Verificamos si la noticia tiene imagen
-                $imageSrc = getNewsImage($article->image, 'medium');
-                $hasImage = !empty($imageSrc);
+                // Método 1: Nunca usar getImageUrl, construir manualmente la URL solo si hay imagen
+                $imageSrc = null;
+                $hasImage = false;
+                
+                if (!empty($article->image) && 
+                    $article->image != 'default.jpg' && 
+                    !str_contains($article->image, 'default') && 
+                    !str_contains($article->image, 'placeholder')) {
+                    
+                    // Construir la URL directamente sin pasar por getImageUrl
+                    if (Str::startsWith($article->image, 'storage/')) {
+                        $imageSrc = asset($article->image);
+                    } else {
+                        $imageSrc = asset('storage/news/' . $article->image);
+                    }
+                    
+                    $hasImage = true;
+                }
             @endphp
             <div class="card border-0 shadow-sm mb-3 news-card">
                 <div class="row g-0">

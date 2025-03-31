@@ -37,9 +37,11 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
-            'journal_mode' => null,
-            'synchronous' => null,
+            'pragma' => [
+            'journal_mode' => 'WAL',  // Mejora el rendimiento de escritura
+            'cache_size' => '-2000',  // 2MB de caché en memoria
+            'synchronous' => 'NORMAL' // Balance entre seguridad y rendimiento
+            ],
         ],
 
         'mysql' => [

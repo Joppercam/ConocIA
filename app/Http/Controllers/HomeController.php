@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -24,165 +25,210 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Primero intentar obtener noticias destacadas y publicadas
-        $allPublishedNews = News::with('category')
-            ->where('status', 'published')
-            ->whereNotNull('image')
-            ->where(function($query) {
-                $query->where('image', '!=', '')
-                      ->where('image', '!=', 'null')
-                      ->where('image', '!=', 'default.jpg')
-                      ->whereRaw("image NOT LIKE '%default%'")
-                      ->whereRaw("image NOT LIKE '%placeholder%'");
-            })
-            ->latest('published_at')
-            ->take(5)
-            ->get();
-
+        // Cachear solo los datos, no las vistas ni las funciones anónimas
+        $viewData = Cache::remember('home_page_data', 1800, function () {
+            // Primero intentar obtener noticias destacadas y publicadas
+            $allPublishedNews = Cache::remember('all_published_news', 1800, function () {
+                return News::with('category')
+                    ->where('status', 'published')
+                    ->whereNotNull('image')
+                    ->where(function($query) {
+                        $query->where('image', '!=', '')
+                              ->where('image', '!=', 'null')
+                              ->where('image', '!=', 'default.jpg')
+                              ->whereRaw("image NOT LIKE '%default%'")
+                              ->whereRaw("image NOT LIKE '%placeholder%'");
+                    })
+                    ->latest('published_at')
+                    ->take(5)
+                    ->get();
+            });
 
             // Filtrar para obtener solo las que tienen imágenes físicas
-        $featuredNews = $this->filterNewsWithPhysicalImages($allPublishedNews, 5);
+            $featuredNews = $this->filterNewsWithPhysicalImages($allPublishedNews, 5);
 
+            // Si no hay suficientes noticias destacadas (menos de 5), obtener más noticias recientes
+            if ($featuredNews->count() < 5) {
+                // Obtener IDs de las noticias que ya están incluidas
+                $existingIds = $featuredNews->pluck('id')->toArray();
 
-        //dd($featuredNews);
-        // Si no hay suficientes noticias destacadas (menos de 5), obtener más noticias recientes
-        if ($featuredNews->count() < 5) {
-        // Obtener IDs de las noticias que ya están incluidas
-        $existingIds = $featuredNews->pluck('id')->toArray();
+                // Obtener noticias adicionales para completar 5 en total
+                $additionalNews = Cache::remember('additional_news_'.implode(',', $existingIds), 1800, function () use ($existingIds, $featuredNews) {
+                    return News::with('category')
+                            ->where('featured', false)
+                            ->where('status', 'published')
+                            ->whereNotIn('id', $existingIds)
+                            ->latest()
+                            ->take(5 - $featuredNews->count())
+                            ->get();
+                });
 
-        // Obtener noticias adicionales para completar 5 en total
-        $additionalNews = News::with('category')
-                ->where('featured', false)
-                ->where('status', 'published')  // Añadido filtro para estado published
-                ->whereNotIn('id', $existingIds)
-                ->latest()
-                ->take(5 - $featuredNews->count())
-                ->get();
+                // Combinar ambas colecciones
+                $featuredNews = $featuredNews->concat($additionalNews);
+            }
 
-        // Combinar ambas colecciones
-        $featuredNews = $featuredNews->concat($additionalNews);
-        }
+            // Obtener más noticias recientes (excluyendo las destacadas)
+            $featuredNewsIds = $featuredNews->pluck('id')->toArray();
 
-        // Obtener más noticias recientes (excluyendo las destacadas)
-        $featuredNewsIds = $featuredNews->pluck('id')->toArray();
+            // Obtener últimas noticias (para otras secciones)
+            $latestNews = Cache::remember('latest_news_'.md5(implode(',', $featuredNewsIds)), 1800, function () use ($featuredNewsIds) {
+                return News::with('category')
+                    ->where('status', 'published')
+                    ->whereNotIn('id', $featuredNewsIds)
+                    ->latest()
+                    ->take(28)
+                    ->get();
+            });
 
-        // Obtener últimas noticias (para otras secciones)
-        $latestNews = News::with('category')
-            ->where('status', 'published')  // Añadido filtro para estado published
-            ->whereNotIn('id', $featuredNewsIds)  // Excluir las que ya están en destacados
-            ->latest()
-            ->take(28)  // Puedes mantener esto o ajustarlo
-            ->get();
+            // Modificación: Obtener noticias recientes, incluir la cantidad de comentarios
+            $recentNews = Cache::remember('recent_news_'.md5(implode(',', $featuredNewsIds)), 1800, function () use ($featuredNewsIds) {
+                return News::with(['category', 'author'])
+                    ->withCount('comments')
+                    ->where('status', 'published')
+                    ->whereNotIn('id', $featuredNewsIds)
+                    ->latest()
+                    ->take(28)
+                    ->get();
+            });
 
+            // Cargar noticias populares
+            $popularNews = Cache::remember('popular_news', 1800, function () {
+                return News::with('category')
+                    ->where('status', 'published')
+                    ->orderBy('views', 'desc')
+                    ->take(10)
+                    ->get();
+            });
+            
+            // Cargar bloque últimas columnas destacadas - CORREGIDO SIN FILTRO DE STATUS
+            try {
+                $latestColumns = Cache::remember('latest_columns', 1800, function () {
+                    return Column::with('author')
+                        ->where('featured', true)
+                        ->latest()
+                        ->take(2)
+                        ->get();
+                });
+            } catch (\Exception $e) {
+                // Si el modelo Column todavía no existe o hay otro error
+                $latestColumns = collect([]);
+            }
+            
+            // Cargar seccion últimas columnas destacadas - CORREGIDO SIN FILTRO DE STATUS
+            try {
+                $latestColumnsSectionFeatured = Cache::remember('latest_columns_section_featured', 1800, function () {
+                    return Column::with('author')
+                        ->where('featured', true)
+                        ->latest()
+                        ->take(8)
+                        ->get();
+                });
+            } catch (\Exception $e) {
+                // Si el modelo Column todavía no existe
+                $latestColumnsSectionFeatured = collect([]);
+            }
 
-         // Modificación: Obtener 20 noticias recientes, incluir la cantidad de comentarios y aplicar orden aleatorio
-         $recentNews = News::with(['category', 'author'])
-         ->withCount('comments')  // Agregar conteo de comentarios
-         ->where('status', 'published')
-         ->whereNotIn('id', $featuredNewsIds)
-         ->latest()
-         ->take(28)
-         ->get()
-         ->shuffle();  // Orden aleatorio
+            // Cargar sección últimas columnas que NO sean destacadas - CORREGIDO 
+            // Aumentando el número a tomar para compensar el skip(4) en la vista
+            try {
+                $latestColumnsSection = Cache::remember('latest_columns_section', 1800, function () {
+                    return Column::with('author')
+                        ->where('featured', false)
+                        ->latest()
+                        ->take(9)  // Aumentado de 4 a 9 para compensar el skip(4)
+                        ->get();
+                });
+            } catch (\Exception $e) {
+                // Si el modelo Column todavía no existe
+                $latestColumnsSection = collect([]);
+            }
 
-
-        // Cargar noticias populares
-        $popularNews = News::with('category')
-            ->where('status', 'published')  // Añadido filtro para estado published
-            ->orderBy('views', 'desc')
-            ->take(10)
-            ->get();
-        
-        // Cargar bloque últimas columnas destacadas - CORREGIDO SIN FILTRO DE STATUS
-        try {
-            $latestColumns = Column::with('author')
-                ->where('featured', true)
-                ->latest()
-                ->take(2)
-                ->get();
-        } catch (\Exception $e) {
-            // Si el modelo Column todavía no existe o hay otro error
-            $latestColumns = collect([]);
-        }
-        
-        // Cargar seccion últimas columnas destacadas - CORREGIDO SIN FILTRO DE STATUS
-        try {
-            $latestColumnsSectionFeatured = Column::with('author')
-                ->where('featured', true)
-                ->latest()
-                ->take(8)
-                ->get();
-        } catch (\Exception $e) {
-            // Si el modelo Column todavía no existe
-            $latestColumnsSectionFeatured = collect([]);
-        }
-
-        // Cargar sección últimas columnas que NO sean destacadas - CORREGIDO 
-        // Aumentando el número a tomar para compensar el skip(4) en la vista
-        try {
-            $latestColumnsSection = Column::with('author')
-                ->where('featured', false)
-                ->latest()
-                ->take(9)  // Aumentado de 4 a 9 para compensar el skip(4)
-                ->get();
-        } catch (\Exception $e) {
-            // Si el modelo Column todavía no existe
-            $latestColumnsSection = collect([]);
-        }
-
-        // Debug: Verificar cuántas columnas hay de cada tipo
-        $columnsFeaturedCount = $latestColumnsSectionFeatured->count();
-        $columnsNonFeaturedCount = $latestColumnsSection->count();
-        
-        // Log para depuración (opcional)
-        Log::info("Columnas destacadas: $columnsFeaturedCount, Columnas no destacadas: $columnsNonFeaturedCount");
+            // Debug: Verificar cuántas columnas hay de cada tipo
+            $columnsFeaturedCount = $latestColumnsSectionFeatured->count();
+            $columnsNonFeaturedCount = $latestColumnsSection->count();
+            
+            // Log para depuración (opcional)
+            Log::info("Columnas destacadas: $columnsFeaturedCount, Columnas no destacadas: $columnsNonFeaturedCount");
+                    
+            // Cargar artículos secundarios 
+            $secondaryNews = Cache::remember('secondary_news', 1800, function () {
+                return News::where('featured', false)
+                    ->where('status', 'published')
+                    ->with('category')
+                    ->latest()
+                    ->take(2)
+                    ->get();
+            });
                 
-        // Cargar artículos secundarios 
-        $secondaryNews = News::where('featured', false)
-            ->where('status', 'published')  // Añadido filtro para estado published
-            ->with('category')
-            ->latest()
-            ->take(2)
-            ->get();
+            // Categorías destacadas
+            $featuredCategories = Cache::remember('featured_categories', 3600, function () {
+                return Category::withCount(['news' => function($query) {
+                        $query->where('status', 'published');
+                    }])
+                    ->orderBy('news_count', 'desc')
+                    ->take(10)
+                    ->get();
+            });
+                
+            // Artículos de investigación
+            $researchArticles = Cache::remember('research_articles', 1800, function () {
+                return Research::with('category')
+                    ->where(function($query) {
+                        $query->where('status', 'published')
+                              ->orWhere('status', 'active');
+                    })
+                    ->latest()
+                    ->take(8)
+                    ->get();
+            });
+                
+            // Investigaciones destacadas
+            $featuredResearch = Cache::remember('featured_research', 1800, function () {
+                return Research::with('category')
+                    ->where('featured', true)
+                    ->where(function($query) {
+                        $query->where('status', 'published')
+                              ->orWhere('status', 'active');
+                    })
+                    ->orderBy('citations', 'desc')
+                    ->take(5)
+                    ->get();
+            });
+                
+            // Investigaciones más comentadas
+            $mostCommented = Cache::remember('most_commented_research', 1800, function () {
+                return Research::with('category')
+                    ->where(function($query) {
+                        $query->where('status', 'published')
+                              ->orWhere('status', 'active');
+                    })
+                    ->orderBy('comments_count', 'desc')
+                    ->take(3)
+                    ->get();
+            });
             
-        // Categorías destacadas
-        $featuredCategories = Category::withCount(['news' => function($query) {
-                $query->where('status', 'published');  // Contar solo noticias publicadas
-            }])
-            ->orderBy('news_count', 'desc')
-            ->take(10)
-            ->get();
-            
-        // Artículos de investigación
-        $researchArticles = Research::with('category')
-        ->where(function($query) {
-            $query->where('status', 'published')
-                  ->orWhere('status', 'active');
-        })
-        ->latest()
-        ->take(8) // Mantener 8 para mostrar más investigaciones
-        ->get();
-            
-        // Investigaciones destacadas
-        $featuredResearch = Research::with('category')
-        ->where('featured', true)
-        ->where(function($query) {
-            $query->where('status', 'published')
-                  ->orWhere('status', 'active');
-        })
-        ->orderBy('citations', 'desc')
-        ->take(5)
-        ->get();
-            
-        // Investigaciones más comentadas
-        $mostCommented = Research::with('category')
-        ->where(function($query) {
-            $query->where('status', 'published')
-                  ->orWhere('status', 'active');
-        })
-        ->orderBy('comments_count', 'desc')
-        ->take(3)
-        ->get();
+            // Devolver solo los datos, no las funciones
+            return [
+                'featuredNews' => $featuredNews,
+                'recentNews' => $recentNews, // Datos sin shuffle (lo aplicaremos después)
+                'popularNews' => $popularNews,
+                'latestColumns' => $latestColumns,
+                'latestColumnsSection' => $latestColumnsSection,
+                'latestColumnsSectionFeatured' => $latestColumnsSectionFeatured,
+                'secondaryNews' => $secondaryNews,
+                'featuredCategories' => $featuredCategories,
+                'researchArticles' => $researchArticles,
+                'featuredResearch' => $featuredResearch,
+                'mostCommented' => $mostCommented
+            ];
+        });
+        
+        // Extraer los datos de la caché
+        extract($viewData);
+        
+        // Aplicar el shuffle después de extraer los datos de la caché
+        // Esto evita problemas de serialización
+        $recentNews = $recentNews->shuffle();
         
         // Helper function para manejar correctamente las rutas de imágenes
         $getImageUrl = function($imagePath, $type = 'news', $size = 'large') {
@@ -241,7 +287,7 @@ class HomeController extends Controller
         };
         
         // Pasar todas las variables y funciones a la vista
-            return view('home', compact(
+        return view('home', compact(
             'featuredNews',
             'recentNews',
             'popularNews',
@@ -260,11 +306,6 @@ class HomeController extends Controller
         ]);
     }
 
-
-
-
-
-
     /**
      * Filtra noticias para incluir solo aquellas con imágenes físicamente disponibles
      *
@@ -274,47 +315,46 @@ class HomeController extends Controller
      */
     private function filterNewsWithPhysicalImages($news, $minCount = 5)
     {
-        // Filtrar noticias con imágenes físicamente existentes
-        $newsWithValidImages = $news->filter(function ($item) {
-            // Si la imagen no comienza con 'storage/', no es una imagen local
-            if (!Str::startsWith($item->image, 'storage/')) {
-                return false;
+        // Filtramos con caché para evitar verificar los archivos físicos repetidamente
+        $newsIds = $news->pluck('id')->toArray();
+        $cacheKey = 'news_with_physical_images_' . md5(implode(',', $newsIds));
+        
+        return Cache::remember($cacheKey, 1800, function () use ($news, $minCount) {
+            // Filtrar noticias con imágenes físicamente existentes
+            $newsWithValidImages = $news->filter(function ($item) {
+                // Si la imagen no comienza con 'storage/', no es una imagen local
+                if (!Str::startsWith($item->image, 'storage/')) {
+                    return false;
+                }
+                
+                // Obtener la ruta física del archivo sin 'storage/'
+                $physicalPath = str_replace('storage/', '', $item->image);
+                
+                // Verificar si el archivo existe físicamente
+                $exists = Storage::disk('public')->exists($physicalPath);
+                
+                return $exists;
+            });
+            
+            // Si tenemos suficientes noticias con imágenes válidas, devolver esas
+            if ($newsWithValidImages->count() >= $minCount) {
+                return $newsWithValidImages->take($minCount);
             }
             
-            // Obtener la ruta física del archivo sin 'storage/'
-            $physicalPath = str_replace('storage/', '', $item->image);
+            // Si no hay suficientes, complementar con otras noticias
+            $additionalCount = $minCount - $newsWithValidImages->count();
+            $newsWithoutValidImages = $news->diff($newsWithValidImages);
             
-            // Verificar si el archivo existe físicamente
-            $exists = Storage::disk('public')->exists($physicalPath);
-            
-            return $exists;
+            return $newsWithValidImages->concat($newsWithoutValidImages->take($additionalCount));
         });
-        
-        // Si tenemos suficientes noticias con imágenes válidas, devolver esas
-        if ($newsWithValidImages->count() >= $minCount) {
-            return $newsWithValidImages->take($minCount);
-        }
-        
-        // Si no hay suficientes, complementar con otras noticias
-        $additionalCount = $minCount - $newsWithValidImages->count();
-        $newsWithoutValidImages = $news->diff($newsWithValidImages);
-        
-        return $newsWithValidImages->concat($newsWithoutValidImages->take($additionalCount));
     }
 
-
-
-
-
-
-    
-    // Resto del controlador se mantiene igual...
-    
     /**
      * Mostrar la página "Acerca de".
      */
     public function about()
     {
+        // No cacheamos la vista completa para evitar problemas con las closures
         return view('about');
     }
     
@@ -323,6 +363,7 @@ class HomeController extends Controller
      */
     public function contact()
     {
+        // No cacheamos la vista completa para evitar problemas con las closures
         return view('contact');
     }
     
@@ -361,6 +402,8 @@ class HomeController extends Controller
         if (empty($query)) {
             return redirect()->route('home');
         }
+        
+        // Las búsquedas no se cachean porque son específicas para cada consulta
         
         // Buscar en noticias
         $news = News::with(['category', 'user'])
