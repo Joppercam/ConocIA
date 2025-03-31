@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\NewsletterAdminController;
 use App\Http\Controllers\Admin\NewsApiController;
 use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
+use App\Http\Controllers\SitemapController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,14 +31,85 @@ use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 
 
 // Rutas para sitemaps
-Route::get('sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index']);
+Route::get('sitemap.xml', [SitemapController::class, 'index']);
+
+// Sitemap principal generado programáticamente
 Route::get('sitemap-main.xml', function() {
-    return response()->view('sitemap.main')->header('Content-Type', 'text/xml');
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>daily</changefreq>';
+    $xml .= '<priority>1.0</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/news') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>daily</changefreq>';
+    $xml .= '<priority>0.9</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/investigacion') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>weekly</changefreq>';
+    $xml .= '<priority>0.8</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/columnas') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>weekly</changefreq>';
+    $xml .= '<priority>0.8</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/acerca-de') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>monthly</changefreq>';
+    $xml .= '<priority>0.5</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/contacto') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>monthly</changefreq>';
+    $xml .= '<priority>0.5</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/privacidad') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>yearly</changefreq>';
+    $xml .= '<priority>0.3</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/terminos') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>yearly</changefreq>';
+    $xml .= '<priority>0.3</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '<url>';
+    $xml .= '<loc>' . url('/cookies') . '</loc>';
+    $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+    $xml .= '<changefreq>yearly</changefreq>';
+    $xml .= '<priority>0.3</priority>';
+    $xml .= '</url>';
+    
+    $xml .= '</urlset>';
+    
+    return response($xml)->header('Content-Type', 'text/xml');
 });
-Route::get('sitemap-news.xml', [App\Http\Controllers\SitemapController::class, 'news']);
-Route::get('sitemap-categories.xml', [App\Http\Controllers\SitemapController::class, 'categories']);
-Route::get('sitemap-research.xml', [App\Http\Controllers\SitemapController::class, 'research']);
-Route::get('sitemap-columns.xml', [App\Http\Controllers\SitemapController::class, 'columns']);
+
+Route::get('sitemap-news.xml', [SitemapController::class, 'news']);
+Route::get('sitemap-categories.xml', [SitemapController::class, 'categories']);
+Route::get('sitemap-research.xml', [SitemapController::class, 'research']);
+Route::get('sitemap-columns.xml', [SitemapController::class, 'columns']);
 
 // Rutas públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');

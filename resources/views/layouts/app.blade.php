@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="@yield('meta_description', 'ConocIA - Tu portal de noticias sobre tecnología e inteligencia artificial')">
     <meta name="keywords" content="@yield('meta_keywords', 'IA, inteligencia artificial, tecnología, noticias IA, investigación tecnológica')">
+    <meta name="google-site-verification" content="K7M1JtXEvnuDOAjHlVGsAczDqZzK8WPv1ze_ILdYmDk" />
     <title>@yield('title', 'ConocIA - Portal de Noticias de Tecnología e IA')</title>
     
     <!-- CSRF Token -->

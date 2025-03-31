@@ -789,7 +789,7 @@ class FetchNewsWithAI extends Command
     {
         // URL base del sitio para incluir en los posts
         $siteUrl = config('app.url');
-        $newsUrl = "{$siteUrl}/noticias/{$news->slug}";
+        $newsUrl = "{$siteUrl}news/{$news->slug}";
         
         // Hashtags relacionados con la categoría (máximo 3)
         $hashtag = '#' . Str::camel($categoryName);
