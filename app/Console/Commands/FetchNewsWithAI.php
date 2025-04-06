@@ -4,7 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\News;
 use App\Models\Category;
-// Añadir el modelo de cola de social media
+use App\Models\Comment;
+use App\Models\User;
 use App\Models\SocialMediaQueue;
 use App\Services\SimpleImageDownloader;
 use Illuminate\Console\Command;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use OpenAI\Laravel\Facades\OpenAI;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -24,14 +26,14 @@ class FetchNewsWithAI extends Command
      *
      * @var string
      */
-    protected $signature = 'news:fetch {--category=} {--count=5} {--language=es} {--queue-social=1}';
+    protected $signature = 'news:fetch {--category=} {--count=5} {--language=es} {--queue-social=1} {--generate-comments=1} {--min-comments=3} {--max-comments=5}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Obtiene noticias tecnológicas recientes utilizando IA y las almacena en la base de datos';
+    protected $description = 'Obtiene noticias tecnológicas recientes utilizando IA, las almacena en la base de datos y genera comentarios automáticos';
 
     /**
      * Categorías de tecnología disponibles (slug => nombre)
@@ -171,7 +173,6 @@ class FetchNewsWithAI extends Command
         parent::__construct();
         $this->imageDownloader = $imageDownloader;
     }
-
     /**
      * Execute the console command.
      */
@@ -179,6 +180,9 @@ class FetchNewsWithAI extends Command
     {
         $categorySlug = $this->option('category');
         $queueSocial = $this->option('queue-social');
+        $generateComments = $this->option('generate-comments');
+        $minComments = $this->option('min-comments');
+        $maxComments = $this->option('max-comments');
         
         if (empty($categorySlug)) {
             // Si no se especifica categoría, mostrar lista de categorías disponibles
@@ -408,6 +412,47 @@ class FetchNewsWithAI extends Command
             $this->info("Resumen de descarga de imágenes: $successCount exitosas, $failCount fallidas");
         }
 
+        // NUEVO: Generar comentarios automáticos para las noticias si está activada la opción
+        if ($generateComments && count($createdNews) > 0) {
+            $this->info("\nGenerando comentarios automáticos para las noticias...");
+            try {
+                // Verificar si hay usuarios en el sistema
+                $usersCount = User::count();
+                
+                if ($usersCount < 5) {
+                    $this->info("Se encontraron menos de 5 usuarios en el sistema. Creando usuarios ficticios para comentarios...");
+                    
+                    // Determinar cuántos usuarios crear (entre 5 y 10)
+                    $usersToCreate = max(5, min(10, 5 - $usersCount));
+                    
+                    // Crear usuarios ficticios
+                    $createdUsers = $this->createFakeUsers($usersToCreate);
+                    
+                    $this->info("Se crearon {$usersToCreate} usuarios ficticios para asignar a comentarios.");
+                } else {
+                    $this->info("Ya hay {$usersCount} usuarios en el sistema. No es necesario crear más.");
+                }
+                
+                // Iniciar transacción de base de datos para mejor manejo de errores
+                DB::beginTransaction();
+                
+                // Usar el método mejorado que proporciona mejor debugging y manejo de errores
+                $this->generateCommentsForNews($createdNews, $minComments, $maxComments, $categoryName);
+                
+                // Confirmar transacción
+                DB::commit();
+                
+                $this->info("Transacción de comentarios completada con éxito");
+            } catch (\Exception $e) {
+                // Revertir transacción en caso de error
+                DB::rollBack();
+                
+                $this->error("Error en la generación de comentarios: " . $e->getMessage());
+                Log::error("Error en generación de comentarios: " . $e->getMessage());
+                Log::error("Traza: " . $e->getTraceAsString());
+            }
+        }
+
         // NUEVO: Crear entradas en la cola de redes sociales si está activada la opción
         if ($queueSocial && count($createdNews) > 0) {
             $this->info("\nCreando entradas en la cola de redes sociales...");
@@ -420,7 +465,6 @@ class FetchNewsWithAI extends Command
         
         return 0;
     }
-    
     /**
      * Obtiene un icono FontAwesome para la categoría
      */
@@ -713,7 +757,6 @@ class FetchNewsWithAI extends Command
         // Devolver las 10 palabras más frecuentes
         return array_slice(array_keys($wordCounts), 0, 10);
     }
-    
     /**
      * Crea entradas automáticas en la cola de redes sociales para cada noticia
      * 
@@ -860,5 +903,500 @@ class FetchNewsWithAI extends Command
             default:
                 return "";
         }
+    }
+    
+    /**
+     * Verifica la compatibilidad del modelo User para crear usuarios ficticios
+     * 
+     * @return array Información sobre la compatibilidad
+     */
+    private function checkUserModelCompatibility()
+    {
+        $this->info("Verificando compatibilidad del modelo User...");
+        
+        try {
+            // Verificar si existe la tabla users
+            if (!Schema::hasTable('users')) {
+                $this->error("La tabla 'users' no existe en la base de datos");
+                return ['compatible' => false, 'error' => "La tabla 'users' no existe"];
+            }
+            
+            // Obtener columnas de la tabla users
+            $columns = Schema::getColumnListing('users');
+            $this->info("Columnas encontradas en tabla 'users': " . implode(", ", $columns));
+            
+            // Campos requeridos mínimos
+            $requiredFields = ['name', 'email', 'password'];
+            $missingFields = [];
+            
+            foreach ($requiredFields as $field) {
+                if (!in_array($field, $columns)) {
+                    $missingFields[] = $field;
+                }
+            }
+            
+            if (count($missingFields) > 0) {
+                $this->error("Faltan campos requeridos en la tabla 'users': " . implode(", ", $missingFields));
+                return ['compatible' => false, 'error' => "Faltan campos requeridos: " . implode(", ", $missingFields)];
+            }
+            
+            // Verificar si existe campo username (algunos sistemas lo usan)
+            $hasUsername = in_array('username', $columns);
+            
+            // Verificar campos opcionales comunes
+            $optionalFields = ['bio', 'avatar', 'email_verified_at', 'remember_token'];
+            $availableOptionalFields = array_intersect($optionalFields, $columns);
+            
+            $this->info("La tabla 'users' es compatible para crear usuarios ficticios");
+            $this->info("Campo username: " . ($hasUsername ? "Disponible" : "No disponible"));
+            $this->info("Campos opcionales disponibles: " . implode(", ", $availableOptionalFields));
+            
+            return [
+                'compatible' => true,
+                'hasUsername' => $hasUsername,
+                'optionalFields' => $availableOptionalFields
+            ];
+        } catch (\Exception $e) {
+            $this->error("Error al verificar modelo User: " . $e->getMessage());
+            return ['compatible' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Crea usuarios ficticios para usar en comentarios
+     * 
+     * @param int $count Número de usuarios a crear
+     * @return array Usuarios creados
+     */
+    private function createFakeUsers($count = 5)
+    {
+        $this->info("Creando {$count} usuarios ficticios para comentarios...");
+        
+        // Verificar compatibilidad del modelo User
+        $compatibility = $this->checkUserModelCompatibility();
+        
+        if (!$compatibility['compatible']) {
+            $this->error("No se pueden crear usuarios ficticios: " . ($compatibility['error'] ?? 'Error desconocido'));
+            return [];
+        }
+        
+        $createdUsers = [];
+        $defaultPassword = bcrypt('password'); // Contraseña genérica para todos los usuarios ficticios
+        
+        // Nombres para los usuarios ficticios
+        $maleNames = ['Carlos', 'Miguel', 'Javier', 'David', 'Alejandro', 'Pablo', 'Diego', 'Sergio', 'Fernando', 'José'];
+        $femaleNames = ['Ana', 'María', 'Laura', 'Sofía', 'Carmen', 'Elena', 'Lucía', 'Patricia', 'Isabel', 'Marta'];
+        $lastNames = ['García', 'Rodríguez', 'López', 'Martínez', 'González', 'Pérez', 'Sánchez', 'Fernández', 'Ramírez', 'Torres', 
+                     'Ruiz', 'Díaz', 'Hernández', 'Álvarez', 'Moreno', 'Muñoz', 'Romero', 'Alonso', 'Gutiérrez', 'Navarro'];
+        
+        // Dominios para correos
+        $domains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'protonmail.com'];
+        
+        // Intereses/ocupaciones para bios
+        $interests = ['tecnología', 'programación', 'inteligencia artificial', 'desarrollo web', 'ciberseguridad', 
+                     'ciencia de datos', 'blockchain', 'startups', 'innovación', 'cloud computing', 'IoT', 
+                     'realidad virtual', 'robótica', 'diseño UX', 'marketing digital'];
+        
+        $occupations = ['desarrollador', 'ingeniero de software', 'analista de datos', 'diseñador web', 'consultor IT', 
+                       'product manager', 'CEO', 'estudiante', 'profesor', 'investigador', 'freelancer'];
+        
+        for ($i = 0; $i < $count; $i++) {
+            try {
+                // Determinar género y seleccionar nombre
+                $isMale = rand(0, 1) == 1;
+                $firstName = $isMale ? $maleNames[array_rand($maleNames)] : $femaleNames[array_rand($femaleNames)];
+                $lastName1 = $lastNames[array_rand($lastNames)];
+                $lastName2 = $lastNames[array_rand($lastNames)]; // Segundo apellido (estilo español)
+                
+                $fullName = $firstName . ' ' . $lastName1 . ' ' . $lastName2;
+                
+                // Crear email
+                $emailName = strtolower($firstName . '.' . $lastName1);
+                $emailName = preg_replace('/\s+/', '', $emailName); // Eliminar espacios
+                $emailName = preg_replace('/[^a-zA-Z0-9.]/', '', $emailName); // Solo alfanuméricos y punto
+                $domain = $domains[array_rand($domains)];
+                $email = $emailName . rand(1, 999) . '@' . $domain;
+                
+                // Preparar datos básicos del usuario
+                $userData = [
+                    'name' => $fullName,
+                    'email' => $email,
+                    'password' => $defaultPassword,
+                    'created_at' => now()->subDays(rand(1, 365)), // Fecha de registro aleatoria en el último año
+                    'updated_at' => now(),
+                ];
+                
+                // Añadir username si el modelo lo soporta
+                if ($compatibility['hasUsername']) {
+                    $username = strtolower($firstName . '.' . $lastName1 . rand(1, 99));
+                    $username = preg_replace('/\s+/', '', $username); // Eliminar espacios
+                    $username = preg_replace('/[^a-zA-Z0-9.]/', '', $username); // Solo alfanuméricos y punto
+                    $userData['username'] = $username;
+                }
+                
+                // Añadir campos opcionales si están disponibles
+                if (in_array('email_verified_at', $compatibility['optionalFields'])) {
+                    $userData['email_verified_at'] = now();
+                }
+                
+                if (in_array('bio', $compatibility['optionalFields'])) {
+                    $interest = $interests[array_rand($interests)];
+                    $occupation = $occupations[array_rand($occupations)];
+                    $userData['bio'] = "Soy {$occupation} especializado en {$interest}. " . 
+                                       "Me apasiona compartir conocimientos y estar al día de las últimas novedades tecnológicas.";
+                }
+                
+                if (in_array('remember_token', $compatibility['optionalFields'])) {
+                    $userData['remember_token'] = Str::random(10);
+                }
+                
+                // Crear usuario en la base de datos
+                $user = new User($userData);
+                $user->save();
+                
+                $this->info("Usuario creado: {$user->name} ({$user->email})");
+                $createdUsers[] = $user;
+                
+            } catch (\Exception $e) {
+                $this->error("Error al crear usuario #{$i}: " . $e->getMessage());
+            }
+        }
+        
+        $this->info("Se crearon " . count($createdUsers) . " usuarios ficticios con éxito");
+        return $createdUsers;
+    }
+    /**
+     * Genera comentarios automáticos para un conjunto de noticias
+     * 
+     * @param array $newsItems Lista de objetos News para los que crear comentarios
+     * @param int $minComments Número mínimo de comentarios a generar por noticia
+     * @param int $maxComments Número máximo de comentarios a generar por noticia
+     * @param string $categoryName Nombre de la categoría para contextualizar los comentarios
+     * @return void
+     */
+    private function generateCommentsForNews($newsItems, $minComments, $maxComments, $categoryName)
+    {
+        if (empty($newsItems)) {
+            $this->warn("No hay noticias para generar comentarios.");
+            return;
+        }
+        
+        $this->info("Generando entre {$minComments} y {$maxComments} comentarios para cada una de las " . count($newsItems) . " noticias...");
+        
+        $successCount = 0;
+        $failCount = 0;
+        
+        // Obtener algunos usuarios aleatorios para comentarios "reales" (si existen)
+        $users = User::inRandomOrder()->limit(10)->get();
+        $hasUsers = $users->count() > 0;
+        
+        // Lista de comentarios fallback por si falla la generación con IA
+        $fallbackComments = [
+            "Interesante artículo sobre {$categoryName}. Gracias por compartirlo.",
+            "Me gustaría ver más sobre este tema en el futuro.",
+            "¿Alguien tiene experiencia práctica con esta tecnología?",
+            "Estoy de acuerdo con el análisis. Muy acertado.",
+            "Creo que hay puntos interesantes, pero me gustaría más profundidad técnica.",
+        ];
+        
+        foreach ($newsItems as $news) {
+            // Determinar aleatoriamente cuántos comentarios generar para esta noticia
+            $randomCommentsCount = rand($minComments, $maxComments);
+            $this->info("Generando {$randomCommentsCount} comentarios para noticia: {$news->title}");
+            
+            try {
+                // Intentar generar comentarios con IA
+                $comments = $this->generateCommentsWithAI($news, $randomCommentsCount, $categoryName);
+                
+                // DEBUG: Ver qué devuelve la función
+                $this->info("DEBUG - Tipo de datos devuelto: " . gettype($comments));
+                $this->info("DEBUG - Contenido: " . (is_array($comments) ? 'Array con ' . count($comments) . ' elementos' : 'No es un array'));
+                
+                // Si no obtuvimos comentarios, usar los fallback
+                if (empty($comments) || !is_array($comments)) {
+                    $this->warn("No se pudieron generar comentarios con IA. Usando comentarios predefinidos.");
+                    $comments = $fallbackComments;
+                }
+                
+                foreach ($comments as $index => $commentContent) {
+                    if (empty($commentContent)) {
+                        $this->warn("Comentario vacío detectado, saltando...");
+                        continue;
+                    }
+                    
+                    try {
+                        // Crear el objeto comentario
+                        $comment = new Comment();
+                        $comment->commentable_type = 'App\\Models\\News'; // Usamos string completa para evitar problemas
+                        $comment->commentable_id = $news->id;
+                        $comment->content = $commentContent;
+                        $comment->status = 'approved'; // Automáticamente aprobado
+                        
+                        // Determinar si este comentario será de usuario o invitado
+                        $isUserComment = $hasUsers && rand(0, 10) > 5; // 50% de probabilidad si hay usuarios
+                        
+                        if ($isUserComment) {
+                            // Comentario de usuario autenticado
+                            $randomUser = $users->random();
+                            $comment->user_id = $randomUser->id;
+                        } else {
+                            // Comentario de invitado
+                            $comment->guest_name = $this->getRandomName();
+                            $comment->guest_email = $this->generateFakeEmail($comment->guest_name);
+                        }
+                        
+                        // Si no es el primer comentario, hay posibilidad de que sea respuesta a otro
+                        if ($index > 0 && rand(0, 10) > 7) { // 30% de probabilidad de ser respuesta
+                            // Buscar un comentario anterior para responder
+                            $parentComment = Comment::where('commentable_type', 'App\\Models\\News')
+                                ->where('commentable_id', $news->id)
+                                ->inRandomOrder()
+                                ->first();
+                                
+                            if ($parentComment) {
+                                $comment->parent_id = $parentComment->id;
+                            }
+                        }
+                        
+                        // Debugging antes de guardar
+                        $this->info("DEBUG - Guardando comentario: " . substr($commentContent, 0, 30) . "...");
+                        
+                        // Guardar el comentario
+                        $saved = $comment->save();
+                        
+                        if ($saved) {
+                            // Retroceder la fecha creada para simular más naturalidad
+                            $randomMinutes = rand(5, 60 * 24); // Entre 5 minutos y 24 horas
+                            $comment->created_at = now()->subMinutes($randomMinutes);
+                            $comment->updated_at = $comment->created_at;
+                            $comment->save();
+                            
+                            $this->info("Comentario #{$index} guardado con ID {$comment->id}: " . substr($commentContent, 0, 50) . "...");
+                            $successCount++;
+                        } else {
+                            $this->error("No se pudo guardar el comentario (sin excepción)");
+                            $failCount++;
+                        }
+                        
+                    } catch (\Exception $e) {
+                        $this->error("Error al guardar comentario: " . $e->getMessage());
+                        $failCount++;
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->error("Error en la generación de comentarios para la noticia: " . $e->getMessage());
+                $failCount++;
+            }
+        }
+        
+        $this->info("Resumen de generación de comentarios: $successCount exitosos, $failCount fallidos");
+    }
+
+    /**
+     * Utiliza OpenAI para generar comentarios relacionados con una noticia
+     * 
+     * @param News $news Noticia para la que generar comentarios
+     * @param int $count Número de comentarios a generar
+     * @param string $categoryName Nombre de la categoría para contextualizar
+     * @return array Array con los comentarios generados
+     */
+    private function generateCommentsWithAI($news, $count, $categoryName)
+    {
+        try {
+            $this->info("Generando {$count} comentarios con IA para: {$news->title}");
+            
+            // Extraer el contenido principal para dar más contexto
+            $content = strip_tags($news->content);
+            $content = Str::limit($content, 1000); // Limitar a 1000 caracteres para no sobrecargar
+            
+            // Preparamos el prompt para generar comentarios variados y con contexto
+            $prompt = "Genera {$count} comentarios en español para una noticia de tecnología con el siguiente contenido:\n\n";
+            $prompt .= "Título: {$news->title}\n";
+            $prompt .= "Extracto: {$news->excerpt}\n";
+            $prompt .= "Contenido principal: {$content}\n\n";
+            $prompt .= "Categoría: {$categoryName}\n\n";
+            $prompt .= "Instrucciones para los comentarios:\n";
+            $prompt .= "1. Los comentarios deben ser ESPECÍFICOS al contenido del artículo, referenciando detalles o puntos concretos mencionados.\n";
+            $prompt .= "2. Deben demostrar conocimiento técnico y expertise en {$categoryName}, como si fueran escritos por profesionales o aficionados informados.\n";
+            $prompt .= "3. Variar las opiniones: algunos entusiastas, otros críticos o escépticos, otros analíticos o que hagan preguntas profundas.\n";
+            $prompt .= "4. Variar la extensión: algunos breves (1-2 oraciones) y otros más elaborados (3-5 oraciones).\n";
+            $prompt .= "5. Algunos pueden incluir comparaciones con otras tecnologías o tendencias relevantes en el campo.\n";
+            $prompt .= "6. El lenguaje debe ser natural y conversacional, como el que usaría un experto real en un foro.\n";
+            $prompt .= "7. Evitar comentarios genéricos que podrían aplicarse a cualquier artículo.\n\n";
+            $prompt .= "Formato esperado: JSON con un array llamado 'comments' donde cada elemento es un comentario.";
+            
+            // Configuración del cliente OpenAI
+            $apiKey = config('services.openai.api_key');
+            
+            if (empty($apiKey)) {
+                $this->warn("API Key de OpenAI no configurada. Configure OPENAI_API_KEY en .env");
+                return [];
+            }
+            
+            // Log para debugging
+            $this->info("API Key configurada: " . substr($apiKey, 0, 3) . "..." . substr($apiKey, -3));
+            
+            try {
+                $client = \OpenAI::factory()
+                    ->withApiKey($apiKey)
+                    ->withHttpClient(new Client(['verify' => false]))
+                    ->make();
+                
+                $this->info("Cliente OpenAI configurado correctamente");
+            } catch (\Exception $e) {
+                $this->error("Error al configurar cliente OpenAI: " . $e->getMessage());
+                throw $e;
+            }
+            
+            $this->info("Enviando solicitud a OpenAI para generar comentarios...");
+            
+            // Configuración para la llamada a ChatGPT
+            $modelParams = [
+                'model' => 'gpt-3.5-turbo',
+                'messages' => [
+                    [
+                        'role' => 'system', 
+                        'content' => "Eres un generador de comentarios realistas y técnicamente precisos para noticias sobre {$categoryName}. Crea comentarios que demuestren conocimiento profundo del tema y hagan referencias específicas al contenido del artículo."
+                    ],
+                    ['role' => 'user', 'content' => $prompt],
+                ],
+                'temperature' => 0.8, // Mayor temperatura para más variación
+                'max_tokens' => 1000,
+            ];
+            
+            // Si estamos usando una versión reciente de la API, especificar el formato de respuesta
+            if (method_exists('\OpenAI\Responses\Chat\CreateResponse', 'format')) {
+                $modelParams['response_format'] = ['type' => 'json_object'];
+            }
+            
+            $result = $client->chat()->create($modelParams);
+            
+            $this->info("Respuesta recibida de OpenAI");
+            
+            // Obtener el contenido de la respuesta
+            $content = $result->choices[0]->message->content;
+            $this->info("Contenido recibido: " . substr($content, 0, 100) . "...");
+            
+            // Intentar extraer el JSON - varios métodos de fallback
+            try {
+                // Método 1: Decodificar directo como JSON completo
+                $decoded = json_decode($content, true);
+                
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    // Verificar si es un array plano o tiene una clave 'comments'
+                    if (isset($decoded['comments']) && is_array($decoded['comments'])) {
+                        return $decoded['comments'];
+                    } else if (is_array($decoded)) {
+                        // Si es un array pero no tiene 'comments', podría ser directo
+                        $firstKey = array_key_first($decoded);
+                        
+                        // Si parece un array numérico o si el primer valor es string, probablemente es el formato esperado
+                        if (is_numeric($firstKey) || is_string(reset($decoded))) {
+                            return array_values($decoded); // Devolver valores como array indexado
+                        }
+                    }
+                }
+                
+                // Método 2: Buscar un array JSON en el texto
+                if (preg_match('/\[\s*".*"\s*\]/s', $content, $matches)) {
+                    $arrayJson = $matches[0];
+                    $decoded = json_decode($arrayJson, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        return $decoded;
+                    }
+                }
+                
+                // Método 3: Buscar la propiedad "comments" como JSON
+                if (preg_match('/"comments"\s*:\s*(\[.*\])/s', $content, $matches)) {
+                    $arrayJson = $matches[1];
+                    $decoded = json_decode($arrayJson, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        return $decoded;
+                    }
+                }
+                
+                // Si todo falla, intentar extraer líneas manualmente
+                $lines = explode("\n", $content);
+                $comments = [];
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    // Quitar comillas, números, etc. que podrían ser parte de la estructura JSON
+                    $line = preg_replace('/^[0-9"]+[.:]?\s*/', '', $line);
+                    $line = preg_replace('/^[\[\{]|[\]\}]$/', '', $line);
+                    $line = trim($line, '"\'[], ');
+                    
+                    if (!empty($line) && strlen($line) > 10) { // Mínimo 10 caracteres para ser un comentario
+                        $comments[] = $line;
+                    }
+                }
+                
+                if (count($comments) > 0) {
+                    return $comments;
+                }
+                
+                // Si todo lo anterior falló, devolver un error
+                $this->error("No se pudo extraer comentarios del formato JSON");
+                return [];
+                
+            } catch (\Exception $e) {
+                $this->error("Error al procesar la respuesta de OpenAI: " . $e->getMessage());
+                return [];
+            }
+        } catch (\Exception $e) {
+            $this->error("Error al generar comentarios con IA: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Genera un nombre aleatorio para comentarios de invitados
+     * 
+     * @return string Nombre aleatorio
+     */
+    private function getRandomName()
+    {
+        $firstNames = [
+            'Miguel', 'Laura', 'Carlos', 'Ana', 'Javier', 'Sofía', 'Pablo', 
+            'Elena', 'Diego', 'Lucía', 'Fernando', 'Marta', 'Sergio', 'Carmen',
+            'Daniel', 'Julia', 'Jorge', 'Cristina', 'Ricardo', 'Patricia'
+        ];
+        
+        $lastNames = [
+            'García', 'López', 'Martínez', 'Rodríguez', 'González', 'Pérez', 
+            'Sánchez', 'Fernández', 'Ruiz', 'Hernández', 'Jiménez', 'Torres',
+            'Vega', 'Moreno', 'Castro', 'Silva', 'Ramírez', 'Flores', 'Vargas'
+        ];
+        
+        $firstName = $firstNames[array_rand($firstNames)];
+        $lastName = $lastNames[array_rand($lastNames)];
+        
+        // 50% de probabilidad de incluir apellido
+        if (rand(0, 1) == 1) {
+            return $firstName . ' ' . $lastName;
+        }
+        
+        return $firstName;
+    }
+    
+    /**
+     * Genera un email falso a partir de un nombre
+     * 
+     * @param string $name Nombre para generar email
+     * @return string Email generado
+     */
+    private function generateFakeEmail($name) 
+    {
+        $domains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'protonmail.com'];
+        $domain = $domains[array_rand($domains)];
+        
+        // Normalizar nombre para email (quitar espacios, tildes, etc.)
+        $emailName = Str::slug(str_replace(' ', '.', $name), '.');
+        
+        // Añadir número aleatorio al 30% de los emails
+        if (rand(0, 10) > 7) {
+            $emailName .= rand(1, 999);
+        }
+        
+        return $emailName . '@' . $domain;
     }
 }

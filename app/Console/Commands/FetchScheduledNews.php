@@ -63,7 +63,10 @@ class FetchScheduledNews extends Command
                 $exitCode = Artisan::call('news:fetch', [
                     '--category' => $category,
                     '--count' => $newsPerCategory,
-                    '--language' => 'es'
+                    '--language' => 'es',
+                    '--generate-comments'=> 1,
+                    '--min-comments'=>2,
+                    '--max-comments'=>3
                 ]);
                 
                 $commandOutput = Artisan::output();

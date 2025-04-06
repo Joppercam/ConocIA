@@ -272,16 +272,31 @@ class NewsController extends Controller
                     
                 // Registrar estadísticas por día para análisis
                 try {
-                    DB::table('news_views_stats')->updateOrInsert(
-                        [
-                            'news_id' => $article->id,
-                            'view_date' => now()->format('Y-m-d')
-                        ],
-                        [
-                            'views' => DB::raw('views + 1'),
-                            'updated_at' => now()
-                        ]
-                    );
+                        // Verificar si el registro existe
+                        $exists = DB::table('news_views_stats')
+                        ->where('news_id', $article->id)
+                        ->where('view_date', now()->format('Y-m-d'))
+                        ->exists();
+                        
+                    if ($exists) {
+                        // Si existe, actualizar incrementando las vistas
+                        DB::table('news_views_stats')
+                            ->where('news_id', $article->id)
+                            ->where('view_date', now()->format('Y-m-d'))
+                            ->update([
+                                'views' => DB::raw('views + 1'),
+                                'updated_at' => now()
+                            ]);
+                    } else {
+                        // Si no existe, insertar un nuevo registro con 1 vista
+                        DB::table('news_views_stats')
+                            ->insert([
+                                'news_id' => $article->id,
+                                'view_date' => now()->format('Y-m-d'),
+                                'views' => 1,
+                                'updated_at' => now()
+                            ]);
+                    }
                 } catch (\Exception $e) {
                     // Log error de forma silenciosa
                     Log::error('Error al actualizar estadísticas de vistas: ' . $e->getMessage());
