@@ -44,6 +44,8 @@ return [
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
         'organization' => env('OPENAI_ORGANIZATION'),
+        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+        'model_name' => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
     ],
 
     

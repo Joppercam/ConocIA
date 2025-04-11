@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\NewsApiController;
 use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\VerificadorController;
 use App\Http\Controllers\Admin\TikTokController;
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,15 @@ use App\Http\Controllers\Admin\TikTokController;
 |--------------------------------------------------------------------------
 */
 
+// Rutas del verificador
+Route::prefix('verificador')->name('verificador.')->group(function () {
+    Route::get('/', [App\Http\Controllers\VerificadorController::class, 'index'])->name('index');
+    Route::get('/{id}', [App\Http\Controllers\VerificadorController::class, 'show'])->name('show');
+// Ruta para estadísticas del verificador
+Route::get('/estadisticas', [App\Http\Controllers\VerificadorStatsController::class, 'index'])->name('stats')
+    ->middleware(['auth', 'can:view-stats']); // Ajustar según tus requisitos de permisos
+
+});
 
 // Rutas para sitemaps
 Route::get('sitemap.xml', [SitemapController::class, 'index']);

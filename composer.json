@@ -9,13 +9,16 @@
         "php": "^8.2",
         "abraham/twitteroauth": "^7.0",
         "anhskohbo/no-captcha": "^3.7",
+        "doctrine/dbal": "^4.2",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
         "openai-php/laravel": "^0.11.0",
         "pizzaminded/facebook-http-foundation-bridge": "^1.1",
-        "predis/predis": "^2.3"
+        "predis/predis": "^2.3",
+        "symfony/css-selector": "^7.2",
+        "symfony/dom-crawler": "^7.2"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",

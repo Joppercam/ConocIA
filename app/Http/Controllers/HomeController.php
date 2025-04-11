@@ -7,6 +7,9 @@ use App\Models\Research;
 use App\Models\GuestPost;
 use App\Models\Category;
 use App\Models\Column;
+use App\Models\Verification;
+use App\Models\Claim;
+use App\Models\ClaimCategory;
 use Illuminate\Support\Str;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -207,6 +210,72 @@ class HomeController extends Controller
                     ->get();
             });
             
+            // INICIO: NUEVAS CONSULTAS PARA EL VERIFICADOR AUTÓNOMO - Con verificación de tablas
+            $featuredVerifications = collect([]);
+            $recentVerifications = collect([]);
+            $verificationCategories = collect([]);
+            
+            // Verificar si existen las tablas necesarias
+            $verificationsTableExists = Schema::hasTable('verifications');
+            $claimsTableExists = Schema::hasTable('claims');
+            $claimCategoriesTableExists = Schema::hasTable('claim_categories');
+            
+            if ($verificationsTableExists && $claimsTableExists && $claimCategoriesTableExists) {
+                try {
+                    // Verificaciones destacadas (las más vistas en los últimos 7 días)
+                    $featuredVerifications = Cache::remember('home_featured_verifications', 1800, function () {
+                        return Verification::with(['claim.categories'])
+                            ->orderBy('views_count', 'desc')
+                            ->whereBetween('created_at', [now()->subDays(7), now()])
+                            ->take(2)
+                            ->get()
+                            ->each(function ($verification) {
+                                $this->addVerdictAttributes($verification);
+                            });
+                    });
+                } catch (\Exception $e) {
+                    Log::error("Error al cargar featuredVerifications: " . $e->getMessage());
+                    $featuredVerifications = collect([]);
+                }
+                
+                try {
+                    // Verificaciones recientes
+                    $recentVerifications = Cache::remember('home_recent_verifications', 1800, function () {
+                        return Verification::with(['claim.categories'])
+                            ->orderBy('created_at', 'desc')
+                            ->take(4)
+                            ->get()
+                            ->each(function ($verification) {
+                                $this->addVerdictAttributes($verification);
+                            });
+                    });
+                } catch (\Exception $e) {
+                    Log::error("Error al cargar recentVerifications: " . $e->getMessage());
+                    $recentVerifications = collect([]);
+                }
+                
+                try {
+                    // Categorías de verificaciones
+                    $verificationCategories = Cache::remember('home_claim_categories', 3600, function () {
+                        return ClaimCategory::withCount(['claims' => function($query) {
+                                $query->whereHas('verification');
+                            }])
+                            ->orderBy('claims_count', 'desc')
+                            ->get();
+                    });
+                } catch (\Exception $e) {
+                    Log::error("Error al cargar claim categories: " . $e->getMessage());
+                    $verificationCategories = collect([]);
+                }
+            } else {
+                Log::info("Tablas del verificador aún no existen: verificationsTable=" . 
+                         ($verificationsTableExists ? 'sí' : 'no') . ", claimsTable=" . 
+                         ($claimsTableExists ? 'sí' : 'no') . ", categoriesTable=" . 
+                         ($claimCategoriesTableExists ? 'sí' : 'no'));
+            }
+            
+            // FIN: NUEVAS CONSULTAS PARA EL VERIFICADOR AUTÓNOMO
+            
             // Devolver solo los datos, no las funciones
             return [
                 'featuredNews' => $featuredNews,
@@ -219,7 +288,11 @@ class HomeController extends Controller
                 'featuredCategories' => $featuredCategories,
                 'researchArticles' => $researchArticles,
                 'featuredResearch' => $featuredResearch,
-                'mostCommented' => $mostCommented
+                'mostCommented' => $mostCommented,
+                // Nuevas variables para el verificador autónomo
+                'featuredVerifications' => $featuredVerifications,
+                'recentVerifications' => $recentVerifications,
+                'categories' => $verificationCategories
             ];
         });
         
@@ -286,6 +359,12 @@ class HomeController extends Controller
             return $category->icon;
         };
         
+        // IMPORTANTE: Asegurar que todas las variables existan, incluso si están vacías
+        // Esto evita errores con la función compact()
+        if (!isset($featuredVerifications)) $featuredVerifications = collect([]);
+        if (!isset($recentVerifications)) $recentVerifications = collect([]);
+        if (!isset($categories)) $categories = collect([]);
+        
         // Pasar todas las variables y funciones a la vista
         return view('home', compact(
             'featuredNews',
@@ -298,11 +377,18 @@ class HomeController extends Controller
             'featuredCategories',
             'researchArticles',
             'featuredResearch',
-            'mostCommented'
+            'mostCommented',
+            // Nuevas variables para el verificador autónomo
+            'featuredVerifications',
+            'recentVerifications',
+            'categories'
         ))->with([
             'getImageUrl' => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,
-            'getCategoryIcon' => $getCategoryIcon
+            'getCategoryIcon' => $getCategoryIcon,
+            'getCategoryName' => function($verification) {
+                return $this->getCategoryName($verification);
+            }
         ]);
     }
 
@@ -347,6 +433,33 @@ class HomeController extends Controller
             
             return $newsWithValidImages->concat($newsWithoutValidImages->take($additionalCount));
         });
+    }
+
+    /**
+     * Añadir atributos relacionados con el veredicto a un modelo de verificación
+     * 
+     * @param \App\Models\Verification $verification
+     * @return \App\Models\Verification
+     */
+    private function addVerdictAttributes($verification)
+    {
+        // Añadir clase CSS para el veredicto
+        $verification->verdict_class = match($verification->verdict) {
+            'true' => 'true',
+            'partially_true' => 'partially_true',
+            'false' => 'false',
+            default => 'unverifiable',
+        };
+        
+        // Añadir etiqueta para el veredicto
+        $verification->verdict_label = match($verification->verdict) {
+            'true' => 'Verdadero',
+            'partially_true' => 'Parcialmente verdadero',
+            'false' => 'Falso',
+            default => 'No verificable',
+        };
+        
+        return $verification;
     }
 
     /**
@@ -438,6 +551,44 @@ class HomeController extends Controller
                               ->latest('published_at')
                               ->paginate(5);
         
-        return view('search', compact('news', 'researches', 'guestPosts', 'query'));
+        // Buscar en verificaciones (NUEVO) - Con verificación de tabla
+        $verifications = collect([]);
+        if (Schema::hasTable('verifications') && Schema::hasTable('claims')) {
+            try {
+                $verifications = Verification::with('claim.categories')
+                    ->whereHas('claim', function($q) use ($query) {
+                        $q->where('statement', 'like', "%{$query}%")
+                          ->orWhere('source', 'like', "%{$query}%")
+                          ->orWhere('context', 'like', "%{$query}%");
+                    })
+                    ->orWhere('summary', 'like', "%{$query}%")
+                    ->orWhere('analysis', 'like', "%{$query}%")
+                    ->latest()
+                    ->paginate(5)
+                    ->each(function ($verification) {
+                        $this->addVerdictAttributes($verification);
+                    });
+            } catch (\Exception $e) {
+                Log::error("Error al buscar verificaciones: " . $e->getMessage());
+                $verifications = collect([]);
+            }
+        }
+        
+        return view('search', compact('news', 'researches', 'guestPosts', 'verifications', 'query'));
+    }
+
+    // En HomeController.php
+    private function getCategoryName($verification) {
+        if (!$verification || !$verification->claim) {
+            return 'Sin categoría';
+        }
+        
+        $categories = $verification->claim->categories;
+        
+        if (!$categories || $categories->isEmpty()) {
+            return 'Sin categoría';
+        }
+        
+        return $categories->first()->name;
     }
 }

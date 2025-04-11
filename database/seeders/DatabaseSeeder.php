@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,      // Finalmente usuarios (que dependen de roles)
             NewsSeeder::class,
             ResearchSeeder::class,
+            ClaimCategorySeeder::class,
+            TrustedSourceSeeder::class,
         ]);
     }
 }

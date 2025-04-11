@@ -429,6 +429,13 @@
                                <i class="fas fa-upload me-1 d-lg-none"></i>Enviar Investigación
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('verificador.*') ? 'active' : '' }}" 
+                            href="{{ route('verificador.index') }}"
+                            aria-current="{{ request()->routeIs('verificador.*') ? 'page' : 'false' }}">
+                            <i class="fas fa-check-circle me-1 d-lg-none"></i>Verificador
+                            </a>
+                        </li>
                     </ul>
                     
 

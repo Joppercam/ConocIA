@@ -958,6 +958,249 @@
     </section>
 
 
+
+
+
+
+<!-- Banner de título destacado para Verificador Autónomo -->
+<div class="py-3 bg-dark text-white mb-0 position-relative overflow-hidden">
+    <!-- Elementos decorativos de fondo -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+        <div class="position-absolute start-0 top-50 translate-middle-y opacity-10">
+            <i class="fas fa-check-circle fa-3x"></i>
+        </div>
+        <div class="position-absolute end-0 top-50 translate-middle-y opacity-10">
+            <i class="fas fa-search-plus fa-3x"></i>
+        </div>
+    </div>
+    
+    <div class="container position-relative">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h3 class="mb-0 text-uppercase fw-bold fs-4">
+                    <span class="d-inline-block border-bottom border-2 pb-1">Verificador Autónomo</span>
+                </h3>
+                <p class="mb-0 mt-1 text-white-50 fs-6">Verificación de afirmaciones con tecnología de inteligencia artificial</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección Verificador Autónomo -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <h3 class="section-title fs-5">Verificador Autónomo de Noticias</h3>
+                <p class="text-muted small">Descubre la veracidad de las afirmaciones en las noticias con nuestro sistema de verificación automatizado</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ route('verificador.index') }}" class="btn btn-outline-primary btn-sm">
+                    Ver todas las verificaciones <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Contenido principal (izquierda) -->
+            <div class="col-lg-8">
+                <div class="mb-3">
+                    <h3 class="border-start border-4 border-primary ps-3 fs-6">Verificaciones Recientes</h3>
+                </div>
+                
+                <div class="row">
+                    @forelse($featuredVerifications->take(2) as $verification)
+                        <div class="col-md-12 mb-4">
+                            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-shadow transition-300">
+                                <div class="card-body p-0">
+                                    <div class="row g-0">
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center p-3" 
+                                             style="background-color: {{ $verification->verdict_class == 'true' ? '#d1fae5' : ($verification->verdict_class == 'partially_true' ? '#fef3c7' : ($verification->verdict_class == 'false' ? '#fee2e2' : '#e5e7eb')) }}">
+                                            <div class="text-center">
+                                                <div class="d-flex justify-content-center mb-2">
+                                                    <span class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                          style="width: 70px; height: 70px; background-color: {{ $verification->verdict_class == 'true' ? '#10B981' : ($verification->verdict_class == 'partially_true' ? '#F59E0B' : ($verification->verdict_class == 'false' ? '#EF4444' : '#6B7280')) }}; color: white;">
+                                                        <i class="fas {{ $verification->verdict_class == 'true' ? 'fa-check' : ($verification->verdict_class == 'partially_true' ? 'fa-adjust' : ($verification->verdict_class == 'false' ? 'fa-times' : 'fa-question')) }} fa-2x"></i>
+                                                    </span>
+                                                </div>
+                                                <h5 class="verification-result m-0" 
+                                                    style="color: {{ $verification->verdict_class == 'true' ? '#047857' : ($verification->verdict_class == 'partially_true' ? '#92400e' : ($verification->verdict_class == 'false' ? '#b91c1c' : '#4b5563')) }}; font-weight: bold;">
+                                                    {{ $verification->verdict_label }}
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 p-4">
+                                            <div class="mb-2">
+                                                <span class="badge bg-light text-secondary border rounded-pill fs-9">
+                                                    <i class="fas fa-tag me-1"></i>{{ $getCategoryName($verification) }}
+                                                </span>
+                                                <span class="badge bg-light text-secondary border rounded-pill fs-9 ms-1">
+                                                    <i class="far fa-calendar-alt me-1"></i>{{ $verification->created_at->format('d/m/Y') }}
+                                                </span>
+                                            </div>
+                                            
+                                            <h5 class="card-title mb-2 fw-bold">
+                                                <a href="{{ route('verificador.show', $verification->id) }}" class="text-decoration-none text-dark stretched-link">
+                                                    {{ $verification->claim->statement }}
+                                                </a>
+                                            </h5>
+                                            
+                                            <p class="card-text text-secondary mb-3 small">{{ Str::limit($verification->summary, 120) }}</p>
+                                            
+                                            <div class="d-flex align-items-center text-muted small">
+                                                <span class="me-3"><i class="far fa-building me-1"></i>{{ $verification->claim->source }}</span>
+                                                <span><i class="far fa-eye me-1"></i>{{ $verification->views_count }} vistas</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                No hay verificaciones destacadas disponibles.
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+                
+                <div class="row g-3">
+                    @forelse($recentVerifications->take(4) as $verification)
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm rounded-3 hover-shadow transition-300">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="verification-badge {{ $verification->verdict_class }} me-2 px-2 py-1 rounded-pill text-xs">
+                                            {{ $verification->verdict_label }}
+                                        </span>
+                                        <span class="text-sm text-gray-500">{{ $getCategoryName($verification) }}</span>
+                                    </div>
+                                    
+                                    <h6 class="card-title mb-2 fw-bold fs-7">
+                                        <a href="{{ route('verificador.show', $verification->id) }}" class="text-decoration-none text-dark stretched-link">
+                                            {{ Str::limit($verification->claim->statement, 70) }}
+                                        </a>
+                                    </h6>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-2 text-sm text-gray-500 fs-9">
+                                        <div>
+                                            <span>Fuente: {{ $verification->claim->source }}</span>
+                                        </div>
+                                        <div>
+                                            {{ $verification->created_at->format('d/m/Y') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                No hay verificaciones recientes disponibles.
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ route('verificador.index') }}" class="btn btn-primary rounded-pill px-4">
+                        Ver todas las verificaciones <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar derecho -->
+            <div class="col-lg-4">
+                <!-- Sobre nuestro verificador -->
+                <div class="card border-0 shadow-sm rounded-3 mb-4 overflow-hidden">
+                    <div class="card-header bg-info text-white p-2">
+                        <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
+                            <i class="fas fa-robot me-2"></i> Sobre nuestro Verificador
+                        </h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <p class="mb-3">El Verificador Autónomo utiliza tecnología de IA para analizar afirmaciones y determinar su veracidad automáticamente basándose en fuentes confiables.</p>
+                        
+                        <div class="d-flex mb-3">
+                            <div class="me-3 text-info">
+                                <i class="fas fa-cogs fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="fs-7 fw-bold">Completamente autónomo</h6>
+                                <p class="small text-muted mb-0">Verificación sin intervención humana mediante IA avanzada</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-3">
+                            <div class="me-3 text-success">
+                                <i class="fas fa-database fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="fs-7 fw-bold">Fuentes confiables</h6>
+                                <p class="small text-muted mb-0">Verificación basada en datos contrastados y fuentes de confianza</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <div class="me-3 text-warning">
+                                <i class="fas fa-tachometer-alt fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="fs-7 fw-bold">Actualización constante</h6>
+                                <p class="small text-muted mb-0">Nuevas verificaciones cada hora con información actualizada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Categorías más verificadas -->
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                    <div class="card-header bg-primary text-white p-2">
+                        <h5 class="mb-0 d-flex align-items-center fw-bold fs-6">
+                            <i class="fas fa-chart-pie me-2"></i> Categorías más verificadas
+                        </h5>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="categories-chart mb-3">
+                            <canvas id="verificadorCategoriesChart" height="200"></canvas>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            @foreach($categories->take(5) as $category)
+                                <a href="{{ route('verificador.index', ['category' => $category->id]) }}" 
+                                class="badge bg-light border rounded-pill text-decoration-none fs-9 text-secondary">
+                                    <i class="fas fa-tag me-1"></i>{{ $category->name }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light p-2 text-center">
+                        <a href="{{ route('verificador.stats') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            <i class="fas fa-chart-bar me-1"></i>Ver estadísticas completas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- Al final de tu archivo de vista -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
     <!-- Toast para éxito -->
@@ -985,6 +1228,27 @@
 @endsection
 
 @push('styles')
+<style>
+.verification-badge.true {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+.verification-badge.partially_true {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.verification-badge.false {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.verification-badge.unverifiable {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
+</style>
 <!-- Estilos adicionales para la sección de columnas -->
 <style>
     /* Efectos para las cards de columnas */
@@ -1634,6 +1898,55 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     `;
     document.head.appendChild(style);
+});
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Datos para el gráfico de categorías (simulados, deberás adaptarlos)
+    const categoriesCanvas = document.getElementById('verificadorCategoriesChart');
+    
+    if (categoriesCanvas) {
+        const categoryData = {
+            labels: [
+                @foreach($categories->take(5) as $category)
+                    '{{ $category->name }}',
+                @endforeach
+            ],
+            datasets: [{
+                data: [
+                    @foreach($categories->take(5) as $category)
+                        {{ $category->claims_count ?? rand(5, 25) }},
+                    @endforeach
+                ],
+                backgroundColor: [
+                    '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#6B7280'
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        new Chart(categoriesCanvas, {
+            type: 'doughnut',
+            data: categoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 });
 </script>
 @endpush

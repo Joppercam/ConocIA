@@ -98,6 +98,19 @@ class Kernel extends ConsoleKernel
                     // Solo enviar notificación si hay guiones pendientes
                     return \App\Models\TikTokScript::where('status', 'pending_review')->exists();
                 });
+
+
+    
+        // Ejecutar crawling cada 1 hora
+        $schedule->command('verificador:process')
+        ->hourly()
+        ->appendOutputTo(storage_path('logs/verificador.log'))
+        ->emailOutputOnFailure(config('mail.admin_email'));
+        
+        // Limpiar el caché de verificaciones antiguas cada día a medianoche
+        $schedule->command('verificador:clean-cache')
+            ->dailyAt('00:00')
+        ->appendOutputTo(storage_path('logs/verificador.log'));
     }
 
     /**

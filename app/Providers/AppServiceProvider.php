@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\View;
 use App\Observers\NewsObserver;
 use App\Models\News;
 use App\Http\ViewComposers\TikTokComposer;
+use App\Models\Verification;
+use App\Observers\VerificationObserver;
+use Illuminate\Support\Facades\Http;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -66,5 +70,14 @@ class AppServiceProvider extends ServiceProvider
          // Registrar el ViewComposer para TikTok
          View::composer('admin.layouts.app', TikTokComposer::class);
          View::composer('admin.partials.sidebar', TikTokComposer::class);
+
+
+         // Registrar el observador de verificaciones
+        Verification::observe(VerificationObserver::class);
+
+        // Configurar la verificación SSL globalmente para entornos de desarrollo
+        if (app()->environment('local', 'development')) {
+            Http::globalOptions(['verify' => false]);
+        }
     }
 }
