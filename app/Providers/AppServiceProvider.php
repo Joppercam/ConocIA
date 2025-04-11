@@ -12,6 +12,7 @@ use App\Models\SocialMediaQueue;
 use Illuminate\Support\Facades\View;
 use App\Observers\NewsObserver;
 use App\Models\News;
+use App\Http\ViewComposers\TikTokComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,5 +62,9 @@ class AppServiceProvider extends ServiceProvider
                 $view->with(compact('pendingSocialCount', 'pendingSocialPosts'));
             }
         });
+
+         // Registrar el ViewComposer para TikTok
+         View::composer('admin.layouts.app', TikTokComposer::class);
+         View::composer('admin.partials.sidebar', TikTokComposer::class);
     }
 }

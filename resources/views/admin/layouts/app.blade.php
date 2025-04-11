@@ -226,6 +226,48 @@
                         <li><a href="{{ route('admin.social-media.queue') }}">Cola de Publicación</a></li>
                     </ul>
                 </li>
+
+                
+                
+                
+
+                <li class="{{ request()->is('admin/tiktok*') ? 'active' : '' }}">
+                    <a href="#tiktokSubmenu" data-bs-toggle="collapse" 
+                    aria-expanded="{{ request()->is('admin/tiktok*') ? 'true' : 'false' }}" 
+                    class="dropdown-toggle">
+                        <i class="fab fa-tiktok"></i> TikTok
+                        @if(isset($pendingTikTokScriptsCount) && $pendingTikTokScriptsCount > 0)
+                            <span class="badge bg-danger float-end">{{ $pendingTikTokScriptsCount }}</span>
+                        @endif
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->is('admin/tiktok*') ? 'show' : '' }}" id="tiktokSubmenu">
+                        <li>
+                            <a href="{{ route('admin.tiktok.index') }}">
+                                <i class="fas fa-tachometer-alt fa-sm fa-fw mr-2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.tiktok.recommendations') }}">
+                                <i class="fas fa-lightbulb fa-sm fa-fw mr-2"></i> Recomendaciones
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.tiktok.stats') }}">
+                                <i class="fas fa-chart-bar fa-sm fa-fw mr-2"></i> Estadísticas
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.tiktok.help') }}">
+                                <i class="fas fa-question-circle fa-sm fa-fw mr-2"></i> Guía de Uso
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+
+
+
                 <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <a href="#usuariosSubmenu" data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.usuarios.*') ? 'true' : 'false' }}" class="dropdown-toggle">
                         <i class="fas fa-users me-2"></i> Usuarios

@@ -83,6 +83,21 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('news:archive')->dailyAt('02:00');
    
+
+                // Generar guiones de TikTok automáticamente dos veces al día
+                $schedule->command('tiktok:generate-scripts --count=5')
+                ->twiceDaily(9, 16)
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path('logs/tiktok-scripts.log'));
+        
+        // Enviar notificación a los administradores sobre nuevos guiones pendientes de revisión
+        $schedule->command('tiktok:notify-pending-scripts')
+                ->dailyAt('10:00')
+                ->weekdays()
+                ->when(function () {
+                    // Solo enviar notificación si hay guiones pendientes
+                    return \App\Models\TikTokScript::where('status', 'pending_review')->exists();
+                });
     }
 
     /**

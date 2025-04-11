@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\NewsApiController;
 use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Admin\TikTokController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -195,6 +196,47 @@ Route::get('investigacion/categoria/{category:slug}', [App\Http\Controllers\Rese
 Route::get('/privacidad', [App\Http\Controllers\PagesController::class, 'privacy'])->name('pages.privacy');
 Route::get('/terminos', [App\Http\Controllers\PagesController::class, 'terms'])->name('pages.terms');
 Route::get('/cookies', [App\Http\Controllers\PagesController::class, 'cookies'])->name('pages.cookies');    
+
+
+// Rutas para el módulo TikTok en el panel de administración
+Route::prefix('admin/tiktok')->name('admin.tiktok.')->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+    
+    // Dashboard principal
+    Route::get('/', [TikTokController::class, 'index'])->name('index');
+    
+    // Recomendaciones de artículos
+    Route::get('/recommendations', [TikTokController::class, 'recommendations'])->name('recommendations');
+    
+    // Formulario para crear un guión manualmente
+    Route::get('/create/{articleId}', [TikTokController::class, 'create'])->name('create');
+    
+    // Guardar guión creado manualmente
+    Route::post('/store', [TikTokController::class, 'store'])->name('store');
+    
+    // Generar guión automáticamente
+    Route::get('/generate/{articleId}', [TikTokController::class, 'generate'])->name('generate');
+    
+    // Editar guión
+    Route::get('/edit/{id}', [TikTokController::class, 'edit'])->name('edit');
+    
+    // Actualizar guión
+    Route::put('/update/{id}', [TikTokController::class, 'update'])->name('update');
+    
+    // Actualizar estado del guión
+    Route::put('/update-status/{id}', [TikTokController::class, 'updateStatus'])->name('update-status');
+    
+    // Registrar métricas
+    Route::post('/record-metrics/{id}', [TikTokController::class, 'recordMetrics'])->name('record-metrics');
+    
+    // Estadísticas
+    Route::get('/stats', [TikTokController::class, 'stats'])->name('stats');
+    
+    // Página de ayuda
+    Route::get('/help', function () {
+        return view('admin.tiktok.help');
+    })->name('help');
+});
+
 
 // Rutas de administración
 Route::prefix('admin')->name('admin.')->group(function () {
