@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use App\Helpers\ImageHelper; 
 
 class ColumnController extends Controller
 {
@@ -16,6 +17,9 @@ class ColumnController extends Controller
      */
     protected const CACHE_TIME = 3600;
 
+    /**
+     * Muestra el listado de columnas.
+     */
     /**
      * Muestra el listado de columnas.
      */
@@ -70,25 +74,6 @@ class ColumnController extends Controller
         // Extraer datos de la caché
         extract($viewData);
         
-        // Helper functions para la vista (similar a ResearchController)
-        $getImageUrl = function($imageName, $type = 'column', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
         // Función para obtener el estilo de una categoría
         $getCategoryStyle = function($category) {
             if (!$category || !isset($category->color)) {
@@ -113,7 +98,9 @@ class ColumnController extends Controller
             'columnists', 
             'categories'
         ))->with([
-            'getImageUrl' => $getImageUrl,
+            'getImageUrl' => function($imageName, $type = 'column', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
             'getCategoryStyle' => $getCategoryStyle,
             'getCategoryIcon' => $getCategoryIcon
         ]);
@@ -165,25 +152,6 @@ class ColumnController extends Controller
         // Incrementar contador de vistas (fuera del caché)
         $column->increment('views');
         
-        // Helper functions para la vista
-        $getImageUrl = function($imageName, $type = 'column', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
         // Función para obtener el estilo de una categoría
         $getCategoryStyle = function($category) {
             if (!$category || !isset($category->color)) {
@@ -207,7 +175,9 @@ class ColumnController extends Controller
             'authorColumns', 
             'relatedColumns'
         ))->with([
-            'getImageUrl' => $getImageUrl,
+            'getImageUrl' => function($imageName, $type = 'column', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
             'getCategoryStyle' => $getCategoryStyle,
             'getCategoryIcon' => $getCategoryIcon
         ]);
@@ -239,25 +209,6 @@ class ColumnController extends Controller
         // Extraer datos de la caché
         extract($viewData);
         
-        // Helper functions para la vista
-        $getImageUrl = function($imageName, $type = 'column', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
         // Función para obtener el estilo de una categoría
         $getCategoryStyle = function($category) {
             if (!$category || !isset($category->color)) {
@@ -280,7 +231,9 @@ class ColumnController extends Controller
             'columns', 
             'category'
         ))->with([
-            'getImageUrl' => $getImageUrl,
+            'getImageUrl' => function($imageName, $type = 'column', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
             'getCategoryStyle' => $getCategoryStyle,
             'getCategoryIcon' => $getCategoryIcon
         ]);
@@ -312,25 +265,6 @@ class ColumnController extends Controller
         // Extraer datos de la caché
         extract($viewData);
         
-        // Helper functions para la vista
-        $getImageUrl = function($imageName, $type = 'author', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
         // Función para obtener el estilo de una categoría
         $getCategoryStyle = function($category) {
             if (!$category || !isset($category->color)) {
@@ -353,7 +287,9 @@ class ColumnController extends Controller
             'columns', 
             'author'
         ))->with([
-            'getImageUrl' => $getImageUrl,
+            'getImageUrl' => function($imageName, $type = 'author', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
             'getCategoryStyle' => $getCategoryStyle,
             'getCategoryIcon' => $getCategoryIcon
         ]);

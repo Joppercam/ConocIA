@@ -147,9 +147,10 @@ class Research extends Model
     /**
      * Scope para investigaciones más citadas.
      */
-    public function scopeCited($query)
+    public function scopeCited($query, $minCitations = 1)
     {
-        return $query->orderBy('citations', 'desc');
+        return $query->where('citations', '>=', $minCitations)
+        ->orderBy('citations', 'desc');
     }
 
     /**

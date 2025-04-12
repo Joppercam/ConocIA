@@ -44,7 +44,7 @@ class ResearchController extends Controller
                     return $category->research_count > 0;
                 })
                 ->take(10);
-    
+
             // Obtener investigaciones destacadas
             $featuredResearch = Research::with(['category', 'author'])
                 ->featured()
@@ -63,51 +63,20 @@ class ResearchController extends Controller
         // Extraer datos de la caché
         extract($viewData);
         
-        // Helper functions para la vista
-        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
-        // Función para obtener el estilo de una categoría
-        $getCategoryStyle = function($category) {
-            if (!$category || !isset($category->color)) {
-                return 'background-color: var(--primary-color);';
-            }
-            
-            return 'background-color: ' . $category->color . ';';
-        };
-        
-        // Función para obtener el icono de una categoría
-        $getCategoryIcon = function($category) {
-            if (!$category || !isset($category->icon)) {
-                return 'fa-tag';
-            }
-            
-            return $category->icon;
-        };
-            
         return view('research.index', compact(
             'researches', 
             'categories', 
             'featuredResearch'
         ))->with([
-            'getImageUrl' => $getImageUrl,
-            'getCategoryStyle' => $getCategoryStyle,
-            'getCategoryIcon' => $getCategoryIcon
+            'getImageUrl' => function($imageName, $type = 'research', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
+            'getCategoryStyle' => function($category) {
+                return CategoryHelper::getCategoryStyle($category);
+            },
+            'getCategoryIcon' => function($category) {
+                return CategoryHelper::getCategoryIcon($category);
+            }
         ]);
     }
 
@@ -130,7 +99,7 @@ class ResearchController extends Controller
                 ->where('slug', $slug)
                 ->first() 
                 ?? Research::with(['category', 'author', 'tags', 'comments'])
-                   ->findOrFail($slug);
+                ->findOrFail($slug);
             
             // Obtener investigaciones relacionadas - Por categoría y tags
             $relatedResearch = $this->getRelatedResearch($research);
@@ -197,52 +166,21 @@ class ResearchController extends Controller
         // Usando el método del modelo
         $research->incrementViews();
         
-        // Helper functions para la vista
-        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
-        // Función para obtener el estilo de una categoría
-        $getCategoryStyle = function($category) {
-            if (!$category || !isset($category->color)) {
-                return 'background-color: var(--primary-color);';
-            }
-            
-            return 'background-color: ' . $category->color . ';';
-        };
-        
-        // Función para obtener el icono de una categoría
-        $getCategoryIcon = function($category) {
-            if (!$category || !isset($category->icon)) {
-                return 'fa-tag';
-            }
-            
-            return $category->icon;
-        };
-        
         return view('research.show', compact(
             'research',
             'relatedResearch',
             'mostViewedResearch',
             'popularTypes'
         ))->with([
-            'getImageUrl' => $getImageUrl,
-            'getCategoryStyle' => $getCategoryStyle,
-            'getCategoryIcon' => $getCategoryIcon
+            'getImageUrl' => function($imageName, $type = 'research', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
+            'getCategoryStyle' => function($category) {
+                return CategoryHelper::getCategoryStyle($category);
+            },
+            'getCategoryIcon' => function($category) {
+                return CategoryHelper::getCategoryIcon($category);
+            }
         ]);
     }
 
@@ -378,52 +316,21 @@ class ResearchController extends Controller
         // Extraer datos de la caché
         extract($viewData);
         
-        // Helper functions para la vista
-        $getImageUrl = function($imageName, $type = 'research', $size = 'medium') {
-            // Verificar si la imagen existe
-            if (!empty($imageName) && $imageName != 'default.jpg' && 
-                !str_contains($imageName, 'default') && !str_contains($imageName, 'placeholder')) {
-                
-                // Si la ruta ya comienza con 'storage/', solo usamos asset()
-                if (Str::startsWith($imageName, 'storage/')) {
-                    return asset($imageName);
-                }
-                
-                // De lo contrario, construimos la ruta completa
-                return asset('storage/' . $type . '/' . $imageName);
-            }
-            
-            // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
-        };
-        
-        // Función para obtener el estilo de una categoría
-        $getCategoryStyle = function($category) {
-            if (!$category || !isset($category->color)) {
-                return 'background-color: var(--primary-color);';
-            }
-            
-            return 'background-color: ' . $category->color . ';';
-        };
-        
-        // Función para obtener el icono de una categoría
-        $getCategoryIcon = function($category) {
-            if (!$category || !isset($category->icon)) {
-                return 'fa-tag';
-            }
-            
-            return $category->icon;
-        };
-            
         return view('research.index', compact(
             'researches', 
             'categories', 
             'featuredResearch', 
             'category'
         ))->with([
-            'getImageUrl' => $getImageUrl,
-            'getCategoryStyle' => $getCategoryStyle,
-            'getCategoryIcon' => $getCategoryIcon
+            'getImageUrl' => function($imageName, $type = 'research', $size = 'medium') {
+                return ImageHelper::getImageUrl($imageName, $type, $size);
+            },
+            'getCategoryStyle' => function($category) {
+                return CategoryHelper::getCategoryStyle($category);
+            },
+            'getCategoryIcon' => function($category) {
+                return CategoryHelper::getCategoryIcon($category);
+            }
         ]);
     }
     
