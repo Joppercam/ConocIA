@@ -253,7 +253,7 @@ class FetchNewsWithAI extends Command
         
         foreach ($newsData as $newsItem) {
             // Utilizamos OpenAI para mejorar y extender el contenido
-            $enhancedContent = $this->enhanceContentWithAI($newsItem, $categoryName);
+            $enhancedContent = $this->processNewsWithMultipleStrategies($newsItem, $categoryName);
             
             if (!$enhancedContent) {
                 // Si falla la IA, usamos el contenido original
@@ -554,6 +554,7 @@ class FetchNewsWithAI extends Command
         return $placeholderUrl;
     }
     
+
     /**
      * Obtiene noticias del endpoint "everything" de NewsAPI
      */
@@ -596,12 +597,30 @@ class FetchNewsWithAI extends Command
                 }
                 
                 return collect($responseData['articles'] ?? [])->map(function ($article) {
+                    // Obtener el contenido y limpiar truncamiento
+                    $content = $article['content'] ?? $article['description'] ?? '';
+                    
+                    // Detectar y limpiar contenido truncado (patrón "[+X chars]")
+                    $content = preg_replace('/\s*\[\+\d+ chars\]$/', '', $content);
+                    
+                    // Detectar y limpiar otras formas de truncamiento comunes
+                    $content = preg_replace('/\.\.\.\s*$/', '', $content);
+                    
+                    // Eliminar cualquier problema de caracteres extraños al final
+                    $content = trim($content);
+                    
+                    $this->info("Contenido procesado: " . substr($content, 0, 50) . "...");
+                    
                     return [
                         'title' => $article['title'] ?? '',
-                        'content' => $article['content'] ?? $article['description'] ?? '',
+                        'content' => $content,
                         'url' => $article['url'] ?? '',
                         'image' => $article['urlToImage'] ?? null,
                         'source' => $article['source']['name'] ?? 'Unknown',
+                        'is_truncated' => (
+                            strpos($article['content'] ?? '', '[+') !== false || 
+                            strlen($content) < 100
+                        ), // Marcar si detectamos truncamiento
                     ];
                 })->toArray();
             }
@@ -633,20 +652,38 @@ class FetchNewsWithAI extends Command
             // Extraer palabras clave del título y contenido para enriquecer el contexto
             $keywords = $this->extractKeywords($news['title'] . ' ' . $news['content']);
             
+            // Determinar el enfoque del prompt basado en la detección de truncamiento
+            $isTruncated = $news['is_truncated'] ?? false;
+            $contentLength = strlen($news['content']);
+            
+            $this->info("Contenido: " . ($isTruncated ? "TRUNCADO" : "COMPLETO") . " - Longitud: $contentLength caracteres");
+            
             // Preparamos el prompt para la IA específico para noticias de tecnología
             $prompt = "Actúa como un periodista especializado en tecnología y noticias tech, con enfoque en {$categoryName}. A continuación hay un fragmento de una noticia:\n\n";
             $prompt .= "Título: {$news['title']}\n";
             $prompt .= "Contenido: {$news['content']}\n";
             $prompt .= "Palabras clave: " . implode(', ', $keywords) . "\n\n";
+            
+            // Instrucciones adicionales si detectamos que el contenido está truncado
+            if ($isTruncated || $contentLength < 500) {
+                $prompt .= "IMPORTANTE: El contenido proporcionado está TRUNCADO o INCOMPLETO. Es tu tarea COMPLETAR la noticia basándote en el título y el fragmento disponible.\n";
+                $prompt .= "Debes CREAR Y EXPANDIR el contenido para formar un artículo periodístico completo y coherente, manteniendo la temática y el enfoque del fragmento original.\n";
+                $prompt .= "La noticia debe tener al menos 800 palabras y estar estructurada como un artículo profesional completo. NO menciones en el texto que la noticia estaba truncada.\n\n";
+            } else {
+                $prompt .= "El contenido proporcionado está completo, pero debe ser mejorado y expandido.\n\n";
+            }
+
             $prompt .= "Por favor, reescribe y expande esta noticia en un formato periodístico profesional en español, con un enfoque especializado en {$categoryName}, siguiendo estas instrucciones:\n\n";
             $prompt .= "1. Si la noticia está en inglés, tradúcela al español manteniendo la terminología técnica precisa.\n";
-            $prompt .= "2. El artículo debe tener una extensión mínima de 600 palabras, estructurado con introducción, desarrollo (dividido en 2-3 subtemas) y conclusión.\n";
+            $prompt .= "2. El artículo debe tener una extensión mínima de " . ($isTruncated ? "800" : "600") . " palabras, estructurado con introducción, desarrollo (dividido en 2-3 subtemas) y conclusión.\n";
             $prompt .= "3. Mantén los hechos principales pero mejora el estilo, añade más contexto técnico y detalles relevantes.\n";
             $prompt .= "4. Incluye subtítulos en formato <h2> para estructurar el contenido.\n";
             $prompt .= "5. Si es relevante, menciona el impacto de esta noticia en el campo de {$categoryName} y su posible evolución futura.\n";
             $prompt .= "6. Utiliza terminología precisa del campo de {$categoryName}.\n";
-            $prompt .= "7. No inventes hechos que no estén en el contenido original, pero sí puedes añadir contexto relevante sobre la tecnología mencionada.\n";
+            $prompt .= "7. " . ($isTruncated ? "Puedes añadir información contextual y detalles plausibles para completar el artículo." : "No inventes hechos que no estén en el contenido original, pero sí puedes añadir contexto relevante sobre la tecnología mencionada.") . "\n";
             $prompt .= "8. Asegúrate de que el excerpt sea atractivo y capture la esencia de la noticia en 2-3 oraciones (máximo 200 caracteres).\n\n";
+            
+            // IMPORTANTE: Incluir la palabra JSON explícitamente para que funcione el parámetro response_format
             $prompt .= "Devuelve tu respuesta en formato JSON con estas claves:\n";
             $prompt .= "- 'title' (título mejorado en español, atractivo y SEO-friendly)\n";
             $prompt .= "- 'content' (contenido completo en español con formato HTML, bien estructurado con párrafos y subtítulos)\n";
@@ -670,14 +707,21 @@ class FetchNewsWithAI extends Command
             
             $this->info("Enviando solicitud a OpenAI...");
             
+            // Usamos siempre GPT-4o para mejor calidad y soporte de JSON
+            $modelToUse = 'gpt-4o';
+            $temperature = $isTruncated ? 0.8 : 0.7; // Más creatividad si necesitamos completar
+            
+            $this->info("Usando modelo: $modelToUse con temperatura: $temperature");
+            
+            // IMPORTANTE: También incluimos la palabra JSON en el mensaje del sistema
             $result = $client->chat()->create([
-                'model' => 'gpt-4o', // Actualizado a un modelo más potente para contenido de mayor calidad
+                'model' => $modelToUse,
                 'messages' => [
-                    ['role' => 'system', 'content' => "Eres un periodista especializado en tecnología, con enfoque particular en {$categoryName}. Eres experto en redactar noticias técnicas extensas, precisas y accesibles. Tu objetivo es crear contenido de alta calidad que explique conceptos técnicos de manera comprensible, manteniendo el rigor técnico. Estructuras tus artículos con introducción, desarrollo y conclusión, usando subtítulos adecuados."],
+                    ['role' => 'system', 'content' => "Eres un periodista especializado en tecnología, con enfoque particular en {$categoryName}. Crea contenido de alta calidad bien estructurado y responde siempre en formato JSON según se te indique."],
                     ['role' => 'user', 'content' => $prompt],
                 ],
                 'response_format' => ['type' => 'json_object'],
-                'temperature' => 0.7, // Temperatura moderada para balancear creatividad y precisión
+                'temperature' => $temperature,
                 'max_tokens' => 2500, // Asegurar suficiente espacio para respuestas largas
             ]);
             
@@ -704,10 +748,10 @@ class FetchNewsWithAI extends Command
                 $this->warn("Contenido demasiado corto ($contentLength palabras), solicitando ampliación...");
                 
                 // Intento de expandir el contenido con una segunda llamada a la API
-                $expansionPrompt = "El siguiente es un artículo corto sobre {$categoryName}. Por favor, expándelo significativamente añadiendo más contexto, detalles técnicos, y posibles implicaciones futuras, manteniendo el tono periodístico profesional:\n\n" . $enhancedContent['content'];
+                $expansionPrompt = "El siguiente es un artículo corto sobre {$categoryName}. Por favor, expándelo significativamente añadiendo más contexto, detalles técnicos, y posibles implicaciones futuras, manteniendo el tono periodístico profesional. Devuelve el resultado como texto plano, no en formato JSON:\n\n" . $enhancedContent['content'];
                 
                 $expansionResult = $client->chat()->create([
-                    'model' => 'gpt-4o',
+                    'model' => $modelToUse,
                     'messages' => [
                         ['role' => 'system', 'content' => "Expande este artículo sobre {$categoryName} a una longitud de al menos 600 palabras, añadiendo contexto, detalles técnicos y estructura con subtítulos."],
                         ['role' => 'user', 'content' => $expansionPrompt],
@@ -1065,6 +1109,7 @@ class FetchNewsWithAI extends Command
         $this->info("Se crearon " . count($createdUsers) . " usuarios ficticios con éxito");
         return $createdUsers;
     }
+    
     /**
      * Genera comentarios automáticos para un conjunto de noticias
      * 
@@ -1125,11 +1170,30 @@ class FetchNewsWithAI extends Command
                     }
                     
                     try {
+                        // Verificar que el comentario sea una cadena de texto (string)
+                        if (is_array($commentContent)) {
+                            // Si recibimos un array (posiblemente un objeto), intentar convertirlo a string
+                            if (isset($commentContent['text'])) {
+                                $commentText = $commentContent['text'];
+                            } elseif (isset($commentContent['content'])) {
+                                $commentText = $commentContent['content'];
+                            } elseif (isset($commentContent['comment'])) {
+                                $commentText = $commentContent['comment'];
+                            } else {
+                                // Si no encontramos una clave obvia, convertir el array a JSON
+                                $commentText = json_encode($commentContent);
+                            }
+                            
+                            $this->warn("Comentario recibido como array, convertido a string: " . substr($commentText, 0, 30) . "...");
+                        } else {
+                            $commentText = (string)$commentContent;
+                        }
+                        
                         // Crear el objeto comentario
                         $comment = new Comment();
                         $comment->commentable_type = 'App\\Models\\News'; // Usamos string completa para evitar problemas
                         $comment->commentable_id = $news->id;
-                        $comment->content = $commentContent;
+                        $comment->content = $commentText;
                         $comment->status = 'approved'; // Automáticamente aprobado
                         
                         // Determinar si este comentario será de usuario o invitado
@@ -1159,7 +1223,7 @@ class FetchNewsWithAI extends Command
                         }
                         
                         // Debugging antes de guardar
-                        $this->info("DEBUG - Guardando comentario: " . substr($commentContent, 0, 30) . "...");
+                        $this->info("DEBUG - Guardando comentario: " . substr($commentText, 0, 30) . "...");
                         
                         // Guardar el comentario
                         $saved = $comment->save();
@@ -1171,7 +1235,7 @@ class FetchNewsWithAI extends Command
                             $comment->updated_at = $comment->created_at;
                             $comment->save();
                             
-                            $this->info("Comentario #{$index} guardado con ID {$comment->id}: " . substr($commentContent, 0, 50) . "...");
+                            $this->info("Comentario #{$index} guardado con ID {$comment->id}: " . substr($commentText, 0, 50) . "...");
                             $successCount++;
                         } else {
                             $this->error("No se pudo guardar el comentario (sin excepción)");
@@ -1193,12 +1257,7 @@ class FetchNewsWithAI extends Command
     }
 
     /**
-     * Utiliza OpenAI para generar comentarios relacionados con una noticia
-     * 
-     * @param News $news Noticia para la que generar comentarios
-     * @param int $count Número de comentarios a generar
-     * @param string $categoryName Nombre de la categoría para contextualizar
-     * @return array Array con los comentarios generados
+     * Utiliza OpenAI (GPT-4o) para generar comentarios relacionados con una noticia
      */
     private function generateCommentsWithAI($news, $count, $categoryName)
     {
@@ -1223,7 +1282,9 @@ class FetchNewsWithAI extends Command
             $prompt .= "5. Algunos pueden incluir comparaciones con otras tecnologías o tendencias relevantes en el campo.\n";
             $prompt .= "6. El lenguaje debe ser natural y conversacional, como el que usaría un experto real en un foro.\n";
             $prompt .= "7. Evitar comentarios genéricos que podrían aplicarse a cualquier artículo.\n\n";
-            $prompt .= "Formato esperado: JSON con un array llamado 'comments' donde cada elemento es un comentario.";
+            
+            // IMPORTANTE: Incluir la palabra JSON explícitamente
+            $prompt .= "Devuelve tu respuesta en formato JSON con un array llamado 'comments' donde cada elemento es un comentario.";
             
             // Configuración del cliente OpenAI
             $apiKey = config('services.openai.api_key');
@@ -1250,26 +1311,23 @@ class FetchNewsWithAI extends Command
             
             $this->info("Enviando solicitud a OpenAI para generar comentarios...");
             
+            // Usar el modelo GPT-4o para mejor rendimiento y compatibilidad con JSON
+            $modelToUse = 'gpt-4o';
+            
             // Configuración para la llamada a ChatGPT
-            $modelParams = [
-                'model' => 'gpt-3.5-turbo',
+            $result = $client->chat()->create([
+                'model' => $modelToUse,
                 'messages' => [
                     [
                         'role' => 'system', 
-                        'content' => "Eres un generador de comentarios realistas y técnicamente precisos para noticias sobre {$categoryName}. Crea comentarios que demuestren conocimiento profundo del tema y hagan referencias específicas al contenido del artículo."
+                        'content' => "Eres un generador de comentarios realistas y técnicamente precisos para noticias. Genera respuestas en formato JSON según las instrucciones."
                     ],
                     ['role' => 'user', 'content' => $prompt],
                 ],
+                'response_format' => ['type' => 'json_object'],
                 'temperature' => 0.8, // Mayor temperatura para más variación
                 'max_tokens' => 1000,
-            ];
-            
-            // Si estamos usando una versión reciente de la API, especificar el formato de respuesta
-            if (method_exists('\OpenAI\Responses\Chat\CreateResponse', 'format')) {
-                $modelParams['response_format'] = ['type' => 'json_object'];
-            }
-            
-            $result = $client->chat()->create($modelParams);
+            ]);
             
             $this->info("Respuesta recibida de OpenAI");
             
@@ -1277,71 +1335,27 @@ class FetchNewsWithAI extends Command
             $content = $result->choices[0]->message->content;
             $this->info("Contenido recibido: " . substr($content, 0, 100) . "...");
             
-            // Intentar extraer el JSON - varios métodos de fallback
-            try {
-                // Método 1: Decodificar directo como JSON completo
-                $decoded = json_decode($content, true);
-                
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    // Verificar si es un array plano o tiene una clave 'comments'
-                    if (isset($decoded['comments']) && is_array($decoded['comments'])) {
-                        return $decoded['comments'];
-                    } else if (is_array($decoded)) {
-                        // Si es un array pero no tiene 'comments', podría ser directo
-                        $firstKey = array_key_first($decoded);
-                        
-                        // Si parece un array numérico o si el primer valor es string, probablemente es el formato esperado
-                        if (is_numeric($firstKey) || is_string(reset($decoded))) {
-                            return array_values($decoded); // Devolver valores como array indexado
-                        }
-                    }
-                }
-                
-                // Método 2: Buscar un array JSON en el texto
-                if (preg_match('/\[\s*".*"\s*\]/s', $content, $matches)) {
-                    $arrayJson = $matches[0];
-                    $decoded = json_decode($arrayJson, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        return $decoded;
-                    }
-                }
-                
-                // Método 3: Buscar la propiedad "comments" como JSON
-                if (preg_match('/"comments"\s*:\s*(\[.*\])/s', $content, $matches)) {
-                    $arrayJson = $matches[1];
-                    $decoded = json_decode($arrayJson, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        return $decoded;
-                    }
-                }
-                
-                // Si todo falla, intentar extraer líneas manualmente
-                $lines = explode("\n", $content);
-                $comments = [];
-                foreach ($lines as $line) {
-                    $line = trim($line);
-                    // Quitar comillas, números, etc. que podrían ser parte de la estructura JSON
-                    $line = preg_replace('/^[0-9"]+[.:]?\s*/', '', $line);
-                    $line = preg_replace('/^[\[\{]|[\]\}]$/', '', $line);
-                    $line = trim($line, '"\'[], ');
-                    
-                    if (!empty($line) && strlen($line) > 10) { // Mínimo 10 caracteres para ser un comentario
-                        $comments[] = $line;
-                    }
-                }
-                
-                if (count($comments) > 0) {
-                    return $comments;
-                }
-                
-                // Si todo lo anterior falló, devolver un error
-                $this->error("No se pudo extraer comentarios del formato JSON");
-                return [];
-                
-            } catch (\Exception $e) {
-                $this->error("Error al procesar la respuesta de OpenAI: " . $e->getMessage());
+            // Decodificar el JSON
+            $decoded = json_decode($content, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->error("Error al decodificar JSON: " . json_last_error_msg());
                 return [];
             }
+            
+            // Extraer los comentarios del JSON
+            if (isset($decoded['comments']) && is_array($decoded['comments'])) {
+                return $decoded['comments'];
+            }
+            
+            // Alternativa: si los comentarios están en la raíz del JSON
+            if (is_array($decoded) && isset($decoded[0])) {
+                return $decoded;
+            }
+            
+            $this->error("No se encontró el array de comentarios en la respuesta");
+            return [];
+            
         } catch (\Exception $e) {
             $this->error("Error al generar comentarios con IA: " . $e->getMessage());
             return [];
@@ -1399,4 +1413,172 @@ class FetchNewsWithAI extends Command
         
         return $emailName . '@' . $domain;
     }
+
+    /**
+     * Intenta obtener el contenido completo de un artículo mediante web scraping
+     * Se utiliza como último recurso cuando detectamos contenido truncado
+     * 
+     * @param string $url URL del artículo original
+     * @return string|null Contenido obtenido o null si falla
+     */
+    private function attemptContentScrapingFromUrl($url)
+    {
+        if (empty($url)) {
+            $this->warn("URL vacía, no se puede realizar scraping");
+            return null;
+        }
+
+        $this->info("Intentando obtener contenido completo desde: $url");
+        
+        try {
+            // Configurar opciones para intentar evitar restricciones
+            $options = [
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language' => 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'Connection' => 'keep-alive',
+                    'Upgrade-Insecure-Requests' => '1',
+                    'Cache-Control' => 'max-age=0',
+                ],
+                'timeout' => 10,
+                'verify' => false, // Eliminar en producción
+            ];
+            
+            // Realizar la petición HTTP
+            $response = Http::withOptions($options)->get($url);
+            
+            if (!$response->successful()) {
+                $this->warn("Error al obtener contenido: HTTP " . $response->status());
+                return null;
+            }
+            
+            $html = $response->body();
+            
+            // Detectar si la respuesta es válida y contiene HTML real
+            if (empty($html) || strlen($html) < 1000) {
+                $this->warn("Contenido obtenido demasiado corto o vacío");
+                return null;
+            }
+            
+            // Intentar extraer contenido principal con heurísticas simples
+            // Esto es muy básico y puede necesitar ajustes según las fuentes que se estén procesando
+            
+            // Eliminar scripts, estilos, comentarios, etc.
+            $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+            $html = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $html);
+            $html = preg_replace('/<!--(.*?)-->/s', '', $html);
+            
+            // Intentar detectar contenido principal
+            $contentPatterns = [
+                // Patrones comunes para contenido de artículos
+                '/<article[^>]*>(.*?)<\/article>/is',
+                '/<div[^>]*class=["\'](?:.*?article.*?|.*?content.*?|.*?main.*?)["\'][^>]*>(.*?)<\/div>/is',
+                '/<section[^>]*class=["\'](?:.*?article.*?|.*?content.*?|.*?main.*?)["\'][^>]*>(.*?)<\/section>/is',
+                '/<div[^>]*id=["\'](?:.*?article.*?|.*?content.*?|.*?main.*?)["\'][^>]*>(.*?)<\/div>/is',
+            ];
+            
+            $extractedContent = null;
+            
+            foreach ($contentPatterns as $pattern) {
+                if (preg_match($pattern, $html, $matches)) {
+                    $extractedContent = $matches[1];
+                    
+                    // Verificar si el contenido extraído tiene una longitud razonable
+                    if (strlen(strip_tags($extractedContent)) > 300) {
+                        $this->info("Contenido extraído con patrón: " . substr($pattern, 0, 40) . "...");
+                        break;
+                    } else {
+                        $extractedContent = null; // Demasiado corto, seguir buscando
+                    }
+                }
+            }
+            
+            if (!$extractedContent) {
+                // Si no se encontró contenido con los patrones, usar una extracción básica de párrafos
+                preg_match_all('/<p[^>]*>(.*?)<\/p>/is', $html, $paragraphs);
+                
+                if (!empty($paragraphs[0])) {
+                    // Tomar solo párrafos que parezcan contenido real (más de 100 caracteres)
+                    $validParagraphs = array_filter($paragraphs[0], function($p) {
+                        return strlen(strip_tags($p)) > 100;
+                    });
+                    
+                    if (count($validParagraphs) > 2) {
+                        $extractedContent = implode("\n", array_slice($validParagraphs, 0, 10)); // Tomar hasta 10 párrafos
+                        $this->info("Contenido extraído usando método de párrafos");
+                    }
+                }
+            }
+            
+            if ($extractedContent) {
+                // Limpiar el contenido de etiquetas innecesarias
+                $cleanContent = strip_tags($extractedContent, '<p><h1><h2><h3><h4><h5><h6><ul><ol><li><strong><em><b><i>');
+                
+                // Eliminar espacios en blanco excesivos
+                $cleanContent = preg_replace('/\s+/', ' ', $cleanContent);
+                $cleanContent = trim($cleanContent);
+                
+                $this->info("Scraping exitoso, contenido obtenido: " . strlen($cleanContent) . " caracteres");
+                return $cleanContent;
+            }
+            
+            $this->warn("No se pudo extraer contenido significativo");
+            return null;
+            
+        } catch (\Exception $e) {
+            $this->error("Error durante scraping: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Método para procesar una noticia con múltiples estrategias:
+     * 1. Si el contenido original está completo, usarlo
+     * 2. Si está truncado, intentar scraping
+     * 3. Si el scraping falla, usar IA para completar
+     */
+    private function processNewsWithMultipleStrategies($newsItem, $categoryName)
+    {
+        // Verificar si el contenido está truncado o es demasiado corto
+        $isTruncated = $newsItem['is_truncated'] ?? false;
+        $contentLength = strlen($newsItem['content']);
+        
+        $this->info("Procesando noticia: {$newsItem['title']}");
+        $this->info("Estado del contenido: " . ($isTruncated ? "TRUNCADO" : "COMPLETO") . " - Longitud: $contentLength caracteres");
+        
+        // Si el contenido está truncado y tenemos URL, intentar scraping
+        if (($isTruncated || $contentLength < 500) && !empty($newsItem['url'])) {
+            $this->info("Contenido truncado detectado, intentando scraping...");
+            
+            $scrapedContent = $this->attemptContentScrapingFromUrl($newsItem['url']);
+            
+            if ($scrapedContent && strlen($scrapedContent) > $contentLength) {
+                $this->info("Scraping exitoso! Reemplazando contenido truncado por contenido completo");
+                
+                // Actualizar el item de noticia con el contenido scrapeado
+                $newsItem['content'] = $scrapedContent;
+                $newsItem['is_truncated'] = false; // Ya no está truncado
+                
+                // Usar IA para mejorar el contenido scrapeado (que ahora está completo)
+                return $this->enhanceContentWithAI($newsItem, $categoryName);
+            } else {
+                $this->warn("Scraping fallido o contenido obtenido no suficientemente mejor que el original");
+            }
+        }
+        
+        // Si llegamos aquí, o bien el contenido no está truncado,
+        // o no pudimos obtener mejor contenido mediante scraping.
+        // Usamos IA directamente para mejorar/completar el contenido.
+        return $this->enhanceContentWithAI($newsItem, $categoryName);
+    }
+
+    /**
+     * Modificación al método handle para integrar las nuevas funcionalidades
+     * Reemplaza la llamada a enhanceContentWithAI con processNewsWithMultipleStrategies
+     */
+    // En el método handle(), reemplaza:
+    // $enhancedContent = $this->enhanceContentWithAI($newsItem, $categoryName);
+    // Por:
+    // $enhancedContent = $this->processNewsWithMultipleStrategies($newsItem, $categoryName);
 }
