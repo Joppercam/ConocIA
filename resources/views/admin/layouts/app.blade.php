@@ -175,6 +175,20 @@
                         <i class="fas fa-pen-fancy"></i> Columnas
                     </a>
                 </li>
+                <!-- Agrega este código después de la sección de TikTok en el sidebar -->
+                <li class="{{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
+                    <a href="#videosSubmenu" data-bs-toggle="collapse" 
+                    aria-expanded="{{ request()->routeIs('admin.videos.*') ? 'true' : 'false' }}" 
+                    class="dropdown-toggle">
+                        <i class="fas fa-video"></i> Videos
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.videos.*') ? 'show' : '' }}" id="videosSubmenu">
+                        <li><a href="{{ route('admin.videos.index') }}">Todos los videos</a></li>
+                        <li><a href="{{ route('admin.videos.create') }}">Añadir nuevo</a></li>
+                        <li><a href="{{ route('admin.videos.categories.index') }}">Categorías</a></li>
+                        <li><a href="{{ route('admin.videos.platforms.index') }}">Plataformas</a></li>
+                    </ul>
+                </li>
                 <li class="{{ request()->routeIs('admin.invitados.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.invitados.pending') }}">
                         <i class="fas fa-user-edit me-2"></i> Colaboraciones 
@@ -453,6 +467,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         // Sidebar Toggle
         document.addEventListener('DOMContentLoaded', function() {

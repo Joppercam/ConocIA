@@ -24,12 +24,34 @@ use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\TikTokController;
+use App\Http\Controllers\VideoController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
 
+
+
+// Rutas para la sección de videos - Versión corregida con namespaces completos
+Route::prefix('videos')->name('videos.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\VideoController::class, 'index'])->name('index');
+    Route::get('/featured', [\App\Http\Controllers\VideoController::class, 'featured'])->name('featured');
+    Route::get('/popular', [\App\Http\Controllers\VideoController::class, 'popular'])->name('popular');
+    Route::get('/category/{category}', [\App\Http\Controllers\VideoController::class, 'byCategory'])->name('category');
+    Route::get('/tag/{tag}', [\App\Http\Controllers\VideoController::class, 'byTag'])->name('tag');
+    Route::get('/{id}', [\App\Http\Controllers\VideoController::class, 'show'])->name('show');
+    
+    // Ruta para comentarios (requiere autenticación)
+    Route::post('/{id}/comment', [\App\Http\Controllers\VideoController::class, 'storeComment'])->name('comment')->middleware('auth');
+});
+
+// Rutas API para videos
+Route::prefix('api/videos')->name('api.videos.')->group(function () {
+    Route::get('/by-category/{categoryId}', [\App\Http\Controllers\VideoController::class, 'apiGetVideosByCategory'])->name('by-category');
+    Route::get('/news-recommendations', [\App\Http\Controllers\VideoController::class, 'apiGetNewsRecommendations'])->name('news-recommendations');
+});
 
 // Rutas para sitemaps
 Route::get('sitemap.xml', [SitemapController::class, 'index']);
@@ -333,5 +355,39 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
 
+       
+         // Rutas para gestionar videos
+        Route::prefix('videos')->name('videos.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\VideoController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Admin\VideoController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Admin\VideoController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [App\Http\Controllers\Admin\VideoController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [App\Http\Controllers\Admin\VideoController::class, 'update'])->name('update');
+            Route::delete('/{id}', [App\Http\Controllers\Admin\VideoController::class, 'destroy'])->name('destroy');
+            
+            // Importación de videos
+            Route::post('/import-url', [App\Http\Controllers\Admin\VideoController::class, 'importUrl'])->name('import-url');
+            Route::post('/bulk-import', [App\Http\Controllers\Admin\VideoController::class, 'bulkImport'])->name('bulk-import');
+            
+            // Rutas para categorías de videos
+            Route::prefix('categories')->name('categories.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\VideoCategoryController::class, 'index'])->name('index');
+                Route::get('/create', [App\Http\Controllers\Admin\VideoCategoryController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\Admin\VideoCategoryController::class, 'store'])->name('store');
+                Route::get('/{category}/edit', [App\Http\Controllers\Admin\VideoCategoryController::class, 'edit'])->name('edit');
+                Route::put('/{category}', [App\Http\Controllers\Admin\VideoCategoryController::class, 'update'])->name('update');
+                Route::delete('/{category}', [App\Http\Controllers\Admin\VideoCategoryController::class, 'destroy'])->name('destroy');
+            });
+            
+            // Rutas para plataformas de videos
+            Route::prefix('platforms')->name('platforms.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\VideoPlatformController::class, 'index'])->name('index');
+                Route::get('/create', [App\Http\Controllers\Admin\VideoPlatformController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\Admin\VideoPlatformController::class, 'store'])->name('store');
+                Route::get('/{platform}/edit', [App\Http\Controllers\Admin\VideoPlatformController::class, 'edit'])->name('edit');
+                Route::put('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'update'])->name('update');
+                Route::delete('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'destroy'])->name('destroy');
+            });
+        });
     });
 });

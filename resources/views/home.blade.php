@@ -190,7 +190,52 @@
         </div>
     </section>
 
-    
+   
+    <!-- Sección de Videos Destacados - Diseño Compacto -->
+    <section class="py-3 border-top border-bottom" style="background-color: #f0f2f5;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h5 class="mb-md-0 mb-3 d-flex align-items-center fw-semibold" style="font-size: 0.95rem;">
+                        <i class="fas fa-video text-primary me-2"></i> Videos Destacados
+                        <span class="badge bg-primary bg-opacity-75 rounded-pill ms-2 fs-9">{{ $featuredVideos->count() }}</span>
+                    </h5>
+                </div>
+                <div class="col-md-9">
+                    <div class="video-scroll-container">
+                        <div class="d-flex gap-3 overflow-auto pb-1 hide-scrollbar">
+                            @foreach($featuredVideos->take(5) as $video)
+                            <div class="video-item position-relative flex-shrink-0" style="width: 180px;">
+                                <a href="{{ route('videos.show', $video->id) }}" class="text-decoration-none">
+                                    <div class="position-relative rounded overflow-hidden" style="height: 100px;">
+                                        <img src="{{ $video->thumbnail_url }}" alt="{{ $video->title }}" class="w-100 h-100" style="object-fit: cover;">
+                                        <div class="position-absolute bottom-0 end-0 bg-dark bg-opacity-75 text-white px-2 py-1 m-1 rounded-pill fs-9">
+                                            <i class="fas fa-play-circle me-1"></i> {{ $video->duration }}
+                                        </div>
+                                        <div class="position-absolute top-0 start-0 m-1">
+                                            <span class="badge bg-{{ $video->platform->code === 'youtube' ? 'danger' : ($video->platform->code === 'vimeo' ? 'info' : 'primary') }} bg-opacity-85 fs-9">
+                                                <i class="fab fa-{{ strtolower($video->platform->code) }}"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <h6 class="mt-2 mb-0 text-dark" style="font-size: 0.85rem; line-height: 1.2; min-height: auto; height: auto; overflow: visible;">{{ $video->title }}</h6>
+                                </a>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-2 d-none d-md-block">
+                        <a href="{{ route('videos.index') }}" class="btn btn-sm btn-outline-primary px-3 fs-9">
+                            Ver galería completa <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
     <!-- Sección de Categorías Destacadas - Diseño Equilibrado -->
     <section class="py-3 border-bottom" style="background-color: #f9f9f9;">
     <div class="container">
@@ -956,7 +1001,7 @@
             </div>
         </div>
     </section>
-
+    @include('components.home-videos-section')
 
 <!-- Al final de tu archivo de vista -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
@@ -985,6 +1030,38 @@
 @endsection
 
 @push('styles')
+
+<!-- Estilos para sección de videos compacta -->
+<style>
+.video-scroll-container {
+    position: relative;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.video-item {
+    transition: transform 0.2s ease;
+}
+
+.video-item:hover {
+    transform: translateY(-3px);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
 <!-- Estilos adicionales para la sección de columnas -->
 <style>
     /* Efectos para las cards de columnas */

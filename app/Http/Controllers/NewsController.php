@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
-use App\Helpers\ImageHelper; // Ya existe este helper en el sistema
+use App\Helpers\ImageHelper;
+use App\Services\KeywordExtractorService; // Corregido: Importamos desde el namespace correcto
 
 class NewsController extends Controller
 {
@@ -236,6 +237,18 @@ class NewsController extends Controller
             
             return $category->icon;
         };
+
+        // Si deseas extraer palabras clave en el servidor (opcional)
+        if ($article instanceof News && !$article->keywords) {
+            try {
+                $keywordExtractor = app(KeywordExtractorService::class);
+                $keywords = $keywordExtractor->extractKeywords($article->content);
+                $article->keywords = implode(',', $keywords);
+                $article->save();
+            } catch (\Exception $e) {
+                Log::error('Error al extraer palabras clave: ' . $e->getMessage());
+            }
+        }
         
         return view('news.show', compact(
             'article', 

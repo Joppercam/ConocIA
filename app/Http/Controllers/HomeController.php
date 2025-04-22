@@ -285,6 +285,15 @@ class HomeController extends Controller
             
             return $category->icon;
         };
+
+
+            // Datos para la sección de videos compacta
+        $featuredVideos = \App\Models\Video::where('is_featured', true)
+        ->with('platform')
+        ->orderBy('published_at', 'desc')
+        ->take(5)
+        ->get();
+
         
         // Pasar todas las variables y funciones a la vista
         return view('home', compact(
@@ -298,7 +307,8 @@ class HomeController extends Controller
             'featuredCategories',
             'researchArticles',
             'featuredResearch',
-            'mostCommented'
+            'mostCommented',
+            'featuredVideos'
         ))->with([
             'getImageUrl' => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,

@@ -53,11 +53,26 @@ return [
     ],
 
     'twitter' => [
-    'consumer_key' => env('TWITTER_CONSUMER_KEY'),
-    'consumer_secret' => env('TWITTER_CONSUMER_SECRET'),
-    'access_token' => env('TWITTER_ACCESS_TOKEN'),
-    'access_token_secret' => env('TWITTER_ACCESS_TOKEN_SECRET'),
-    'bearer_token' => env('TWITTER_BEARER_TOKEN'),
-],
+        'consumer_key' => env('TWITTER_CONSUMER_KEY'),
+        'consumer_secret' => env('TWITTER_CONSUMER_SECRET'),
+        'access_token' => env('TWITTER_ACCESS_TOKEN'),
+        'access_token_secret' => env('TWITTER_ACCESS_TOKEN_SECRET'),
+        'bearer_token' => env('TWITTER_BEARER_TOKEN'),
+    ],
+
+    'youtube' => [
+        'key' => env('YOUTUBE_API_KEY'),
+    ],
+
+    'vimeo' => [
+        'client_id' => env('VIMEO_CLIENT_ID'),
+        'client_secret' => env('VIMEO_CLIENT_SECRET'),
+        'redirect' => env('VIMEO_REDIRECT_URI'),
+        'access_token' => env('VIMEO_ACCESS_TOKEN'),
+    ],
+
+    'dailymotion' => [
+        'key' => env('DAILYMOTION_API_KEY'),
+    ],
 
 ];
