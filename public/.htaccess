@@ -107,3 +107,13 @@ FileETag None
         Header append Vary Accept-Encoding
     </FilesMatch>
 </IfModule>
+
+# Para PHP 8.x
+<IfModule mod_php8.c>
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value memory_limit 256M
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value default_socket_timeout 120
+</IfModule>

@@ -251,4 +251,19 @@ class News extends Model
             ->toArray();
     }
 
+
+    /**
+     * Obtiene el podcast asociado a esta noticia (si existe)
+     */
+    public function podcast()
+    {
+        return $this->hasOne(Podcast::class);
+    }
+
+    // Método para comprobar si tiene podcast
+    public function hasPodcast()
+    {
+        return $this->podcast()->exists();
+    }
+
 }

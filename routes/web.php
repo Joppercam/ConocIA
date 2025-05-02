@@ -24,7 +24,7 @@ use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\TikTokController;
-use App\Http\Controllers\VideoController;
+use App\Http\Controllers\PodcastController;
 
 /*
 |--------------------------------------------------------------------------
@@ -389,5 +389,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'destroy'])->name('destroy');
             });
         });
+    });
+
+
+});
+
+// Rutas para podcasts
+Route::prefix('podcasts')->name('podcasts.')->group(function() {
+    Route::get('/', 'PodcastController@index')->name('index');
+    Route::get('/{podcast}', 'PodcastController@show')->name('show');
+    Route::post('/{podcast}/play', 'PodcastController@registerPlay')->name('play');
+});
+
+// Rutas de podcasts públicas
+Route::get('/podcasts-populares', [PodcastController::class, 'popular'])->name('podcasts.popular');
+Route::get('/podcasts-feed', [PodcastController::class, 'feed'])->name('podcasts.feed');
+
+// Las rutas de administración de podcasts deben permanecer dentro del grupo admin
+Route::prefix('admin')->name('admin.')->group(function () {
+    // ... Otras rutas de admin
+    
+    Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+        // ... Otras rutas protegidas
+        
+        // Rutas de administración de podcasts
+        Route::resource('podcasts', \App\Http\Controllers\Admin\PodcastController::class);
+        Route::post('podcasts/generate', [\App\Http\Controllers\Admin\PodcastController::class, 'generatePodcasts'])
+            ->name('podcasts.generate');
     });
 });

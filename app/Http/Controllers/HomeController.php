@@ -7,6 +7,7 @@ use App\Models\Research;
 use App\Models\GuestPost;
 use App\Models\Category;
 use App\Models\Column;
+use App\Models\Podcast;
 use Illuminate\Support\Str;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -294,7 +295,16 @@ class HomeController extends Controller
         ->take(5)
         ->get();
 
-        
+
+        // Obtener los podcasts recientes (código existente puede variar)
+        $podcasts = Cache::remember('home.podcasts', 60*60, function () {
+            return Podcast::with('news')
+                ->orderBy('published_at', 'desc')
+                ->take(5)
+                ->get();
+        });
+
+
         // Pasar todas las variables y funciones a la vista
         return view('home', compact(
             'featuredNews',
@@ -308,7 +318,8 @@ class HomeController extends Controller
             'researchArticles',
             'featuredResearch',
             'mostCommented',
-            'featuredVideos'
+            'featuredVideos',
+            'podcasts'
         ))->with([
             'getImageUrl' => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,

@@ -1001,6 +1001,14 @@
             </div>
         </div>
     </section>
+    
+
+
+    @include('components.home-podcasts-section')
+    
+
+
+
     @include('components.home-videos-section')
 
 <!-- Al final de tu archivo de vista -->
