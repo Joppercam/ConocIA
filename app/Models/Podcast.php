@@ -10,27 +10,29 @@ class Podcast extends Model
     use HasFactory;
 
     protected $fillable = [
-        'news_id',
         'title',
         'audio_path',
         'duration',
         'play_count',
         'published_at',
-        'voice'
+        'voice',
+        'news_count',
+        'is_daily_summary'
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'duration' => 'integer',
         'play_count' => 'integer',
+        'is_daily_summary' => 'boolean'
     ];
 
     /**
-     * Obtiene la noticia relacionada a este podcast
+     * Obtiene todas las noticias relacionadas a este podcast
      */
     public function news()
     {
-        return $this->belongsTo(News::class);
+        return $this->belongsToMany(News::class, 'podcast_news', 'podcast_id', 'news_id');
     }
     
     /**

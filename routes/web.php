@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\TikTokController;
 use App\Http\Controllers\PodcastController;
+use App\Http\Controllers\SpotifyIntegrationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -396,9 +397,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 // Rutas para podcasts
 Route::prefix('podcasts')->name('podcasts.')->group(function() {
-    Route::get('/', 'PodcastController@index')->name('index');
-    Route::get('/{podcast}', 'PodcastController@show')->name('show');
-    Route::post('/{podcast}/play', 'PodcastController@registerPlay')->name('play');
+    Route::get('/', [App\Http\Controllers\PodcastController::class, 'index'])->name('index');
+    Route::get('/{podcast}', [App\Http\Controllers\PodcastController::class, 'show'])->name('show');
+    Route::post('/{podcast}/play', [App\Http\Controllers\PodcastController::class, 'registerPlay'])->name('play');
 });
 
 // Rutas de podcasts públicas
@@ -417,4 +418,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('podcasts/generate', [\App\Http\Controllers\Admin\PodcastController::class, 'generatePodcasts'])
             ->name('podcasts.generate');
     });
+});
+// Agrega estas rutas antes del grupo de middleware auth
+Route::get('/admin/spotify/callback', [\App\Http\Controllers\Admin\SpotifyIntegrationController::class, 'handleSpotifyCallback'])->name('admin.spotify.callback');
+
+// Rutas para integración con Spotify - VERSIÓN CORREGIDA
+Route::prefix('admin/spotify')->name('admin.spotify.')->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\SpotifyController::class, 'dashboard'])->name('dashboard');
+    Route::get('/share/{podcast}', [\App\Http\Controllers\Admin\SpotifyController::class, 'share'])->name('share');
+    
+    // Las otras rutas que tenías antes
+    Route::get('/authorize', [\App\Http\Controllers\Admin\SpotifyIntegrationController::class, 'authorizeSpotify'])->name('authorize');
+    Route::post('/upload/{podcast}', [\App\Http\Controllers\Admin\SpotifyIntegrationController::class, 'uploadPodcast'])->name('upload');
+  
 });

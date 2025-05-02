@@ -46,7 +46,7 @@
                                 </span>
                                 <span>
                                     <i class="fas fa-newspaper me-1"></i> 
-                                    {{ $podcast->news->count() ?? 8 }} noticias
+                                    {{ $podcast->news_count ?? 0 }} noticias
                                 </span>
                             </div>
                             
@@ -76,7 +76,7 @@
                     <div class="mb-4">
                         <h5 class="mb-3">Resumen del episodio</h5>
                         <div class="podcast-description">
-                            {!! $podcast->description ?? 'Este episodio presenta un resumen de las 8 noticias más importantes del día.' !!}
+                            {!! $podcast->description ?? 'Este episodio presenta un resumen de las noticias más importantes del día.' !!}
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,16 @@
                     </h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    @forelse($podcast->news as $index => $news)
+                    @php
+                        // Obtener noticias relacionadas temporalmente hasta que implementes la relación muchos a muchos
+                        $tempNews = \App\Models\News::where('created_at', '>=', $podcast->published_at->subDay())
+                                    ->where('created_at', '<=', $podcast->published_at)
+                                    ->orderBy('views', 'desc')
+                                    ->take($podcast->news_count ?? 6)
+                                    ->get();
+                    @endphp
+                    
+                    @forelse($tempNews as $index => $news)
                     <div class="list-group-item p-3 border-bottom">
                         <div class="d-flex">
                             <div class="me-3 text-primary fw-bold fs-4" style="min-width: 30px;">
@@ -194,14 +203,14 @@
                     @php
                         $relatedNews = collect();
                         
-                        // Intenta obtener noticias relacionadas
-                        if(isset($podcast->news) && $podcast->news->isNotEmpty()) {
-                            $categories = $podcast->news->pluck('category_id')->filter()->unique()->toArray();
+                        // Usar las noticias temporales para buscar categorías relacionadas
+                        if(isset($tempNews) && $tempNews->isNotEmpty()) {
+                            $categories = $tempNews->pluck('category_id')->filter()->unique()->toArray();
                             
                             if(!empty($categories)) {
                                 $relatedNews = App\Models\News::whereIn('category_id', $categories)
                                     ->where('created_at', '>=', now()->subDays(7))
-                                    ->whereNotIn('id', $podcast->news->pluck('id')->toArray())
+                                    ->whereNotIn('id', $tempNews->pluck('id')->toArray())
                                     ->orderBy('views', 'desc')
                                     ->take(5)
                                     ->get();

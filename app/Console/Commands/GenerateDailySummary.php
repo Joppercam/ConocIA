@@ -127,6 +127,11 @@ class GenerateDailySummary extends Command
                 
                 // Crear el podcast y verificar que is_daily_summary se guarde correctamente
                 $podcast = Podcast::create($podcastData);
+
+                // Guardar relación con las noticias incluidas en el resumen
+                foreach ($newsWithSummaries as $news) {
+                    $podcast->news()->attach($news->id);
+                }
                 
                 // Verificación extra para asegurar que is_daily_summary es true
                 if (!$podcast->is_daily_summary) {

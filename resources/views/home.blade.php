@@ -2,6 +2,11 @@
 @extends('layouts.app')
 
 @section('content')
+
+{{-- Incluir el componente de podcast en la parte superior --}}
+    @include('components.podcast-hero-banner')
+
+    
     <!-- Hero Section con Noticias y Columnas -->
     <section class="hero-news-section">
         <div class="hero-overlay">

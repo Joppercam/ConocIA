@@ -35,29 +35,19 @@
                     </div>
                     
                     <div class="my-4">
-                        <h5>Noticia relacionada</h5>
+                        <h5>Información del Resumen</h5>
                         <div class="border p-3 rounded">
-                            <h6>{{ $podcast->news->title }}</h6>
+                            <h6>{{ $podcast->title }}</h6>
                             <p class="mb-1">
-                                <small class="text-muted">
-                                    Publicado: {{ $podcast->news->created_at->format('d/m/Y') }} | 
-                                    Autor: {{ $podcast->news->author ?? 'Sistema' }}
-                                </small>
+                                <small class="text-muted">Resumen diario publicado: {{ $podcast->published_at->format('d/m/Y') }}</small>
                             </p>
                             <hr>
-                            <div class="news-content" style="max-height: 300px; overflow-y: auto;">
-                                {!! $podcast->news->content !!}
-                            </div>
-                            <div class="mt-3">
-                                <a href="{{ route('admin.news.edit', $podcast->news_id) }}" class="btn btn-sm btn-outline-primary">
-                                    Editar noticia
-                                </a>
-                                <a href="{{ route('news.show', $podcast->news_id) }}" class="btn btn-sm btn-outline-info" target="_blank">
-                                    Ver en sitio
-                                </a>
+                            <div class="alert alert-info">
+                                Este podcast es un resumen diario que contiene las noticias más importantes del día anterior.
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

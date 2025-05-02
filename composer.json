@@ -9,6 +9,7 @@
         "php": "^8.2",
         "abraham/twitteroauth": "^7.0",
         "anhskohbo/no-captcha": "^3.7",
+        "jwilsson/spotify-web-api-php": "^6.2",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",

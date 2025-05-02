@@ -50,7 +50,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Título</th>
-                            <th>Noticia</th>
+                            <th>Tipo</th>
                             <th>Fecha de publicación</th>
                             <th>Duración</th>
                             <th>Reproducciones</th>
@@ -63,9 +63,7 @@
                                 <td>{{ $podcast->id }}</td>
                                 <td>{{ $podcast->title }}</td>
                                 <td>
-                                    <a href="{{ route('admin.news.edit', $podcast->news_id) }}" target="_blank">
-                                        Ver noticia
-                                    </a>
+                                    <span class="badge badge-primary">Resumen diario</span>
                                 </td>
                                 <td>{{ $podcast->published_at->format('d/m/Y H:i') }}</td>
                                 <td>{{ $podcast->formatted_duration }}</td>
@@ -95,7 +93,7 @@
             </div>
             
             <div class="mt-3">
-                {{ $podcasts->links() }}
+                {!! $podcasts->links('pagination::bootstrap-4') !!}
             </div>
         </div>
     </div>

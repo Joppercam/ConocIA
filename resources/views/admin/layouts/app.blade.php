@@ -175,6 +175,32 @@
                         <i class="fas fa-pen-fancy"></i> Columnas
                     </a>
                 </li>
+                <!-- Agrega este código siguiendo el mismo formato que la sección de videos -->
+                <li class="{{ request()->routeIs('admin.podcasts.*') ? 'active' : '' }}">
+                    <a href="#podcastsSubmenu" data-bs-toggle="collapse" 
+                    aria-expanded="{{ request()->routeIs('admin.podcasts.*') ? 'true' : 'false' }}" 
+                    class="dropdown-toggle">
+                        <i class="fas fa-podcast"></i> Podcasts
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.podcasts.*') ? 'show' : '' }}" id="podcastsSubmenu">
+                        <li><a href="{{ route('admin.podcasts.index') }}">Todos los podcasts</a></li>
+                        <li><a href="{{ route('admin.podcasts.create') }}">Crear nuevo</a></li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('generate-podcasts-form').submit();">
+                                Generar automático
+                            </a>
+                            <form id="generate-podcasts-form" action="{{ route('admin.podcasts.generate') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                        </li>
+                        <!-- Busca en tu sidebar donde están las otras opciones de menú y añade esto -->
+                        <li class="{{ request()->routeIs('admin.spotify.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.spotify.dashboard') }}">
+                                <i class="fab fa-spotify"></i> Compartir en Spotify
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <!-- Agrega este código después de la sección de TikTok en el sidebar -->
                 <li class="{{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
                     <a href="#videosSubmenu" data-bs-toggle="collapse" 

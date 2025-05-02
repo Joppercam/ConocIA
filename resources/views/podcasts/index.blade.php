@@ -104,7 +104,7 @@
                 <!-- Paginación -->
                 <div class="card-footer bg-white py-3">
                     <div class="d-flex justify-content-center">
-                        {{ $podcasts->links() }}
+                        {!! $podcasts->links('pagination::bootstrap-4') !!}
                     </div>
                 </div>
             </div>

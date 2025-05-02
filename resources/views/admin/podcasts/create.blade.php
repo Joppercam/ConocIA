@@ -30,14 +30,9 @@
                 @csrf
                 
                 <div class="form-group">
-                    <label for="news_id">Seleccionar Noticia:</label>
-                    <select name="news_id" id="news_id" class="form-control" required>
-                        <option value="">-- Seleccione una noticia --</option>
-                        @foreach($news as $item)
-                            <option value="{{ $item->id }}">{{ $item->title }}</option>
-                        @endforeach
-                    </select>
-                    <small class="form-text text-muted">Solo se muestran noticias que aún no tienen podcast.</small>
+                    <label for="title">Título del Resumen:</label>
+                    <input type="text" name="title" id="title" class="form-control" required 
+                        value="Resumen de noticias {{ now()->format('d/m/Y') }}" />
                 </div>
                 
                 <div class="form-group">
@@ -53,11 +48,11 @@
                 </div>
                 
                 <div class="alert alert-info">
-                    <strong>Nota:</strong> El proceso de generación de podcast puede tomar algunos segundos dependiendo del tamaño del contenido.
+                    <strong>Nota:</strong> El proceso de generación del resumen diario puede tomar varios segundos.
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-microphone"></i> Generar Podcast
+                    <i class="fas fa-microphone"></i> Generar Resumen Diario
                 </button>
             </form>
         </div>
