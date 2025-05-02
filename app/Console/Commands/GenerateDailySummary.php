@@ -28,6 +28,9 @@ class GenerateDailySummary extends Command
 
     public function handle()
     {
+        // Aumentar el límite de tiempo de ejecución de PHP
+        set_time_limit(300); // 5 minutos
+        
         $this->info('Iniciando generación de podcast resumen diario...');
         
         // Verificar si la tabla podcasts permite NULL en news_id
@@ -38,8 +41,8 @@ class GenerateDailySummary extends Command
             $this->warn('Se usará una noticia como referencia para el resumen diario.');
         }
         
-        $days = $this->option('days');
-        $limit = $this->option('limit');
+        $days = 2;//$this->option('days');
+        $limit = 5;//$this->option('limit');
         $timeout = $this->option('timeout'); 
         $maxRetries = $this->option('retries');
         
@@ -208,7 +211,7 @@ class GenerateDailySummary extends Command
                 }
                 
                 // Petición a OpenAI para generar un resumen conciso y contextualizado
-                $response = Http::withHeaders([
+                $response = Http::timeout(60)->withHeaders([  // Aumento del timeout a 60 segundos
                     'Authorization' => 'Bearer ' . $apiKey,
                     'Content-Type' => 'application/json',
                 ])->post('https://api.openai.com/v1/chat/completions', [
@@ -415,59 +418,29 @@ class GenerateDailySummary extends Command
     }
     
     /**
-     * Ajusta el contenido si aún excede el límite de la API
+     * Ajusta el contenido si aún excede el límite de la API eliminando noticias completas
      */
     private function adjustContentToFitLimit($content)
     {
-        // Si estamos cerca del límite pero no lo excedemos por mucho, simplemente truncar
-        if (strlen($content) <= $this->maxApiChars * 1.1) {
-            // Buscar un buen punto de corte (final de oración)
-            $truncatedContent = substr($content, 0, $this->maxApiChars - 100);
-            $lastPeriod = strrpos($truncatedContent, '. ');
-            
-            if ($lastPeriod !== false && $lastPeriod > strlen($truncatedContent) * 0.8) {
-                $truncatedContent = substr($truncatedContent, 0, $lastPeriod + 1);
-            }
-            
-            return $truncatedContent . " Esto concluye nuestro resumen. Gracias por escuchar.";
-        }
-        
         // Extraer partes estructurales: introducción, noticias y conclusión
-        $introduccionParts = explode("A continuación escuchará", $content, 2);
-        $introduction = $introduccionParts[0];
+        $introductionPattern = '/^(.*?)En la sección de/s';
+        preg_match($introductionPattern, $content, $introMatches);
+        $introduction = $introMatches[1] ?? '';
         
-        if (count($introduccionParts) > 1) {
-            $introduction .= "A continuación escuchará algunas de las noticias más importantes de hoy. ";
+        // Encuentra el punto de inicio de la conclusión
+        $conclusionStart = strpos($content, "Este ha sido el resumen");
+        $ending = $conclusionStart !== false ? substr($content, $conclusionStart) : '';
+        
+        // Extraer las secciones de noticias
+        $newsContent = [];
+        $pattern = '/En la sección de.*?((?=En la sección de)|(?=Este ha sido el resumen)|$)/s';
+        preg_match_all($pattern, $content, $matches);
+        
+        if (!empty($matches[0])) {
+            $newsContent = $matches[0];
         }
         
-        // Extraer las secciones de noticias usando transiciones como marcadores
-        $newsContent = preg_split('/Pasamos a la siguiente noticia\.\s+/', $content);
-        
-        // El primer elemento contiene la introducción y la primera noticia
-        $firstPartSplit = explode("En la sección de", $newsContent[0], 2);
-        
-        if (count($firstPartSplit) > 1) {
-            $firstNews = "En la sección de" . $firstPartSplit[1];
-            $newsSegments = [$firstNews];
-            
-            // Añadir el resto de las noticias
-            for ($i = 1; $i < count($newsContent); $i++) {
-                $newsSegments[] = $newsContent[$i];
-            }
-        } else {
-            // Si no se pudo dividir, usar una aproximación diferente
-            array_shift($newsContent); // Quitar la primera parte que contiene la introducción
-            $newsSegments = $newsContent;
-        }
-        
-        // Extraer la conclusión (último párrafo)
-        $lastPeriodPos = strrpos($content, "Este ha sido el resumen");
-        $ending = substr($content, $lastPeriodPos);
-        
-        // Reducir la introducción si es muy larga
-        if (strlen($introduction) > 200) {
-            $introduction = substr($introduction, 0, 180) . ". ";
-        }
+        $this->info('Se identificaron ' . count($newsContent) . ' noticias en el contenido');
         
         // Calcular espacio disponible para noticias
         $availableSpace = $this->maxApiChars - strlen($introduction) - strlen($ending) - 50; // 50 para margen
@@ -476,41 +449,34 @@ class GenerateDailySummary extends Command
         $newsToInclude = [];
         $currentSize = 0;
         
-        foreach ($newsSegments as $index => $segment) {
-            // Asegurarnos de que cada noticia se complete adecuadamente
-            $segmentSize = strlen($segment);
+        foreach ($newsContent as $index => $newsItem) {
+            $newsSize = strlen($newsItem);
             
-            if ($currentSize + $segmentSize <= $availableSpace) {
-                $newsToInclude[] = $segment;
-                $currentSize += $segmentSize;
+            if ($currentSize + $newsSize <= $availableSpace) {
+                $newsToInclude[] = $newsItem;
+                $currentSize += $newsSize;
             } else {
-                // Si no cabe completa, ver si podemos incluir una versión reducida
-                $availableForThisNews = $availableSpace - $currentSize;
-                if ($availableForThisNews >= 300) { // Mínimo 300 caracteres para que tenga sentido
-                    // Cortar en la última oración completa
-                    $truncatedSegment = substr($segment, 0, $availableForThisNews - 50);
-                    $lastPeriod = strrpos($truncatedSegment, '. ');
-                    
-                    if ($lastPeriod !== false) {
-                        $truncatedSegment = substr($truncatedSegment, 0, $lastPeriod + 1);
-                        $truncatedSegment .= " ";
-                        $newsToInclude[] = $truncatedSegment;
-                    }
-                }
+                // Si la noticia no cabe, la omitimos completamente
                 break;
             }
         }
         
-        $this->warn("El contenido es demasiado grande. Se incluirán solo " . count($newsToInclude) . " de " . count($newsSegments) . " noticias.");
+        $removedCount = count($newsContent) - count($newsToInclude);
+        if ($removedCount > 0) {
+            $this->warn("El contenido es demasiado grande. Se eliminaron {$removedCount} noticias para ajustarse al límite.");
+        }
         
         // Reconstruir el contenido
         $newContent = $introduction;
         
-        foreach ($newsToInclude as $index => $segment) {
-            if ($index > 0) {
-                $newContent .= "Pasamos a la siguiente noticia. ";
-            }
-            $newContent .= $segment;
+        // Agregar las noticias que sí caben
+        $newContent .= implode('', $newsToInclude);
+        
+        // Ajustar el texto de cierre para reflejar el número correcto de noticias
+        if ($removedCount > 0) {
+            $originalCountPattern = '/Este ha sido el resumen diario de noticias/';
+            $replacementText = "Este ha sido el resumen diario de " . count($newsToInclude) . " noticias";
+            $ending = preg_replace($originalCountPattern, $replacementText, $ending);
         }
         
         // Añadir el cierre
@@ -518,8 +484,22 @@ class GenerateDailySummary extends Command
         
         // Verificación final
         if (strlen($newContent) > $this->maxApiChars) {
-            // Último recurso: truncar brutalmente
-            return substr($newContent, 0, $this->maxApiChars - 50) . " Fin del resumen. Gracias por escuchar.";
+            $this->warn("Después de eliminar noticias, el contenido aún excede el límite. Se aplicará una reducción adicional.");
+            
+            // Si aún es demasiado largo, reducir el número de noticias más
+            while (count($newsToInclude) > 1 && strlen($newContent) > $this->maxApiChars) {
+                $lastNews = array_pop($newsToInclude);
+                $newContent = $introduction . implode('', $newsToInclude) . $ending;
+                $this->info("Eliminando noticia adicional. Quedan " . count($newsToInclude) . " noticias.");
+            }
+            
+            // Si aún excede, como último recurso acortar la introducción y la conclusión
+            if (strlen($newContent) > $this->maxApiChars) {
+                $this->warn("Aplicando reducción de emergencia a la introducción y conclusión.");
+                $introduction = "Bienvenidos al resumen diario de " . $this->portalName . ". ";
+                $ending = "Este ha sido el resumen diario. Gracias por escuchar.";
+                $newContent = $introduction . implode('', $newsToInclude) . $ending;
+            }
         }
         
         return $newContent;
@@ -530,6 +510,19 @@ class GenerateDailySummary extends Command
      */
     private function convertToAudio($text, $identifier, $baseDir, $fullBaseDir, $timeout = 120, $maxRetries = 3)
     {
+        // Si el texto es demasiado largo, aplicar ajustes para reducirlo
+        if (strlen($text) > $this->maxApiChars) {
+            $this->warn('El texto excede el límite de la API (' . strlen($text) . ' caracteres). Aplicando ajustes...');
+            $text = $this->adjustContentToFitLimit($text);
+            $this->info('Tamaño del texto después de ajustes: ' . strlen($text) . ' caracteres');
+            
+            // Verificar si aún excede el límite
+            if (strlen($text) > $this->maxApiChars) {
+                $this->error('No se pudo reducir el texto por debajo del límite máximo.');
+                return null;
+            }
+        }
+        
         $retryCount = 0;
         $lastException = null;
         
@@ -550,8 +543,8 @@ class GenerateDailySummary extends Command
                 
                 // Verificación final del tamaño del texto
                 if (strlen($text) > $this->maxApiChars) {
-                    $this->warn('El texto aún excede el límite. Se truncará automáticamente.');
-                    $text = substr($text, 0, $this->maxApiChars - 10);
+                    $this->error('El texto excede el límite máximo de ' . $this->maxApiChars . ' caracteres.');
+                    return null;
                 }
                 
                 // Mostrar solo una muestra del texto
@@ -625,6 +618,11 @@ class GenerateDailySummary extends Command
         
         return null;
     }
+    
+    
+    
+    
+    
     
     /**
      * Prepara el texto para mejor pronunciación en TTS

@@ -687,7 +687,7 @@
                 console.log('Native lazy loading supported');
             } else {
                 // Navegador no soporta lazy-loading, cargamos un polyfill
-                console.log('Native lazy loading not supported, loading polyfill');
+                
                 const lazyImages = document.querySelectorAll('img[loading="lazy"]');
                 
                 const lazyImageObserver = new IntersectionObserver((entries) => {
@@ -739,10 +739,9 @@
                 ogg: typeof audio.canPlayType === 'function' && audio.canPlayType('audio/ogg; codecs="vorbis"') !== ''
             };
             
-            console.log('Compatibilidad del navegador con formatos de audio:', canPlay);
+           
             return canPlay.mp3 || canPlay.ogg;
         } catch(e) {
-            console.error('Error al verificar compatibilidad de audio:', e);
             return false;
         }
     }
@@ -751,10 +750,8 @@
     async function testAudioAccess(audioUrl) {
         try {
             const response = await fetch(audioUrl, { method: 'HEAD' });
-            console.log('Estado de respuesta del archivo de audio:', response.status, response.statusText);
             return response.ok;
         } catch(e) {
-            console.error('Error CORS o de red al acceder al audio:', e);
             return false;
         }
     }
@@ -764,67 +761,50 @@
         try {
             const audio = new Audio();
             audio.volume = 0.5;
-            console.log('Audio API básica funciona correctamente');
             return true;
         } catch(e) {
-            console.error('Error con la API de Audio:', e);
             return false;
         }
     }
 
     // Ejecutar diagnóstico cuando la página cargue
     document.addEventListener('DOMContentLoaded', async function() {
-        console.log('=== DIAGNÓSTICO DEL REPRODUCTOR DE PODCAST ===');
+       
         
         // Verificar compatibilidad del navegador
         const isCompatible = checkBrowserCompatibility();
-        console.log('Navegador compatible con audio HTML5:', isCompatible);
         
         // Verificar Audio API
         const apiWorks = testAudioAPI();
-        console.log('Audio API funcional:', apiWorks);
         
         // Verificar elementos del reproductor
         const dailySummaryPlayer = document.getElementById('dailySummaryPlayer');
         const dailySummaryPlayBtn = document.getElementById('dailySummaryPlayBtn');
-        console.log('Elemento de audio encontrado:', !!dailySummaryPlayer);
-        console.log('Botón de reproducción encontrado:', !!dailySummaryPlayBtn);
         
         // Si el reproductor existe, verificar su estado
         if (dailySummaryPlayer) {
-            console.log('Propiedades del reproductor:');
-            console.log('- src:', dailySummaryPlayer.currentSrc || dailySummaryPlayer.src || 'No definido');
-            console.log('- readyState:', dailySummaryPlayer.readyState);
-            console.log('- error:', dailySummaryPlayer.error ? dailySummaryPlayer.error.code : 'Ninguno');
+
             
             // Verificar acceso al archivo
             if (dailySummaryPlayer.src) {
                 const canAccess = await testAudioAccess(dailySummaryPlayer.src);
-                console.log('Archivo accesible:', canAccess);
+
             }
             
             // Intentar cargar el archivo manualmente
             dailySummaryPlayer.addEventListener('loadedmetadata', function() {
-                console.log('Audio metadata cargada correctamente');
-                console.log('- duración:', dailySummaryPlayer.duration);
+
             });
             
             dailySummaryPlayer.addEventListener('error', function(e) {
-                console.error('Error al cargar el audio:', e, dailySummaryPlayer.error);
-                console.log('Código de error:', dailySummaryPlayer.error ? dailySummaryPlayer.error.code : 'Desconocido');
-                /*
-                1 = MEDIA_ERR_ABORTED - La carga fue abortada
-                2 = MEDIA_ERR_NETWORK - Error de red
-                3 = MEDIA_ERR_DECODE - Error de decodificación
-                4 = MEDIA_ERR_SRC_NOT_SUPPORTED - Formato no soportado
-                */
+
             });
             
             // Forzar la carga para verificar errores
             dailySummaryPlayer.load();
         }
         
-        console.log('=== FIN DEL DIAGNÓSTICO ===');
+        
     });
     </script>
 
