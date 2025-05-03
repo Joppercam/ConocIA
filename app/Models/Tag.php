@@ -42,4 +42,12 @@ class Tag extends Model
     {
         return $this->belongsToMany(GuestPost::class);
     }
+
+    /**
+     * Alias para el método researches().
+     */
+    public function research()
+    {
+        return $this->researches();
+    }
 }

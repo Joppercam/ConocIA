@@ -205,44 +205,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Play/Pause Logic
-            setTimeout(() => {
-                if (heroBannerPlayer.paused) {
-                    // Pause other players
-                    document.querySelectorAll('audio').forEach(audio => {
-                        if (audio !== heroBannerPlayer) audio.pause();
-                    });
-                    
-                    // Play this audio
-                    heroBannerPlayer.play()
-                        .then(() => {
-                            this.innerHTML = '<i class="fas fa-pause"></i>';
-                            this.setAttribute('data-playing', 'true');
-                            
-                            // Register Play
-                            const podcastId = this.getAttribute('data-podcast-id');
-                            if (podcastId && podcastId !== '0') {
-                                fetch(`/podcasts/${podcastId}/play`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json'
-                                    }
-                                }).catch(error => console.error('Error registering play:', error));
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error playing audio:', error);
-                            this.innerHTML = '<i class="fas fa-play"></i>';
-                        });
-                } else {
-                    // Pause
-                    heroBannerPlayer.pause();
-                    this.innerHTML = '<i class="fas fa-play"></i>';
-                    this.setAttribute('data-playing', 'false');
+            // Determine current state
+            const isPlaying = !heroBannerPlayer.paused;
+            
+            if (isPlaying) {
+                // Si ya está reproduciendo, pausar
+                heroBannerPlayer.pause();
+                this.innerHTML = '<i class="fas fa-play"></i>';
+                this.setAttribute('data-playing', 'false');
+            } else {
+                // Pause other players first
+                const otherPlayers = document.querySelectorAll('audio');
+                for (let i = 0; i < otherPlayers.length; i++) {
+                    if (otherPlayers[i] !== heroBannerPlayer) {
+                        otherPlayers[i].pause();
+                    }
                 }
-            }, 150);
+                
+                // Attempt to play after a short delay
+                setTimeout(() => {
+                    // Play this audio
+                    const playPromise = heroBannerPlayer.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => {
+                                this.innerHTML = '<i class="fas fa-pause"></i>';
+                                this.setAttribute('data-playing', 'true');
+                                
+                                // Register Play
+                                const podcastId = this.getAttribute('data-podcast-id');
+                                if (podcastId && podcastId !== '0') {
+                                    fetch(`/podcasts/${podcastId}/play`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        }
+                                    }).catch(error => console.error('Error registering play:', error));
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error playing audio:', error);
+                                this.innerHTML = '<i class="fas fa-play"></i>';
+                                this.setAttribute('data-playing', 'false');
+                            });
+                    }
+                }, 100);
+            }
         });
         
         // Update Progress

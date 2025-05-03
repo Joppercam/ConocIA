@@ -71,7 +71,15 @@ class GenerateDailySummary extends Command
         
         // Asegurarnos que el directorio de destino existe
         $baseDir = 'podcast' . DIRECTORY_SEPARATOR . 'daily-summary' . DIRECTORY_SEPARATOR . date('Y-m-d');
-        $fullBaseDir = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $baseDir));
+        
+        // Determinar la ruta completa según el entorno
+        if (app()->environment('production')) {
+            // Ruta completa para el entorno de producción
+            $fullBaseDir = '/public_html/storage/' . str_replace(['public/', '\\'], ['', '/'], $baseDir);
+        } else {
+            // Ruta completa para el entorno local
+            $fullBaseDir = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $baseDir));
+        }
         
         if (!file_exists($fullBaseDir)) {
             $this->info('Creando directorio: ' . $fullBaseDir);
@@ -565,8 +573,18 @@ class GenerateDailySummary extends Command
                 if ($response->successful()) {
                     // Crear nombre de archivo único
                     $safeName = Str::slug($identifier);
+                    
+                    // Nombre de archivo para la base de datos (esto no cambia)
                     $fileName = $baseDir . DIRECTORY_SEPARATOR . $safeName . '.mp3';
-                    $fullPath = $fullBaseDir . DIRECTORY_SEPARATOR . $safeName . '.mp3';
+                    
+                    // Ruta completa según el entorno
+                    if (app()->environment('production')) {
+                        // Ruta para el entorno de producción
+                        $fullPath = '/public_html/storage/' . str_replace(['public/', '\\'], ['', '/'], $baseDir) . '/' . $safeName . '.mp3';
+                    } else {
+                        // Ruta para el entorno local
+                        $fullPath = $fullBaseDir . DIRECTORY_SEPARATOR . $safeName . '.mp3';
+                    }
                     
                     $this->info("Guardando archivo en: {$fullPath}");
                     
@@ -680,7 +698,14 @@ class GenerateDailySummary extends Command
     private function getAudioDuration($audioPath)
     {
         try {
-            $fullPath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $audioPath));
+            // Determinar la ruta completa según el entorno
+            if (app()->environment('production')) {
+                // Ruta para el entorno de producción
+                $fullPath = '/public_html/storage/' . str_replace(['public/', '\\'], ['', '/'], $audioPath);
+            } else {
+                // Ruta para el entorno local
+                $fullPath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $audioPath));
+            }
             
             // Asegurarse de que el archivo existe antes de intentar obtener su duración
             if (!file_exists($fullPath)) {
