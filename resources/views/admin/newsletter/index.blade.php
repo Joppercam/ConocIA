@@ -21,6 +21,8 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Email</th>
+                                    <th>Nombre</th>
+                                    <th>Categorías</th>
                                     <th>Estado</th>
                                     <th>Fecha de suscripción</th>
                                     <th>Acciones</th>
@@ -31,6 +33,18 @@
                                 <tr>
                                     <td>{{ $subscriber->id }}</td>
                                     <td>{{ $subscriber->email }}</td>
+                                    <td>{{ $subscriber->name ?? 'N/A' }}</td>
+                                    <td>
+                                        @if($subscriber->categories->isNotEmpty())
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach($subscriber->categories as $category)
+                                                    <span class="badge bg-info">{{ $category->name }}</span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-muted">Sin categorías</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <span class="badge bg-{{ $subscriber->is_active ? 'success' : 'danger' }}">
                                             {{ $subscriber->is_active ? 'Activo' : 'Inactivo' }}
@@ -38,6 +52,10 @@
                                     </td>
                                     <td>{{ $subscriber->created_at->format('d/m/Y H:i') }}</td>
                                     <td class="d-flex gap-1">
+                                        <a href="{{ route('admin.newsletter.edit', $subscriber) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        
                                         <form action="{{ route('admin.newsletter.toggle', $subscriber) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
@@ -55,7 +73,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">No hay suscriptores registrados</td>
+                                    <td colspan="7" class="text-center">No hay suscriptores registrados</td>
                                 </tr>
                                 @endforelse
                             </tbody>

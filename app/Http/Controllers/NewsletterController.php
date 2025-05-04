@@ -4,86 +4,156 @@ namespace App\Http\Controllers;
 
 use App\Models\Newsletter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Exception;
 
 class NewsletterController extends Controller
 {
+    /**
+     * Procesa una nueva suscripción al newsletter.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function subscribe(Request $request)
     {
-        // Validación básica
-        $request->validate([
-            'email' => 'required|email'
-        ]);
-        
-        $email = $request->input('email');
-        
-        // Buscar si el email ya existe en la base de datos
-        $existingSubscription = Newsletter::where('email', $email)->first();
-        
-        if ($existingSubscription) {
-            // El usuario ya está suscrito
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'info' => true,
-                    'message' => 'Este correo electrónico ya está suscrito a nuestro newsletter.'
-                ]);
-            }
-            
-            return redirect()->back()->with('subscription_info', 'Este correo electrónico ya está suscrito a nuestro newsletter.');
-        }
-        
         try {
-            // Generar token único para cancelación
-            $token = Str::random(40);
+            // Registrar los datos recibidos para depuración
+            Log::info('Datos de suscripción recibidos:', [
+                'email' => $request->email,
+                'categories' => $request->categories,
+            ]);
+
+            $request->validate([
+                'email' => 'required|email|max:255',
+                'name' => 'nullable|string|max:255',
+                'categories' => 'nullable|array',
+                'categories.*' => 'exists:categories,id',
+                'privacy_consent' => 'required|accepted',
+            ]);
+
+            // Iniciar transacción de base de datos
+            DB::beginTransaction();
+
+            // Verificar si el email ya está registrado
+            $existing = Newsletter::where('email', $request->email)->first();
+
+            if ($existing) {
+                if ($existing->is_active) {
+                    // Si el usuario ya está suscrito, actualizamos sus categorías
+                    if ($request->has('categories')) {
+                        $existing->categories()->sync($request->categories);
+                    }
+                    
+                    // Actualizar el nombre si se proporcionó uno nuevo
+                    if ($request->filled('name') && $existing->name !== $request->name) {
+                        $existing->name = $request->name;
+                        $existing->save();
+                    }
+                    
+                    DB::commit();
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Ya estás suscrito. Hemos actualizado tus preferencias de categorías.'
+                    ]);
+                } else {
+                    // Si el usuario se había dado de baja, lo reactivamos
+                    $existing->is_active = true;
+                    $existing->save();
+                    
+                    // Actualizamos sus categorías si se proporcionaron
+                    if ($request->has('categories')) {
+                        $existing->categories()->sync($request->categories);
+                    }
+                    
+                    // Actualizar el nombre si se proporcionó uno nuevo
+                    if ($request->filled('name')) {
+                        $existing->name = $request->name;
+                        $existing->save();
+                    }
+                    
+                    DB::commit();
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Has sido reactivado en nuestra lista de suscriptores.'
+                    ]);
+                }
+            }
+
+            // Crear nuevo suscriptor
+            // Generar token único
+            $token = Str::random(64);
             
-            // Si no existe, crear nueva suscripción con los nombres correctos de columnas
-            Newsletter::create([
-                'email' => $email,
-                'is_active' => true,      // Usar 'is_active' en lugar de 'active'
-                'token' => $token
-                // No se incluye 'verified_at' porque normalmente se establece cuando el usuario verifica
+            // Crear registro
+            $newsletter = Newsletter::create([
+                'email' => $request->email,
+                'name' => $request->name,
+                'token' => $token,
+                'is_active' => true,
             ]);
             
-            // Responder según tipo de solicitud
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Te has suscrito correctamente. ¡Gracias por unirte a nuestro newsletter!'
-                ]);
+            // Añadir categorías seleccionadas
+            if ($request->has('categories')) {
+                $newsletter->categories()->attach($request->categories);
             }
             
-            return redirect()->back()->with('subscription_success', 'Te has suscrito correctamente. ¡Gracias por unirte a nuestro newsletter!');
-        } catch (\Exception $e) {
-            \Log::error('Error al suscribir newsletter: ' . $e->getMessage());
+            DB::commit();
             
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Hubo un problema al procesar tu solicitud. Por favor intenta nuevamente.'
-                ]);
-            }
+            Log::info('Suscripción exitosa para: ' . $request->email);
             
-            return redirect()->back()->with('subscription_error', 'Hubo un problema al procesar tu solicitud. Por favor intenta nuevamente.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Te has suscrito correctamente a nuestro newsletter.'
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollback();
+            Log::error('Error de validación: ' . $e->getMessage(), [
+                'errors' => $e->errors(),
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Por favor verifica los datos ingresados.',
+                'errors' => $e->errors()
+            ], 422);
+            
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('Error al procesar suscripción: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al procesar tu solicitud. Por favor inténtalo de nuevo.',
+                'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
-
+    
+    /**
+     * Cancela la suscripción de un usuario.
+     *
+     * @param  string  $token
+     * @return \Illuminate\Http\Response
+     */
     public function unsubscribe($token)
     {
         $subscriber = Newsletter::where('token', $token)->first();
         
         if (!$subscriber) {
-            return redirect()->route('home')->with('error', 'Enlace inválido');
+            return redirect()->route('home')->with('error', 'El enlace de cancelación no es válido o ha expirado.');
         }
         
-        // Actualizar 'is_active' en lugar de 'active'
-        $subscriber->update([
-            'is_active' => false
-            // No se cambia 'verified_at', ya que parece que tienes un concepto diferente de verificación
-        ]);
+        // Desactivar suscripción
+        $subscriber->is_active = false;
+        $subscriber->save();
         
-        return redirect()->route('home')->with('success', 'Te has dado de baja correctamente');
+        return redirect()->route('home')->with('info', 'Tu suscripción ha sido cancelada. Lamentamos verte partir.');
     }
-    
-    // Los otros métodos se mantienen sin cambios
 }

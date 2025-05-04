@@ -118,6 +118,41 @@
                             </div>
                         </div>
                         
+                        <!-- Sección de Filtrado por Categorías -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filtrar por categorías</h6>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="filter_by_categories" name="filter_by_categories" value="1" {{ old('filter_by_categories') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="filter_by_categories">Activar filtro</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i> Si seleccionas categorías, el newsletter se enviará solo a los suscriptores que estén suscritos a al menos una de estas categorías.
+                                </div>
+                                <div class="row">
+                                    @foreach($categories as $category)
+                                        <div class="col-md-4 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input category-checkbox" type="checkbox" 
+                                                       id="category-{{ $category->id }}" 
+                                                       name="categories[]" 
+                                                       value="{{ $category->id }}"
+                                                       {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}
+                                                       {{ old('filter_by_categories') ? '' : 'disabled' }}>
+                                                <label class="form-check-label" for="category-{{ $category->id }}">
+                                                    {{ $category->name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-paper-plane me-2"></i> Enviar Newsletter
@@ -140,13 +175,21 @@
         const columnsCheckbox = document.getElementById('include_columns');
         const columnsCount = document.getElementById('columns_count');
         
+        const filterByCategoriesCheckbox = document.getElementById('filter_by_categories');
+        const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+        
         function updateFieldState() {
             researchCount.disabled = !researchCheckbox.checked;
             columnsCount.disabled = !columnsCheckbox.checked;
+            
+            categoryCheckboxes.forEach(checkbox => {
+                checkbox.disabled = !filterByCategoriesCheckbox.checked;
+            });
         }
         
         researchCheckbox.addEventListener('change', updateFieldState);
         columnsCheckbox.addEventListener('change', updateFieldState);
+        filterByCategoriesCheckbox.addEventListener('change', updateFieldState);
         
         // Inicializar estados
         updateFieldState();

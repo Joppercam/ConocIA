@@ -65,4 +65,13 @@ class Category extends Model
     {
         return $this->hasMany(Column::class);
     }
+
+     /**
+     * Los suscriptores que están interesados en esta categoría.
+     */
+    public function newsletters()
+    {
+        return $this->belongsToMany(Newsletter::class, 'newsletter_category', 'category_id', 'newsletter_id')
+                    ->withTimestamps();
+    }
 }

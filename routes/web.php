@@ -321,16 +321,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/comments/{comment}/reply', [App\Http\Controllers\Admin\CommentController::class, 'reply'])->name('comments.reply');
 
         Route::resource('users', UserController::class);
-        Route::resource('newsletter', NewsletterController::class)->only(['index', 'destroy']);
-
-        // Rutas para administrar newsletter
-        Route::get('/newsletter', [NewsletterAdminController::class, 'index'])->name('newsletter.index');
-        Route::delete('/newsletter/{newsletter}', [NewsletterAdminController::class, 'destroy'])->name('newsletter.destroy');
-        Route::patch('/newsletter/{newsletter}/toggle', [NewsletterAdminController::class, 'toggleActive'])->name('newsletter.toggle');
-
-           // Rutas para administrar y enviar newsletter
-        Route::get('/newsletter/send', [NewsletterSendController::class, 'form'])->name('newsletter.send');
-        Route::post('/newsletter/send', [NewsletterSendController::class, 'send'])->name('newsletter.send.post');
+      
 
         // Rutas para ejecutar API de noticias
         Route::get('/api', [NewsApiController::class, 'index'])->name('api.index');
@@ -431,4 +422,19 @@ Route::prefix('admin/spotify')->name('admin.spotify.')->middleware(['auth', \App
     Route::get('/authorize', [\App\Http\Controllers\Admin\SpotifyIntegrationController::class, 'authorizeSpotify'])->name('authorize');
     Route::post('/upload/{podcast}', [\App\Http\Controllers\Admin\SpotifyIntegrationController::class, 'uploadPodcast'])->name('upload');
   
+});
+
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', \App\Http\Middleware\AdminMiddleware::class]], function () {
+    // Rutas más específicas primero
+    Route::get('newsletter/send', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'showSendForm'])->name('admin.newsletter.send');
+    Route::post('newsletter/send', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'sendNewsletter'])->name('admin.newsletter.send.post');
+    
+    // Luego las rutas con parámetros específicos
+    Route::get('newsletter/{newsletter}/edit', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'edit'])->name('admin.newsletter.edit');
+    Route::put('newsletter/{newsletter}', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'update'])->name('admin.newsletter.update');
+    Route::delete('newsletter/{newsletter}', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'destroy'])->name('admin.newsletter.destroy');
+    Route::patch('newsletter/{newsletter}/toggle', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'toggleActive'])->name('admin.newsletter.toggle');
+    
+    // Finalmente las rutas generales
+    Route::get('newsletter', [\App\Http\Controllers\Admin\NewsletterAdminController::class, 'index'])->name('admin.newsletter.index');
 });

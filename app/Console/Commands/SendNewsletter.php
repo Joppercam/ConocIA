@@ -6,6 +6,7 @@ use App\Models\Newsletter;
 use App\Models\News;
 use App\Models\Research;
 use App\Models\Column;
+use App\Models\Category;
 use App\Mail\NewsletterMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -26,6 +27,7 @@ class SendNewsletter extends Command
                             {--columns=2 : Cantidad de columnas a incluir}
                             {--include-research : Incluir investigaciones recientes}
                             {--include-columns : Incluir columnas recientes}
+                            {--category=* : IDs de categorías para filtrar suscriptores}
                             {--dry-run : Simular el envío sin enviar emails}';
 
     /**
@@ -49,6 +51,7 @@ class SendNewsletter extends Command
         $includeColumns = $this->option('include-columns');
         $researchCount = (int) $this->option('research');
         $columnsCount = (int) $this->option('columns');
+        $categoryIds = $this->option('category');
         $dryRun = $this->option('dry-run');
 
         // Validar parámetros
@@ -67,11 +70,33 @@ class SendNewsletter extends Command
             return 1;
         }
 
+        // Verificar categorías si se especificaron
+        if (!empty($categoryIds)) {
+            $validCategories = Category::whereIn('id', $categoryIds)->count();
+            
+            if ($validCategories !== count($categoryIds)) {
+                $this->error('Una o más categorías especificadas no existen');
+                return 1;
+            }
+            
+            $this->info('Filtrando por ' . $validCategories . ' categorías');
+        }
+
         // Obtener suscriptores activos
-        $subscribers = Newsletter::where('is_active', true)->get();
+        $query = Newsletter::where('is_active', true);
+        
+        // Filtrar por categorías si se especificaron
+        if (!empty($categoryIds)) {
+            $query->whereHas('categories', function($q) use ($categoryIds) {
+                $q->whereIn('categories.id', $categoryIds);
+            });
+        }
+        
+        $subscribers = $query->get();
         
         if ($subscribers->isEmpty()) {
-            $this->error('No hay suscriptores activos.');
+            $this->error('No hay suscriptores activos' . 
+                         (!empty($categoryIds) ? ' para las categorías seleccionadas' : '') . '.');
             return 1;
         }
 

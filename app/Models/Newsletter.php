@@ -16,8 +16,9 @@ class Newsletter extends Model
      */
     protected $fillable = [
         'email',
-        'is_active',       // Cambio de 'active' a 'is_active'
-        'verified_at',     // Cambio de 'unsubscribed_at' a 'verified_at'
+        'name',         // Nuevo campo para el nombre del suscriptor (opcional)
+        'is_active',    
+        'verified_at',  
         'token',
     ];
 
@@ -27,7 +28,16 @@ class Newsletter extends Model
      * @var array
      */
     protected $casts = [
-        'is_active' => 'boolean',   // Cambio de 'active' a 'is_active'
-        'verified_at' => 'datetime', // Cambio de 'unsubscribed_at' a 'verified_at'
+        'is_active' => 'boolean',
+        'verified_at' => 'datetime',
     ];
+
+    /**
+     * Las categorías a las que el suscriptor está suscrito.
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'newsletter_category', 'newsletter_id', 'category_id')
+                    ->withTimestamps();
+    }
 }

@@ -3,6 +3,9 @@
 
 @section('content')
 
+{{-- Incluir el componente de suscripción por categorías --}}
+    @include('components.category-newsletter-subscription')
+
 {{-- Incluir el componente de podcast en la parte superior --}}
     @include('components.podcast-hero-banner')
 
@@ -417,115 +420,56 @@
                            
                         </div>
                         <div class="card-body py-3">
-                        <div class="most-read-list">
-                            @foreach($popularNews as $index => $popular)
-                            <!-- Artículo mejorado -->
-                            <div class="d-flex mb-3 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
-                                <div class="position-relative me-3 flex-shrink-0">
-                                    <div class="position-absolute top-0 start-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                        style="width: 24px; height: 24px; font-size: 0.75rem; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                        {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
-                                    </div>
-                                    <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="d-block overflow-hidden rounded">
-                                        <img src="{{ $getImageUrl($popular->image, 'news', 'small') }}" 
-                                            class="rounded popular-news-img" 
-                                            width="60" height="60" 
-                                            alt="{{ $popular->title }}" 
-                                            loading="lazy"
-                                            style="object-fit: cover;" 
-                                            onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
-                                    </a>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <h6 class="mb-1 fs-7 line-clamp-2">
-                                        <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="text-decoration-none text-dark">
-                                            {{ $popular->title }}
+                            <div class="most-read-list">
+                                @foreach($popularNews as $index => $popular)
+                                <!-- Artículo mejorado -->
+                                <div class="d-flex mb-3 pb-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                                    <div class="position-relative me-3 flex-shrink-0">
+                                        <div class="position-absolute top-0 start-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                            style="width: 24px; height: 24px; font-size: 0.75rem; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
+                                        </div>
+                                        <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="d-block overflow-hidden rounded">
+                                            <img src="{{ $getImageUrl($popular->image, 'news', 'small') }}" 
+                                                class="rounded popular-news-img" 
+                                                width="60" height="60" 
+                                                alt="{{ $popular->title }}" 
+                                                loading="lazy"
+                                                style="object-fit: cover;" 
+                                                onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-small.jpg') }}';">
                                         </a>
-                                    </h6>
-                                    <div class="d-flex flex-wrap align-items-center mb-1">
-                                        @if(isset($popular->category))
-                                        <span class="badge bg-light border me-2" style="color: {{ str_replace('background-color:', '', $getCategoryStyle($popular->category)) }} font-size: 0.65rem;">
-                                            <i class="fas {{ $getCategoryIcon($popular->category) }} me-1"></i>
-                                            {{ $popular->category->name }}
-                                        </span>
-                                        @endif
-                                        <span class="text-muted fs-9">{{ $popular->created_at->locale('es')->diffForHumans() }}</span>
                                     </div>
-                                    <!-- Estadísticas de popularidad -->
-                                    <div class="d-flex align-items-center">
-                                        <span class="me-2 text-muted fs-9">
-                                            <i class="far fa-eye me-1"></i>{{ number_format($popular->views ?? 0) }}
-                                        </span>
-                                        <span class="me-2 text-muted fs-9">
-                                            <i class="fas fa-fire text-danger me-1"></i>{{ rand(20, 95) }}% 
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                            
-                                                        
-                            <!-- Newsletter dentro de lo más leído - Estilo mejorado -->
-                            <div class="mt-3 pt-3 border-top">
-                                <div class="bg-dark text-white py-3 rounded position-relative overflow-hidden">
-                                    <!-- Elementos decorativos de fondo -->
-                                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
-                                        <div class="position-absolute end-0 top-50 translate-middle-y opacity-10">
-                                            <i class="fas fa-paper-plane fa-2x"></i>
+                                    <div class="overflow-hidden">
+                                        <h6 class="mb-1 fs-7 line-clamp-2">
+                                            <a href="{{ route('news.show', $popular->slug ?? $popular->id) }}" class="text-decoration-none text-dark">
+                                                {{ $popular->title }}
+                                            </a>
+                                        </h6>
+                                        <div class="d-flex flex-wrap align-items-center mb-1">
+                                            @if(isset($popular->category))
+                                            <span class="badge bg-light border me-2" style="color: {{ str_replace('background-color:', '', $getCategoryStyle($popular->category)) }} font-size: 0.65rem;">
+                                                <i class="fas {{ $getCategoryIcon($popular->category) }} me-1"></i>
+                                                {{ $popular->category->name }}
+                                            </span>
+                                            @endif
+                                            <span class="text-muted fs-9">{{ $popular->created_at->locale('es')->diffForHumans() }}</span>
+                                        </div>
+                                        <!-- Estadísticas de popularidad -->
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2 text-muted fs-9">
+                                                <i class="far fa-eye me-1"></i>{{ number_format($popular->views ?? 0) }}
+                                            </span>
+                                            <span class="me-2 text-muted fs-9">
+                                                <i class="fas fa-fire text-danger me-1"></i>{{ rand(20, 95) }}% 
+                                            </span>
                                         </div>
                                     </div>
-                                    
-                                    <div class="position-relative px-3">
-                                        <h5 class="text-center mb-2 fs-6 fw-bold">
-                                            <span class="d-inline-block border-bottom border-2 pb-1">Suscríbete al Newsletter</span>
-                                        </h5>
-                                        
-                                        <form id="newsletterForm" class="newsletter-form" action="{{ route('newsletter.subscribe') }}" method="POST">
-                                            @csrf
-                                            <div class="input-group mb-2">
-                                                <input type="email" class="form-control" id="newsletterEmail" name="email" placeholder="Tu correo electrónico" required>
-                                                <button class="btn btn-primary" type="submit" id="newsletterSubmit">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                            </div>
-                                            <p class="text-white-50 text-center small mb-0">
-                                                <i class="fas fa-shield-alt me-1"></i> Recibirás las últimas noticias sin spam
-                                            </p>
-                                            
-                                            <!-- Contenedor para mensajes de respuesta -->
-                                            <div id="newsletterResponse" class="mt-2">
-                                                @if(session('subscription_success'))
-                                                <div class="alert alert-success alert-dismissible fade show p-2 small" role="alert">
-                                                    <i class="fas fa-check-circle me-1"></i> {{ session('subscription_success') }}
-                                                    <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                                @endif
-                                                
-                                                @if(session('subscription_info'))
-                                                <div class="alert alert-info alert-dismissible fade show p-2 small" role="alert">
-                                                    <i class="fas fa-info-circle me-1"></i> {{ session('subscription_info') }}
-                                                    <button type="button" class="btn-close btn-sm p-1" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                                @endif
-                                            </div>
-                                        </form>
-                                    </div>
                                 </div>
+                                @endforeach
                             </div>
-
-
-
-
                         </div>
                     </div>
                 </div>
-
-
-
-
-
-
             </div>
         </div>
     </section>
