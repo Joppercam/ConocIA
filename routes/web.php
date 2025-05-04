@@ -296,6 +296,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('research/upload-image', [AdminResearchController::class, 'uploadImage'])->name('research.upload-image');
         Route::get('research/preview/{research}', [AdminResearchController::class, 'preview'])->name('research.preview');
         Route::resource('categories', CategoryController::class);
+        Route::patch('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
 
         // Publicaciones de invitados
         Route::get('colaboraciones/pendientes', [AdminResearchController::class, 'pendingPosts'])->name('invitados.pending');

@@ -71,9 +71,10 @@
                             <div class="categories-list">
                                 @php
                                     // Obtener las categorías disponibles
-                                    $categories = App\Models\Category::withCount('news')
-                                        ->orderBy('news_count', 'desc')
-                                        ->get();
+                                    $categories = App\Models\Category::where('is_active', true)
+                                    ->withCount('news')
+                                    ->orderBy('news_count', 'desc')
+                                    ->get();
                                 @endphp
                                 
                                 @foreach($categories as $category)

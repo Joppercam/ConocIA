@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class GenerateDailySummary extends Command
 {
@@ -41,8 +42,8 @@ class GenerateDailySummary extends Command
             $this->warn('Se usará una noticia como referencia para el resumen diario.');
         }
         
-        $days = 2;//$this->option('days');
-        $limit = 5;//$this->option('limit');
+        $days = $this->option('days');
+        $limit = $this->option('limit');
         $timeout = $this->option('timeout'); 
         $maxRetries = $this->option('retries');
         
@@ -69,25 +70,24 @@ class GenerateDailySummary extends Command
         $this->charsPerNews = max(550, floor(($this->maxApiChars - 400) / $newsWithSummaries->count()));
         $this->info("Asignando aproximadamente {$this->charsPerNews} caracteres por noticia");
         
-        // Asegurarnos que el directorio de destino existe
+        // Determinar la ruta de directorio para almacenar el podcast
         $baseDir = 'podcast' . DIRECTORY_SEPARATOR . 'daily-summary' . DIRECTORY_SEPARATOR . date('Y-m-d');
         
-        // Determinar la ruta completa según el entorno
-        if (app()->environment('production')) {
-            // Ruta completa para el entorno de producción
-            $fullBaseDir = '/public_html/storage/' . str_replace(['public/', '\\'], ['', '/'], $baseDir);
-        } else {
-            // Ruta completa para el entorno local
-            $fullBaseDir = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $baseDir));
-        }
-        
-        if (!file_exists($fullBaseDir)) {
-            $this->info('Creando directorio: ' . $fullBaseDir);
-            if (!mkdir($fullBaseDir, 0777, true)) {
-                $this->error('No se pudo crear el directorio de destino');
+        // Corregido: Usar Storage::disk para manejo de almacenamiento en Laravel
+        if (!Storage::disk('public')->exists($baseDir)) {
+            $this->info('Creando directorio: ' . $baseDir);
+            try {
+                // Usar el filesystem de Laravel para crear directorios
+                Storage::disk('public')->makeDirectory($baseDir, 0755, true);
+            } catch (\Exception $e) {
+                Log::error("Error al crear directorio: " . $e->getMessage());
+                $this->error('No se pudo crear el directorio: ' . $e->getMessage());
                 return;
             }
         }
+        
+        // Ruta completa accesible desde PHP para operaciones de archivo
+        $fullBaseDir = storage_path('app/public/' . $baseDir);
         
         // Preparar el contenido compilado para todas las noticias
         $compiledContent = $this->prepareCompiledContent($newsWithSummaries);
@@ -164,6 +164,7 @@ class GenerateDailySummary extends Command
                 $this->info('is_daily_summary: ' . ($podcast->is_daily_summary ? 'true' : 'false'));
             } catch (\Exception $e) {
                 $this->error('Error al guardar el podcast en la base de datos: ' . $e->getMessage());
+                Log::error('Error al guardar el podcast: ' . $e->getMessage());
                 return;
             }
         } else {
@@ -253,22 +254,16 @@ class GenerateDailySummary extends Command
                         // Guardar el resumen generado en la propiedad de la noticia
                         $newsList[$key]->ai_summary = trim($aiSummary);
                         $this->info('Resumen generado con éxito');
-                        
-                        // Opcional: Guardar el resumen en la base de datos
-                        // Descomenta si deseas persistir los resúmenes
-                        /*
-                        $news->summary = $aiSummary;
-                        $news->save();
-                        $this->info('Resumen guardado en la base de datos');
-                        */
                     } else {
                         $this->warn('La respuesta de OpenAI no contiene un resumen válido');
                     }
                 } else {
                     $this->warn('Error al generar resumen con OpenAI: ' . $response->body());
+                    Log::warning('Error al generar resumen con OpenAI: ' . $response->body());
                 }
             } catch (\Exception $e) {
                 $this->warn('Excepción al generar resumen para noticia #' . $news->id . ': ' . $e->getMessage());
+                Log::warning('Excepción al generar resumen para noticia #' . $news->id . ': ' . $e->getMessage());
             }
             
             // Pequeña pausa para evitar límites de rate en la API
@@ -575,38 +570,33 @@ class GenerateDailySummary extends Command
                     $safeName = Str::slug($identifier);
                     
                     // Nombre de archivo para la base de datos (esto no cambia)
-                    $fileName = $baseDir . DIRECTORY_SEPARATOR . $safeName . '.mp3';
+                    $fileName = $baseDir . '/' . $safeName . '.mp3';
                     
-                    // Ruta completa según el entorno
-                    if (app()->environment('production')) {
-                        // Ruta para el entorno de producción
-                        $fullPath = '/public_html/storage/' . str_replace(['public/', '\\'], ['', '/'], $baseDir) . '/' . $safeName . '.mp3';
-                    } else {
-                        // Ruta para el entorno local
-                        $fullPath = $fullBaseDir . DIRECTORY_SEPARATOR . $safeName . '.mp3';
-                    }
-                    
-                    $this->info("Guardando archivo en: {$fullPath}");
-                    
-                    // Guardar el archivo
-                    if (file_put_contents($fullPath, $response->body()) !== false) {
-                        $this->info('Archivo guardado correctamente');
+                    // Corregido: Guardar usando Storage de Laravel
+                    try {
+                        // Guardar el archivo usando Storage en lugar de file_put_contents
+                        Storage::disk('public')->put($fileName, $response->body());
+                        
+                        $this->info('Archivo guardado correctamente en: ' . $fileName);
                         
                         // Verificar físicamente que el archivo existe
-                        if (file_exists($fullPath)) {
-                            $this->info('✓ Verificación física: El archivo existe');
-                            $this->info('Tamaño: ' . round(filesize($fullPath) / 1024) . ' KB');
+                        if (Storage::disk('public')->exists($fileName)) {
+                            $fileSize = Storage::disk('public')->size($fileName);
+                            $this->info('✓ Verificación: El archivo existe. Tamaño: ' . round($fileSize / 1024) . ' KB');
                             
-                            // Convertir las barras invertidas a diagonales para almacenamiento en BD
+                            // Usar formato de rutas con slash para almacenamiento en BD
                             return str_replace('\\', '/', $fileName);
                         } else {
                             $this->error('× El archivo no existe a pesar de reportar éxito');
                         }
-                    } else {
-                        $this->error('Error al guardar el archivo de audio');
+                    } catch (\Exception $e) {
+                        $this->error('Error al guardar archivo: ' . $e->getMessage());
+                        Log::error('Error al guardar archivo: ' . $e->getMessage());
                     }
                 } else {
-                    $this->error('Error en la API de OpenAI: ' . $response->body());
+                    $errorMsg = 'Error en la API de OpenAI: ' . $response->body();
+                    $this->error($errorMsg);
+                    Log::error($errorMsg);
                 }
                 
                 // Si llegamos aquí, es porque hubo un error pero no una excepción
@@ -620,6 +610,7 @@ class GenerateDailySummary extends Command
                 $lastException = $e;
                 $retryCount++;
                 $this->error('Excepción: ' . $e->getMessage());
+                Log::error('Error al convertir a audio: ' . $e->getMessage());
                 
                 if ($retryCount < $maxRetries) {
                     $this->warn('Reintentando en 5 segundos...');
@@ -636,11 +627,6 @@ class GenerateDailySummary extends Command
         
         return null;
     }
-    
-    
-    
-    
-    
     
     /**
      * Prepara el texto para mejor pronunciación en TTS
@@ -698,14 +684,8 @@ class GenerateDailySummary extends Command
     private function getAudioDuration($audioPath)
     {
         try {
-            // Determinar la ruta completa según el entorno
-            if (app()->environment('production')) {
-                // Ruta para el entorno de producción
-                $fullPath = '/public_html/storage/' . str_replace(['public/', '\\'], ['', '/'], $audioPath);
-            } else {
-                // Ruta para el entorno local
-                $fullPath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $audioPath));
-            }
+            // Obtener la ruta completa del archivo
+            $fullPath = Storage::disk('public')->path($audioPath);
             
             // Asegurarse de que el archivo existe antes de intentar obtener su duración
             if (!file_exists($fullPath)) {
@@ -733,6 +713,7 @@ class GenerateDailySummary extends Command
             return round(floatval($duration));
         } catch (\Exception $e) {
             $this->warn('No se pudo determinar la duración del audio: ' . $e->getMessage());
+            Log::warning('No se pudo determinar la duración del audio: ' . $e->getMessage());
             return 0; // Si no se puede determinar, devolver cero
         }
     }

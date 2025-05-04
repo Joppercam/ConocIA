@@ -220,7 +220,21 @@ class FetchNewsWithAI extends Command
         // Consultar la API de noticias
         $newsApiKey = config('services.newsapi.key');
         $this->info("Consultando API de noticias...");
-        $newsData = $this->fetchNewsFromEverything($newsApiKey, $categorySlug, $count, $language);
+        
+        // CAMBIO AQUÍ: Obtener o crear la categoría en la base de datos ANTES de llamar a fetchNewsFromEverything
+        $category = Category::firstOrCreate(
+            ['slug' => $categorySlug],
+            [
+                'name' => $categoryName,
+                'description' => "Noticias sobre {$categoryName}",
+                'color' => $this->categoryColors[$categorySlug] ?? '2c3e50', // Sin el símbolo # incluido
+                'icon' => $this->getCategoryIcon($categorySlug),
+                'search_terms' => $this->searchTermsByCategory[$categorySlug] ?? '' // Aseguramos que tenga términos de búsqueda
+            ]
+        );
+        
+        // CAMBIO AQUÍ: Pasamos el objeto category en lugar del slug
+        $newsData = $this->fetchNewsFromEverything($newsApiKey, $category, $count, $language);
         
         if (empty($newsData)) {
             $this->error('No se pudieron obtener noticias de la API.');
@@ -229,16 +243,7 @@ class FetchNewsWithAI extends Command
         
         $this->info("Se obtuvieron " . count($newsData) . " artículos de noticias de {$categoryName}.");
         
-        // Obtener o crear la categoría en la base de datos
-        $category = Category::firstOrCreate(
-            ['slug' => $categorySlug],
-            [
-                'name' => $categoryName,
-                'description' => "Noticias sobre {$categoryName}",
-                'color' => $this->categoryColors[$categorySlug] ?? '2c3e50', // Sin el símbolo # incluido
-                'icon' => $this->getCategoryIcon($categorySlug)
-            ]
-        );
+        // Ya no necesitamos obtener la categoría nuevamente, ya la tenemos
         
         $bar = $this->output->createProgressBar(count($newsData));
         $bar->start();
@@ -557,20 +562,22 @@ class FetchNewsWithAI extends Command
 
     /**
      * Obtiene noticias del endpoint "everything" de NewsAPI
+     * CAMBIO AQUÍ: La función ahora espera un objeto Category
      */
-    private function fetchNewsFromEverything($apiKey, $categorySlug, $count, $language = 'es')
+    private function fetchNewsFromEverything($apiKey, $category, $count, $language = 'es')
     {
         try {
-            // Obtener los términos de búsqueda para la categoría
-            $query = $this->searchTermsByCategory[$categorySlug] ?? '';
+            // CAMBIO AQUÍ: Obtener los términos de búsqueda directamente del objeto Category
+            $query = $category->search_terms;
             
             if (empty($query)) {
-                $this->error("No se encontraron términos de búsqueda para la categoría: {$categorySlug}");
+                $this->error("La categoría '{$category->name}' no tiene términos de búsqueda definidos.");
+                $this->info("Define los términos de búsqueda en el panel de administración de categorías.");
                 return [];
             }
             
             $this->info("Consultando endpoint 'everything' con parámetros: q=$query, language=$language");
-            
+        
             $response = Http::withOptions([
                 'verify' => false, // Eliminar esta línea en producción
             ])->get('https://newsapi.org/v2/everything', [
@@ -1572,13 +1579,4 @@ class FetchNewsWithAI extends Command
         // Usamos IA directamente para mejorar/completar el contenido.
         return $this->enhanceContentWithAI($newsItem, $categoryName);
     }
-
-    /**
-     * Modificación al método handle para integrar las nuevas funcionalidades
-     * Reemplaza la llamada a enhanceContentWithAI con processNewsWithMultipleStrategies
-     */
-    // En el método handle(), reemplaza:
-    // $enhancedContent = $this->enhanceContentWithAI($newsItem, $categoryName);
-    // Por:
-    // $enhancedContent = $this->processNewsWithMultipleStrategies($newsItem, $categoryName);
 }

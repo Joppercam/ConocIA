@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::withCount(['news', 'researches'])
-            ->orderBy('name')
+            ->orderBy('is_active','desc')
             ->paginate(15);
             
         return view('admin.categories.index', compact('categories'));
@@ -39,12 +39,16 @@ class CategoryController extends Controller
             'slug' => 'nullable|string|unique:categories,slug',
             'description' => 'nullable|string',
             'color' => 'nullable|string|max:7',
+            'search_terms' => 'nullable|string',
         ]);
         
         // Generar slug si no se proporcionó
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
         }
+        
+        // Establecer is_active según el checkbox
+        $validated['is_active'] = $request->has('is_active');
         
         Category::create($validated);
         
@@ -84,12 +88,16 @@ class CategoryController extends Controller
             'slug' => 'nullable|string|unique:categories,slug,' . $category->id,
             'description' => 'nullable|string',
             'color' => 'nullable|string|max:7',
+            'search_terms' => 'nullable|string',
         ]);
         
         // Generar slug si no se proporcionó
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
         }
+        
+        // Establecer is_active según el checkbox
+        $validated['is_active'] = $request->has('is_active');
         
         $category->update($validated);
         
@@ -98,13 +106,24 @@ class CategoryController extends Controller
     }
 
     /**
-     * Eliminar una categoría
+     * Desactivar una categoría (en lugar de eliminarla)
      */
     public function destroy(Category $category)
     {
-        $category->delete();
+        $category->update(['is_active' => false]);
         
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Categoría eliminada exitosamente.');
+            ->with('success', 'Categoría desactivada exitosamente.');
+    }
+
+    /**
+     * Restaurar una categoría desactivada
+     */
+    public function restore(Category $category)
+    {
+        $category->update(['is_active' => true]);
+        
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Categoría activada exitosamente.');
     }
 }

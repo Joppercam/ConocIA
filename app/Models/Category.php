@@ -19,6 +19,8 @@ class Category extends Model
         'name',
         'slug',
         'description',
+        'search_terms',
+        'color',
         'is_active',
     ];
 
@@ -55,6 +57,17 @@ class Category extends Model
     public function research()
     {
         return $this->hasMany(Research::class, 'category_id');
+    }
+
+
+    /**
+     * Alias para el método research()
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function researches()
+    {
+        return $this->research();
     }
 
 
