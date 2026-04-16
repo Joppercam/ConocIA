@@ -43,10 +43,16 @@ return [
         'api_key' => env('GUARDIAN_API_KEY'),
     ],
     
-    // Configuración para Google Gemini (gratuito)
+    // Google Gemini — fetch noticias (Search Grounding) + tareas batch
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
-        'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+        'model'   => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+    ],
+
+    // Anthropic Claude — contenido editorial Profundiza (Análisis, Conceptos, Estado del Arte)
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model'   => env('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022'),
     ],
 
     

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\ConceptoIa;
 use App\Services\GeminiQuotaGuard;
+use App\Services\ClaudeService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -138,9 +139,8 @@ PROMPT;
 
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
-        $openaiKey   = env('OPENAI_API_KEY', '');
 
-        $data = $this->callAI($prompt, $geminiKey, $geminiModel, $openaiKey, $guard);
+        $data = $this->callAI($prompt, $geminiKey, $geminiModel, $guard);
 
         if (empty($data['content'])) {
             $this->warn("No se pudo generar el concepto: {$name}");
@@ -172,14 +172,15 @@ PROMPT;
         }
     }
 
-    protected function callAI(string $prompt, string $geminiKey, string $geminiModel, string $openaiKey, GeminiQuotaGuard $guard): array
+    protected function callAI(string $prompt, string $geminiKey, string $geminiModel, GeminiQuotaGuard $guard): array
     {
+        // ── Primario: Gemini 2.0 Flash ────────────────────────────────────────
         try {
             if (!empty($geminiKey) && $guard->canCall('low')) {
                 $r = Http::timeout(60)->post(
                     "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}",
                     [
-                        'contents' => [['parts' => [['text' => $prompt]]]],
+                        'contents'         => [['parts' => [['text' => $prompt]]]],
                         'generationConfig' => ['temperature' => 0.65, 'maxOutputTokens' => 4000, 'responseMimeType' => 'application/json'],
                     ]
                 );
@@ -195,25 +196,14 @@ PROMPT;
             Log::warning('GenerateConceptosIa Gemini error: ' . $e->getMessage());
         }
 
-        try {
-            if (!empty($openaiKey)) {
-                $r = Http::timeout(60)->withToken($openaiKey)->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
-                    'temperature' => 0.65,
-                    'max_tokens'  => 4000,
-                    'messages'    => [
-                        ['role' => 'system', 'content' => 'Responde siempre en JSON válido.'],
-                        ['role' => 'user',   'content' => $prompt],
-                    ],
-                ]);
-                if ($r->successful()) {
-                    $raw  = $r->json()['choices'][0]['message']['content'] ?? '{}';
-                    $data = json_decode($raw, true);
-                    if (!empty($data['content'])) return $data;
-                }
+        // ── Fallback: Claude 3.5 Sonnet ───────────────────────────────────────
+        $claude = app(ClaudeService::class);
+        if ($claude->isAvailable()) {
+            $data = $claude->generateJson($prompt, 4000, 0.65);
+            if (!empty($data['content'])) {
+                Log::info('GenerateConceptosIa: generado con Claude (fallback).');
+                return $data;
             }
-        } catch (\Exception $e) {
-            Log::warning('GenerateConceptosIa OpenAI error: ' . $e->getMessage());
         }
 
         return [];

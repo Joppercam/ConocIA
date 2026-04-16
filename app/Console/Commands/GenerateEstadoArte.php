@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\EstadoArte;
 use App\Models\News;
 use App\Services\GeminiQuotaGuard;
+use App\Services\ClaudeService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -209,14 +210,14 @@ PROMPT;
 
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
-        $openaiKey   = env('OPENAI_API_KEY', '');
 
+        // ── Primario: Gemini 2.0 Flash ────────────────────────────────────────
         try {
             if (!empty($geminiKey) && $guard->canCall('medium')) {
                 $r = Http::timeout(90)->post(
                     "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}",
                     [
-                        'contents' => [['parts' => [['text' => $prompt]]]],
+                        'contents'         => [['parts' => [['text' => $prompt]]]],
                         'generationConfig' => ['temperature' => 0.72, 'maxOutputTokens' => 4000, 'responseMimeType' => 'application/json'],
                     ]
                 );
@@ -232,24 +233,14 @@ PROMPT;
             Log::warning('GenerateEstadoArte Gemini: ' . $e->getMessage());
         }
 
-        try {
-            if (!empty($openaiKey)) {
-                $r = Http::timeout(90)->withToken($openaiKey)->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
-                    'temperature' => 0.72,
-                    'max_tokens'  => 4000,
-                    'messages'    => [
-                        ['role' => 'system', 'content' => 'Responde siempre en JSON válido.'],
-                        ['role' => 'user',   'content' => $prompt],
-                    ],
-                ]);
-                if ($r->successful()) {
-                    $data = json_decode($r->json()['choices'][0]['message']['content'] ?? '{}', true);
-                    if (!empty($data['content'])) return $data;
-                }
+        // ── Fallback: Claude 3.5 Sonnet ───────────────────────────────────────
+        $claude = app(ClaudeService::class);
+        if ($claude->isAvailable()) {
+            $data = $claude->generateJson($prompt, 4000, 0.72);
+            if (!empty($data['content'])) {
+                Log::info('GenerateEstadoArte: generado con Claude (fallback).');
+                return $data;
             }
-        } catch (\Exception $e) {
-            Log::warning('GenerateEstadoArte OpenAI: ' . $e->getMessage());
         }
 
         return [];
