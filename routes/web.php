@@ -171,6 +171,7 @@ Route::get('sitemap-news.xml', [SitemapController::class, 'news']);
 Route::get('sitemap-categories.xml', [SitemapController::class, 'categories']);
 Route::get('sitemap-research.xml', [SitemapController::class, 'research']);
 Route::get('sitemap-columns.xml', [SitemapController::class, 'columns']);
+Route::get('sitemap-profundiza.xml', [SitemapController::class, 'profundiza']);
 
 // RSS Feed
 Route::feeds();

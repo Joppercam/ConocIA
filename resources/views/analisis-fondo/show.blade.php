@@ -87,4 +87,6 @@
         </div>
     </div>
 </div>
+@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')'], ['name' => 'Análisis de Fondo', 'url' => route('analisis.index')'], ['name' => $analysis->title]]])
+@include('partials.schema-article', ['item' => $analysis, 'routeName' => 'analisis.show', 'type' => 'TechArticle', 'section' => 'Análisis de Fondo'])
 @endsection

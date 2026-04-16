@@ -7,45 +7,43 @@ use App\Models\News;
 use App\Models\Category;
 use App\Models\Column;
 use App\Models\Research;
+use App\Models\ConceptoIa;
+use App\Models\AnalisisFondo;
+use App\Models\ConocIaPaper;
+use App\Models\EstadoArte;
 
 class SitemapController extends Controller
 {
     public function index()
     {
-        $news = News::where('status', 'published')->orderBy('updated_at', 'desc')->get();
-        $researches = Research::where('status', 'published')->orderBy('updated_at', 'desc')->get();
-        $columns = Column::orderBy('updated_at', 'desc')->get();
+        $news       = News::where('status', 'published')->latest('updated_at')->first();
+        $researches = Research::where('status', 'published')->latest('updated_at')->first();
+        $columns    = Column::latest('updated_at')->first();
+        $conceptos  = ConceptoIa::where('status', 'published')->latest('updated_at')->first();
+        $analises   = AnalisisFondo::where('status', 'published')->latest('updated_at')->first();
+        $papers     = ConocIaPaper::where('status', 'published')->latest('updated_at')->first();
+        $digests    = EstadoArte::where('status', 'published')->latest('updated_at')->first();
+
+        $sitemaps = [
+            ['url' => 'sitemap-main.xml',        'last' => now()],
+            ['url' => 'sitemap-news.xml',         'last' => $news?->updated_at ?? now()],
+            ['url' => 'sitemap-categories.xml',   'last' => now()],
+            ['url' => 'sitemap-research.xml',     'last' => $researches?->updated_at ?? now()],
+            ['url' => 'sitemap-columns.xml',      'last' => $columns?->updated_at ?? now()],
+            ['url' => 'sitemap-profundiza.xml',   'last' => collect([$conceptos, $analises, $papers, $digests])
+                ->filter()->max(fn($m) => $m->updated_at) ?? now()],
+        ];
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
         $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        
-        $xml .= '<sitemap>';
-        $xml .= '<loc>' . url('sitemap-main.xml') . '</loc>';
-        $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
-        $xml .= '</sitemap>';
-        
-        $xml .= '<sitemap>';
-        $xml .= '<loc>' . url('sitemap-news.xml') . '</loc>';
-        $xml .= '<lastmod>' . ($news->count() > 0 ? $news->first()->updated_at->toIso8601String() : now()->toIso8601String()) . '</lastmod>';
-        $xml .= '</sitemap>';
-        
-        $xml .= '<sitemap>';
-        $xml .= '<loc>' . url('sitemap-categories.xml') . '</loc>';
-        $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
-        $xml .= '</sitemap>';
-        
-        $xml .= '<sitemap>';
-        $xml .= '<loc>' . url('sitemap-research.xml') . '</loc>';
-        $xml .= '<lastmod>' . ($researches->count() > 0 ? $researches->first()->updated_at->toIso8601String() : now()->toIso8601String()) . '</lastmod>';
-        $xml .= '</sitemap>';
-        
-        $xml .= '<sitemap>';
-        $xml .= '<loc>' . url('sitemap-columns.xml') . '</loc>';
-        $xml .= '<lastmod>' . ($columns->count() > 0 ? $columns->first()->updated_at->toIso8601String() : now()->toIso8601String()) . '</lastmod>';
-        $xml .= '</sitemap>';
-        
+        foreach ($sitemaps as $s) {
+            $xml .= '<sitemap>';
+            $xml .= '<loc>' . url($s['url']) . '</loc>';
+            $xml .= '<lastmod>' . (is_string($s['last']) ? $s['last'] : $s['last']->toIso8601String()) . '</lastmod>';
+            $xml .= '</sitemap>';
+        }
         $xml .= '</sitemapindex>';
-        
+
         return response($xml)->header('Content-Type', 'text/xml');
     }
 
@@ -129,12 +127,11 @@ class SitemapController extends Controller
 
     public function columns()
     {
-        $columns = Column::orderBy('updated_at', 'desc')
-            ->get();
-            
+        $columns = Column::orderBy('updated_at', 'desc')->get();
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        
+
         foreach ($columns as $column) {
             $xml .= '<url>';
             $xml .= '<loc>' . route('columns.show', $column->slug ?? $column->id) . '</loc>';
@@ -143,9 +140,66 @@ class SitemapController extends Controller
             $xml .= '<priority>0.7</priority>';
             $xml .= '</url>';
         }
-        
+
         $xml .= '</urlset>';
-        
+
+        return response($xml)->header('Content-Type', 'text/xml');
+    }
+
+    public function profundiza()
+    {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        // Índices de sección
+        $sections = [
+            ['url' => url('/conceptos-ia'),      'freq' => 'weekly',  'pri' => '0.7'],
+            ['url' => url('/analisis'),           'freq' => 'weekly',  'pri' => '0.7'],
+            ['url' => url('/papers'),             'freq' => 'weekly',  'pri' => '0.7'],
+            ['url' => url('/estado-del-arte'),    'freq' => 'weekly',  'pri' => '0.7'],
+        ];
+        foreach ($sections as $s) {
+            $xml .= '<url><loc>' . $s['url'] . '</loc><changefreq>' . $s['freq'] . '</changefreq><priority>' . $s['pri'] . '</priority></url>';
+        }
+
+        // Conceptos IA
+        foreach (ConceptoIa::where('status','published')->latest('updated_at')->get() as $item) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . route('conceptos.show', $item->slug ?? $item->id) . '</loc>';
+            $xml .= '<lastmod>' . $item->updated_at->toIso8601String() . '</lastmod>';
+            $xml .= '<changefreq>monthly</changefreq><priority>0.7</priority>';
+            $xml .= '</url>';
+        }
+
+        // Análisis de Fondo
+        foreach (AnalisisFondo::where('status','published')->latest('updated_at')->get() as $item) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . route('analisis.show', $item->slug ?? $item->id) . '</loc>';
+            $xml .= '<lastmod>' . $item->updated_at->toIso8601String() . '</lastmod>';
+            $xml .= '<changefreq>monthly</changefreq><priority>0.75</priority>';
+            $xml .= '</url>';
+        }
+
+        // ConocIA Papers
+        foreach (ConocIaPaper::where('status','published')->latest('updated_at')->get() as $item) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . route('papers.show', $item->slug ?? $item->id) . '</loc>';
+            $xml .= '<lastmod>' . $item->updated_at->toIso8601String() . '</lastmod>';
+            $xml .= '<changefreq>monthly</changefreq><priority>0.75</priority>';
+            $xml .= '</url>';
+        }
+
+        // Estado del Arte
+        foreach (EstadoArte::where('status','published')->latest('updated_at')->get() as $item) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . route('estado-arte.show', $item->slug ?? $item->id) . '</loc>';
+            $xml .= '<lastmod>' . $item->updated_at->toIso8601String() . '</lastmod>';
+            $xml .= '<changefreq>monthly</changefreq><priority>0.7</priority>';
+            $xml .= '</url>';
+        }
+
+        $xml .= '</urlset>';
+
         return response($xml)->header('Content-Type', 'text/xml');
     }
 }

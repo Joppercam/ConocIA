@@ -58,6 +58,12 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     ])
     
     @include('partials.schema-news', ['article' => $article])
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',    'url' => url('/')],
+        ['name' => 'Noticias',  'url' => route('news.index')],
+        ['name' => $article->category?->name ?? 'IA', 'url' => $article->category ? route('news.by.category', $article->category->slug) : null],
+        ['name' => $article->title],
+    ]])
 @endsection
 @section('reading_progress', true)
 @section('content')
