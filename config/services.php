@@ -46,7 +46,7 @@ return [
     // Google Gemini — fetch noticias (Search Grounding) + tareas batch
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
-        'model'   => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+        'model'   => env('GEMINI_MODEL', 'gemini-2.5-flash'),
     ],
 
     // Anthropic Claude — contenido editorial Profundiza (Análisis, Conceptos, Estado del Arte)

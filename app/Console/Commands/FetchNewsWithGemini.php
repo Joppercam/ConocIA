@@ -218,72 +218,100 @@ class FetchNewsWithGemini extends Command
         $today     = now()->format('d/m/Y');
         $sinceDate = now()->subDays($days)->format('d/m/Y');
 
-        $prompt = <<<PROMPT
-Eres un periodista senior de tecnología e inteligencia artificial. Usa Google Search para encontrar las {$count} noticias más recientes e importantes sobre "{$name}" publicadas entre el {$sinceDate} y el {$today}.
+        // ── Paso 1: Search Grounding — buscar y resumir (sin artículo completo) ──
+        $searchPrompt = <<<PROMPT
+Usa Google Search para encontrar las {$count} noticias más recientes e importantes sobre "{$name}" publicadas entre el {$sinceDate} y el {$today}.
 
-Para CADA noticia encontrada, genera un artículo periodístico completo siguiendo esta estructura HTML:
-- Apertura: párrafo gancho sin <h2>
-- Desarrollo: 3-4 secciones con <h2>, cada una con 2-3 párrafos
-- <blockquote> con la idea más reveladora
-- <h2>Contexto clave</h2>: explica 2-3 conceptos técnicos de forma accesible
-- <h2>Para profundizar</h2>: lista <ul> con 3 ítems en formato <strong>Tema</strong> — descripción
-
-Requisitos:
-- Mínimo 900 palabras por artículo
-- Todo en español con terminología técnica precisa
-- Verifica que las noticias sean reales y recientes
-- Si no encuentras {$count} noticias recientes sobre "{$name}", devuelve las que puedas
-
-Devuelve un JSON con array "articles", cada elemento con:
-- title: string (título en español, SEO-friendly)
-- content: string (artículo HTML completo)
-- excerpt: string (2 oraciones, max 220 caracteres)
+Devuelve SOLO un JSON con array "articles". Cada elemento debe tener:
+- title: string (título en español, SEO-friendly, máx 100 chars)
+- summary: string (resumen de los hechos principales, 3-4 párrafos, texto plano)
+- excerpt: string (2 oraciones atractivas, máx 220 caracteres)
 - source: string (nombre del medio original)
-- source_url: string (URL del artículo original si la tienes, sino "")
-- image_url: string (URL de imagen representativa si la tienes, sino "")
+- source_url: string (URL del artículo si la tienes, sino "")
+- image_url: string (URL de imagen si la tienes, sino "")
+
+Si no encuentras {$count} noticias recientes, devuelve las que puedas. Responde SOLO con el JSON, sin texto adicional.
 PROMPT;
 
         try {
-            $response = Http::timeout(90)->post(
+            $r1 = Http::timeout(60)->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
                 [
-                    'tools' => [
-                        ['google_search' => (object)[]], // Search Grounding
-                    ],
-                    'contents' => [
-                        ['parts' => [['text' => $prompt]]]
-                    ],
-                    'generationConfig' => [
-                        'temperature'      => 0.4,
-                        'maxOutputTokens'  => 8192,
-                        'responseMimeType' => 'application/json',
-                    ],
+                    'tools'            => [['google_search' => (object)[]]], // Search Grounding
+                    'contents'         => [['parts' => [['text' => $searchPrompt]]]],
+                    'generationConfig' => ['temperature' => 0.3, 'maxOutputTokens' => 4096],
                 ]
             );
 
             $guard->record();
 
-            if ($response->failed()) {
-                $this->error("Gemini error: " . $response->status() . " — " . $response->body());
+            if ($r1->failed()) {
+                $this->error("Gemini Search error: " . $r1->status() . " — " . $r1->body());
                 return [];
             }
 
-            $raw = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            $parts   = $r1->json()['candidates'][0]['content']['parts'] ?? [];
+            $rawJson = implode('', array_column($parts, 'text'));
+            $found   = $this->extractJson($rawJson);
 
-            if (empty($raw)) {
-                $this->warn("Gemini devolvió respuesta vacía.");
+            if (empty($found['articles'])) {
+                $this->error("Gemini no devolvió artículos en paso 1.");
+                Log::error('FetchNewsWithGemini paso1 JSON error', ['raw' => substr($rawJson, 0, 600)]);
                 return [];
             }
 
-            $decoded = json_decode($raw, true);
+            $this->line("  Encontradas " . count($found['articles']) . " noticias. Expandiendo artículos...");
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->error("Error decodificando JSON de Gemini: " . json_last_error_msg());
-                Log::error('FetchNewsWithGemini JSON error', ['raw' => substr($raw, 0, 500)]);
-                return [];
+            // ── Paso 2: Expandir cada artículo sin Grounding ──────────────────
+            $articles = [];
+            foreach ($found['articles'] as $stub) {
+                $expandPrompt = <<<EXPAND
+Eres un periodista editorial especializado en tecnología e inteligencia artificial.
+Tienes este resumen de una noticia real:
+
+TÍTULO: {$stub['title']}
+RESUMEN: {$stub['summary']}
+FUENTE: {$stub['source']}
+
+Escribe el artículo completo en HTML con esta estructura:
+- Párrafo de apertura gancho (sin <h2>)
+- <h2>Los detalles</h2>: 2-3 párrafos con los hechos
+- <h2>Por qué importa</h2>: contexto e implicaciones
+- <blockquote>: la idea más reveladora
+- <h2>Contexto técnico</h2>: explica 2 conceptos clave de forma accesible
+- <h2>Para profundizar</h2>: lista <ul> con 3 ítems formato <strong>Tema</strong> — descripción
+
+Mínimo 700 palabras. Todo en español. Responde SOLO con el HTML del artículo, sin JSON ni texto adicional.
+EXPAND;
+
+                try {
+                    $r2 = Http::timeout(60)->post(
+                        "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
+                        [
+                            'contents'         => [['parts' => [['text' => $expandPrompt]]]],
+                            'generationConfig' => ['temperature' => 0.6, 'maxOutputTokens' => 8192],
+                        ]
+                    );
+
+                    $htmlContent = $r2->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+                    if (!empty($htmlContent)) {
+                        $stub['content'] = $htmlContent;
+                    } else {
+                        // Fallback: usar el resumen como contenido
+                        $stub['content'] = '<p>' . implode('</p><p>', array_map('trim', explode("\n", $stub['summary']))) . '</p>';
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('FetchNewsWithGemini expand error: ' . $e->getMessage());
+                    $stub['content'] = '<p>' . $stub['summary'] . '</p>';
+                }
+
+                unset($stub['summary']);
+                $articles[] = $stub;
+                sleep(1); // respetar rate limit
             }
 
-            return $decoded['articles'] ?? [];
+            return $articles;
 
         } catch (\Exception $e) {
             $this->error("Excepción llamando a Gemini: " . $e->getMessage());
@@ -292,6 +320,59 @@ PROMPT;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Extrae el primer objeto/array JSON válido de un texto libre.
+     * Necesario porque Gemini 2.5 con Search Grounding mezcla texto y JSON.
+     */
+    private function extractJson(string $text): ?array
+    {
+        // 1. Intentar directo
+        $decoded = json_decode(trim($text), true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+
+        // 2. Extraer bloque ```json ... ```
+        if (preg_match('/```json\s*([\s\S]*?)\s*```/i', $text, $m)) {
+            $decoded = json_decode(trim($m[1]), true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        // 3. Extraer primer { ... } o [ ... ] balanceado
+        foreach (['{', '['] as $open) {
+            $pos = strpos($text, $open);
+            if ($pos === false) continue;
+
+            $close   = $open === '{' ? '}' : ']';
+            $depth   = 0;
+            $inStr   = false;
+            $escaped = false;
+            $end     = null;
+
+            for ($i = $pos; $i < strlen($text); $i++) {
+                $c = $text[$i];
+                if ($escaped)       { $escaped = false; continue; }
+                if ($c === '\\')    { $escaped = true;  continue; }
+                if ($c === '"')     { $inStr = !$inStr; continue; }
+                if ($inStr)         continue;
+                if ($c === $open)   $depth++;
+                if ($c === $close)  { $depth--; if ($depth === 0) { $end = $i; break; } }
+            }
+
+            if ($end !== null) {
+                $candidate = substr($text, $pos, $end - $pos + 1);
+                $decoded   = json_decode($candidate, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return $decoded;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private function downloadImages(array $imagesToUpdate, string $categorySlug): void
     {
