@@ -2,48 +2,42 @@
 
 namespace App\Services;
 
-use App\Models\News; // Cambiado de Article a News
+use App\Models\News;
 use App\Models\TikTokScript;
+use App\Services\GeminiQuotaGuard;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TikTokScriptGenerator
 {
-    protected $apiKey;
-    protected $model;
-    protected $maxTokens;
+    protected string $apiKey;
+    protected string $model;
+    protected int $maxTokens;
 
     public function __construct()
     {
-        $this->apiKey = config('services.openai.api_key');
-        $this->model = config('services.openai.model', 'gpt-4');
-        $this->maxTokens = config('services.openai.max_tokens', 500);
+        $this->apiKey    = config('services.gemini.api_key', '');
+        $this->model     = config('services.gemini.model', 'gemini-2.0-flash');
+        $this->maxTokens = 500;
     }
 
     /**
      * Generar guión de TikTok para una noticia
-     *
-     * @param News $news
-     * @return TikTokScript|null
      */
     public function generateScript(News $news): ?TikTokScript
     {
         try {
-            // Obtener el prompt adecuado según la categoría de la noticia
-            $prompt = $this->getPromptForArticle($news);
-            
-            // Llamar a la API de OpenAI
-            $response = $this->callOpenAI($prompt);
-            
-            // Procesar la respuesta y crear el guión
+            $prompt   = $this->getPromptForArticle($news);
+            $response = $this->callGemini($prompt);
+
             return $this->processResponse($news, $response);
         } catch (Exception $e) {
             Log::error('Error generating TikTok script: ' . $e->getMessage(), [
                 'news_id' => $news->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            
+
             return null;
         }
     }
@@ -53,14 +47,12 @@ class TikTokScriptGenerator
      */
     protected function getPromptForArticle(News $news): string
     {
-        // Base del prompt
-        $basePrompt = "Genera un guión para TikTok basado en la siguiente noticia:\n\n";
+        $basePrompt  = "Genera un guión para TikTok basado en la siguiente noticia:\n\n";
         $basePrompt .= "TÍTULO: {$news->title}\n\n";
         $basePrompt .= "CONTENIDO: " . $this->truncateContent($news->content) . "\n\n";
-        
-        // Instrucciones según el tipo de contenido
+
         $category = $news->category->name ?? '';
-        
+
         switch (strtolower($category)) {
             case 'noticias':
                 return $basePrompt . $this->getNewsPrompt();
@@ -72,26 +64,21 @@ class TikTokScriptGenerator
                 return $basePrompt . $this->getDefaultPrompt();
         }
     }
-    
+
     /**
      * Truncar contenido para no exceder límites de tokens
      */
     protected function truncateContent(string $content): string
     {
-        // Estimación aproximada: 1 token ≈ 4 caracteres para español
-        $maxChars = 1000; // ~250 tokens para el contenido
-        
+        $maxChars = 1000;
+
         if (strlen($content) <= $maxChars) {
             return $content;
         }
-        
-        // Truncar y añadir indicador
+
         return substr($content, 0, $maxChars) . '...';
     }
-    
-    /**
-     * Prompt para noticias
-     */
+
     protected function getNewsPrompt(): string
     {
         return "Requisitos para el guión de noticia en TikTok:
@@ -117,10 +104,7 @@ El guión completo aquí...
 #hashtag1 #hashtag2
 [/HASHTAGS]";
     }
-    
-    /**
-     * Prompt para investigaciones
-     */
+
     protected function getInvestigationPrompt(): string
     {
         return "Requisitos para el guión de investigación en TikTok:
@@ -146,10 +130,7 @@ El guión completo aquí...
 #hashtag1 #hashtag2
 [/HASHTAGS]";
     }
-    
-    /**
-     * Prompt para columnas de opinión
-     */
+
     protected function getColumnPrompt(): string
     {
         return "Requisitos para el guión de columna de opinión en TikTok:
@@ -175,10 +156,7 @@ El guión completo aquí...
 #hashtag1 #hashtag2
 [/HASHTAGS]";
     }
-    
-    /**
-     * Prompt predeterminado
-     */
+
     protected function getDefaultPrompt(): string
     {
         return "Requisitos para el guión de TikTok:
@@ -204,59 +182,63 @@ El guión completo aquí...
 #hashtag1 #hashtag2
 [/HASHTAGS]";
     }
-    
+
     /**
-     * Realizar la llamada a la API de OpenAI
+     * Llamada a la API de Google Gemini
      */
-    protected function callOpenAI(string $prompt): array
+    protected function callGemini(string $prompt): string
     {
-        $response = Http::withoutVerifying()  // Añadir esta línea
-        ->withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Content-Type' => 'application/json',
-        ])->post('https://api.openai.com/v1/chat/completions', [
-            'model' => $this->model,
-            'messages' => [
-                ['role' => 'system', 'content' => 'Eres un experto en creación de contenido viral para TikTok a partir de noticias. Conviertes artículos periodísticos en guiones breves pero impactantes, adecuados para audiencias jóvenes.'],
-                ['role' => 'user', 'content' => $prompt]
-            ],
-            'max_tokens' => $this->maxTokens,
-            'temperature' => 0.7,
-        ]);
-        
-        if ($response->failed()) {
-            throw new Exception('OpenAI API Error: ' . $response->body());
+        $guard = app(GeminiQuotaGuard::class);
+
+        if (!$guard->canCall('low')) {
+            throw new Exception('Gemini quota exceeded for TikTok scripts. ' . $guard->summary());
         }
-        
-        return $response->json();
+
+        $response = Http::timeout(30)->post(
+            "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}",
+            [
+                'system_instruction' => [
+                    'parts' => [['text' => 'Eres un experto en creación de contenido viral para TikTok a partir de noticias. Conviertes artículos periodísticos en guiones breves pero impactantes, adecuados para audiencias jóvenes.']],
+                ],
+                'contents' => [
+                    ['parts' => [['text' => $prompt]]]
+                ],
+                'generationConfig' => [
+                    'temperature'     => 0.7,
+                    'maxOutputTokens' => $this->maxTokens,
+                ],
+            ]
+        );
+
+        if ($response->failed()) {
+            throw new Exception('Gemini API Error: ' . $response->body());
+        }
+
+        $guard->record();
+        return $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
     }
-    
+
     /**
-     * Procesar la respuesta de OpenAI y crear el guión
+     * Procesar la respuesta de Gemini y crear el guión
      */
-    protected function processResponse(News $news, array $openAIResponse): TikTokScript
+    protected function processResponse(News $news, string $content): TikTokScript
     {
-        // Extraer el contenido de la respuesta
-        $content = $openAIResponse['choices'][0]['message']['content'] ?? '';
-        
-        // Extraer las partes del guión usando expresiones regulares
         preg_match('/\[SCRIPT\](.*?)\[\/SCRIPT\]/s', $content, $scriptMatches);
         preg_match('/\[VISUALES\](.*?)\[\/VISUALES\]/s', $content, $visualMatches);
         preg_match('/\[HASHTAGS\](.*?)\[\/HASHTAGS\]/s', $content, $hashtagMatches);
-        
-        $script = trim($scriptMatches[1] ?? '');
+
+        $script           = trim($scriptMatches[1] ?? '');
         $visualSuggestions = trim($visualMatches[1] ?? '');
-        $hashtags = trim($hashtagMatches[1] ?? '');
-        
-        // Crear el guión en la base de datos
+        $hashtags         = trim($hashtagMatches[1] ?? '');
+
         return TikTokScript::create([
-            'news_id' => $news->id, // Cambiado de article_id a news_id
-            'script_content' => $script,
+            'news_id'           => $news->id,
+            'script_content'    => $script,
             'visual_suggestions' => $visualSuggestions,
-            'hashtags' => $hashtags,
-            'status' => 'pending_review',
-            'tiktok_score' => $news->tiktok_score ?? 0,
-            'ai_response_raw' => json_encode($openAIResponse)
+            'hashtags'          => $hashtags,
+            'status'            => 'pending_review',
+            'tiktok_score'      => $news->tiktok_score ?? 0,
+            'ai_response_raw'   => $content,
         ]);
     }
 }

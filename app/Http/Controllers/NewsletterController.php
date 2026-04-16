@@ -2,88 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewsletterConfirmationMail;
 use App\Models\Newsletter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class NewsletterController extends Controller
 {
     public function subscribe(Request $request)
     {
-        // Validación básica
-        $request->validate([
-            'email' => 'required|email'
-        ]);
-        
+        $request->validate(['email' => 'required|email']);
+
         $email = $request->input('email');
-        
-        // Buscar si el email ya existe en la base de datos
-        $existingSubscription = Newsletter::where('email', $email)->first();
-        
-        if ($existingSubscription) {
-            // El usuario ya está suscrito
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'info' => true,
-                    'message' => 'Este correo electrónico ya está suscrito a nuestro newsletter.'
-                ]);
+        $existing = Newsletter::where('email', $email)->first();
+
+        if ($existing) {
+            if ($existing->is_active) {
+                return $this->respond($request, false, 'Este correo ya está suscrito a nuestro newsletter.', true);
             }
-            
-            return redirect()->back()->with('subscription_info', 'Este correo electrónico ya está suscrito a nuestro newsletter.');
+
+            // Reenviar confirmación si aún no verificó
+            $existing->update(['token' => Str::random(40)]);
+            $this->sendConfirmationEmail($existing);
+
+            return $this->respond($request, true, 'Te enviamos un nuevo correo de confirmación. Revisa tu bandeja de entrada.');
         }
-        
+
         try {
-            // Generar token único para cancelación
-            $token = Str::random(40);
-            
-            // Si no existe, crear nueva suscripción con los nombres correctos de columnas
-            Newsletter::create([
-                'email' => $email,
-                'is_active' => true,      // Usar 'is_active' en lugar de 'active'
-                'token' => $token
-                // No se incluye 'verified_at' porque normalmente se establece cuando el usuario verifica
+            $subscriber = Newsletter::create([
+                'email'     => $email,
+                'is_active' => false,
+                'token'     => Str::random(40),
             ]);
-            
-            // Responder según tipo de solicitud
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Te has suscrito correctamente. ¡Gracias por unirte a nuestro newsletter!'
-                ]);
-            }
-            
-            return redirect()->back()->with('subscription_success', 'Te has suscrito correctamente. ¡Gracias por unirte a nuestro newsletter!');
+
+            $this->sendConfirmationEmail($subscriber);
+
+            return $this->respond($request, true, '¡Casi listo! Te enviamos un correo para confirmar tu suscripción.');
         } catch (\Exception $e) {
-            \Log::error('Error al suscribir newsletter: ' . $e->getMessage());
-            
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Hubo un problema al procesar tu solicitud. Por favor intenta nuevamente.'
-                ]);
-            }
-            
-            return redirect()->back()->with('subscription_error', 'Hubo un problema al procesar tu solicitud. Por favor intenta nuevamente.');
+            Log::error('Error al suscribir newsletter: ' . $e->getMessage());
+            return $this->respond($request, false, 'Hubo un problema. Por favor intenta nuevamente.');
         }
+    }
+
+    public function confirm($token)
+    {
+        $subscriber = Newsletter::where('token', $token)->first();
+
+        if (!$subscriber) {
+            return redirect()->route('home')->with('error', 'Enlace inválido o expirado.');
+        }
+
+        if ($subscriber->is_active) {
+            return redirect()->route('home')->with('info', 'Tu suscripción ya estaba confirmada.');
+        }
+
+        $subscriber->update([
+            'is_active'   => true,
+            'verified_at' => now(),
+        ]);
+
+        return redirect()->route('home')->with('subscription_success', '¡Suscripción confirmada! Bienvenido a ConocIA.');
     }
 
     public function unsubscribe($token)
     {
         $subscriber = Newsletter::where('token', $token)->first();
-        
+
         if (!$subscriber) {
-            return redirect()->route('home')->with('error', 'Enlace inválido');
+            return redirect()->route('home')->with('error', 'Enlace inválido.');
         }
-        
-        // Actualizar 'is_active' en lugar de 'active'
-        $subscriber->update([
-            'is_active' => false
-            // No se cambia 'verified_at', ya que parece que tienes un concepto diferente de verificación
-        ]);
-        
-        return redirect()->route('home')->with('success', 'Te has dado de baja correctamente');
+
+        $subscriber->update(['is_active' => false]);
+
+        return redirect()->route('home')->with('success', 'Te has dado de baja correctamente.');
     }
-    
-    // Los otros métodos se mantienen sin cambios
+
+    private function sendConfirmationEmail(Newsletter $subscriber): void
+    {
+        $confirmationUrl = route('newsletter.confirm', $subscriber->token);
+        $unsubscribeUrl  = route('newsletter.unsubscribe', $subscriber->token);
+
+        Mail::to($subscriber->email)->send(
+            new NewsletterConfirmationMail($confirmationUrl, $unsubscribeUrl)
+        );
+    }
+
+    private function respond(Request $request, bool $success, string $message, bool $info = false)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(compact('success', 'message', 'info'));
+        }
+
+        $flashKey = $success ? 'subscription_success' : ($info ? 'subscription_info' : 'subscription_error');
+        return redirect()->back()->with($flashKey, $message);
+    }
 }

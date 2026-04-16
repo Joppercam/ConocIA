@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (!Schema::hasColumn('news', 'category')) {
+            return;
+        }
+
         // Obtiene todas las noticias que tienen category como string pero no category_id
         $news = News::whereNotNull('category')
                     ->whereNull('category_id')

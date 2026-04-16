@@ -1,412 +1,362 @@
-<!-- resources/views/columns/show.blade.php -->
 @extends('layouts.app')
 
+@section('reading_progress', true)
+
+@php use Illuminate\Support\Str; @endphp
+
+@section('title', $column->title . ' - ConocIA')
+
 @section('content')
-<div class="container py-4">
-    <div class="row">
-        <!-- Contenido principal -->
-        <div class="col-lg-8">
-            <!-- Información del autor -->
-            <div class="d-flex align-items-center mb-4">
-                <img src="{{ asset($column->author->avatar ?? 'storage/images/defaults/user-profile.jpg') }}" 
-                     class="rounded-circle me-3" width="60" height="60" 
-                     alt="{{ $column->author->name }}"
-                     onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
-                <div>
-                    <h5 class="mb-0">{{ $column->author->name }}</h5>
-                    <p class="text-muted mb-0">{{ $column->published_at->format('d F, Y') }} • {{ $column->reading_time }} min de lectura</p>
-                </div>
-            </div>
-            
-            <!-- Título y categoría -->
-            <h1 class="mb-3">{{ $column->title }}</h1>
-            @if($column->category)
-            <div class="mb-4">
-                <span class="badge bg-primary">{{ $column->category->name }}</span>
-            </div>
-            @endif
-            
-            <!-- Redes sociales flotantes a la izquierda -->
-            <div class="social-share-vertical d-none d-lg-flex">
-                <div class="d-flex flex-column align-items-center">
-                    <p class="text-muted mb-2 small">Compartir</p>
-                    
-                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}" 
-                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
-                       title="Compartir en Twitter">
-                        <i class="fab fa-twitter"></i>
+
+{{-- Dark header --}}
+<div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0" style="font-size:.8rem;">
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-primary text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('columns.index') }}" class="text-secondary text-decoration-none">Columnas</a></li>
+                @if($column->category)
+                <li class="breadcrumb-item">
+                    <a href="{{ route('columns.category', $column->category->slug) }}"
+                       class="text-decoration-none"
+                       style="color:{{ $column->category->color ?? 'var(--primary-color)' }};">
+                        {{ $column->category->name }}
                     </a>
-                    
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('columns.show', $column->slug)) }}" 
-                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
-                       title="Compartir en Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('columns.show', $column->slug)) }}&title={{ urlencode($column->title) }}" 
-                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
-                       title="Compartir en LinkedIn">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    
-                    <a href="https://api.whatsapp.com/send?text={{ urlencode($column->title . ' ' . route('columns.show', $column->slug)) }}" 
-                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
-                       title="Compartir en WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    
-                    <a href="https://t.me/share/url?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
-                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2" target="_blank" rel="noopener"
-                       title="Compartir en Telegram">
-                        <i class="fab fa-telegram-plane"></i>
-                    </a>
-                    
-                    <a href="mailto:?subject={{ $column->title }}&body={{ route('columns.show', $column->slug) }}" 
-                       class="btn btn-sm btn-outline-secondary rounded-circle mb-2"
-                       title="Compartir por Email">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                    
-                    <button onclick="copyToClipboard('{{ route('columns.show', $column->slug) }}')" 
-                            class="btn btn-sm btn-outline-secondary rounded-circle copy-link"
-                            title="Copiar enlace">
-                        <i class="fas fa-link"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Contenido -->
-            <div class="content-wrapper mb-5">
-                @if($column->excerpt)
-                <div class="lead mb-4">
-                    {{ $column->excerpt }}
-                </div>
+                </li>
                 @endif
-                
-                <div class="content article-content">
-                    {!! $column->content !!}
-                </div>
-            </div>
-            
-            <!-- Compartir (versión horizontal para móviles y tablets) -->
-            <div class="mb-5 d-block d-lg-none">
-                <h5>Compartir</h5>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
-                        <i class="fab fa-twitter"></i> Twitter
-                    </a>
-                    
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('columns.show', $column->slug)) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
-                        <i class="fab fa-facebook-f"></i> Facebook
-                    </a>
-                    
-                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('columns.show', $column->slug)) }}&title={{ urlencode($column->title) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
-                        <i class="fab fa-linkedin-in"></i> LinkedIn
-                    </a>
-                    
-                    <a href="https://api.whatsapp.com/send?text={{ urlencode($column->title . ' ' . route('columns.show', $column->slug)) }}" 
-                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </a>
-                    
-                    <a href="https://t.me/share/url?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
-                       class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
-                        <i class="fab fa-telegram-plane"></i> Telegram
-                    </a>
-                    
-                    <a href="mailto:?subject={{ $column->title }}&body={{ route('columns.show', $column->slug) }}" 
-                       class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-envelope"></i> Email
-                    </a>
-                    
-                    <button onclick="copyToClipboard('{{ route('columns.show', $column->slug) }}')" 
-                            class="btn btn-sm btn-outline-primary copy-link">
-                        <i class="fas fa-link"></i> Copiar enlace
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Sobre el autor -->
-            <div class="card mb-5">
-                <div class="card-body">
-                    <h5>Sobre el autor</h5>
-                    <div class="d-flex">
-                        <img src="{{ asset($column->author->avatar ?? 'storage/images/defaults/user-profile.jpg') }}" 
-                             class="rounded-circle me-3" width="80" height="80" 
-                             alt="{{ $column->author->name }}"
-                             onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
-                        <div>
-                            <h6>{{ $column->author->name }}</h6>
-                            <p class="text-muted mb-2">{{ $column->author->bio ?? 'Columnista de ConocIA' }}</p>
-                            <!-- Aquí podrías añadir links a redes sociales del autor -->
+                <li class="breadcrumb-item active text-light" aria-current="page">{{ Str::limit($column->title, 40) }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+{{-- Article hero --}}
+<div style="background:#0d0d0d;border-bottom:1px solid #1e1e1e;" class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                @if($column->category)
+                <a href="{{ route('columns.category', $column->category->slug) }}"
+                   class="badge text-decoration-none mb-3 d-inline-block"
+                   style="background:{{ $column->category->color ?? 'var(--primary-color)' }}1a;color:{{ $column->category->color ?? 'var(--primary-color)' }};border:1px solid {{ $column->category->color ?? 'var(--primary-color)' }}55;font-size:.72rem;letter-spacing:.05em;">
+                    {{ $column->category->name }}
+                </a>
+                @endif
+
+                <h1 class="text-white fw-bold mb-4" style="font-size:2rem;line-height:1.22;">{{ $column->title }}</h1>
+
+                @if($column->excerpt)
+                <p style="color:#aaa;font-size:1.05rem;line-height:1.7;border-left:3px solid var(--primary-color);padding-left:1rem;margin-bottom:1.5rem;">
+                    {{ $column->excerpt }}
+                </p>
+                @endif
+
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <img src="{{ asset($column->author->avatar ?? 'storage/images/defaults/user-profile.jpg') }}"
+                         class="rounded-circle flex-shrink-0"
+                         width="48" height="48"
+                         alt="{{ $column->author->name }}"
+                         onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
+                    <div>
+                        <a href="{{ route('columns.author', $column->author->id) }}" class="text-white fw-semibold text-decoration-none" style="font-size:.9rem;">
+                            {{ $column->author->name }}
+                        </a>
+                        <div style="color:#666;font-size:.8rem;margin-top:.1rem;">
+                            {{ $column->published_at?->locale('es')->isoFormat('D MMMM, YYYY') }}
+                            @if($column->reading_time)
+                            · <i class="far fa-clock me-1"></i>{{ $column->reading_time }} min de lectura
+                            @endif
                         </div>
+                    </div>
+                    {{-- Inline share (desktop) --}}
+                    <div class="ms-auto d-none d-md-flex align-items-center gap-2">
+                        <span style="color:#555;font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;">Compartir</span>
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
+                           class="col-share-btn" target="_blank" rel="noopener" title="Twitter/X">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('columns.show', $column->slug)) }}&title={{ urlencode($column->title) }}"
+                           class="col-share-btn" target="_blank" rel="noopener" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($column->title . ' ' . route('columns.show', $column->slug)) }}"
+                           class="col-share-btn" target="_blank" rel="noopener" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <button onclick="copyLink('{{ route('columns.show', $column->slug) }}')"
+                                class="col-share-btn copy-link-btn" title="Copiar enlace" id="copyBtn">
+                            <i class="fas fa-link" id="copyIcon"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <!-- Sección de comentarios -->
-            @include('components.comments', [
-                'comments' => $column->comments ?? [],
-                'commentableType' => 'App\\Models\\Column',
-                'commentableId' => $column->id
-            ])
-
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Otras columnas del autor -->
-            @if($authorColumns->count() > 0)
-            <div class="card mb-4 border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Más de {{ $column->author->name }}</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        @foreach($authorColumns as $authorColumn)
-                        <li class="mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
-                            <a href="{{ route('columns.show', $authorColumn->slug) }}" class="text-decoration-none text-dark">
-                                <h6 class="mb-1">{{ $authorColumn->title }}</h6>
-                            </a>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">{{ $authorColumn->published_at->format('d/m/Y') }}</small>
-                                <small class="text-muted">{{ $authorColumn->reading_time }} min</small>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-            @endif
-            
-            <!-- Columnas relacionadas -->
-            @if($relatedColumns->count() > 0)
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Columnas relacionadas</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        @foreach($relatedColumns as $relatedColumn)
-                        <li class="mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
-                            <div class="d-flex">
-                                <div>
-                                    <h6 class="mb-1">
-                                        <a href="{{ route('columns.show', $relatedColumn->slug) }}" class="text-decoration-none text-dark">
-                                            {{ $relatedColumn->title }}
-                                        </a>
-                                    </h6>
-                                    <div class="d-flex align-items-center text-muted small">
-                                        <span>{{ $relatedColumn->author->name }}</span>
-                                        <span class="mx-2">•</span>
-                                        <span>{{ $relatedColumn->published_at->format('d/m/Y') }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 </div>
-@endsection
+
+{{-- Main content --}}
+<div style="background:#0a0a0a;" class="py-5">
+    <div class="container">
+        <div class="row justify-content-center g-5">
+
+            {{-- Article --}}
+            <div class="col-lg-8">
+
+                {{-- Content --}}
+                <div class="col-article-content mb-5">
+                    {!! $column->content !!}
+                </div>
+
+                {{-- Mobile share --}}
+                <div class="mb-5 d-block d-md-none">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div style="width:3px;height:16px;background:var(--primary-color);border-radius:2px;"></div>
+                        <span class="text-white fw-semibold" style="font-size:.85rem;">Compartir</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
+                           class="btn btn-sm btn-outline-secondary rounded-pill" target="_blank" rel="noopener" style="font-size:.78rem;">
+                            <i class="fab fa-twitter me-1"></i>Twitter
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('columns.show', $column->slug)) }}"
+                           class="btn btn-sm btn-outline-secondary rounded-pill" target="_blank" rel="noopener" style="font-size:.78rem;">
+                            <i class="fab fa-facebook-f me-1"></i>Facebook
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(route('columns.show', $column->slug)) }}&title={{ urlencode($column->title) }}"
+                           class="btn btn-sm btn-outline-secondary rounded-pill" target="_blank" rel="noopener" style="font-size:.78rem;">
+                            <i class="fab fa-linkedin-in me-1"></i>LinkedIn
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($column->title . ' ' . route('columns.show', $column->slug)) }}"
+                           class="btn btn-sm btn-outline-secondary rounded-pill" target="_blank" rel="noopener" style="font-size:.78rem;">
+                            <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                        </a>
+                        <a href="https://t.me/share/url?url={{ urlencode(route('columns.show', $column->slug)) }}&text={{ urlencode($column->title) }}"
+                           class="btn btn-sm btn-outline-secondary rounded-pill" target="_blank" rel="noopener" style="font-size:.78rem;">
+                            <i class="fab fa-telegram-plane me-1"></i>Telegram
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Author bio card --}}
+                <div class="col-author-card d-flex gap-4 align-items-start mb-5">
+                    <img src="{{ asset($column->author->avatar ?? 'storage/images/defaults/user-profile.jpg') }}"
+                         class="rounded-circle flex-shrink-0"
+                         width="72" height="72"
+                         alt="{{ $column->author->name }}"
+                         onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';"
+                         style="object-fit:cover;border:2px solid #2a2a2a;">
+                    <div>
+                        <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--primary-color);text-transform:uppercase;margin-bottom:.3rem;">Sobre el autor</div>
+                        <a href="{{ route('columns.author', $column->author->id) }}" class="text-white fw-bold text-decoration-none" style="font-size:1rem;">
+                            {{ $column->author->name }}
+                        </a>
+                        <p style="color:#888;font-size:.85rem;line-height:1.6;margin-top:.4rem;margin-bottom:.75rem;">
+                            {{ $column->author->bio ?? 'Columnista de ConocIA, especializado en inteligencia artificial y nuevas tecnologías.' }}
+                        </p>
+                        <a href="{{ route('columns.author', $column->author->id) }}"
+                           class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                           style="font-size:.78rem;">
+                            Ver más columnas
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Comments --}}
+                @include('components.comments', [
+                    'comments' => $column->comments ?? [],
+                    'commentableType' => 'App\\Models\\Column',
+                    'commentableId' => $column->id
+                ])
+
+            </div>
+
+            {{-- Sidebar --}}
+            <div class="col-lg-4 d-none d-lg-block">
+                <div style="position:sticky;top:80px;">
+
+                    @include('partials.table-of-contents', ['contentSelector' => '.col-article-content'])
+
+                    {{-- More from author --}}
+                    @if($authorColumns->count())
+                    <div class="col-sidebar-block mb-4">
+                        <div class="col-sidebar-head">
+                            <div style="width:3px;height:16px;background:var(--primary-color);border-radius:2px;"></div>
+                            <span class="text-white fw-semibold" style="font-size:.85rem;">Más de {{ $column->author->name }}</span>
+                        </div>
+                        @foreach($authorColumns as $ac)
+                        <a href="{{ route('columns.show', $ac->slug) }}" class="col-sidebar-item text-decoration-none d-block {{ !$loop->last ? 'border-bottom' : '' }}">
+                            <div class="text-white" style="font-size:.82rem;line-height:1.35;margin-bottom:.3rem;">{{ $ac->title }}</div>
+                            <div style="color:#555;font-size:.73rem;">
+                                {{ $ac->published_at?->locale('es')->isoFormat('D MMM, YYYY') }}
+                                @if($ac->reading_time) · {{ $ac->reading_time }} min @endif
+                            </div>
+                        </a>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    {{-- Related columns --}}
+                    @if($relatedColumns->count())
+                    <div class="col-sidebar-block">
+                        <div class="col-sidebar-head">
+                            <div style="width:3px;height:16px;background:var(--primary-color);border-radius:2px;"></div>
+                            <span class="text-white fw-semibold" style="font-size:.85rem;">Columnas relacionadas</span>
+                        </div>
+                        @foreach($relatedColumns as $rc)
+                        <a href="{{ route('columns.show', $rc->slug) }}" class="col-sidebar-item text-decoration-none d-block {{ !$loop->last ? 'border-bottom' : '' }}">
+                            <div class="text-white" style="font-size:.82rem;line-height:1.35;margin-bottom:.3rem;">{{ $rc->title }}</div>
+                            <div style="color:#555;font-size:.73rem;">{{ $rc->author->name ?? '' }} · {{ $rc->published_at?->locale('es')->isoFormat('D MMM, YYYY') }}</div>
+                        </a>
+                        @endforeach
+                    </div>
+                    @endif
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 @push('styles')
 <style>
-    /* Estilos para la barra lateral (sidebar) */
-    .col-lg-4 {
-        font-size: 0.8rem;
-    }
-    
-    .col-lg-4 h5 {
-        font-size: 0.95rem;
-        font-weight: 600;
-    }
-    
-    .col-lg-4 h6 {
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    
-    .col-lg-4 .text-muted {
-        font-size: 0.75rem;
-    }
-    
-    /* Estilos para el contenido del artículo - Formato profesional con letra reducida */
-    .article-content {
-        font-size: 0.85rem;
-        line-height: 1.5;
-        color: #333;
-        font-family: 'Arial', sans-serif;
-        text-align: justify;
-    }
-    
-    .article-content p {
-        margin-bottom: 0.8rem;
-    }
-    
-    .article-content h2 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-top: 1.5rem;
-        margin-bottom: 0.8rem;
-        color: #222;
-    }
-    
-    .article-content h3 {
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin-top: 1.2rem;
-        margin-bottom: 0.6rem;
-        color: #333;
-    }
-    
-    .article-content ul, .article-content ol {
-        margin-bottom: 0.8rem;
-        padding-left: 1.5rem;
-    }
-    
-    .article-content li {
-        margin-bottom: 0.3rem;
-    }
-    
-    .article-content blockquote {
-        border-left: 2px solid #ccc;
-        padding: 0.3rem 0 0.3rem 0.8rem;
-        margin: 0.8rem 0;
-        font-style: italic;
-        color: #666;
-    }
-    
-    .article-content img {
-        max-width: 100%;
-        height: auto;
-        margin: 0.8rem 0;
-    }
-    
-    .article-content a {
-        color: #444;
-        text-decoration: underline;
-    }
-    
-    .article-content table {
-        width: 100%;
-        margin: 0.8rem 0;
-        border-collapse: collapse;
-        font-size: 0.8rem;
-    }
-    
-    .article-content table th,
-    .article-content table td {
-        padding: 0.4rem;
-        border: 1px solid #ddd;
-    }
-    
-    .article-content table th {
-        background-color: #f5f5f5;
-    }
-    
-    /* Ajuste para la sección lead */
-    .lead {
-        font-size: 0.9rem;
-        font-weight: normal;
-        color: #555;
-    }
-    
-    /* Estilos para compartir en redes sociales vertical */
-    .social-share-vertical {
-        position: sticky;
-        top: 100px;
-        float: left;
-        margin-left: -80px;
-        height: 0;
-    }
-    
-    .social-share-vertical .btn {
-        width: 36px;
-        height: 36px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-    
-    .social-share-vertical .btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .btn-outline-secondary.copy-link {
-        position: relative;
-    }
-    
-    .btn-outline-secondary.copy-link:after {
-        content: "¡Copiado!";
-        position: absolute;
-        top: -30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.7);
-        color: white;
-        padding: 3px 8px;
-        border-radius: 3px;
-        font-size: 10px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-    }
-    
-    .btn-outline-secondary.copy-link.copied:after {
-        opacity: 1;
-    }
-    
-    /* Estilos para comentarios */
-    .comments-section .form-floating > .form-control {
-        height: calc(3.5rem + 2px);
-        line-height: 1.25;
-    }
-    
-    /* Media queries para pantallas pequeñas */
-    @media (max-width: 991px) {
-        .social-share-vertical {
-            display: none !important;
-        }
-    }
+/* Article content */
+.col-article-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #ccc;
+}
+.col-article-content p { margin-bottom: 1.5rem; }
+.col-article-content h2 {
+    font-size: 1.3rem; font-weight: 700;
+    margin-top: 2.5rem; margin-bottom: 1rem;
+    color: #fff;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid #1e1e1e;
+}
+.col-article-content h3 {
+    font-size: 1.1rem; font-weight: 600;
+    margin-top: 2rem; margin-bottom: .75rem;
+    color: #eee;
+}
+.col-article-content ul, .col-article-content ol {
+    margin-bottom: 1.5rem; padding-left: 1.75rem;
+}
+.col-article-content li { margin-bottom: .5rem; }
+.col-article-content blockquote {
+    border-left: 3px solid var(--primary-color);
+    padding: .9rem 1.25rem;
+    margin: 2rem 0;
+    background: rgba(56,182,255,.05);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #aaa;
+    font-size: 1.05rem;
+}
+.col-article-content img {
+    max-width: 100%; height: auto;
+    border-radius: 8px; margin: 2rem 0;
+    border: 1px solid #1e1e1e;
+}
+.col-article-content a { color: var(--primary-color); }
+.col-article-content a:hover { text-decoration: underline; }
+.col-article-content pre {
+    background: #111; color: #d4d4d4;
+    padding: 1.25rem; border-radius: 8px;
+    overflow-x: auto; margin: 1.5rem 0;
+    border: 1px solid #1e1e1e;
+    font-size: .9rem;
+}
+.col-article-content code {
+    background: #1a1a1a;
+    color: var(--primary-color);
+    padding: .15em .4em;
+    border-radius: 4px;
+    font-size: .88em;
+}
+.col-article-content table {
+    width: 100%; margin: 1.5rem 0;
+    border-collapse: collapse; font-size: .9rem;
+}
+.col-article-content table th,
+.col-article-content table td {
+    padding: .6rem .9rem;
+    border: 1px solid #222;
+}
+.col-article-content table th {
+    background: #111; color: #fff; font-weight: 600;
+}
+.col-article-content table td { color: #bbb; }
+
+/* Author card */
+.col-author-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+/* Share buttons */
+.col-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid #2a2a2a;
+    color: #888;
+    text-decoration: none;
+    font-size: .82rem;
+    transition: all .18s;
+    background: transparent;
+    cursor: pointer;
+}
+.col-share-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(56,182,255,.08);
+}
+
+/* Sidebar */
+.col-sidebar-block {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.col-sidebar-head {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .85rem 1rem;
+    border-bottom: 1px solid #1e1e1e;
+}
+.col-sidebar-item {
+    padding: .75rem 1rem;
+    transition: background .15s;
+}
+.col-sidebar-item:hover { background: #161616; }
+.col-sidebar-item.border-bottom { border-bottom: 1px solid #1a1a1a !important; }
 </style>
 @endpush
 
 @push('scripts')
 <script>
-    function copyToClipboard(text) {
-        // Crear un elemento input temporal
-        const input = document.createElement('input');
-        input.style.position = 'fixed';
-        input.style.opacity = 0;
-        input.value = text;
-        document.body.appendChild(input);
-        
-        // Seleccionar y copiar el texto
-        input.select();
-        document.execCommand('copy');
-        
-        // Eliminar el elemento input
-        document.body.removeChild(input);
-        
-        // Mostrar feedback visual
-        const copyButton = document.querySelector('.copy-link');
-        copyButton.classList.add('copied');
-        
-        // Eliminar la clase después de 2 segundos
+function copyLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        const icon = document.getElementById('copyIcon');
+        const btn = document.getElementById('copyBtn');
+        icon.className = 'fas fa-check';
+        btn.style.borderColor = '#22c55e';
+        btn.style.color = '#22c55e';
         setTimeout(() => {
-            copyButton.classList.remove('copied');
+            icon.className = 'fas fa-link';
+            btn.style.borderColor = '';
+            btn.style.color = '';
         }, 2000);
-    }
+    });
+}
 </script>
 @endpush
+
+@endsection

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin conexión — ConocIA</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #2a2a72 0%, #38b6ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 2rem;
+        }
+        .card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 1.5rem;
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+        }
+        .icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.75rem; }
+        p { font-size: 1rem; opacity: 0.85; line-height: 1.6; margin-bottom: 1.5rem; }
+        .btn {
+            display: inline-block;
+            background: #fff;
+            color: #2a2a72;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .logo span { color: #00e1ff; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">Conoc<span>IA</span></div>
+        <div class="icon">📡</div>
+        <h1>Sin conexión a internet</h1>
+        <p>
+            Parece que no tienes conexión en este momento.<br>
+            Revisa tu red y vuelve a intentarlo.
+        </p>
+        <button class="btn" onclick="window.location.reload()">
+            Reintentar
+        </button>
+    </div>
+</body>
+</html>

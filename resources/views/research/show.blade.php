@@ -1,50 +1,68 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container py-4">
-    <div class="row">
-        <!-- Contenido principal -->
-        <div class="col-lg-8">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Inicio</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('research.index') }}">Investigaciones</a></li>
-                    @php
-                        // Acceso seguro a la propiedad type, funciona tanto con array como con objeto
-                        $type = is_array($research) ? ($research['type'] ?? null) : ($research->type ?? null);
-                        $title = is_array($research) ? ($research['title'] ?? 'Investigación') : ($research->title ?? 'Investigación');
-                        $created_at = is_array($research) ? (isset($research['created_at']) ? \Carbon\Carbon::parse($research['created_at']) : now()) : ($research->created_at ?? now());
-                        $views = is_array($research) ? ($research['views'] ?? 0) : ($research->views ?? 0);
-                        $author = is_array($research) ? ($research['author'] ?? null) : ($research->author ?? null);
-                        $image = is_array($research) ? ($research['image'] ?? null) : ($research->image ?? null);
-                        $excerpt = is_array($research) ? ($research['excerpt'] ?? null) : ($research->excerpt ?? null);
-                        $content = is_array($research) ? ($research['content'] ?? '') : ($research->content ?? '');
-                        $citations = is_array($research) ? ($research['citations'] ?? null) : ($research->citations ?? null);
-                        $id = is_array($research) ? ($research['id'] ?? 0) : ($research->id ?? 0);
-                        $comments = is_array($research) ? ($research['comments'] ?? []) : ($research->comments ?? []);
-                        $comments_count = is_array($research) ? ($research['comments_count'] ?? 0) : ($research->comments_count ?? 0);
-                    @endphp
-                    
-                    @if($type)
-                    <li class="breadcrumb-item"><a href="{{ route('research.type', $type) }}">{{ $type }}</a></li>
-                    @endif
-                    <li class="breadcrumb-item active" aria-current="page">{{ $title }}</li>
-                </ol>
-            </nav>
+@section('reading_progress', true)
 
-            <!-- Título y metadatos -->
+@php use Illuminate\Support\Str; @endphp
+
+@section('content')
+
+@php
+    // Acceso seguro compatible con array o modelo
+    $type        = is_array($research) ? ($research['type'] ?? null)        : ($research->type ?? null);
+    $title       = is_array($research) ? ($research['title'] ?? 'Investigación') : ($research->title ?? 'Investigación');
+    $created_at  = is_array($research) ? (isset($research['created_at']) ? \Carbon\Carbon::parse($research['created_at']) : now()) : ($research->created_at ?? now());
+    $views       = is_array($research) ? ($research['views'] ?? 0)          : ($research->views ?? 0);
+    $author      = is_array($research) ? ($research['author'] ?? null)      : ($research->author ?? null);
+    $image       = is_array($research) ? ($research['image'] ?? null)       : ($research->image ?? null);
+    $excerpt     = is_array($research) ? ($research['excerpt'] ?? null)     : ($research->excerpt ?? null);
+    $content     = is_array($research) ? ($research['content'] ?? '')       : ($research->content ?? '');
+    $citations   = is_array($research) ? ($research['citations'] ?? null)   : ($research->citations ?? null);
+    $id          = is_array($research) ? ($research['id'] ?? 0)             : ($research->id ?? 0);
+    $comments    = is_array($research) ? ($research['comments'] ?? [])      : ($research->comments ?? []);
+    $rCategory   = is_array($research) ? null : ($research->category ?? null);
+    $rColor      = $rCategory ? ($rCategory->color ?? 'var(--primary-color)') : 'var(--primary-color)';
+@endphp
+
+{{-- Page header --}}
+<div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0" style="font-size:.8rem;">
+                <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-primary text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('research.index') }}" class="text-secondary text-decoration-none">Investigaciones</a></li>
+                @if($rCategory)
+                <li class="breadcrumb-item">
+                    <a href="{{ route('research.category', $rCategory->slug) }}"
+                       class="text-decoration-none"
+                       style="color:{{ $rColor }};">{{ $rCategory->name }}</a>
+                </li>
+                @elseif($type)
+                <li class="breadcrumb-item"><a href="{{ route('research.type', $type) }}" class="text-secondary text-decoration-none">{{ $type }}</a></li>
+                @endif
+                <li class="breadcrumb-item active text-light" aria-current="page">{{ Str::limit($title, 40) }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row">
+        {{-- Contenido principal --}}
+        <div class="col-lg-8">
+
+            {{-- Título y metadatos --}}
+            @if($rCategory)
+            <a href="{{ route('research.category', $rCategory->slug) }}"
+               class="badge text-decoration-none mb-3 d-inline-block"
+               style="background:{{ $rColor }};font-size:.78rem;">
+                <i class="fas {{ $rCategory->icon ?? 'fa-tag' }} me-1"></i>{{ $rCategory->name }}
+            </a>
+            @endif
             <h1 class="mb-3">{{ $title }}</h1>
             <div class="article-meta d-flex flex-wrap align-items-center mb-4 text-muted small">
                 <div class="me-4 mb-2">
                     <i class="far fa-calendar-alt me-1"></i> {{ $created_at->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
                 </div>
-                @if($type)
-                <div class="me-4 mb-2">
-                    <i class="fas fa-tag me-1"></i> 
-                    <a href="{{ route('research.category', $research->category->slug) }}" class="text-decoration-none">{{ $research->category->name }}</a>
-                </div>
-                @endif
                 <div class="me-4 mb-2">
                     <i class="far fa-eye me-1"></i> {{ number_format($views) }} lecturas
                 </div>
@@ -269,14 +287,17 @@
 
         </div>
         
-        <!-- Sidebar -->
+        {{-- Sidebar --}}
         <div class="col-lg-4">
-            <!-- Lo más leído -->
+            @include('partials.table-of-contents', ['contentSelector' => '.article-content'])
+
+            {{-- Lo más leído --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-chart-line text-primary me-2"></i> Lo más leído
-                    </h5>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Más leídas</h5>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="most-read-list">
@@ -316,12 +337,13 @@
                 </div>
             </div>
             
-            <!-- Artículos Relacionados -->
+            {{-- Investigaciones relacionadas --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-link text-primary me-2"></i> Investigaciones Relacionadas
-                    </h5>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Investigaciones relacionadas</h5>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
@@ -372,31 +394,36 @@
                 </div>
             </div>
 
-            <!-- Tipos populares -->
+            {{-- Tipos de investigación --}}
+            @if(!empty($popularTypes) && count($popularTypes))
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-tags text-primary me-2"></i> Tipos de investigación
-                    </h5>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Tipos de investigación</h5>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-1 pb-3 px-3">
                     <div class="d-flex flex-wrap gap-2">
                         @foreach($popularTypes as $typeItem)
-                            @php
-                                $itemType = is_array($typeItem) ? ($typeItem['type'] ?? '') : ($typeItem->type ?? '');
-                                $itemCount = is_array($typeItem) ? ($typeItem['count'] ?? 0) : ($typeItem->count ?? 0);
-                            @endphp
-                            <a href="{{ route('research.type', $itemType) }}" class="badge bg-primary text-white text-decoration-none p-2">
-                                <i class="fas fa-tag me-1"></i>{{ $itemType }} 
-                                <span class="badge bg-light text-dark ms-1">{{ $itemCount }}</span>
-                            </a>
+                        @php
+                            $itemType  = is_array($typeItem) ? ($typeItem['type'] ?? '') : ($typeItem->type ?? '');
+                            $itemCount = is_array($typeItem) ? ($typeItem['count'] ?? 0)  : ($typeItem->count ?? 0);
+                        @endphp
+                        <a href="{{ route('research.type', $itemType) }}"
+                           class="badge bg-light text-dark text-decoration-none border"
+                           style="font-size:.75rem;font-weight:500;">
+                            {{ $itemType }}
+                            <span class="ms-1" style="opacity:.6;">{{ $itemCount }}</span>
+                        </a>
                         @endforeach
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
-</div>
+</div>{{-- /container --}}
 @endsection
 
 @push('styles')

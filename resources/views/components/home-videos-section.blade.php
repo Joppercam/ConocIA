@@ -14,39 +14,35 @@
 
         <!-- Video destacado principal -->
         <div class="row g-4 mb-4">
-            <div class="col-lg-7">
+            <div class="col-lg-7" id="main-video-player">
                 @if($featuredVideos->count() > 0)
-                <div class="card border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
-                    <div class="position-relative">
-                        <img src="{{ $featuredVideos->first()->thumbnail_url }}" class="card-img-top featured-thumbnail" alt="{{ $featuredVideos->first()->title }}">
-                        <a href="{{ route('videos.show', $featuredVideos->first()->id) }}" class="stretched-link video-play-overlay">
-                            <div class="video-play-button">
-                                <i class="fas fa-play"></i>
-                            </div>
-                        </a>
-                        <div class="video-duration">
-                            <i class="fas fa-clock me-1"></i> {{ formatDuration($featuredVideos->first()->duration_seconds) }}
-                        </div>
-                        <div class="video-platform position-absolute top-0 start-0 m-3">
-                            <span class="badge bg-{{ $featuredVideos->first()->platform->code === 'youtube' ? 'danger' : ($featuredVideos->first()->platform->code === 'vimeo' ? 'info' : 'primary') }}">
-                                <i class="fab fa-{{ $featuredVideos->first()->platform->code }}"></i>
-                            </span>
-                        </div>
+                @php $mainVideo = $featuredVideos->first(); @endphp
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                    <!-- Embed del video principal -->
+                    <div class="ratio ratio-16x9 bg-black">
+                        <iframe id="main-video-iframe"
+                                src="{{ $mainVideo->embed_url }}?rel=0&modestbranding=1"
+                                title="{{ $mainVideo->title }}"
+                                allowfullscreen
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                class="rounded-top"
+                                loading="lazy">
+                        </iframe>
                     </div>
-                    <div class="card-body">
-                        <h3 class="card-title h4 fw-bold">{{ $featuredVideos->first()->title }}</h3>
-                        <p class="card-text text-secondary mb-3 d-none d-md-block">{{ Str::limit($featuredVideos->first()->description, 120) }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="video-meta">
-                                <span class="me-3 text-muted">
-                                    <i class="far fa-calendar-alt me-1"></i> {{ $featuredVideos->first()->published_at->format('d M Y') }}
-                                </span>
-                                <span class="text-muted">
-                                    <i class="far fa-eye me-1"></i> {{ number_format($featuredVideos->first()->view_count) }}
-                                </span>
-                            </div>
-                            <a href="{{ route('videos.show', $featuredVideos->first()->id) }}" class="btn btn-sm btn-primary d-none d-md-inline-block">
-                                Ver ahora <i class="fas fa-play ms-1"></i>
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-{{ $mainVideo->platform->code === 'youtube' ? 'danger' : ($mainVideo->platform->code === 'vimeo' ? 'info' : 'primary') }}">
+                                <i class="fab fa-{{ $mainVideo->platform->code }}"></i>
+                            </span>
+                            <h3 class="card-title h6 fw-bold mb-0" id="main-video-title">{{ $mainVideo->title }}</h3>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center text-muted small">
+                            <span>
+                                <i class="far fa-calendar-alt me-1"></i> {{ $mainVideo->published_at->format('d M Y') }}
+                                <span class="ms-3"><i class="far fa-eye me-1"></i> {{ number_format($mainVideo->view_count) }}</span>
+                            </span>
+                            <a href="{{ route('videos.show', $mainVideo->id) }}" class="btn btn-sm btn-outline-primary py-0">
+                                Ver página <i class="fas fa-external-link-alt ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -58,14 +54,18 @@
                 <div class="row g-3">
                     @foreach($featuredVideos->skip(1)->take(4) as $video)
                     <div class="col-md-6">
-                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
+                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300 video-thumb-card"
+                             style="cursor:pointer;"
+                             data-embed="{{ $video->embed_url }}?rel=0&modestbranding=1&autoplay=1"
+                             data-title="{{ $video->title }}"
+                             data-platform="{{ $video->platform->code }}">
                             <div class="position-relative video-card-thumb" style="height: 140px;">
                                 <img src="{{ $video->thumbnail_url }}" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="{{ $video->title }}">
-                                <a href="{{ route('videos.show', $video->id) }}" class="stretched-link video-play-overlay">
+                                <div class="video-play-overlay">
                                     <div class="video-play-button-sm">
                                         <i class="fas fa-play"></i>
                                     </div>
-                                </a>
+                                </div>
                                 <div class="video-duration small">
                                     {{ formatDuration($video->duration_seconds) }}
                                 </div>
@@ -162,7 +162,7 @@
     object-fit: cover;
 }
 
-/* Estilos para botón de reproducción */
+/* Overlay de reproducción en miniaturas */
 .video-play-overlay {
     position: absolute;
     top: 0;
@@ -172,13 +172,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.25);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
-.video-play-overlay:hover {
+.video-thumb-card:hover .video-play-overlay {
     opacity: 1;
+}
+
+/* Tarjeta activa */
+.video-thumb-card.active-video {
+    outline: 3px solid var(--bs-primary);
 }
 
 .video-play-button {
@@ -227,6 +232,29 @@
 </style>
 
 <script>
+// Cambiar video en el player principal al hacer clic en una miniatura
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.video-thumb-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+            const embed  = card.dataset.embed;
+            const title  = card.dataset.title;
+
+            // Actualizar iframe
+            document.getElementById('main-video-iframe').src = embed;
+            document.getElementById('main-video-title').textContent = title;
+
+            // Scroll suave al player en móvil
+            if (window.innerWidth < 992) {
+                document.getElementById('main-video-player').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Marcar tarjeta activa
+            document.querySelectorAll('.video-thumb-card').forEach(c => c.classList.remove('active-video'));
+            card.classList.add('active-video');
+        });
+    });
+});
+
 // Helper functions
 function formatDuration(seconds) {
     if (!seconds) return '0:00';

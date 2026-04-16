@@ -13,9 +13,9 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
-        "openai-php/laravel": "^0.11.0",
         "pizzaminded/facebook-http-foundation-bridge": "^1.1",
         "predis/predis": "^2.3",
+        "spatie/laravel-feed": "^4.5",
         "vimeo/vimeo-api": "^3.0"
     },
     "require-dev": {
@@ -60,9 +60,20 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
         ],
+        "local:init": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --ansi"
+        ],
+        "local:check": [
+            "@php artisan about --ansi",
+            "@php artisan migrate:status --ansi",
+            "@php artisan test"
+        ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74,#86efac\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan schedule:work\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,scheduler,logs,vite"
         ]
     },
     "extra": {

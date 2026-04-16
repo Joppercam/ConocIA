@@ -58,12 +58,7 @@ class FetchAllNewsCategories extends Command
         'impacto-laboral',
         'privacidad-y-seguridad',
         
-        // Categorías generales
-        'tecnologia',
-        'investigacion',
-        'ciberseguridad',
-        'innovacion',
-        'etica'
+        // Categorías sociales/impacto — las generales quitadas por traer ruido (tecnologia, investigacion, ciberseguridad, innovacion, etica)
     ];
 
     /**

@@ -1,66 +1,144 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ConocIA
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicación Laravel 12 para gestión y publicación de contenidos (noticias, videos, newsletter, redes sociales y automatizaciones con IA).
 
-## About Laravel
+> Referencia rápida permanente: [COMANDOS_RAPIDOS.md](COMANDOS_RAPIDOS.md)
+>
+> Si pausan y retoman más adelante: [GUIA_RETORNO_RELANZAMIENTO.md](GUIA_RETORNO_RELANZAMIENTO.md)
+>
+> Hoja de ruta del relanzamiento: [PLAN_EJECUTIVO_RELANZAMIENTO.md](PLAN_EJECUTIVO_RELANZAMIENTO.md)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2+
+- Composer 2+
+- Node.js 20+
+- NPM 10+
+- Docker Desktop (opcional, recomendado para infraestructura local)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Inicio rápido recomendado (Docker)
 
-## Learning Laravel
+```bash
+make up
+make dev
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Con eso levantas infraestructura + app completa. Para detener infraestructura:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+make docker-down
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Flujo A: rápido (SQLite, sin Docker)
 
-## Laravel Sponsors
+1. Instalar dependencias:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+npm install
+```
 
-### Premium Partners
+2. Inicializar entorno:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+composer local:init
+```
 
-## Contributing
+3. Levantar desarrollo completo (server + queue + scheduler + logs + vite):
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer dev
+```
 
-## Code of Conduct
+4. Abrir aplicación:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- App: http://127.0.0.1:8000
 
-## Security Vulnerabilities
+## Flujo B: infraestructura local con Docker (MySQL + Redis + Mailpit)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Copiar variables Docker:
 
-## License
+```bash
+cp .env.docker.example .env
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. Levantar servicios de infraestructura:
+
+```bash
+docker compose up -d
+```
+
+3. Instalar dependencias y ejecutar migraciones:
+
+```bash
+composer install
+npm install
+php artisan key:generate
+php artisan migrate
+```
+
+4. Levantar aplicación y workers:
+
+```bash
+composer dev
+```
+
+5. Verificación visual:
+
+- App: http://127.0.0.1:8000
+- Mailpit (bandeja SMTP local): http://127.0.0.1:8025
+
+## Comandos útiles
+
+- Flujo diario simplificado:
+
+```bash
+make up
+make dev
+make check
+make logs
+```
+
+- Validar estado general:
+
+```bash
+composer local:check
+```
+
+- Detener infraestructura Docker:
+
+```bash
+docker compose down
+```
+
+- Ver logs de infraestructura:
+
+```bash
+docker compose logs -f
+```
+
+## Variables externas (opcionales según features)
+
+En `.env` podés completar según lo que quieras probar localmente:
+
+- OpenAI: `OPENAI_API_KEY`, `OPENAI_ORGANIZATION`
+- News API: `NEWSAPI_KEY`
+- Análisis de texto: `TEXT_ANALYSIS_API_KEY`, `TEXT_ANALYSIS_API_URL`
+- Twitter/X: `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET`, `TWITTER_BEARER_TOKEN`
+- YouTube: `YOUTUBE_API_KEY`
+- Vimeo: `VIMEO_CLIENT_ID`, `VIMEO_CLIENT_SECRET`, `VIMEO_REDIRECT_URI`, `VIMEO_ACCESS_TOKEN`
+- Dailymotion: `DAILYMOTION_API_KEY`
+- Captcha: `NOCAPTCHA_SITEKEY`, `NOCAPTCHA_SECRET`
+
+## Checklist de revisión local
+
+1. `php artisan about` responde sin errores.
+2. `php artisan migrate:status` muestra migraciones aplicadas.
+3. `composer dev` deja activos: server, queue, scheduler, logs y vite.
+4. Se puede abrir la app en navegador.
+5. Si usás mail SMTP local, llega correo a Mailpit.
+
+## Notas
+
+- El scheduler es importante en este proyecto porque ejecuta tareas automáticas (newsletters, publicaciones, procesos programados).
+- Si no necesitás integraciones externas, podés dejar sus variables vacías para desarrollo de interfaz/flujo base.

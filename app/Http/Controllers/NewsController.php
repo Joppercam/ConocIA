@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\News;
 use App\Models\NewsHistoric;
 use App\Models\Tag;
@@ -13,193 +12,185 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\ImageHelper;
-use App\Services\KeywordExtractorService; // Corregido: Importamos desde el namespace correcto
+use App\Services\KeywordExtractorService;
 
 class NewsController extends Controller
 {
-    /**
-     * Mostrar listado de noticias
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
-        // Cachear los resultados para mejorar rendimiento
-        $news = Cache::remember('news_index_list', 1800, function () {
-            return News::with(['category', 'author'])
-                ->where('status', 'published') // Aseguramos mostrar solo noticias publicadas
+        $news = Cache::remember('news_index_list', 1800, fn() =>
+            News::with(['category', 'author'])
+                ->where('status', 'published')
                 ->orderBy('published_at', 'desc')
-                ->paginate(10);
-        });
-            
-        // Verificar si hay noticias (mantener log para depuración)
+                ->paginate(10)
+        );
+
         if ($news->isEmpty()) {
             Log::info('No se encontraron noticias en el método index');
         }
-            
-        // Obtener todas las categorías (cachear por más tiempo ya que cambian menos)
-        $categories = Cache::remember('all_categories', 3600, function () {
-            return Category::withCount(['news' => function ($query) {
-                $query->where('status', 'published');
-            }])
-            ->orderBy('news_count', 'desc')
-            ->get();
-        });
-        
-        // Obtener artículos más leídos (cacheados)
-        $mostReadArticles = Cache::remember('most_read_articles', 1800, function () {
-            return News::with('category')
-                ->where('status', 'published')
-                ->orderBy('views', 'desc')
-                ->take(5)
-                ->get();
-        });
-            
-        return view('news.index', compact('news', 'categories', 'mostReadArticles'));
+
+        return view('news.index', [
+            'news'             => $news,
+            'categories'       => $this->sidebarCategories(),
+            'mostReadArticles' => $this->sidebarMostRead(),
+            'popularTags'      => $this->sidebarPopularTags(),
+            'trendingIds'      => $this->trendingIds(),
+        ]);
     }
 
-    /**
-     * Muestra las noticias de una categoría específica
-     * 
-     * @param string $slug
-     * @return \Illuminate\View\View
-     */
     public function category($slug)
     {
-        // Buscar la categoría por su slug (cachear resultado)
-        $category = Cache::remember('category_' . $slug, 3600, function () use ($slug) {
-            return Category::where('slug', $slug)->firstOrFail();
-        });
-        
-        // Obtener noticias de esta categoría con caché dependiente
-        $news = Cache::remember('news_by_category_' . $category->id, 1800, function () use ($category) {
-            return News::where('category_id', $category->id)
+        $category = Cache::remember("category_{$slug}", 3600,
+            fn() => Category::where('slug', $slug)->firstOrFail()
+        );
+
+        $news = Cache::remember("news_by_category_{$category->id}", 1800,
+            fn() => News::where('category_id', $category->id)
                 ->where('status', 'published')
                 ->with('author')
                 ->latest('published_at')
-                ->paginate(10);
-        });
-        
-        // Obtener todas las categorías para el menú lateral
-        $categories = Cache::remember('all_categories', 3600, function () {
-            return Category::withCount(['news' => function ($query) {
-                $query->where('status', 'published');
-            }])
-            ->orderBy('news_count', 'desc')
-            ->get();
-        });
-        
-        // Obtener artículos más leídos (cacheados)
-        $mostReadArticles = Cache::remember('most_read_articles', 1800, function () {
-            return News::with('category')
-                ->where('status', 'published')
-                ->orderBy('views', 'desc')
-                ->take(5)
-                ->get();
-        });
-        
-        // Pasar la categoría actual para destacarla en la UI
-        return view('news.index', compact('news', 'categories', 'category', 'mostReadArticles'));
+                ->paginate(10)
+        );
+
+        return view('news.index', [
+            'news'             => $news,
+            'category'         => $category,
+            'categories'       => $this->sidebarCategories(),
+            'mostReadArticles' => $this->sidebarMostRead(),
+            'popularTags'      => $this->sidebarPopularTags(),
+            'trendingIds'      => $this->trendingIds(),
+        ]);
     }
 
-    /**
-     * Redirecciona a la página específica de categoría en la sección de noticias
-     * 
-     * @param string $slug
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function byCategory($slug)
     {
         return redirect()->route('news.category', $slug);
     }
 
-    /**
-     * Mostrar una noticia específica
-     *
-     * @param string $slug
-     * @return \Illuminate\View\View
-     */
     public function show($slug)
     {
-        // No cacheamos la noticia individual para mantener precisos los contadores de vistas
-        // Intentar obtener la noticia de la tabla principal primero
         $article = News::where('slug', $slug)
-            ->with(['category', 'tags', 'author', 'comments' => function($query) {
-                $query->where('status', 'approved')
-                    ->whereNull('parent_id')
-                    ->orderBy('created_at', 'desc');
-            }])
+            ->with(['category', 'tags', 'author', 'comments' => fn($q) =>
+                $q->where('status', 'approved')->whereNull('parent_id')->orderBy('created_at', 'desc')
+            ])
             ->first();
-        
-        // Si no se encuentra en la tabla principal, buscar en la tabla histórica
+
         if (!$article) {
             $article = NewsHistoric::where('slug', 'like', $slug . '%')
-                ->with(['category', 'author', 'comments' => function($query) {
-                    $query->where('status', 'approved')
-                        ->whereNull('parent_id')
-                        ->orderBy('created_at', 'desc');
-                }])
+                ->with(['category', 'author', 'comments' => fn($q) =>
+                    $q->where('status', 'approved')->whereNull('parent_id')->orderBy('created_at', 'desc')
+                ])
                 ->first();
-                
-            if (!$article) {
-                abort(404);
-            }
+
+            abort_if(!$article, 404);
         }
-        
-        // Incrementar contador de vistas para noticias activas (solo para News no para NewsHistoric)
+
         if ($article instanceof News && $article->status === 'published') {
             $this->incrementArticleViews($article);
         }
-        
-        // Obtener artículos relacionados (cachear basado en artículo actual)
-        $cacheKey = 'related_articles_' . $article->id;
-        $relatedArticles = Cache::remember($cacheKey, 1800, function () use ($article) {
-            return News::where('id', '!=', $article->id)
-                ->with('category')
-                ->where(function ($query) use ($article) {
-                    // Relacionados por categoría
-                    if ($article->category) {
-                        $query->where('category_id', $article->category->id);
-                    }
-                    
-                    // O por etiquetas si están disponibles
-                    if (isset($article->tags) && !empty($article->tags)) {
-                        // Si es una colección de etiquetas
-                        if (is_object($article->tags) && method_exists($article->tags, 'pluck')) {
-                            $tagIds = $article->tags->pluck('id')->toArray();
-                            $query->orWhereHas('tags', function($q) use ($tagIds) {
-                                $q->whereIn('tags.id', $tagIds);
-                            });
-                        } 
-                        // Si es un string de etiquetas (formato legacy)
-                        else if (is_string($article->tags)) {
-                            $tagArray = explode(',', $article->tags);
-                            $query->orWhere(function($q) use ($tagArray) {
-                                foreach ($tagArray as $tag) {
-                                    $q->orWhere('tags', 'like', '%' . trim($tag) . '%');
-                                }
-                            });
-                        }
-                    }
-                })
+
+        if ($article instanceof News && !$article->keywords) {
+            $this->maybeExtractKeywords($article);
+        }
+
+        return view('news.show', [
+            'article'         => $article,
+            'relatedArticles' => $this->fetchRelatedArticles($article),
+            'mostReadArticles' => $this->sidebarMostRead(),
+            'popularTags'     => $this->sidebarPopularTags(),
+        ])->with([
+            'getImageUrl'      => $this->imageUrlHelper(),
+            'getCategoryStyle' => fn($cat) => $cat && isset($cat->color) ? 'background-color: ' . $cat->color . ';' : 'background-color: var(--primary-color);',
+            'getCategoryIcon'  => fn($cat) => $cat && isset($cat->icon) ? $cat->icon : 'fa-tag',
+        ]);
+    }
+
+    public function tag($slug)
+    {
+        $tag = Cache::remember("tag_{$slug}", 3600,
+            fn() => Tag::where('slug', $slug)->firstOrFail()
+        );
+
+        $news = Cache::remember("news_by_tag_{$tag->id}", 1800,
+            fn() => News::whereHas('tags', fn($q) => $q->where('tags.id', $tag->id))
                 ->where('status', 'published')
+                ->with(['category', 'author'])
                 ->latest('published_at')
-                ->take(6)
-                ->get();
-        });
-        
-        // Obtener artículos más leídos (cacheados)
-        $mostReadArticles = Cache::remember('most_read_articles', 1800, function () {
-            return News::with('category')
+                ->paginate(10)
+        );
+
+        return view('news.tag', [
+            'news'             => $news,
+            'tag'              => $tag,
+            'categories'       => $this->sidebarCategories(),
+            'mostReadArticles' => $this->sidebarMostRead(),
+        ]);
+    }
+
+    public function archive($year, $month = null)
+    {
+        $query = News::query()
+            ->where('status', 'published')
+            ->whereRaw('YEAR(COALESCE(published_at, created_at)) = ?', [$year]);
+
+        if ($month) {
+            $query->whereRaw('MONTH(COALESCE(published_at, created_at)) = ?', [(int)$month]);
+        }
+
+        $news         = $query->with(['category', 'author'])->latest('published_at')->paginate(10);
+        $archiveTitle = $month ? date('F Y', strtotime("{$year}-{$month}-01")) : "Año {$year}";
+
+        return view('news.archive', [
+            'news'             => $news,
+            'year'             => $year,
+            'month'            => $month,
+            'archiveTitle'     => $archiveTitle,
+            'mostReadArticles' => $this->sidebarMostRead(),
+            'categories'       => $this->sidebarCategories(),
+            'mostReadArticles' => $this->sidebarMostRead(),
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private sidebar helpers (elimina duplicación entre métodos públicos)
+    // -------------------------------------------------------------------------
+
+    private function trendingIds(): array
+    {
+        return Cache::remember('trending_ids', 900, fn() =>
+            News::where('status', 'published')
+                ->where('published_at', '>=', now()->subDays(7))
+                ->orderBy('views', 'desc')
+                ->limit(5)
+                ->pluck('id')
+                ->toArray()
+        );
+    }
+
+    private function sidebarCategories()
+    {
+        return Cache::remember('all_categories', 3600,
+            fn() => Category::withCount(['news' => fn($q) => $q->where('status', 'published')])
+                ->orderBy('news_count', 'desc')
+                ->get()
+        );
+    }
+
+    private function sidebarMostRead()
+    {
+        return Cache::remember('most_read_articles', 1800,
+            fn() => News::with('category')
                 ->where('status', 'published')
                 ->orderBy('views', 'desc')
                 ->take(5)
-                ->get();
-        });
-            
-        // Obtener etiquetas populares (cacheadas)
-        $popularTags = Cache::remember('popular_tags', 3600, function () {
-            return Tag::select('tags.*')
+                ->get()
+        );
+    }
+
+    private function sidebarPopularTags()
+    {
+        return Cache::remember('popular_tags', 3600,
+            fn() => Tag::select('tags.*')
                 ->join('news_tag', 'tags.id', '=', 'news_tag.tag_id')
                 ->join('news', 'news.id', '=', 'news_tag.news_id')
                 ->where('news.status', 'published')
@@ -207,225 +198,150 @@ class NewsController extends Controller
                 ->selectRaw('COUNT(news_tag.news_id) as news_count')
                 ->orderByDesc('news_count')
                 ->limit(10)
-                ->get();
+                ->get()
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Private show() helpers
+    // -------------------------------------------------------------------------
+
+    private function fetchRelatedArticles($article)
+    {
+        return Cache::remember('related_articles_' . $article->id, 1800, function () use ($article) {
+            // Tag IDs del artículo actual
+            $tagIds = ($article->relationLoaded('tags') && !is_null($article->tags) && !is_string($article->tags) && $article->tags->isNotEmpty())
+                ? $article->tags->pluck('id')
+                : collect([]);
+
+            // Keywords del artículo actual (almacenadas como CSV)
+            $articleKeywords = ($article->keywords)
+                ? collect(array_map('trim', explode(',', $article->keywords)))->filter()->values()
+                : collect([]);
+
+            // Buscar candidatos: misma categoría O tags en común
+            $hasCriteria = $article->category_id || $tagIds->isNotEmpty();
+
+            $candidates = $hasCriteria
+                ? News::where('id', '!=', $article->id)
+                    ->where('status', 'published')
+                    ->with(['category', 'tags'])
+                    ->where(function ($q) use ($article, $tagIds) {
+                        if ($article->category_id) {
+                            $q->where('category_id', $article->category_id);
+                        }
+                        if ($tagIds->isNotEmpty()) {
+                            $q->orWhereHas('tags', fn($tq) => $tq->whereIn('tags.id', $tagIds));
+                        }
+                    })
+                    ->latest('published_at')
+                    ->take(30)
+                    ->get()
+                : collect([]);
+
+            // Puntuar y ordenar: categoría (+2), tag compartido (+1 c/u), keyword compartida (+1 c/u)
+            $scored = $candidates
+                ->map(function ($candidate) use ($article, $tagIds, $articleKeywords) {
+                    $score = 0;
+
+                    if ($article->category_id && $candidate->category_id === $article->category_id) {
+                        $score += 2;
+                    }
+                    if ($tagIds->isNotEmpty()) {
+                        $score += $tagIds->intersect($candidate->tags->pluck('id'))->count();
+                    }
+                    if ($articleKeywords->isNotEmpty() && $candidate->keywords) {
+                        $candidateKeywords = collect(array_map('trim', explode(',', $candidate->keywords)));
+                        $score += $articleKeywords->intersect($candidateKeywords)->count();
+                    }
+
+                    $candidate->relevance_score = $score;
+                    return $candidate;
+                })
+                ->sortByDesc('relevance_score')
+                ->take(6)
+                ->values();
+
+            // Completar con recientes si hay menos de 6
+            if ($scored->count() < 6) {
+                $excludeIds = $scored->pluck('id')->push($article->id)->all();
+                $recent = News::where('status', 'published')
+                    ->whereNotIn('id', $excludeIds)
+                    ->with('category')
+                    ->latest('published_at')
+                    ->take(6 - $scored->count())
+                    ->get();
+                return $scored->concat($recent);
+            }
+
+            return $scored;
         });
-        
-        // Usar el ImageHelper existente
-        $getImageUrl = function($imagePath, $type = 'news', $size = 'large') {
-            // Extraemos solo el nombre del archivo si es una ruta completa
+    }
+
+    private function maybeExtractKeywords(News $article): void
+    {
+        try {
+            $keywords = app(KeywordExtractorService::class)->extractKeywords($article->content);
+            $article->keywords = implode(',', $keywords);
+            $article->save();
+        } catch (\Exception $e) {
+            Log::error('Error al extraer palabras clave: ' . $e->getMessage());
+        }
+    }
+
+    private function imageUrlHelper(): \Closure
+    {
+        return function ($imagePath, $type = 'news', $size = 'large') {
             if ($imagePath && (Str::startsWith($imagePath, 'storage/') || Str::startsWith($imagePath, '/storage/'))) {
                 $imagePath = basename($imagePath);
             }
             return ImageHelper::getImageUrl($imagePath, $type, $size);
         };
-        
-        // Función para obtener el estilo de una categoría
-        // Estas funciones podrían trasladarse a un CategoryHelper en el futuro
-        $getCategoryStyle = function($category) {
-            if (!$category || !isset($category->color)) {
-                return 'background-color: var(--primary-color);';
-            }
-            
-            return 'background-color: ' . $category->color . ';';
-        };
-        
-        // Función para obtener el icono de una categoría
-        $getCategoryIcon = function($category) {
-            if (!$category || !isset($category->icon)) {
-                return 'fa-tag';
-            }
-            
-            return $category->icon;
-        };
-
-        // Si deseas extraer palabras clave en el servidor (opcional)
-        if ($article instanceof News && !$article->keywords) {
-            try {
-                $keywordExtractor = app(KeywordExtractorService::class);
-                $keywords = $keywordExtractor->extractKeywords($article->content);
-                $article->keywords = implode(',', $keywords);
-                $article->save();
-            } catch (\Exception $e) {
-                Log::error('Error al extraer palabras clave: ' . $e->getMessage());
-            }
-        }
-        
-        return view('news.show', compact(
-            'article', 
-            'relatedArticles', 
-            'mostReadArticles', 
-            'popularTags'
-        ))->with([
-            'getImageUrl' => $getImageUrl,
-            'getCategoryStyle' => $getCategoryStyle,
-            'getCategoryIcon' => $getCategoryIcon
-        ]);
     }
-    
-    /**
-     * Incrementa el contador de vistas de un artículo
-     * Implementa una protección contra incrementos múltiples 
-     * y registra estadísticas diarias
-     *
-     * @param \App\Models\News $article
-     * @return void
-     */
-    private function incrementArticleViews($article)
+
+    // -------------------------------------------------------------------------
+    // View counter
+    // -------------------------------------------------------------------------
+
+    private function incrementArticleViews(News $article): void
     {
-        // Crear un identificador único para esta noticia
         $viewKey = 'news_viewed_' . $article->id;
-        
-        // Verificar si ya se ha visto esta noticia en la sesión actual
-        if (!session()->has($viewKey)) {
-            // Incrementar contador de vistas usando transacción para evitar race conditions
-            DB::transaction(function() use ($article) {
-                DB::table('news')
-                    ->where('id', $article->id)
-                    ->increment('views');
-                    
-                // Registrar estadísticas por día para análisis
-                try {
-                        // Verificar si el registro existe
-                        $exists = DB::table('news_views_stats')
+
+        if (session()->has($viewKey)) {
+            return;
+        }
+
+        DB::transaction(function () use ($article) {
+            DB::table('news')->where('id', $article->id)->increment('views');
+
+            try {
+                $exists = DB::table('news_views_stats')
+                    ->where('news_id', $article->id)
+                    ->where('view_date', now()->format('Y-m-d'))
+                    ->exists();
+
+                if ($exists) {
+                    DB::table('news_views_stats')
                         ->where('news_id', $article->id)
                         ->where('view_date', now()->format('Y-m-d'))
-                        ->exists();
-                        
-                    if ($exists) {
-                        // Si existe, actualizar incrementando las vistas
-                        DB::table('news_views_stats')
-                            ->where('news_id', $article->id)
-                            ->where('view_date', now()->format('Y-m-d'))
-                            ->update([
-                                'views' => DB::raw('views + 1'),
-                                'updated_at' => now()
-                            ]);
-                    } else {
-                        // Si no existe, insertar un nuevo registro con 1 vista
-                        DB::table('news_views_stats')
-                            ->insert([
-                                'news_id' => $article->id,
-                                'view_date' => now()->format('Y-m-d'),
-                                'views' => 1,
-                                'updated_at' => now()
-                            ]);
-                    }
-                } catch (\Exception $e) {
-                    // Log error de forma silenciosa
-                    Log::error('Error al actualizar estadísticas de vistas: ' . $e->getMessage());
+                        ->update(['views' => DB::raw('views + 1'), 'updated_at' => now()]);
+                } else {
+                    DB::table('news_views_stats')->insert([
+                        'news_id'    => $article->id,
+                        'view_date'  => now()->format('Y-m-d'),
+                        'views'      => 1,
+                        'updated_at' => now(),
+                    ]);
                 }
-            });
-            
-            // Marcar como vista en la sesión (dura hasta que expira la sesión)
-            session()->put($viewKey, true);
-            
-            // Cookie para un seguimiento más duradero (previene múltiples conteos)
-            $cookieKey = 'news_viewed_' . $article->id;
-            if (!Cookie::has($cookieKey)) {
-                Cookie::queue($cookieKey, true, 1440); // 24 horas en minutos
+            } catch (\Exception $e) {
+                Log::error('Error al actualizar estadísticas de vistas: ' . $e->getMessage());
             }
+        });
+
+        session()->put($viewKey, true);
+
+        if (!Cookie::has('news_viewed_' . $article->id)) {
+            Cookie::queue('news_viewed_' . $article->id, true, 1440);
         }
-    }
-    
-    /**
-     * Muestra las noticias de una etiqueta específica
-     * 
-     * @param string $slug
-     * @return \Illuminate\View\View
-     */
-    public function tag($slug)
-    {
-        // Buscar la etiqueta por su slug
-        $tag = Cache::remember('tag_' . $slug, 3600, function () use ($slug) {
-            return Tag::where('slug', $slug)->firstOrFail();
-        });
-        
-        // Obtener noticias con esta etiqueta
-        $news = Cache::remember('news_by_tag_' . $tag->id, 1800, function () use ($tag) {
-            return News::whereHas('tags', function($query) use ($tag) {
-                    $query->where('tags.id', $tag->id);
-                })
-                ->where('status', 'published')
-                ->with(['category', 'author'])
-                ->latest('published_at')
-                ->paginate(10);
-        });
-        
-        // Obtener categorías para el sidebar
-        $categories = Cache::remember('all_categories', 3600, function () {
-            return Category::withCount(['news' => function ($query) {
-                $query->where('status', 'published');
-            }])
-            ->orderBy('news_count', 'desc')
-            ->get();
-        });
-        
-        // Obtener artículos más leídos
-        $mostReadArticles = Cache::remember('most_read_articles', 1800, function () {
-            return News::with('category')
-                ->where('status', 'published')
-                ->orderBy('views', 'desc')
-                ->take(5)
-                ->get();
-        });
-        
-        return view('news.tag', compact('news', 'tag', 'categories', 'mostReadArticles'));
-    }
-    
-    /**
-     * Muestra las últimas noticias archivadas por fecha
-     * 
-     * @param string $year
-     * @param string $month (opcional)
-     * @return \Illuminate\View\View
-     */
-    public function archive($year, $month = null)
-    {
-        $query = News::query()->where('status', 'published');
-        
-        // Filtrar por año
-        $query->whereYear('published_at', $year);
-        
-        // Si se proporciona un mes, filtrar también por mes
-        if ($month) {
-            $query->whereMonth('published_at', $month);
-        }
-        
-        // Ejecutar la consulta con paginación
-        $news = $query->with(['category', 'author'])
-            ->latest('published_at')
-            ->paginate(10);
-            
-        // Obtener todas las categorías para el menú lateral
-        $categories = Cache::remember('all_categories', 3600, function () {
-            return Category::withCount(['news' => function ($query) {
-                $query->where('status', 'published');
-            }])
-            ->orderBy('news_count', 'desc')
-            ->get();
-        });
-        
-        // Obtener artículos más leídos
-        $mostReadArticles = Cache::remember('most_read_articles', 1800, function () {
-            return News::with('category')
-                ->where('status', 'published')
-                ->orderBy('views', 'desc')
-                ->take(5)
-                ->get();
-        });
-        
-        // Formatear el título del archivo según si incluye mes o solo año
-        $archiveTitle = $month 
-            ? date('F Y', strtotime("$year-$month-01")) 
-            : "Año $year";
-            
-        return view('news.archive', compact(
-            'news', 
-            'categories', 
-            'mostReadArticles', 
-            'year', 
-            'month', 
-            'archiveTitle'
-        ));
     }
 }

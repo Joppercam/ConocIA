@@ -25,44 +25,37 @@ class VideoController extends Controller
      */
     public function index()
     {
-        // Obtener videos más recientes
-        $latestVideos = Cache::remember('videos_latest', 3600, function () {
-            return Video::with('platform', 'categories')
-                ->orderBy('published_at', 'desc')
-                ->take(12)
-                ->get();
+        $allVideos = Cache::remember('videos_all_enriched', 1800, function () {
+            return Video::with('platform', 'categories')->orderBy('published_at', 'desc')->get();
         });
 
-        // Obtener videos más populares
-        $popularVideos = Cache::remember('videos_popular', 3600, function () {
-            return Video::with('platform', 'categories')
-                ->orderBy('view_count', 'desc')
-                ->take(12)
-                ->get();
-        });
+        $featuredVideo = $allVideos->where('is_featured', true)->first()
+            ?? $allVideos->sortByDesc('view_count')->first();
 
-        // Obtener videos destacados
-        $featuredVideos = Cache::remember('videos_featured', 3600, function () {
-            return Video::with('platform', 'categories')
-                ->where('is_featured', true)
-                ->orderBy('published_at', 'desc')
-                ->take(6)
-                ->get();
-        });
+        $latestVideos   = $allVideos->sortByDesc('published_at')->take(12)->values();
+        $popularVideos  = $allVideos->sortByDesc('view_count')->take(12)->values();
 
-        // Obtener categorías de videos
         $videoCategories = Cache::remember('video_categories', 3600, function () {
             return VideoCategory::withCount('videos')
+                ->having('videos_count', '>', 0)
                 ->orderBy('videos_count', 'desc')
                 ->take(10)
                 ->get();
         });
 
+        // Group videos by first category for rows
+        $videosByCategory = $videoCategories->mapWithKeys(function ($cat) {
+            $videos = $cat->videos()->with('platform')->orderBy('published_at', 'desc')->take(8)->get();
+            return [$cat->id => ['category' => $cat, 'videos' => $videos]];
+        })->filter(fn($row) => $row['videos']->count() > 0);
+
         return view('videos.index', compact(
+            'allVideos',
+            'featuredVideo',
             'latestVideos',
             'popularVideos',
-            'featuredVideos',
-            'videoCategories'
+            'videoCategories',
+            'videosByCategory'
         ));
     }
 

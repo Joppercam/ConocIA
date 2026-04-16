@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\SocialMediaQueue;
+use App\Services\GeminiQuotaGuard;
 use App\Services\SimpleImageDownloader;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -14,8 +15,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
-use OpenAI\Laravel\Facades\OpenAI;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
@@ -26,7 +25,7 @@ class FetchNewsWithAI extends Command
      *
      * @var string
      */
-    protected $signature = 'news:fetch {--category=} {--count=5} {--language=es} {--queue-social=1} {--generate-comments=1} {--min-comments=3} {--max-comments=5}';
+    protected $signature = 'news:fetch {--category=} {--count=5} {--language=es} {--queue-social=1} {--generate-comments=0} {--min-comments=3} {--max-comments=5}';
 
     /**
      * The console command description.
@@ -82,39 +81,36 @@ class FetchNewsWithAI extends Command
      * Términos de búsqueda por categoría
      */
     protected $searchTermsByCategory = [
-        'inteligencia-artificial' => 'inteligencia artificial OR IA OR AI OR artificial intelligence',
-        'machine-learning' => 'machine learning OR aprendizaje automático OR ML OR algoritmos de aprendizaje',
-        'deep-learning' => 'deep learning OR aprendizaje profundo OR redes neuronales OR neural networks',
-        'nlp' => 'procesamiento de lenguaje natural OR NLP OR natural language processing OR modelos de lenguaje',
-        'computer-vision' => 'computer vision OR visión artificial OR reconocimiento de imágenes OR image recognition',
-        'robotica' => 'robótica OR robots OR robotics OR automatización robótica OR robot automation',
-        'computacion-cuantica' => 'computación cuántica OR quantum computing OR qubits OR algoritmos cuánticos',
-        
-        'openai' => 'OpenAI OR GPT-4 OR ChatGPT OR DALL-E OR GPT',
-        'google-ai' => 'Google AI OR DeepMind OR Gemini OR Google Bard OR PaLM',
-        'microsoft-ai' => 'Microsoft AI OR Copilot OR Microsoft OpenAI OR Azure AI OR Bing Chat',
-        'meta-ai' => 'Meta AI OR Facebook AI OR LLaMA OR Meta AI Research OR Galactica',
-        'amazon-ai' => 'Amazon AI OR AWS AI OR Alexa AI OR Amazon Bedrock OR SageMaker',
-        'anthropic' => 'Anthropic OR Claude OR Claude AI OR Anthropic AI OR Claude Opus',
-        'startups-de-ia' => 'startup IA OR AI startup OR nuevas empresas IA OR financiación IA OR AI funding',
-        
-        'ia-generativa' => 'IA generativa OR generative AI OR contenido IA OR AI content OR creative AI',
-        'automatizacion' => 'automatización IA OR AI automation OR procesos automatizados OR flujos de trabajo IA',
-        'ia-en-salud' => 'IA salud OR AI healthcare OR IA médica OR medical AI OR diagnóstico IA',
-        'ia-en-finanzas' => 'IA finanzas OR AI finance OR fintech IA OR IA trading OR AI banking',
-        'ia-en-educacion' => 'IA educación OR AI education OR educación personalizada OR tutores virtuales',
-        
-        'etica-de-la-ia' => 'ética IA OR AI ethics OR sesgos IA OR AI bias OR IA responsable',
-        'regulacion-de-ia' => 'regulación IA OR AI regulation OR legislación IA OR AI Act OR ley IA',
-        'impacto-laboral' => 'IA empleo OR AI jobs OR automatización trabajo OR futuro trabajo OR AI workforce',
-        'privacidad-y-seguridad' => 'privacidad IA OR AI privacy OR seguridad IA OR datos personales OR AI security',
-        
-        // Categorías generales (para compatibilidad)
-        'tecnologia' => 'tecnología OR tech OR digital OR informática OR computación OR smartphone OR internet',
-        'investigacion' => 'investigación tecnológica OR research OR avances científicos OR I+D OR innovación científica OR descubrimiento',
-        'ciberseguridad' => 'ciberseguridad OR hacking OR seguridad informática OR hackers OR ciberataques OR ransomware OR vulnerabilidad',
-        'innovacion' => 'innovación tecnológica OR startups OR emprendimiento tech OR disruption OR nuevas tecnologías',
-        'etica' => 'ética tecnológica OR privacidad datos OR regulación tecnológica OR dilemas éticos OR bioética',
+        // Técnicas — forzar contexto IA en cada query
+        'inteligencia-artificial' => '("inteligencia artificial" OR "large language model" OR "foundation model" OR "AI model") -smartphone -gaming -Windows -console',
+        'machine-learning' => '("machine learning" OR "aprendizaje automático" OR "modelo ML" OR "entrenamiento de modelo") AND (IA OR AI OR datos)',
+        'deep-learning' => '("deep learning" OR "redes neuronales" OR "neural network" OR "transformer model") AND (IA OR AI OR modelo)',
+        'nlp' => '("procesamiento de lenguaje" OR "NLP" OR "large language model" OR "LLM" OR "modelo de lenguaje") AND (IA OR AI)',
+        'computer-vision' => '("computer vision" OR "visión por computadora" OR "reconocimiento de imágenes" OR "diffusion model" OR "imagen IA") AND AI',
+        'robotica' => '("robot IA" OR "robótica inteligente" OR "robot autónomo" OR "humanoid robot") AND (IA OR AI)',
+        'computacion-cuantica' => '("computación cuántica" OR "quantum computing" OR "quantum AI" OR "qubit") AND (investigación OR avance OR empresa)',
+
+        // Empresariales — ya son específicas, solo limpiar ruido
+        'openai' => 'OpenAI AND (GPT OR ChatGPT OR "DALL-E" OR Sora OR "o3" OR "o4" OR AGI)',
+        'google-ai' => '(DeepMind OR "Gemini" OR "Google AI" OR "NotebookLM" OR "Veo" OR "Imagen") AND (IA OR AI OR modelo)',
+        'microsoft-ai' => '(Microsoft AND (Copilot OR "Azure AI" OR "AI features" OR "Phi-" OR "MAI")) AND (IA OR AI)',
+        'meta-ai' => '(Meta AND ("Llama" OR "Meta AI" OR "AI glasses" OR "Movie Gen" OR "Segment Anything")) AND (IA OR AI)',
+        'amazon-ai' => '(Amazon AND ("Bedrock" OR "Nova" OR "Alexa AI" OR "SageMaker" OR "AWS AI")) AND (IA OR AI)',
+        'anthropic' => 'Anthropic AND (Claude OR "Claude 3" OR "Claude 4" OR "constitutional AI" OR "model card")',
+        'startups-de-ia' => '("AI startup" OR "startup IA" OR "ronda de financiación IA" OR "AI funding" OR "Series A AI") AND (millones OR funding OR inversión)',
+
+        // Aplicación — forzar que el sujeto sea IA
+        'ia-generativa' => '("IA generativa" OR "generative AI" OR "texto a imagen" OR "text-to-video" OR "AI-generated") AND (modelo OR tool OR herramienta OR lanzamiento)',
+        'automatizacion' => '("automatización con IA" OR "AI automation" OR "agente IA" OR "AI agent" OR "flujo de trabajo IA") AND (empresa OR trabajo OR proceso)',
+        'ia-en-salud' => '(IA OR AI) AND (salud OR medicina OR "drug discovery" OR diagnóstico OR hospital OR "medical imaging")',
+        'ia-en-finanzas' => '(IA OR AI) AND (finanzas OR "trading algorítmico" OR banca OR fintech OR "detección de fraude")',
+        'ia-en-educacion' => '(IA OR AI) AND (educación OR universidad OR "tutor virtual" OR "aprendizaje personalizado" OR "AI in education")',
+
+        // Impacto/sociedad
+        'etica-de-la-ia' => '("ética de la IA" OR "AI ethics" OR "AI bias" OR "sesgo algorítmico" OR "IA responsable" OR "alignment") AND (estudio OR informe OR debate OR empresa)',
+        'regulacion-de-ia' => '("regulación IA" OR "AI Act" OR "AI regulation" OR "ley IA" OR "governance AI") AND (gobierno OR UE OR "United States" OR empresa OR multa)',
+        'impacto-laboral' => '(IA OR AI) AND ("empleo" OR "desempleo tecnológico" OR "AI jobs" OR "automatización laboral" OR "futuro del trabajo")',
+        'privacidad-y-seguridad' => '(IA OR AI) AND ("privacidad" OR "datos personales" OR "deepfake" OR "AI security" OR "jailbreak" OR "vulnerabilidad IA")',
     ];
     
     /**
@@ -252,6 +248,13 @@ class FetchNewsWithAI extends Command
         $createdNews = [];
         
         foreach ($newsData as $newsItem) {
+            // Validar relevancia antes de gastar cuota de IA
+            if (!$this->isRelevantToAI($newsItem['title'], $newsItem['content'] ?? '')) {
+                $this->warn("Descartado (no-IA): {$newsItem['title']}");
+                $bar->advance();
+                continue;
+            }
+
             // Utilizamos OpenAI para mejorar y extender el contenido
             $enhancedContent = $this->processNewsWithMultipleStrategies($newsItem, $categoryName);
             
@@ -266,14 +269,14 @@ class FetchNewsWithAI extends Command
             }
             
             // Guardamos en la base de datos
+            $slug = Str::slug($enhancedContent['title']);
             try {
                 $this->info("Guardando en la base de datos: {$enhancedContent['title']}");
-                
+
                 // Inicialmente usamos la imagen predeterminada
                 $imageUrl = $this->getDefaultImageForCategory($categorySlug);
-                
+
                 // Verificar si existe una noticia con el mismo título
-                $slug = Str::slug($enhancedContent['title']);
                 $existingNews = News::where('slug', $slug)->first();
                 
                 if ($existingNews) {
@@ -658,76 +661,86 @@ class FetchNewsWithAI extends Command
             
             $this->info("Contenido: " . ($isTruncated ? "TRUNCADO" : "COMPLETO") . " - Longitud: $contentLength caracteres");
             
-            // Preparamos el prompt para la IA específico para noticias de tecnología
-            $prompt = "Actúa como un periodista especializado en tecnología y noticias tech, con enfoque en {$categoryName}. A continuación hay un fragmento de una noticia:\n\n";
-            $prompt .= "Título: {$news['title']}\n";
-            $prompt .= "Contenido: {$news['content']}\n";
-            $prompt .= "Palabras clave: " . implode(', ', $keywords) . "\n\n";
+            // Preparamos el prompt para la IA
+            $keywordsStr   = implode(', ', $keywords);
+            $truncatedNote = ($isTruncated || $contentLength < 500)
+                ? "NOTA: El contenido fuente está incompleto o truncado. Completa la noticia de forma coherente con el título y el fragmento disponible, sin mencionar que estaba truncado."
+                : "El contenido fuente está completo. Amplíalo y enriquécelo con contexto adicional verificable.";
+            $minWords = ($isTruncated || $contentLength < 500) ? '1.200' : '1.000';
+
+            $prompt = <<<PROMPT
+Eres un periodista senior especializado en {$categoryName}, con el estilo editorial de MIT Technology Review o Wired en español.
+
+FUENTE ORIGINAL:
+Título: {$news['title']}
+Contenido: {$news['content']}
+Palabras clave de contexto: {$keywordsStr}
+
+{$truncatedNote}
+
+Tu misión es transformar este material en un artículo de largo aliento que enganche al lector desde la primera línea, explique el contexto con profundidad y lo incentive a seguir explorando el tema.
+
+ESTRUCTURA OBLIGATORIA (sigue este orden exacto):
+
+1. TÍTULO: En español, atractivo y SEO-friendly. Puede usar pregunta retórica, dato sorprendente o contraste que genere intriga.
+
+2. APERTURA (primer párrafo, sin <h2>): Un gancho poderoso — dato impactante, escenario concreto o pregunta que interpele al lector. El primer párrafo debe hacer imposible no seguir leyendo.
+
+3. DESARROLLO (3 a 4 secciones con <h2>): Cada sección con 2-3 párrafos sólidos. Usa los datos del original; añade contexto de {$categoryName} cuando aporte valor real. Menciona actores clave, cifras y comparaciones cuando estén disponibles.
+
+4. CITA DESTACADA: Al menos un <blockquote> con la idea más significativa o reveladora del artículo.
+
+5. CONTEXTO CLAVE (sección <h2>Contexto clave</h2>): Explica de forma accesible 2-3 conceptos técnicos que el lector necesita para comprender plenamente la noticia. Lenguaje claro y preciso — convierte a lectores ocasionales en lectores informados.
+
+6. PARA PROFUNDIZAR (cierre obligatorio, sección <h2>Para profundizar</h2>): Lista <ul> con 3 ítems. Cada uno propone un ángulo relacionado, una pregunta abierta o un área que amplía la noticia. Formato: <strong>Tema</strong> — 1-2 oraciones que explican la conexión y despiertan curiosidad. Sin URLs externas.
+
+REQUISITOS TÉCNICOS:
+- Extensión mínima: {$minWords} palabras en el campo content.
+- HTML válido: <p> párrafos, <h2> subtítulos, <ul><li> listas, <blockquote> cita.
+- Si está en inglés, traduce al español con terminología técnica precisa.
+- Excerpt: 2 oraciones que capturan la esencia y generan curiosidad. Máximo 220 caracteres.
+- No menciones que el artículo fue reescrito o traducido.
+
+Responde SOLO en JSON con estas claves: title, content, excerpt.
+PROMPT;
             
-            // Instrucciones adicionales si detectamos que el contenido está truncado
-            if ($isTruncated || $contentLength < 500) {
-                $prompt .= "IMPORTANTE: El contenido proporcionado está TRUNCADO o INCOMPLETO. Es tu tarea COMPLETAR la noticia basándote en el título y el fragmento disponible.\n";
-                $prompt .= "Debes CREAR Y EXPANDIR el contenido para formar un artículo periodístico completo y coherente, manteniendo la temática y el enfoque del fragmento original.\n";
-                $prompt .= "La noticia debe tener al menos 800 palabras y estar estructurada como un artículo profesional completo. NO menciones en el texto que la noticia estaba truncada.\n\n";
-            } else {
-                $prompt .= "El contenido proporcionado está completo, pero debe ser mejorado y expandido.\n\n";
+            $apiKey      = config('services.gemini.api_key');
+            $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+            $temperature = $isTruncated ? 0.8 : 0.7;
+            $guard       = app(GeminiQuotaGuard::class);
+
+            if (!$guard->canCall('medium')) {
+                $this->warn("Gemini quota: saltando mejora de IA. " . $guard->summary());
+                throw new \Exception('Gemini quota exceeded for news enhancement.');
             }
 
-            $prompt .= "Por favor, reescribe y expande esta noticia en un formato periodístico profesional en español, con un enfoque especializado en {$categoryName}, siguiendo estas instrucciones:\n\n";
-            $prompt .= "1. Si la noticia está en inglés, tradúcela al español manteniendo la terminología técnica precisa.\n";
-            $prompt .= "2. El artículo debe tener una extensión mínima de " . ($isTruncated ? "800" : "600") . " palabras, estructurado con introducción, desarrollo (dividido en 2-3 subtemas) y conclusión.\n";
-            $prompt .= "3. Mantén los hechos principales pero mejora el estilo, añade más contexto técnico y detalles relevantes.\n";
-            $prompt .= "4. Incluye subtítulos en formato <h2> para estructurar el contenido.\n";
-            $prompt .= "5. Si es relevante, menciona el impacto de esta noticia en el campo de {$categoryName} y su posible evolución futura.\n";
-            $prompt .= "6. Utiliza terminología precisa del campo de {$categoryName}.\n";
-            $prompt .= "7. " . ($isTruncated ? "Puedes añadir información contextual y detalles plausibles para completar el artículo." : "No inventes hechos que no estén en el contenido original, pero sí puedes añadir contexto relevante sobre la tecnología mencionada.") . "\n";
-            $prompt .= "8. Asegúrate de que el excerpt sea atractivo y capture la esencia de la noticia en 2-3 oraciones (máximo 200 caracteres).\n\n";
-            
-            // IMPORTANTE: Incluir la palabra JSON explícitamente para que funcione el parámetro response_format
-            $prompt .= "Devuelve tu respuesta en formato JSON con estas claves:\n";
-            $prompt .= "- 'title' (título mejorado en español, atractivo y SEO-friendly)\n";
-            $prompt .= "- 'content' (contenido completo en español con formato HTML, bien estructurado con párrafos y subtítulos)\n";
-            $prompt .= "- 'excerpt' (resumen atractivo de 2-3 oraciones en español que capture la esencia de la noticia)";
-            
-            // Configuración directa del cliente HTTP
-            $this->info("Configurando cliente OpenAI...");
-            $apiKey = config('services.openai.api_key');
-            
-            try {
-                $client = \OpenAI::factory()
-                    ->withApiKey($apiKey)
-                    ->withHttpClient(new Client(['verify' => false]))
-                    ->make();
-                
-                $this->info("Cliente OpenAI configurado correctamente");
-            } catch (\Exception $e) {
-                $this->error("Error al configurar cliente OpenAI: " . $e->getMessage());
-                throw $e;
+            $this->info("Enviando solicitud a Gemini ({$geminiModel})...");
+
+            $geminiResponse = Http::timeout(60)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
+                [
+                    'system_instruction' => [
+                        'parts' => [['text' => "Eres un periodista senior especializado en {$categoryName}. Crea artículos de largo aliento, bien estructurados en HTML, que enganchen y profundicen. Responde siempre en formato JSON según se te indique."]],
+                    ],
+                    'contents' => [
+                        ['parts' => [['text' => $prompt]]]
+                    ],
+                    'generationConfig' => [
+                        'temperature'      => $temperature,
+                        'maxOutputTokens'  => 3500,
+                        'responseMimeType' => 'application/json',
+                    ],
+                ]
+            );
+
+            if ($geminiResponse->failed()) {
+                throw new \Exception('Gemini API Error: ' . $geminiResponse->body());
             }
-            
-            $this->info("Enviando solicitud a OpenAI...");
-            
-            // Usamos siempre GPT-4o para mejor calidad y soporte de JSON
-            $modelToUse = 'gpt-4o';
-            $temperature = $isTruncated ? 0.8 : 0.7; // Más creatividad si necesitamos completar
-            
-            $this->info("Usando modelo: $modelToUse con temperatura: $temperature");
-            
-            // IMPORTANTE: También incluimos la palabra JSON en el mensaje del sistema
-            $result = $client->chat()->create([
-                'model' => $modelToUse,
-                'messages' => [
-                    ['role' => 'system', 'content' => "Eres un periodista especializado en tecnología, con enfoque particular en {$categoryName}. Crea contenido de alta calidad bien estructurado y responde siempre en formato JSON según se te indique."],
-                    ['role' => 'user', 'content' => $prompt],
-                ],
-                'response_format' => ['type' => 'json_object'],
-                'temperature' => $temperature,
-                'max_tokens' => 2500, // Asegurar suficiente espacio para respuestas largas
-            ]);
-            
-            $this->info("Respuesta recibida de OpenAI");
-            
-            $content = $result->choices[0]->message->content;
+
+            $this->info("Respuesta recibida de Gemini");
+            $guard->record();
+
+            $content = $geminiResponse->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
             $enhancedContent = json_decode($content, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -744,23 +757,25 @@ class FetchNewsWithAI extends Command
             
             // Verificar longitud mínima del contenido
             $contentLength = str_word_count(strip_tags($enhancedContent['content']));
-            if ($contentLength < 300) { // Si el contenido es muy corto
+            if ($contentLength < 600) {
                 $this->warn("Contenido demasiado corto ($contentLength palabras), solicitando ampliación...");
-                
-                // Intento de expandir el contenido con una segunda llamada a la API
-                $expansionPrompt = "El siguiente es un artículo corto sobre {$categoryName}. Por favor, expándelo significativamente añadiendo más contexto, detalles técnicos, y posibles implicaciones futuras, manteniendo el tono periodístico profesional. Devuelve el resultado como texto plano, no en formato JSON:\n\n" . $enhancedContent['content'];
-                
-                $expansionResult = $client->chat()->create([
-                    'model' => $modelToUse,
-                    'messages' => [
-                        ['role' => 'system', 'content' => "Expande este artículo sobre {$categoryName} a una longitud de al menos 600 palabras, añadiendo contexto, detalles técnicos y estructura con subtítulos."],
-                        ['role' => 'user', 'content' => $expansionPrompt],
-                    ],
-                    'temperature' => 0.7,
-                    'max_tokens' => 2500,
-                ]);
-                
-                $expandedContent = $expansionResult->choices[0]->message->content;
+
+                $expansionPrompt = "El siguiente artículo sobre {$categoryName} quedó demasiado corto. Expándelo a mínimo 1.000 palabras añadiendo: contexto histórico o comparativo, implicaciones para la industria, perspectivas de expertos (si las hay en el original), y una sección 'Para profundizar' con 3 ítems en formato <ul><li><strong>Tema</strong> — descripción</li></ul>. Mantén el HTML válido y el tono periodístico.\n\n" . $enhancedContent['content'];
+
+                $expansionResult = Http::timeout(60)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
+                    [
+                        'contents' => [
+                            ['parts' => [['text' => $expansionPrompt]]]
+                        ],
+                        'generationConfig' => [
+                            'temperature'     => 0.7,
+                            'maxOutputTokens' => 3500,
+                        ],
+                    ]
+                );
+
+                $expandedContent = $expansionResult->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
                 $enhancedContent['content'] = $expandedContent;
                 $this->info("Contenido expandido exitosamente");
             }
@@ -772,6 +787,44 @@ class FetchNewsWithAI extends Command
             $this->error("Error al procesar con IA: {$news['title']} - " . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Valida que el artículo sea realmente sobre IA/tech antes de gastar cuota de Gemini.
+     * Requiere al menos 2 señales positivas de IA Y cero señales off-topic.
+     */
+    private function isRelevantToAI(string $title, string $content): bool
+    {
+        $text = mb_strtolower($title . ' ' . $content);
+
+        // Señales off-topic que descartan inmediatamente
+        $offTopic = [
+            'narcolancha', 'baloncesto', 'fútbol', 'partido político', 'cantante',
+            'actor ', 'actriz', 'horóscopo', 'receta de', 'boda de', 'guerra en ',
+            'elecciones', 'huracán', 'terremoto', 'incendio forestal',
+        ];
+        foreach ($offTopic as $s) {
+            if (str_contains($text, $s)) return false;
+        }
+
+        // Señales positivas de IA — necesita al menos 2
+        $aiSignals = [
+            'inteligencia artificial', 'artificial intelligence', 'machine learning',
+            'deep learning', 'large language model', 'llm', 'gpt', 'chatgpt',
+            'openai', 'anthropic', 'claude', 'gemini', 'deepmind', 'copilot',
+            'generative ai', 'ia generativa', 'neural network', 'transformer',
+            'modelo de ia', 'ai model', 'llama', 'mistral', 'diffusion model',
+            'foundation model', 'ai regulation', 'regulación ia', 'ai agent',
+            'agente ia', 'prompt', 'fine-tuning', 'entrenamiento de modelo',
+        ];
+
+        $hits = 0;
+        foreach ($aiSignals as $signal) {
+            if (str_contains($text, $signal)) $hits++;
+            if ($hits >= 2) return true;
+        }
+
+        return false;
     }
 
     /**
@@ -1286,53 +1339,47 @@ class FetchNewsWithAI extends Command
             // IMPORTANTE: Incluir la palabra JSON explícitamente
             $prompt .= "Devuelve tu respuesta en formato JSON con un array llamado 'comments' donde cada elemento es un comentario.";
             
-            // Configuración del cliente OpenAI
-            $apiKey = config('services.openai.api_key');
-            
+            $apiKey      = config('services.gemini.api_key');
+            $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+            $guard       = app(GeminiQuotaGuard::class);
+
             if (empty($apiKey)) {
-                $this->warn("API Key de OpenAI no configurada. Configure OPENAI_API_KEY en .env");
+                $this->warn("GEMINI_API_KEY no configurada en .env");
                 return [];
             }
-            
-            // Log para debugging
-            $this->info("API Key configurada: " . substr($apiKey, 0, 3) . "..." . substr($apiKey, -3));
-            
-            try {
-                $client = \OpenAI::factory()
-                    ->withApiKey($apiKey)
-                    ->withHttpClient(new Client(['verify' => false]))
-                    ->make();
-                
-                $this->info("Cliente OpenAI configurado correctamente");
-            } catch (\Exception $e) {
-                $this->error("Error al configurar cliente OpenAI: " . $e->getMessage());
-                throw $e;
+
+            if (!$guard->canCall('low')) {
+                $this->warn("Gemini quota: omitiendo comentarios AI. " . $guard->summary());
+                return [];
             }
-            
-            $this->info("Enviando solicitud a OpenAI para generar comentarios...");
-            
-            // Usar el modelo GPT-4o para mejor rendimiento y compatibilidad con JSON
-            $modelToUse = 'gpt-4o';
-            
-            // Configuración para la llamada a ChatGPT
-            $result = $client->chat()->create([
-                'model' => $modelToUse,
-                'messages' => [
-                    [
-                        'role' => 'system', 
-                        'content' => "Eres un generador de comentarios realistas y técnicamente precisos para noticias. Genera respuestas en formato JSON según las instrucciones."
+
+            $this->info("Enviando solicitud a Gemini para generar comentarios...");
+
+            $result = Http::timeout(30)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
+                [
+                    'system_instruction' => [
+                        'parts' => [['text' => 'Eres un generador de comentarios realistas y técnicamente precisos para noticias. Genera respuestas en formato JSON según las instrucciones.']],
                     ],
-                    ['role' => 'user', 'content' => $prompt],
-                ],
-                'response_format' => ['type' => 'json_object'],
-                'temperature' => 0.8, // Mayor temperatura para más variación
-                'max_tokens' => 1000,
-            ]);
-            
-            $this->info("Respuesta recibida de OpenAI");
-            
-            // Obtener el contenido de la respuesta
-            $content = $result->choices[0]->message->content;
+                    'contents' => [
+                        ['parts' => [['text' => $prompt]]]
+                    ],
+                    'generationConfig' => [
+                        'temperature'      => 0.8,
+                        'maxOutputTokens'  => 1000,
+                        'responseMimeType' => 'application/json',
+                    ],
+                ]
+            );
+
+            if ($result->failed()) {
+                throw new \Exception('Gemini API Error: ' . $result->body());
+            }
+
+            $this->info("Respuesta recibida de Gemini");
+            $guard->record();
+
+            $content = $result->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
             $this->info("Contenido recibido: " . substr($content, 0, 100) . "...");
             
             // Decodificar el JSON

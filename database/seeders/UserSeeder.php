@@ -21,9 +21,8 @@ class UserSeeder extends Seeder
         $userRole = Role::where('slug', 'user')->first();
         
         // Crear usuario administrador
-        User::create([
+        User::firstOrCreate(['email' => 'admin@conocia.com'], [
             'name' => 'Administrador',
-            'email' => 'admin@conocia.com',
             'password' => Hash::make('password'),
             'username' => 'admin',
             'email_verified_at' => now(),
@@ -31,11 +30,10 @@ class UserSeeder extends Seeder
             'bio' => 'Administrador del sitio ConocIA',
             'is_active' => true,
         ]);
-        
+
         // Crear usuario editor
-        User::create([
+        User::firstOrCreate(['email' => 'editor@conocia.com'], [
             'name' => 'Editor',
-            'email' => 'editor@conocia.com',
             'password' => Hash::make('password'),
             'username' => 'editor',
             'email_verified_at' => now(),
@@ -43,11 +41,10 @@ class UserSeeder extends Seeder
             'bio' => 'Editor principal de ConocIA',
             'is_active' => true,
         ]);
-        
+
         // Crear autor
-        User::create([
+        User::firstOrCreate(['email' => 'autor@conocia.com'], [
             'name' => 'Autor',
-            'email' => 'autor@conocia.com',
             'password' => Hash::make('password'),
             'username' => 'autor',
             'email_verified_at' => now(),
@@ -55,11 +52,10 @@ class UserSeeder extends Seeder
             'bio' => 'Autor de contenido especializado en IA',
             'is_active' => true,
         ]);
-        
+
         // Crear usuario normal
-        User::create([
+        User::firstOrCreate(['email' => 'usuario@conocia.com'], [
             'name' => 'Usuario',
-            'email' => 'usuario@conocia.com',
             'password' => Hash::make('password'),
             'username' => 'usuario',
             'email_verified_at' => now(),

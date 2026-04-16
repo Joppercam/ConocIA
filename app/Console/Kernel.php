@@ -25,11 +25,30 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Buscar 2 noticias por cada categoría cada 12 horas (a las 8:00 AM y 8:00 PM)
-        $schedule->command('news:fetch-all --count=2')
-            ->twiceDaily(8, 20)
-            ->withoutOverlapping(60) // Evita que se ejecute si la ejecución anterior sigue en curso (timeout de 60 min)
+        // Gemini Search Grounding: 3 noticias por las 4 categorías más activas — 2x al día
+        // No consume NewsAPI, Gemini busca en Google en tiempo real
+        $schedule->command('news:fetch-gemini --all --count=3 --days=2')
+            ->twiceDaily(7, 17)
+            ->withoutOverlapping(90)
+            ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
+
+        // NewsAPI: 1 noticia por categoría IA (sin categorías genéricas) — 1x al día
+        $schedule->command('news:fetch-all --count=1')
+            ->dailyAt('08:00')
+            ->withoutOverlapping(60)
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
+
+        // RSS curado (Xataka, Hipertextual, VentureBeat, The Verge, TechCrunch) — 2x al día
+        $schedule->command('news:fetch-rss --limit=3')
+            ->twiceDaily(9, 18)
+            ->withoutOverlapping(30)
+            ->appendOutputTo(storage_path('logs/fetch-rss.log'));
+
+        // The Guardian API — 1x al día (requiere GUARDIAN_API_KEY en .env)
+        $schedule->command('news:fetch-guardian --limit=5')
+            ->dailyAt('10:00')
+            ->withoutOverlapping(20)
+            ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
    
    
             $schedule->command('newsletter:send --news=5 --include-research --include-columns')
@@ -49,39 +68,54 @@ class Kernel extends ConsoleKernel
 
   
              
-        // Publicación principal - 3 veces al día en días laborables
-        $schedule->command('news:publish-twitter --limit=1')
-        ->weekdays()
-        ->at('09:00')
-        ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
-
-        $schedule->command('news:publish-twitter --limit=1')
-            ->weekdays()
-            ->at('13:00')
-            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
-
-        $schedule->command('news:publish-twitter --limit=1')
-            ->weekdays()
-            ->at('18:00')
-            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
-
-        // Fines de semana - Una publicación por día
-        $schedule->command('news:publish-twitter --limit=1')
-            ->saturdays()
-            ->at('12:00')
-            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
-
-        $schedule->command('news:publish-twitter --limit=1')
-            ->sundays()
-            ->at('17:00')
-            ->appendOutputTo(storage_path('logs/social-media-twitter.log'));
-
-        // Monitoreo diario - Para mantener registro del uso de la API
-        $schedule->command('news:publish-twitter --dry-run')
-            ->dailyAt('00:01')
-            ->appendOutputTo(storage_path('logs/twitter-usage-stats.log'));
+        // Twitter desactivado temporalmente (sin credenciales configuradas)
+        // Para reactivar: configurar TWITTER_* en .env y descomentar estas tareas
+        // $schedule->command('news:publish-twitter --limit=1')->weekdays()->at('09:00')->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+        // $schedule->command('news:publish-twitter --limit=1')->weekdays()->at('13:00')->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+        // $schedule->command('news:publish-twitter --limit=1')->weekdays()->at('18:00')->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+        // $schedule->command('news:publish-twitter --limit=1')->saturdays()->at('12:00')->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+        // $schedule->command('news:publish-twitter --limit=1')->sundays()->at('17:00')->appendOutputTo(storage_path('logs/social-media-twitter.log'));
+        // $schedule->command('news:publish-twitter --dry-run')->dailyAt('00:01')->appendOutputTo(storage_path('logs/twitter-usage-stats.log'));
 
         $schedule->command('news:archive')->dailyAt('02:00');
+
+        // ── Sección "Profundiza" ──────────────────────────────────────────────
+
+        // Conceptos IA: un concepto nuevo cada lunes a las 06:00 (quota baja)
+        $schedule->command('conceptos:generate --count=1')
+            ->weekly()->mondays()->at('06:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
+
+        // Análisis de Fondo: un análisis editorial cada miércoles a las 14:00
+        $schedule->command('analisis:generate')
+            ->weekly()->wednesdays()->at('14:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/analisis-fondo.log'));
+
+        // Papers arXiv: lunes y jueves a las 23:00 (off-peak, max 2 por categoría)
+        $schedule->command('papers:fetch-arxiv --max-results=2')
+            ->twiceWeekly(1, 4)->at('23:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/papers-arxiv.log'));
+
+        // Estado del Arte: todos los domingos a las 20:00 (usa noticias acumuladas)
+        $schedule->command('digest:generate --all')
+            ->weekly()->sundays()->at('20:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/estado-arte.log'));
+
+        // Generar resúmenes IA para videos nuevos (una vez al día)
+        $schedule->command('videos:generate-summaries --limit=5')
+            ->dailyAt('08:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/video-summaries.log'));
+
+        // Generar briefing diario con IA cada mañana
+        $schedule->command('briefing:generate')
+            ->dailyAt('07:30')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/briefing.log'));
    
 
                 // Generar guiones de TikTok automáticamente dos veces al día

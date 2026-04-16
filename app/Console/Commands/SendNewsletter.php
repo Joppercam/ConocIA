@@ -68,7 +68,7 @@ class SendNewsletter extends Command
         }
 
         // Obtener suscriptores activos
-        $subscribers = Newsletter::where('is_active', true)->get();
+        $subscribers = Newsletter::where('is_active', true)->whereNotNull('verified_at')->get();
         
         if ($subscribers->isEmpty()) {
             $this->error('No hay suscriptores activos.');

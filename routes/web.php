@@ -22,9 +22,14 @@ use App\Http\Controllers\Admin\NewsletterAdminController;
 use App\Http\Controllers\Admin\NewsApiController;
 use App\Http\Controllers\NewsletterSendController;
 use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\TikTokController;
 use App\Http\Controllers\VideoController;
+use App\Http\Controllers\ConceptoIaController;
+use App\Http\Controllers\AnalisisFondoController;
+use App\Http\Controllers\ConocIaPaperController;
+use App\Http\Controllers\EstadoArteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +38,39 @@ use App\Http\Controllers\VideoController;
 */
 
 
+
+// ── Conceptos IA ─────────────────────────────────────────────────────────────
+Route::prefix('conceptos-ia')->name('conceptos.')->group(function () {
+    Route::get('/', [ConceptoIaController::class, 'index'])->name('index');
+    Route::get('/{slug}', [ConceptoIaController::class, 'show'])->name('show');
+});
+
+// ── Análisis de Fondo ─────────────────────────────────────────────────────────
+Route::prefix('analisis')->name('analisis.')->group(function () {
+    Route::get('/', [AnalisisFondoController::class, 'index'])->name('index');
+    Route::get('/{slug}', [AnalisisFondoController::class, 'show'])->name('show');
+});
+
+// ── ConocIA Papers ────────────────────────────────────────────────────────────
+Route::prefix('papers')->name('papers.')->group(function () {
+    Route::get('/', [ConocIaPaperController::class, 'index'])->name('index');
+    Route::get('/categoria/{category}', [ConocIaPaperController::class, 'byCategory'])->name('category');
+    Route::get('/{slug}', [ConocIaPaperController::class, 'show'])->name('show');
+});
+
+// ── Estado del Arte ───────────────────────────────────────────────────────────
+Route::prefix('estado-del-arte')->name('estado-arte.')->group(function () {
+    Route::get('/', [EstadoArteController::class, 'index'])->name('index');
+    Route::get('/campo/{subfield}', [EstadoArteController::class, 'bySubfield'])->name('subfield');
+    Route::get('/{slug}', [EstadoArteController::class, 'show'])->name('show');
+});
+
+// Rutas para ConocIA Radio (briefings de audio)
+Route::prefix('radio')->name('radio.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\RadioController::class, 'index'])->name('index');
+    Route::get('/{date}', [\App\Http\Controllers\RadioController::class, 'show'])->name('show')
+        ->where('date', '\d{4}-\d{2}-\d{2}');
+});
 
 // Rutas para la sección de videos - Versión corregida con namespaces completos
 Route::prefix('videos')->name('videos.')->group(function () {
@@ -134,12 +172,30 @@ Route::get('sitemap-categories.xml', [SitemapController::class, 'categories']);
 Route::get('sitemap-research.xml', [SitemapController::class, 'research']);
 Route::get('sitemap-columns.xml', [SitemapController::class, 'columns']);
 
+// RSS Feed
+Route::feeds();
+
 // Rutas públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/acerca-de', [HomeController::class, 'about'])->name('about');
 Route::get('/contacto', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contacto', [HomeController::class, 'sendContact'])->name('contact.send');
-Route::get('/buscar', [HomeController::class, 'search'])->name('search');
+Route::get('/buscar', [SearchController::class, 'search'])->name('search');
+Route::get('/api/buscar', [SearchController::class, 'live'])->name('search.live');
+Route::get('/guardados', fn() => view('saved'))->name('saved');
+Route::get('/api/briefing/today', function () {
+    $b = \App\Models\DailyBriefing::today();
+    if (!$b) return response()->json(['available' => false]);
+    return response()->json([
+        'available'        => true,
+        'script'           => $b->script,
+        'headlines'        => $b->headlines,
+        'duration_seconds' => $b->duration_seconds,
+        'estimated_minutes'=> $b->estimated_minutes,
+        'date_label'       => $b->formatted_date,
+        'news_count'       => $b->news_count,
+    ]);
+})->name('briefing.today');
 
 // Rutas para noticias
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
@@ -147,6 +203,7 @@ Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/news/category/{slug}', [NewsController::class, 'category'])->name('news.category');
 Route::get('/category/{slug}', [NewsController::class, 'byCategory'])->name('news.by.category');
 Route::get('/news/tag/{tag}', [NewsController::class, 'byTag'])->name('news.by.tag');
+Route::get('/archivo/{year}/{month?}', [NewsController::class, 'archive'])->name('news.archive');
 
 // Rutas para investigación
 Route::get('/investigacion', [ResearchController::class, 'index'])->name('research.index');
@@ -171,6 +228,8 @@ Route::post('/comments', [CommentController::class, 'store']);
 
 // Rutas para el frontend
 Route::get('/columnas', [ColumnController::class, 'index'])->name('columns.index');
+Route::get('/columnas/categoria/{slug}', [ColumnController::class, 'byCategory'])->name('columns.category');
+Route::get('/columnas/autor/{id}', [ColumnController::class, 'byAuthor'])->name('columns.author');
 Route::get('/columnas/{slug}', [ColumnController::class, 'show'])->name('columns.show');
 
 // Rutas para publicaciones de invitados
@@ -201,11 +260,12 @@ Route::middleware('auth')->group(function () {
 
 // Para el frontend
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/confirm/{token}', [NewsletterController::class, 'confirm'])->name('newsletter.confirm');
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 
 
-Route::get('/eventos', 'EventController@index')->name('events.index');
-Route::get('/sobre-nosotros/colaboradores', 'AboutController@contributors')->name('about.contributors');
+//Route::get('/eventos', 'EventController@index')->name('events.index');
+//Route::get('/sobre-nosotros/colaboradores', 'AboutController@contributors')->name('about.contributors');
 //Route::get('/paginas/privacidad', 'PageController@privacy')->name('pages.privacy');
 //Route::get('/paginas/terminos', 'PageController@terms')->name('pages.terms');
 //Route::get('/paginas/cookies', 'PageController@cookies')->name('pages.cookies');
@@ -252,7 +312,13 @@ Route::prefix('admin/tiktok')->name('admin.tiktok.')->middleware(['auth', \App\H
     
     // Estadísticas
     Route::get('/stats', [TikTokController::class, 'stats'])->name('stats');
-    
+
+    // Kit: generar audio + caption + onscreen
+    Route::post('/generate-kit/{id}', [TikTokController::class, 'generateKit'])->name('generate-kit');
+
+    // Kit: descargar ZIP
+    Route::get('/download-kit/{id}', [TikTokController::class, 'downloadKit'])->name('download-kit');
+
     // Página de ayuda
     Route::get('/help', function () {
         return view('admin.tiktok.help');

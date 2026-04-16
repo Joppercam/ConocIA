@@ -14,7 +14,7 @@ return new class extends Migration
         // Tabla para manejar guiones de TikTok
         Schema::create('tiktok_scripts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('article_id');
+            $table->unsignedBigInteger('news_id');
             $table->text('script_content'); // El guión generado
             $table->text('visual_suggestions')->nullable(); // Sugerencias para elementos visuales
             $table->string('hashtags')->nullable(); // Hashtags sugeridos
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable(); // Cuando se publicó en TikTok
             $table->timestamps();
             
-            $table->foreign('article_id')->references('id')->on('articles')->onDelete('cascade');
+            $table->foreign('news_id')->references('id')->on('news')->onDelete('cascade');
         });
         
         // Tabla para métricas de rendimiento de los videos

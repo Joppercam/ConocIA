@@ -1,0 +1,28 @@
+; ══════════════════════════════════════════════════════════════
+;  ConocIA — Configuración Supervisor para queue worker
+;  Copiar a /etc/supervisor/conf.d/conocia-worker.conf
+;  Luego: supervisorctl reread && supervisorctl update
+; ══════════════════════════════════════════════════════════════
+
+[program:conocia-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/conocia/artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/conocia-worker.log
+stopwaitsecs=3600
+
+[program:conocia-scheduler]
+process_name=%(program_name)s
+command=php /var/www/conocia/artisan schedule:work
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/conocia-scheduler.log

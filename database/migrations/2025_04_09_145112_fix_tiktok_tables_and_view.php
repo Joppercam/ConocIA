@@ -10,6 +10,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'sqlite') {
+            return;
+        }
+
         // Eliminar la vista problemática
         DB::statement('DROP VIEW IF EXISTS all_news_view');
         
@@ -49,6 +53,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'sqlite') {
+            return;
+        }
+
         DB::statement('DROP TABLE IF EXISTS tiktok_metrics');
         DB::statement('DROP TABLE IF EXISTS tiktok_scripts');
         

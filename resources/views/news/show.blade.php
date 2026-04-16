@@ -14,8 +14,10 @@ $metaDescription = $article->summary ?? $article->excerpt ?? substr(strip_tags($
 $metaKeywords = is_object($article->category) ? $article->category->name : 'noticias, tecnología, IA';
 
 // Agregar tags si existen
-if(isset($article->tags) && count($article->tags) > 0) {
-    $tagNames = collect($article->tags)->pluck('name')->implode(', ');
+if(isset($article->tags) && is_countable($article->tags) && count($article->tags) > 0) {
+    $tagNames = is_string($article->tags)
+        ? $article->tags
+        : collect($article->tags)->pluck('name')->implode(', ');
     $metaKeywords .= ', ' . $tagNames;
 }
 
@@ -57,15 +59,25 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     
     @include('partials.schema-news', ['article' => $article])
 @endsection
+@section('reading_progress', true)
 @section('content')
-<!-- Breadcrumbs -->
-<div class="bg-light py-2">
+{{-- Breadcrumb bar (dark, matching index) --}}
+<div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3 mb-4">
     <div class="container">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('news.index') }}">Noticias</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($article->title, 40) }}</li>
+            <ol class="breadcrumb mb-0" style="font-size:.8rem;">
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-primary text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('news.index') }}" class="text-secondary text-decoration-none">Noticias</a></li>
+                @if(is_object($article->category))
+                <li class="breadcrumb-item">
+                    <a href="{{ route('news.category', $article->category->slug) }}"
+                       class="text-decoration-none"
+                       style="color:{{ $article->category->color ?? 'var(--primary-color)' }};">
+                        {{ $article->category->name }}
+                    </a>
+                </li>
+                @endif
+                <li class="breadcrumb-item active text-light" aria-current="page">{{ Str::limit($article->title, 40) }}</li>
             </ol>
         </nav>
     </div>
@@ -75,15 +87,18 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     <div class="row">
         <!-- Contenido Principal (Izquierda) -->
         <div class="col-lg-8">
-            <!-- Categoría y Título -->
+            {{-- Categoría y Título --}}
             <div class="mb-3">
-                <span class="badge bg-primary mb-2">
-                    @if(is_object($article->category))
-                        {{ $article->category->name }}
-                    @else
-                        {{ $article->category }}
-                    @endif
-                </span>
+                @php $catColor = is_object($article->category) ? ($article->category->color ?? 'var(--primary-color)') : 'var(--primary-color)'; @endphp
+                @if(is_object($article->category))
+                <a href="{{ route('news.category', $article->category->slug) }}"
+                   class="badge text-decoration-none mb-2 d-inline-block"
+                   style="background:{{ $catColor }};font-size:.78rem;">
+                    {{ $article->category->name }}
+                </a>
+                @else
+                <span class="badge mb-2" style="background:var(--primary-color);font-size:.78rem;">{{ $article->category }}</span>
+                @endif
                 <h1 class="mb-2">{{ $article->title }}</h1>
                 
                 <!-- Autor y fecha -->
@@ -97,8 +112,18 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                     <span><i class="far fa-clock me-1"></i> {{ $article->reading_time }} min de lectura</span>
                 </div>
 
-                <!-- Compartir en redes sociales -->
+                {{-- Compartir + Guardar --}}
                 <div class="d-flex align-items-center gap-2 mb-3">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 bookmark-btn"
+                            data-bookmark-id="{{ $article->id }}"
+                            data-bookmark-title="{{ addslashes($article->title) }}"
+                            data-bookmark-url="{{ route('news.show', $article->slug) }}"
+                            data-bookmark-category="{{ $article->category?->name }}"
+                            data-bookmark-image="{{ $article->image ?? '' }}"
+                            title="Guardar artículo"
+                            style="font-size:.78rem;">
+                        <i class="far fa-bookmark me-1"></i>Guardar
+                    </button>
                     <span class="small text-muted">Compartir:</span>
                     <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('news.show', $article)) }}&text={{ urlencode($article->title) }}" 
                     class="btn btn-sm btn-outline-secondary rounded-circle" target="_blank" rel="noopener">
@@ -208,6 +233,38 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                 {!! $article->content !!}
             </div>
            
+            {{-- Newsletter inline post-artículo --}}
+            <div class="my-5 rounded-3 p-4" style="background:linear-gradient(135deg,#0a1020 0%,#0f1b2d 100%);border:1px solid rgba(56,182,255,.2);">
+                <div class="row align-items-center g-3">
+                    <div class="col-lg-6">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:40px;height:40px;background:var(--primary-color);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fas fa-robot text-white" style="font-size:.9rem;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size:.97rem;line-height:1.2;">¿Te gustó este artículo?</div>
+                                <div style="color:#64748b;font-size:.78rem;margin-top:2px;">Recibí lo mejor de ConocIA cada semana en tu correo.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <form action="{{ route('newsletter.subscribe') }}" method="POST">
+                            @csrf
+                            <div class="input-group shadow-sm">
+                                <input type="email" name="email" class="form-control border-0 rounded-start"
+                                       placeholder="tu@correo.com" required style="font-size:.88rem;">
+                                <button class="btn btn-primary px-4 fw-semibold" type="submit" style="font-size:.88rem;">
+                                    Suscribirme
+                                </button>
+                            </div>
+                            <div style="color:#475569;font-size:.7rem;margin-top:.35rem;">
+                                <i class="fas fa-lock me-1"></i>Sin spam · Cancelá cuando quieras
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Comentarios -->
             <div class="comments-section mt-5 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -343,199 +400,121 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
         
         <!-- Sidebar (Derecha) -->
         <div class="col-lg-4">
-            <!-- Artículos Relacionados -->
+            @include('partials.table-of-contents', ['contentSelector' => '.news-content'])
+
+            {{-- Artículos Relacionados --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Artículos Relacionados</h5>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Artículos relacionados</h5>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                    @forelse($relatedArticles as $relatedArticle)
-                        <div class="col-md-6">
-                            <div class="related-article d-flex">
-                                @php
-                                    // Verificación similar para cada artículo relacionado
-                                    $relShowImage = false;
-                                    $relImageSrc = null;
-                                    
-                                    // Solo verificar si existe una imagen para evitar consultas innecesarias
-                                    if (!empty($relatedArticle->image) && 
-                                        $relatedArticle->image != 'default.jpg' && 
-                                        !str_contains($relatedArticle->image, 'default') && 
-                                        !str_contains($relatedArticle->image, 'placeholder')) {
-                                        
-                                        // Extraer el nombre del archivo si es una ruta completa
-                                        $relImageName = $relatedArticle->image;
-                                        if (Str::startsWith($relImageName, 'storage/') || Str::startsWith($relImageName, '/storage/')) {
-                                            $relImagePath = str_replace('storage/', '', $relImageName);
-                                            // Verificar si el archivo existe físicamente en la ruta directa
-                                            if (Storage::disk('public')->exists($relImagePath)) {
-                                                $relShowImage = true;
-                                                $relImageSrc = asset('storage/' . $relImagePath);
-                                            }
-                                        } else {
-                                            // Probar múltiples rutas posibles donde podría estar la imagen
-                                            $possiblePaths = [
-                                                "images/news/{$relImageName}",
-                                                "news/{$relImageName}",
-                                                "{$relImageName}"
-                                            ];
-                                            
-                                            foreach ($possiblePaths as $path) {
-                                                if (Storage::disk('public')->exists($path)) {
-                                                    $relShowImage = true;
-                                                    $relImageSrc = asset('storage/' . $path);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        
-                                        // Si todavía no encontramos la imagen, usar getImageUrl como respaldo
-                                        if (!$relShowImage && isset($getImageUrl) && is_callable($getImageUrl)) {
-                                            $relImageSrc = $getImageUrl($relatedArticle->image, 'news', 'small');
-                                            // Verificar que la URL generada no contiene 'default'
-                                            if (!str_contains($relImageSrc, 'default')) {
-                                                $relShowImage = true;
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                
-                                @if($relShowImage)
-                                <div class="related-article-img me-3">
-                                    <a href="{{ route('news.show', $relatedArticle->slug) }}">
-                                        <img src="{{ $relImageSrc }}" 
-                                            class="img-fluid rounded" 
-                                            alt="{{ $relatedArticle->title }}" 
-                                            style="width: 100px; height: 70px; object-fit: cover;">
-                                    </a>
-                                </div>
+                <div class="card-body p-0">
+                    @forelse($relatedArticles as $rel)
+                    @php
+                        $relImg = null;
+                        $relName = $rel->image ?? '';
+                        if ($relName && !str_contains($relName, 'default') && !str_contains($relName, 'placeholder')) {
+                            if (Str::startsWith($relName, 'storage/') || Str::startsWith($relName, '/storage/')) {
+                                $relPath = ltrim(str_replace('storage/', '', $relName), '/');
+                                if (Storage::disk('public')->exists($relPath)) {
+                                    $relImg = asset('storage/' . $relPath);
+                                }
+                            } else {
+                                foreach (["images/news/{$relName}", "news/{$relName}", $relName] as $p) {
+                                    if (Storage::disk('public')->exists($p)) { $relImg = asset('storage/' . $p); break; }
+                                }
+                            }
+                        }
+                    @endphp
+                    <a href="{{ route('news.show', $rel->slug) }}" class="text-decoration-none">
+                        <div class="d-flex p-2 {{ !$loop->last ? 'border-bottom' : '' }} related-item">
+                            @if($relImg)
+                            <img src="{{ $relImg }}" alt="{{ $rel->title }}"
+                                 class="rounded me-2 flex-shrink-0"
+                                 style="width:64px;height:48px;object-fit:cover;"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'">
+                            @endif
+                            <div class="overflow-hidden">
+                                @if(isset($rel->category) && is_object($rel->category))
+                                <span class="badge mb-1" style="font-size:.65rem;background:{{ $rel->category->color ?? 'var(--primary-color)' }};">{{ $rel->category->name }}</span>
                                 @endif
-                                <div class="related-article-content" style="{{ !$relShowImage ? 'width: 100%;' : '' }}">
-                                    <h6 class="mb-1">
-                                        <a href="{{ route('news.show', $relatedArticle->slug) }}" class="text-decoration-none">
-                                            {{ Str::limit($relatedArticle->title, 60) }}
-                                        </a>
-                                    </h6>
-                                    <div class="small text-muted">
-                                        <i class="far fa-calendar-alt me-1"></i> 
-                                        {{ $relatedArticle->created_at->format('d M, Y') }}
-                                    </div>
-                                </div>
+                                <p class="mb-0 small text-dark lh-sm" style="font-size:.8rem">
+                                    {{ Str::limit($rel->title, 80) }}
+                                </p>
+                                <small class="text-muted" style="font-size:.7rem">
+                                    <i class="far fa-calendar-alt me-1"></i>
+                                    {{ ($rel->published_at ?? $rel->created_at)->locale('es')->isoFormat('D MMM, YYYY') }}
+                                </small>
                             </div>
                         </div>
+                    </a>
                     @empty
-                        <div class="col-12">
-                            <p class="text-muted">No hay artículos relacionados disponibles.</p>
-                        </div>
+                    <p class="text-muted small p-3 mb-0">No hay artículos relacionados disponibles.</p>
                     @endforelse
-                    </div>
                 </div>
             </div>
             
-            <!-- Lo más leído -->
+            {{-- Lo más leído --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-chart-line text-primary me-2"></i> Lo más leído
-                    </h5>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Lo más leído</h5>
+                    </div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="most-read-list">
-                        @forelse($mostReadArticles as $index => $mostReadArticle)
-                            <a href="{{ route('news.show', $mostReadArticle->slug) }}" class="text-decoration-none">
-                                <div class="most-read-item d-flex p-3 {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light">
-                                    <div class="most-read-number me-3 text-primary fw-bold" style="font-size: 1.5rem; min-width: 28px;">
-                                        {{ $index + 1 }}
-                                    </div>
-                                    <div class="most-read-content">
-                                        <div class="d-flex mb-2">
-                                            @if(isset($mostReadArticle->category) && is_object($mostReadArticle->category))
-                                            <span class="badge bg-{{ getStatusColor($mostReadArticle->category->name ?? 'General') }} me-2">
-                                                {{ $mostReadArticle->category->name ?? 'General' }}
-                                            </span>
-                                            @endif
-                                            <span class="badge bg-light text-dark">
-                                                <i class="fas fa-eye me-1"></i> {{ number_format($mostReadArticle->views) }}
-                                            </span>
-                                        </div>
-                                        <h6 class="mb-1">{{ $mostReadArticle->title }}</h6>
-                                        <div class="text-muted small">
-                                            <i class="far fa-calendar-alt me-1"></i> 
-                                            {{ $mostReadArticle->created_at->format('d M, Y') }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        @empty
-                            <div class="p-3 text-center text-muted">
-                                <i class="fas fa-book-reader mb-2" style="font-size: 2rem;"></i>
-                                <p class="mb-0">No hay artículos disponibles en este momento.</p>
+                    @forelse($mostReadArticles as $idx => $mr)
+                    <a href="{{ route('news.show', $mr->slug) }}" class="text-decoration-none">
+                        <div class="d-flex align-items-start gap-2 px-3 py-2 most-read-item {{ !$loop->last ? 'border-bottom' : '' }}">
+                            <span class="fw-bold flex-shrink-0 mt-1"
+                                  style="font-size:1.1rem;min-width:22px;color:var(--primary-color);line-height:1;">
+                                {{ $idx + 1 }}
+                            </span>
+                            <div>
+                                <h6 class="mb-1 text-dark" style="font-size:.82rem;line-height:1.35;">{{ $mr->title }}</h6>
+                                <span class="text-muted" style="font-size:.75rem;">
+                                    <i class="fas fa-eye me-1"></i>{{ number_format($mr->views) }}
+                                    @if(isset($mr->category) && is_object($mr->category))
+                                    <span class="ms-2 badge"
+                                          style="font-size:.65rem;background:{{ $mr->category->color ?? 'var(--primary-color)' }};">
+                                        {{ $mr->category->name }}
+                                    </span>
+                                    @endif
+                                </span>
                             </div>
-                        @endforelse
-                    </div>
+                        </div>
+                    </a>
+                    @empty
+                    <p class="text-muted small p-3 mb-0">No hay artículos disponibles.</p>
+                    @endforelse
                 </div>
             </div>
 
-            @php
-            /**
-            * Obtiene un color según la categoría
-            * @param string $category Nombre de la categoría
-            * @return string Clase CSS de color
-            */
-            function getStatusColor($category) {
-                $colors = [
-                    'Inteligencia Artificial' => 'primary',
-                    'Tecnología' => 'info',
-                    'Ciencia' => 'success',
-                    'Opinión' => 'warning',
-                    'Educación' => 'secondary',
-                    'Economía' => 'danger',
-                ];
-                
-                return $colors[$category] ?? 'primary';
-            }
-            @endphp
-            
-            <!-- Newsletter -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Suscríbete</h5>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">Recibe las últimas noticias y análisis sobre IA en tu correo.</p>
-                    <form action="{{ route('newsletter.subscribe') }}" method="POST">
-                        @csrf
-                        <div class="input-group input-group-sm mb-1">
-                            <input type="email" class="form-control form-control-sm" 
-                                name="email" id="newsletter-email" 
-                                placeholder="Tu correo electrónico" required>
-                            <button class="btn btn-primary btn-sm" type="submit">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                        <p class="form-text text-muted small">
-                            No compartimos tu información. Puedes darte de baja en cualquier momento.
-                        </p>
-                    </form>
-                </div>
-            </div>
-            
-           <!-- Tags populares -->
+            {{-- Tags populares --}}
+            @if($popularTags->count())
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Temas populares</h5>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Temas populares</h5>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-1 pb-3 px-3">
                     <div class="d-flex flex-wrap gap-2">
                         @foreach($popularTags as $tag)
-                            <a href="{{ route('news.by.tag', $tag->slug) }}" class="badge bg-primary text-decoration-none">
-                                {{ $tag->name }} <span class="badge bg-light text-dark">{{ $tag->news_count }}</span>
-                            </a>
+                        <a href="{{ route('news.tag', $tag->slug) }}"
+                           class="badge bg-light text-dark text-decoration-none border"
+                           style="font-size:.75rem;font-weight:500;">
+                            #{{ $tag->name }}
+                        </a>
                         @endforeach
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>
@@ -620,11 +599,24 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     }
     
     .news-content blockquote {
-        border-left: 4px solid #0d6efd;
-        padding-left: 1rem;
-        margin-left: 0;
-        color: #6c757d;
+        border-left: 4px solid var(--primary-color, #0d6efd);
+        background: rgba(13,110,253,.06);
+        border-radius: 0 .5rem .5rem 0;
+        padding: 1.1rem 1.4rem;
+        margin: 1.8rem 0;
+        color: #e0e0e0;
         font-style: italic;
+        font-size: 1.1rem;
+        line-height: 1.75;
+    }
+
+    /* Sección "Para profundizar" y listas dentro de artículo */
+    .news-content ul li {
+        margin-bottom: .8rem;
+        line-height: 1.65;
+    }
+    .news-content ul li strong {
+        color: var(--primary-color, #38b6ff);
     }
     
     .news-content pre, .news-content code {
@@ -673,9 +665,11 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
         font-size: 0.75rem;
     }
     
-    .related-article-content h6 {
-        font-size: 0.8rem !important;
-        line-height: 1.3;
+    .related-item {
+        transition: background-color 0.15s;
+    }
+    .related-item:hover {
+        background-color: #f8f9fa;
     }
     
     .most-read-item .most-read-number {

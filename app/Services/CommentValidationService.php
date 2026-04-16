@@ -2,144 +2,104 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Config;
+
 class CommentValidationService
 {
-    /**
-     * Lista de palabras prohibidas o inapropiadas
-     * 
-     * @var array
-     */
-    protected $bannedWords = [
-        // Insultos y lenguaje ofensivo (puedes expandir esta lista según necesites)
+    protected array $bannedWords = [
         'idiota', 'estúpido', 'imbécil', 'pendejo', 'puta', 'marica', 'cabrón',
         'joder', 'mierda', 'pito', 'verga', 'concha', 'polla', 'gilipollas',
-        
-        // Palabras de spam comunes
         'viagra', 'casino', 'rolex', 'replica', 'cheap', 'free money', 'click here',
-        'lottery', 'winner', 'promoción', 'promocion', 'oferta'
+        'lottery', 'winner', 'promoción', 'promocion', 'oferta',
     ];
 
-    /**
-     * Enlaces y dominios prohibidos (sitios conocidos de spam o sitios competidores)
-     * 
-     * @var array
-     */
-    protected $bannedDomains = [
+    protected array $bannedDomains = [
         'spam.com', 'casino.com', 'bet365', 'apuesta', 'porn', 'xxx',
-        // Agrega aquí dominios de competidores si lo deseas
     ];
 
+    protected ?TextAnalysisService $textAnalysis;
+    protected bool $enableAdvancedAnalysis;
+
+    public function __construct(?TextAnalysisService $textAnalysis = null)
+    {
+        $this->textAnalysis           = $textAnalysis;
+        $this->enableAdvancedAnalysis = Config::get('comments.enable_advanced_analysis', false);
+    }
+
     /**
-     * Validar el contenido de un comentario
-     * 
-     * @param string $content
-     * @return array ['isValid' => bool, 'reason' => string|null]
+     * Valida el contenido de un comentario.
+     * Si `comments.enable_advanced_analysis` está activo y hay un TextAnalysisService
+     * disponible, también aplica detección de toxicidad y spam.
+     *
+     * @return array{isValid: bool, reason: string|null}
      */
     public function validate(string $content): array
     {
-        // Limpieza básica del texto para normalizar
-        $normalizedContent = mb_strtolower(trim($content));
-        
-        // Verificar longitud mínima
-        if (mb_strlen($normalizedContent) < 5) {
-            return [
-                'isValid' => false,
-                'reason' => 'El comentario es demasiado corto.'
-            ];
+        $normalized = mb_strtolower(trim($content));
+
+        if (mb_strlen($normalized) < 5) {
+            return ['isValid' => false, 'reason' => 'El comentario es demasiado corto.'];
         }
-        
-        // Verificar longitud máxima
-        if (mb_strlen($normalizedContent) > 1000) {
-            return [
-                'isValid' => false,
-                'reason' => 'El comentario es demasiado largo.'
-            ];
+
+        if (mb_strlen($normalized) > 1000) {
+            return ['isValid' => false, 'reason' => 'El comentario es demasiado largo.'];
         }
-        
-        // Verificar palabras prohibidas
+
         foreach ($this->bannedWords as $word) {
-            if (stripos($normalizedContent, $word) !== false) {
-                return [
-                    'isValid' => false,
-                    'reason' => 'El comentario contiene lenguaje inapropiado.'
-                ];
+            if (stripos($normalized, $word) !== false) {
+                return ['isValid' => false, 'reason' => 'El comentario contiene lenguaje inapropiado.'];
             }
         }
-        
-        // Verificar exceso de mayúsculas (gritar)
+
         $upperCount = strlen(preg_replace('/[^A-Z]/', '', $content));
-        $charCount = mb_strlen($content);
-        
+        $charCount  = mb_strlen($content);
         if ($charCount > 20 && ($upperCount / $charCount) > 0.7) {
-            return [
-                'isValid' => false,
-                'reason' => 'El comentario usa demasiadas mayúsculas.'
-            ];
+            return ['isValid' => false, 'reason' => 'El comentario usa demasiadas mayúsculas.'];
         }
-        
-        // Verificar dominios prohibidos en URLs
-        if (preg_match_all('/https?:\/\/([^\/\s]+)/', $normalizedContent, $matches)) {
+
+        if (preg_match_all('/https?:\/\/([^\/\s]+)/', $normalized, $matches)) {
             foreach ($matches[1] as $domain) {
-                foreach ($this->bannedDomains as $bannedDomain) {
-                    if (stripos($domain, $bannedDomain) !== false) {
-                        return [
-                            'isValid' => false,
-                            'reason' => 'El comentario contiene enlaces a sitios prohibidos.'
-                        ];
+                foreach ($this->bannedDomains as $banned) {
+                    if (stripos($domain, $banned) !== false) {
+                        return ['isValid' => false, 'reason' => 'El comentario contiene enlaces a sitios prohibidos.'];
                     }
                 }
             }
         }
-        
-        // Verificar caracteres repetidos (posible spam)
-        if (preg_match('/(.)\1{5,}/', $normalizedContent)) {
-            return [
-                'isValid' => false,
-                'reason' => 'El comentario contiene caracteres repetitivos.'
-            ];
+
+        if (preg_match('/(.)\1{5,}/', $normalized)) {
+            return ['isValid' => false, 'reason' => 'El comentario contiene caracteres repetitivos.'];
         }
 
-        // Verificar demasiados signos de exclamación o interrogación (spam)
-        if (substr_count($normalizedContent, '!') > 5 || substr_count($normalizedContent, '?') > 5) {
-            return [
-                'isValid' => false,
-                'reason' => 'El comentario contiene demasiados signos de exclamación o interrogación.'
-            ];
-        }
-        
-        // Verificar demasiados enlaces (posible spam)
-        if (substr_count($normalizedContent, 'http') > 2) {
-            return [
-                'isValid' => false,
-                'reason' => 'El comentario contiene demasiados enlaces.'
-            ];
+        if (substr_count($normalized, '!') > 5 || substr_count($normalized, '?') > 5) {
+            return ['isValid' => false, 'reason' => 'El comentario contiene demasiados signos de exclamación o interrogación.'];
         }
 
-        // Si pasa todas las validaciones, el comentario es válido
-        return [
-            'isValid' => true,
-            'reason' => null
-        ];
+        if (substr_count($normalized, 'http') > 2) {
+            return ['isValid' => false, 'reason' => 'El comentario contiene demasiados enlaces.'];
+        }
+
+        // Análisis avanzado (opcional)
+        if ($this->enableAdvancedAnalysis && $this->textAnalysis !== null) {
+            $toxicity = $this->textAnalysis->detectToxicity($content);
+            if ($toxicity['success'] && $toxicity['is_toxic']) {
+                return ['isValid' => false, 'reason' => 'Contenido inapropiado detectado: ' . $toxicity['reason'], 'score' => $toxicity['score']];
+            }
+
+            if ($this->textAnalysis->isSpam($content)) {
+                return ['isValid' => false, 'reason' => 'El comentario parece ser spam.'];
+            }
+        }
+
+        return ['isValid' => true, 'reason' => null];
     }
-    
-    /**
-     * Agregar palabras prohibidas personalizadas
-     * 
-     * @param array $words
-     * @return void
-     */
-    public function addBannedWords(array $words)
+
+    public function addBannedWords(array $words): void
     {
         $this->bannedWords = array_merge($this->bannedWords, $words);
     }
-    
-    /**
-     * Agregar dominios prohibidos personalizados
-     * 
-     * @param array $domains
-     * @return void
-     */
-    public function addBannedDomains(array $domains)
+
+    public function addBannedDomains(array $domains): void
     {
         $this->bannedDomains = array_merge($this->bannedDomains, $domains);
     }

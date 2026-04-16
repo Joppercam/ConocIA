@@ -35,15 +35,18 @@ return [
         ],
     ],
     
-    // Añadir configuración para NewsAPI
     'newsapi' => [
         'key' => env('NEWSAPI_KEY'),
     ],
+
+    'guardian' => [
+        'api_key' => env('GUARDIAN_API_KEY'),
+    ],
     
-    // Añadir configuración para OpenAI
-    'openai' => [
-        'api_key' => env('OPENAI_API_KEY'),
-        'organization' => env('OPENAI_ORGANIZATION'),
+    // Configuración para Google Gemini (gratuito)
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
     ],
 
     

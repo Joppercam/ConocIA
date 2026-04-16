@@ -26,7 +26,8 @@
     <link rel="shortcut icon" href="{{ asset('favicon/favicon.ico') }}" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon/apple-touch-icon.png') }}" />
     <link rel="manifest" href="{{ asset('favicon/site.webmanifest') }}" />
-    
+    <link rel="alternate" type="application/rss+xml" title="ConocIA — Noticias de IA" href="{{ url('/feed') }}" />
+
     <!-- Preconexiones para optimizar carga -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +50,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     @stack('styles')
+
+    {{-- Barra de progreso de lectura (solo en páginas de artículo) --}}
+    @hasSection('reading_progress')
+    <style>
+        #reading-progress-bar {
+            position: fixed; top: 0; left: 0; z-index: 9999;
+            height: 3px; width: 0%;
+            background: linear-gradient(90deg, #38b6ff, #00e1ff);
+            transition: width .1s linear;
+            pointer-events: none;
+        }
+    </style>
+    <div id="reading-progress-bar"></div>
+    @endif
+
     <style>
         :root {
             --primary-color: #38b6ff;
@@ -125,6 +141,8 @@
             height: 4px;
             background: linear-gradient(to right, var(--primary-color), var(--primary-color-light));
             width: 0%;
+            transition: width 0.12s ease-out;
+            border-radius: 0 2px 2px 0;
         }
         
         /* Estilos del navbar */
@@ -196,6 +214,127 @@
             -webkit-text-fill-color: transparent;
         }
         
+        /* ── Dark mode pill toggle ── */
+        .theme-toggle-pill {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle-track {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,.18);
+            border-radius: 20px;
+            padding: 3px;
+            width: 52px;
+            height: 26px;
+            transition: background .3s ease;
+            border: 1px solid rgba(255,255,255,.25);
+        }
+        .theme-toggle-thumb {
+            background: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--secondary-color);
+            transition: transform .3s ease;
+            flex-shrink: 0;
+        }
+        body.theme-dark .theme-toggle-track { background: rgba(56,182,255,.3); }
+        body.theme-dark .theme-toggle-thumb { transform: translateX(26px); }
+
+        /* ── Navbar search ── */
+        #nav-search-input::placeholder { color: rgba(255,255,255,.55); }
+        #nav-search-input:focus { background:rgba(255,255,255,.25) !important; box-shadow:none; color:#fff; }
+        .search-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 1100;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 14px;
+            text-decoration: none;
+            color: #222;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background .15s;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: #f7f9ff; }
+        .search-result-title { font-size:.83rem; font-weight:600; line-height:1.3; }
+        .search-result-meta  { font-size:.72rem; color:#888; margin-top:2px; }
+        .search-result-section {
+            padding: 5px 14px 3px;
+            font-size:.68rem;
+            font-weight:700;
+            letter-spacing:.05em;
+            text-transform:uppercase;
+            color:#aaa;
+            background:#fafafa;
+        }
+        .search-more-link {
+            display:block;
+            padding: 9px 14px;
+            text-align:center;
+            font-size:.78rem;
+            color: var(--primary-color);
+            font-weight:600;
+            background:#f7f9ff;
+            text-decoration:none;
+        }
+        .search-more-link:hover { background:#eef5ff; }
+
+        /* ── Saved count badge ── */
+        .saved-count-badge {
+            position: absolute;
+            top: 4px;
+            right: -2px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: .6rem;
+            font-weight: 700;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* ── Trending badge ── */
+        .badge-trending {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: linear-gradient(135deg, #ff4757, #ff6b81);
+            color: #fff;
+            font-size: .68rem;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 10px;
+            letter-spacing: .03em;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(255,71,87,.4);
+        }
+        .badge-trending i { font-size: .65rem; }
+
         .text-highlight::after {
             content: '';
             position: absolute;
@@ -258,7 +397,25 @@
         .card:hover .card-img-top {
             transform: scale(1.05);
         }
-        
+
+        /* Placeholder para imágenes faltantes */
+        .img-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a1020 0%, #16213e 60%, #1a1a2e 100%);
+            color: rgba(255,255,255,.25);
+            font-size: 2rem;
+        }
+        .img-placeholder::after {
+            content: '\f03e';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+        img[src=""], img:not([src]) {
+            visibility: hidden;
+        }
+
         /* Estilos para botones */
         .btn {
             border-radius: 5px;
@@ -344,7 +501,136 @@
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-3px);
         }
-        
+
+        /* ── Sección Profundiza ──────────────────────────────────────── */
+        /* Hero: franja oscura solo al top */
+        .profundiza-hero {
+            background: linear-gradient(135deg, #0a1020 0%, #16213e 100%);
+            border-bottom: 3px solid rgba(56,182,255,.25);
+            padding: 3.5rem 0 3rem;
+        }
+        /* Tarjeta estándar: blanca con borde azul sutil */
+        .profundiza-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: .75rem;
+            transition: border-color .22s, transform .22s, box-shadow .22s;
+        }
+        .profundiza-card:hover {
+            border-color: rgba(56,182,255,.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(56,182,255,.1);
+        }
+        /* Tarjeta destacada: fondo azul muy tenue */
+        .profundiza-card-featured {
+            background: #f0f8ff;
+            border: 1.5px solid rgba(56,182,255,.3);
+            border-radius: .75rem;
+            transition: border-color .22s, transform .22s, box-shadow .22s;
+        }
+        .profundiza-card-featured:hover {
+            border-color: rgba(56,182,255,.6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(56,182,255,.12);
+        }
+        /* Badges de dificultad */
+        .difficulty-badge-basico    { background: #dcfce7; color: #166534; }
+        .difficulty-badge-intermedio{ background: #fef3c7; color: #92400e; }
+        .difficulty-badge-avanzado  { background: #fee2e2; color: #991b1b; }
+        /* Label de sección */
+        .profundiza-section-label {
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Contenido editorial: texto oscuro sobre fondo blanco ────── */
+        .article-content {
+            font-size: 1.07rem;
+            line-height: 1.85;
+            color: #1e293b;
+        }
+        .article-content p {
+            margin-bottom: 1.5rem;
+            color: #334155;
+        }
+        .article-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: .5rem;
+            border-bottom: 2px solid rgba(56,182,255,.3);
+        }
+        .article-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: .75rem;
+        }
+        .article-content strong { color: #0f172a; font-weight: 600; }
+        .article-content em { color: #475569; font-style: italic; }
+        .article-content blockquote {
+            border-left: 4px solid var(--primary-color);
+            background: #f0f9ff;
+            border-radius: 0 .6rem .6rem 0;
+            padding: 1.1rem 1.5rem;
+            margin: 2rem 0;
+            color: #1e40af;
+            font-style: italic;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+        .article-content ul, .article-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.6rem;
+        }
+        .article-content ul li, .article-content ol li {
+            margin-bottom: .7rem;
+            line-height: 1.7;
+            color: #334155;
+        }
+        .article-content ul li strong,
+        .article-content ol li strong { color: #0369a1; }
+        .article-content a {
+            color: var(--primary-color);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .article-content code {
+            background: #f1f5f9;
+            color: #0369a1;
+            border-radius: .3rem;
+            padding: .15rem .45rem;
+            font-size: .87em;
+            border: 1px solid #e2e8f0;
+        }
+        .article-content pre {
+            background: #1e293b;
+            border-radius: .6rem;
+            padding: 1.2rem 1.4rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+        .article-content pre code {
+            background: none;
+            color: #e2e8f0;
+            border: none;
+            padding: 0;
+            font-size: .9rem;
+        }
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: .5rem;
+            margin: 1.5rem 0;
+        }
+
         /* Animaciones */
         .animate-fade-in {
             animation: fadeIn 0.8s ease-in-out;
@@ -379,9 +665,14 @@
                     <span class="logo-text">Conoc<span class="text-highlight">IA</span></span>
                 </a>
                 <div class="d-flex align-items-center">
-                    <!-- Botón de cambio de tema -->
-                    <button class="btn btn-sm text-white me-2" id="theme-toggle" aria-label="Cambiar tema" title="Cambiar tema">
-                        <i class="fas fa-moon"></i>
+                    {{-- Dark mode toggle --}}
+                    <button class="theme-toggle-pill me-2" id="theme-toggle" aria-label="Cambiar tema" title="Cambiar tema">
+                        <span class="theme-toggle-track">
+                            <span class="theme-toggle-thumb">
+                                <i class="fas fa-moon icon-moon"></i>
+                                <i class="fas fa-sun icon-sun" style="display:none;"></i>
+                            </span>
+                        </span>
                     </button>
                     <!-- Botón de búsqueda móvil -->
                     <button id="search-toggle-mobile" class="btn btn-link text-white d-lg-none" aria-label="Buscar" title="Buscar">
@@ -416,22 +707,93 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('columns.*') ? 'active' : '' }}" 
+                            <a class="nav-link {{ request()->routeIs('columns.*') ? 'active' : '' }}"
                             href="{{ route('columns.index') }}"
                             aria-current="{{ request()->routeIs('columns.*') ? 'page' : 'false' }}">
                             <i class="fas fa-pen-fancy me-1 d-lg-none"></i>Columnas
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('submit-research') ? 'active' : '' }}" 
-                               href="{{ route('submit-research') }}"
-                               aria-current="{{ request()->routeIs('submit-research') ? 'page' : 'false' }}">
-                               <i class="fas fa-upload me-1 d-lg-none"></i>Enviar Investigación
+                            <a class="nav-link {{ request()->routeIs('videos.*') ? 'active' : '' }}"
+                               href="{{ route('videos.index') }}"
+                               aria-current="{{ request()->routeIs('videos.*') ? 'page' : 'false' }}">
+                                <i class="fas fa-tv me-1 d-lg-none"></i>
+                                <span class="d-lg-none">ConocIA TV</span>
+                                <span class="d-none d-lg-inline">ConocIA <span style="color:var(--primary-color);">TV</span></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('radio.*') ? 'active' : '' }}"
+                               href="{{ route('radio.index') }}"
+                               aria-current="{{ request()->routeIs('radio.*') ? 'page' : 'false' }}">
+                                <i class="fas fa-microphone me-1 d-lg-none"></i>
+                                <span class="d-lg-none">ConocIA Radio</span>
+                                <span class="d-none d-lg-inline">ConocIA <span style="color:var(--primary-color);">Radio</span></span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('conceptos.*','analisis.*','papers.*','estado-arte.*') ? 'active' : '' }}"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-brain me-1 d-lg-none"></i>Profundiza
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:240px;">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('conceptos.index') }}">
+                                        <i class="fas fa-book-open me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Conceptos IA</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Enciclopedia de inteligencia artificial</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('analisis.index') }}">
+                                        <i class="fas fa-microscope me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Análisis de Fondo</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Editorial largo sobre un tema IA</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('papers.index') }}">
+                                        <i class="fas fa-file-alt me-2" style="color:var(--primary-color);"></i>
+                                        <strong>ConocIA Papers</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Papers de arXiv explicados en español</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('estado-arte.index') }}">
+                                        <i class="fas fa-chart-line me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Estado del Arte</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Digest semanal por campo de IA</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative {{ request()->routeIs('saved') ? 'active' : '' }}"
+                               href="{{ route('saved') }}" title="Artículos guardados">
+                                <i class="fas fa-bookmark me-1 d-lg-none"></i>
+                                <span class="d-lg-none">Guardados</span>
+                                <i class="fas fa-bookmark d-none d-lg-inline"></i>
+                                <span class="saved-count-badge d-none" id="nav-saved-count">0</span>
                             </a>
                         </li>
                     </ul>
-                    
 
+                    {{-- Search bar desktop --}}
+                    <div class="position-relative d-none d-lg-block ms-2" style="width:220px;">
+                        <form action="{{ route('search') }}" method="GET" autocomplete="off">
+                            <input type="text"
+                                   name="query"
+                                   id="nav-search-input"
+                                   class="form-control form-control-sm rounded-pill ps-3 pe-5"
+                                   placeholder="Buscar..."
+                                   style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.82rem;"
+                                   aria-label="Buscar en ConocIA">
+                            <button class="btn btn-link text-white position-absolute end-0 top-50 translate-middle-y pe-2" type="submit">
+                                <i class="fas fa-search" style="font-size:.78rem;"></i>
+                            </button>
+                        </form>
+                        <div id="search-dropdown" class="search-dropdown shadow-lg" style="display:none;"></div>
+                    </div>
 
                 </div>
             </div>
@@ -529,6 +891,7 @@
                         <li class="mb-2"><a href="{{ route('news.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Noticias</a></li>
                         <li class="mb-2"><a href="{{ route('research.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Investigación</a></li>
                         <li class="mb-2"><a href="{{ route('columns.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Columnas</a></li>
+                        <li class="mb-2"><a href="{{ route('news.archive', date('Y')) }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Archivo</a></li>
                         <li class="mb-2"><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Enviar Investigación</a></li>
                     </ul>
                 </div>
@@ -621,24 +984,26 @@
             
             window.addEventListener('scroll', updateReadingProgress);
             
-            // Botón para cambiar tema
+            // Dark mode pill toggle
             const themeToggle = document.getElementById('theme-toggle');
+            function applyTheme(dark) {
+                document.body.classList.toggle('theme-dark', dark);
+                document.body.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+                const moon = themeToggle.querySelector('.icon-moon');
+                const sun  = themeToggle.querySelector('.icon-sun');
+                if (moon) moon.style.display = dark ? 'none'  : '';
+                if (sun)  sun.style.display  = dark ? '' : 'none';
+            }
             if (themeToggle) {
                 themeToggle.addEventListener('click', function() {
-                    document.body.classList.toggle('theme-dark');
-                    const isDark = document.body.classList.contains('theme-dark');
-                    document.body.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
-                    this.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                    const isDark = !document.body.classList.contains('theme-dark');
+                    applyTheme(isDark);
                     localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 });
-                
-                // Verificar preferencia guardada de tema
-                if (localStorage.getItem('theme') === 'dark' || 
-                    (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.body.classList.add('theme-dark');
-                    document.body.setAttribute('data-bs-theme', 'dark');
-                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-                }
+                // Aplicar tema guardado o preferencia del sistema
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(savedTheme === 'dark' || (!savedTheme && prefersDark));
             }
             
             // Botón de búsqueda en móvil
@@ -719,5 +1084,185 @@
     
     @stack('scripts')
     @include('components.cookie-consent')
+
+    <!-- PWA — Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .catch(err => console.warn('SW no disponible:', err));
+            });
+        }
+    </script>
+
+    <!-- ── Live Search ── -->
+    <script>
+    (function () {
+        const input    = document.getElementById('nav-search-input');
+        const dropdown = document.getElementById('search-dropdown');
+        if (!input || !dropdown) return;
+
+        let timer;
+        const LIVE_URL = '{{ route("search.live") }}';
+        const CSRF     = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+        input.addEventListener('input', function () {
+            clearTimeout(timer);
+            const q = this.value.trim();
+            if (q.length < 2) { dropdown.style.display = 'none'; return; }
+            timer = setTimeout(() => fetchResults(q), 280);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { dropdown.style.display = 'none'; this.blur(); }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        function fetchResults(q) {
+            fetch(LIVE_URL + '?q=' + encodeURIComponent(q), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => renderDropdown(data))
+            .catch(() => {});
+        }
+
+        function renderDropdown(data) {
+            let html = '';
+            if (data.news && data.news.length) {
+                html += '<div class="search-result-section">Noticias</div>';
+                data.news.forEach(item => {
+                    html += `<a class="search-result-item" href="${item.url}">
+                        <div>
+                            ${item.category ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};margin-right:5px;flex-shrink:0;vertical-align:middle;"></span>` : ''}
+                            <span class="search-result-title">${escHtml(item.title)}</span>
+                            <div class="search-result-meta">${item.category ? escHtml(item.category) + ' · ' : ''}${item.date || ''}</div>
+                        </div>
+                    </a>`;
+                });
+            }
+            if (data.research && data.research.length) {
+                html += '<div class="search-result-section">Investigación</div>';
+                data.research.forEach(item => {
+                    html += `<a class="search-result-item" href="${item.url}">
+                        <div><span class="search-result-title"><i class="fas fa-flask me-1" style="color:#38b6ff;font-size:.7rem;"></i>${escHtml(item.title)}</span></div>
+                    </a>`;
+                });
+            }
+            if (!data.news?.length && !data.research?.length) {
+                html = '<div class="p-3 text-muted text-center" style="font-size:.82rem;">Sin resultados para <strong>' + escHtml(data.query) + '</strong></div>';
+            } else {
+                html += `<a class="search-more-link" href="${data.more_url}"><i class="fas fa-search me-1"></i>Ver todos los resultados</a>`;
+            }
+            dropdown.innerHTML = html;
+            dropdown.style.display = '';
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    })();
+    </script>
+
+    <!-- ── Bookmarks ── -->
+    <script>
+    const BOOKMARKS_KEY = 'conocia_bookmarks';
+
+    function getBookmarks() {
+        try { return JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '[]'); } catch { return []; }
+    }
+    function saveBookmarks(items) {
+        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(items));
+    }
+    function toggleBookmark(id, title, url, category, image) {
+        let items = getBookmarks();
+        const idx = items.findIndex(b => b.id === id);
+        if (idx >= 0) {
+            items.splice(idx, 1);
+        } else {
+            items.unshift({ id, title, url, category: category || '', image: image || '', saved_at: Date.now() });
+        }
+        saveBookmarks(items);
+        updateBookmarkUI(id, idx < 0);
+        updateNavBadge();
+    }
+    function isBookmarked(id) {
+        return getBookmarks().some(b => b.id === id);
+    }
+    function updateBookmarkUI(id, saved) {
+        document.querySelectorAll('[data-bookmark-id="' + id + '"]').forEach(btn => {
+            btn.classList.toggle('bookmarked', saved);
+            btn.title = saved ? 'Quitar de guardados' : 'Guardar artículo';
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = saved ? 'fas fa-bookmark' : 'far fa-bookmark';
+        });
+    }
+    function updateNavBadge() {
+        const count = getBookmarks().length;
+        const badge = document.getElementById('nav-saved-count');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : count;
+            badge.classList.remove('d-none');
+        } else {
+            badge.classList.add('d-none');
+        }
+    }
+
+    // Inicializar badges al cargar
+    document.addEventListener('DOMContentLoaded', function () {
+        updateNavBadge();
+        // Marcar botones de la página actual
+        document.querySelectorAll('[data-bookmark-id]').forEach(btn => {
+            const id = parseInt(btn.dataset.bookmarkId);
+            if (isBookmarked(id)) updateBookmarkUI(id, true);
+        });
+        // Event delegation para clicks en botones bookmark
+        document.body.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-bookmark-id]');
+            if (!btn) return;
+            e.preventDefault(); e.stopPropagation();
+            const id       = parseInt(btn.dataset.bookmarkId);
+            const title    = btn.dataset.bookmarkTitle    || '';
+            const url      = btn.dataset.bookmarkUrl      || '';
+            const category = btn.dataset.bookmarkCategory || '';
+            const image    = btn.dataset.bookmarkImage    || '';
+            toggleBookmark(id, title, url, category, image);
+        });
+    });
+    </script>
+
+    {{-- JS barra de progreso --}}
+    @hasSection('reading_progress')
+    <script>
+    (function(){
+        var bar = document.getElementById('reading-progress-bar');
+        if (!bar) return;
+        function update(){
+            var s = document.documentElement;
+            var pct = (s.scrollTop / (s.scrollHeight - s.clientHeight)) * 100;
+            bar.style.width = Math.min(pct, 100) + '%';
+        }
+        window.addEventListener('scroll', update, { passive: true });
+        update();
+    })();
+    </script>
+    @endif
+    {{-- Broken-image fallback: replaces missing images with placeholder div --}}
+    <script>
+    document.querySelectorAll('img[data-placeholder]').forEach(function(img){
+        img.addEventListener('error', function(){
+            var ph = document.createElement('div');
+            ph.className = 'img-placeholder w-100 h-100';
+            ph.style.minHeight = img.offsetHeight ? img.offsetHeight + 'px' : '200px';
+            img.parentNode.replaceChild(ph, img);
+        });
+    });
+    </script>
 </body>
 </html>

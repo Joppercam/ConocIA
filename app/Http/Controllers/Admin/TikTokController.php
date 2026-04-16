@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\TikTokScript;
+use App\Services\TikTokKitGenerator;
 use App\Services\TikTokNewsSelector;
 use App\Services\TikTokScriptGenerator;
 use Illuminate\Http\Request;
@@ -301,5 +302,52 @@ class TikTokController extends Controller
             ->with('success', 'Guión guardado como borrador correctamente.');
     }
 
-    
+
+    /**
+     * Genera el kit completo: audio MP3 + caption + frases onscreen.
+     */
+    public function generateKit(int $id)
+    {
+        $script = TikTokScript::with('news')->findOrFail($id);
+
+        if (!in_array($script->status, ['approved', 'published'])) {
+            return back()->with('error', 'El guión debe estar aprobado antes de generar el kit.');
+        }
+
+        $generator = app(TikTokKitGenerator::class);
+        $result    = $generator->generate($script);
+
+        if ($result !== true) {
+            return back()->with('error', $result);
+        }
+
+        Cache::forget('tiktok_dashboard_stats');
+
+        return back()->with('success', '¡Kit generado! Ya podés descargar el audio, caption y frases.');
+    }
+
+    /**
+     * Descarga el kit completo como ZIP.
+     */
+    public function downloadKit(int $id)
+    {
+        $script = TikTokScript::findOrFail($id);
+
+        if (!$script->hasKit()) {
+            return back()->with('error', 'Primero generá el kit.');
+        }
+
+        $generator = app(TikTokKitGenerator::class);
+        $zipPath   = $generator->buildZip($script);
+
+        if (!$zipPath || !file_exists($zipPath)) {
+            return back()->with('error', 'No se pudo generar el ZIP. Intentá regenerar el kit.');
+        }
+
+        $filename = 'conocia-tiktok-' . $script->id . '-' . now()->format('Ymd') . '.zip';
+
+        return response()->download($zipPath, $filename, [
+            'Content-Type' => 'application/zip',
+        ])->deleteFileAfterSend(false);
+    }
 }

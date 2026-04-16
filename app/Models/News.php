@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Spatie\Feed\Feedable;
+use Spatie\Feed\FeedItem;
 
-class News extends Model
+class News extends Model implements Feedable
 {
     use HasFactory;
     
@@ -249,6 +251,34 @@ class News extends Model
             ->where('status', 'success')
             ->pluck('network')
             ->toArray();
+    }
+
+    // -------------------------------------------------------------------------
+    // RSS Feed
+    // -------------------------------------------------------------------------
+
+    public function toFeedItem(): FeedItem
+    {
+        $author = $this->author ?? 'ConocIA';
+        if (is_object($author)) {
+            $author = $author->name ?? 'ConocIA';
+        }
+
+        return FeedItem::create()
+            ->id(route('news.show', $this->slug))
+            ->title($this->title)
+            ->summary($this->excerpt ?? \Illuminate\Support\Str::limit(strip_tags($this->content), 200))
+            ->updated($this->published_at ?? $this->created_at)
+            ->link(route('news.show', $this->slug))
+            ->authorName($author);
+    }
+
+    public static function getAllFeedItems()
+    {
+        return self::where('status', 'published')
+            ->latest('published_at')
+            ->take(50)
+            ->get();
     }
 
 }

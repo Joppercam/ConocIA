@@ -15,7 +15,9 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
          // Vacía la tabla antes de insertar los nuevos datos
+         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
          DB::table('categories')->truncate();
+         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
          
         $categories = [

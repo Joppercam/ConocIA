@@ -20,13 +20,23 @@ class TikTokScript extends Model
         'status',
         'tiktok_score',
         'ai_response_raw',
-        'published_at'
+        'published_at',
+        'audio_path',
+        'caption',
+        'onscreen_text',
+        'kit_generated_at',
     ];
-    
+
     protected $casts = [
-        'published_at' => 'datetime',
-        'tiktok_score' => 'float',
+        'published_at'     => 'datetime',
+        'kit_generated_at' => 'datetime',
+        'tiktok_score'     => 'float',
     ];
+
+    public function hasKit(): bool
+    {
+        return !is_null($this->kit_generated_at);
+    }
     
     /**
      * Relación con el modelo News

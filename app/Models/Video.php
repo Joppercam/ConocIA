@@ -21,12 +21,25 @@ class Video extends Model
         'duration_seconds',
         'view_count',
         'is_featured',
+        'ai_summary',
+        'ai_keywords',
     ];
 
     protected $casts = [
-        'published_at' => 'datetime',
-        'is_featured' => 'boolean',
+        'published_at'  => 'datetime',
+        'is_featured'   => 'boolean',
+        'ai_keywords'   => 'array',
     ];
+
+    public function getAiKeywordsArrayAttribute(): array
+    {
+        return $this->ai_keywords ?? [];
+    }
+
+    public function hasAiSummary(): bool
+    {
+        return !empty($this->ai_summary);
+    }
 
     public function platform()
     {

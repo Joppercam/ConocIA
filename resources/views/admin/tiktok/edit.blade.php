@@ -1,5 +1,7 @@
 @extends('admin.layouts.app')
 
+@use(Illuminate\Support\Facades\Storage)
+
 @section('title', 'Editar Guión de TikTok')
 
 @section('content')
@@ -115,6 +117,110 @@
                                     </form>
                                 @endif
                             </div>
+
+                            {{-- ── KIT DE PRODUCCIÓN ── --}}
+                            @if(in_array($script->status, ['approved', 'published']))
+                            <hr>
+                            <div class="card border-left-primary shadow-sm mt-3">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h5 class="mb-0 font-weight-bold text-primary">
+                                            <i class="fas fa-box-open mr-2"></i>Kit de Producción TikTok
+                                        </h5>
+                                        @if($script->hasKit())
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check mr-1"></i>Generado {{ $script->kit_generated_at->diffForHumans() }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <p class="text-muted small mb-3">
+                                        Genera el audio MP3 con voz sintética, el caption listo para pegar en TikTok y las frases clave para los text overlays del video.
+                                    </p>
+
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        {{-- Botón generar / regenerar --}}
+                                        <form action="{{ route('admin.tiktok.generate-kit', $script->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-sm"
+                                                    onclick="this.disabled=true; this.innerHTML='<i class=\'fas fa-spinner fa-spin mr-1\'></i>Generando...'; this.form.submit();">
+                                                <i class="fas fa-magic mr-1"></i>
+                                                {{ $script->hasKit() ? 'Regenerar Kit' : 'Generar Kit' }}
+                                            </button>
+                                        </form>
+
+                                        {{-- Botón descargar ZIP --}}
+                                        @if($script->hasKit())
+                                        <a href="{{ route('admin.tiktok.download-kit', $script->id) }}"
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-download mr-1"></i>Descargar ZIP
+                                        </a>
+                                        @endif
+                                    </div>
+
+                                    {{-- Preview del kit si ya fue generado --}}
+                                    @if($script->hasKit())
+                                    <div class="mt-4">
+                                        <ul class="nav nav-tabs" id="kitTabs">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" data-toggle="tab" href="#tab-caption">
+                                                    <i class="fas fa-align-left mr-1"></i>Caption
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-toggle="tab" href="#tab-onscreen">
+                                                    <i class="fas fa-font mr-1"></i>Onscreen Text
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-toggle="tab" href="#tab-audio">
+                                                    <i class="fas fa-headphones mr-1"></i>Audio
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content border border-top-0 p-3 bg-light rounded-bottom">
+                                            <div class="tab-pane fade show active" id="tab-caption">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <small class="text-muted">Pegá esto directamente en TikTok al subir el video.</small>
+                                                    <button class="btn btn-xs btn-outline-secondary" onclick="copyText('caption-text')">
+                                                        <i class="fas fa-copy"></i> Copiar
+                                                    </button>
+                                                </div>
+                                                <pre id="caption-text" class="mb-0" style="white-space:pre-wrap;font-size:.85rem;">{{ $script->caption }}</pre>
+                                            </div>
+                                            <div class="tab-pane fade" id="tab-onscreen">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <small class="text-muted">Usá cada línea como texto overlay en tu editor de video.</small>
+                                                    <button class="btn btn-xs btn-outline-secondary" onclick="copyText('onscreen-text')">
+                                                        <i class="fas fa-copy"></i> Copiar
+                                                    </button>
+                                                </div>
+                                                <ol id="onscreen-text" class="mb-0 pl-3">
+                                                    @foreach(explode("\n", $script->onscreen_text) as $line)
+                                                        @if(trim($line))
+                                                        <li class="mb-1" style="font-size:.9rem;">{{ trim($line) }}</li>
+                                                        @endif
+                                                    @endforeach
+                                                </ol>
+                                            </div>
+                                            <div class="tab-pane fade" id="tab-audio">
+                                                <small class="text-muted d-block mb-2">Preescucha el audio antes de descargar.</small>
+                                                @if($script->audio_path)
+                                                <audio controls class="w-100">
+                                                    <source src="{{ Storage::url($script->audio_path) }}" type="audio/mpeg">
+                                                    Tu navegador no soporta el elemento audio.
+                                                </audio>
+                                                <p class="text-muted small mt-2">
+                                                    Voz: Nova (OpenAI TTS) · Velocidad: 1.0x
+                                                </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
 
                             @if($script->status === 'published')
                                 <hr>
@@ -287,17 +393,19 @@
 
 @push('scripts')
 <script>
-    $(function() {
-        // Activar el editor para el contenido del script si tienes algún plugin de editor
-        // Por ejemplo, si usas CKEditor:
-        /*
-        if (typeof CKEDITOR !== 'undefined') {
-            CKEDITOR.replace('script_content', {
-                height: 300,
-                toolbar: 'Basic'
-            });
-        }
-        */
-    });
+    function copyText(elementId) {
+        const el = document.getElementById(elementId);
+        const text = el.innerText || el.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            const btn = event.currentTarget;
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copiado';
+            btn.classList.replace('btn-outline-secondary', 'btn-success');
+            setTimeout(function() {
+                btn.innerHTML = original;
+                btn.classList.replace('btn-success', 'btn-outline-secondary');
+            }, 2000);
+        });
+    }
 </script>
 @endpush

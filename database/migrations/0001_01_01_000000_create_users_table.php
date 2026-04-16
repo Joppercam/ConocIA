@@ -23,11 +23,13 @@ return new class extends Migration
             $table->string('twitter')->nullable();
             $table->string('linkedin')->nullable();
             $table->string('github')->nullable();
-            $table->foreignId('role_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('role_id')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable(); // 🔥 Agrega esta línea
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index('role_id');
         });
     }
 

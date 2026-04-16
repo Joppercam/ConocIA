@@ -1,12 +1,27 @@
 @extends('layouts.app')
 
-@section('title', $video->title . ' - Portal de Noticias')
+@php use Illuminate\Support\Str; @endphp
+
+@section('title', $video->title . ' - ConocIA')
 
 @section('content')
-<div class="container py-4">
+{{-- Page header --}}
+<div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0" style="font-size:.8rem;">
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-primary text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('videos.index') }}" class="text-secondary text-decoration-none">Videos</a></li>
+                <li class="breadcrumb-item active text-light" aria-current="page">{{ Str::limit($video->title, 50) }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container pb-5">
     <div class="row">
         <div class="col-lg-8">
-            <!-- Reproductor de video -->
+            {{-- Reproductor de video --}}
             <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
                 <div class="ratio ratio-16x9">
                     <iframe src="{{ $video->embed_url }}" allowfullscreen class="rounded-top"></iframe>
@@ -44,6 +59,43 @@
                     <div class="video-description">
                         <p class="mb-0">{{ $video->description }}</p>
                     </div>
+
+                    {{-- AI Summary panel --}}
+                    @if($video->hasAiSummary())
+                    <div class="mt-3 rounded-3 p-3" style="background:linear-gradient(135deg,#0d1117,#161b2e);border:1px solid rgba(56,182,255,.2);">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div style="width:28px;height:28px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-robot" style="color:var(--primary-color);font-size:.75rem;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size:.82rem;">Resumen generado por IA</div>
+                                <div style="color:#666;font-size:.7rem;">Puntos clave del video</div>
+                            </div>
+                            <span class="ms-auto badge" style="background:rgba(56,182,255,.1);color:var(--primary-color);border:1px solid rgba(56,182,255,.2);font-size:.65rem;">
+                                Gemini AI
+                            </span>
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            @foreach(explode('|||', $video->ai_summary) as $i => $point)
+                            <div class="d-flex align-items-start gap-2">
+                                <div style="width:20px;height:20px;background:rgba(56,182,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
+                                    <span style="color:var(--primary-color);font-size:.65rem;font-weight:700;">{{ $i+1 }}</span>
+                                </div>
+                                <span style="color:#ccc;font-size:.84rem;line-height:1.5;">{{ trim($point) }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                        @if($video->ai_keywords && count($video->ai_keywords))
+                        <div class="d-flex flex-wrap gap-2 mt-3 pt-3" style="border-top:1px solid rgba(56,182,255,.1);">
+                            @foreach($video->ai_keywords as $kw)
+                            <span style="background:rgba(56,182,255,.08);color:var(--primary-color);border:1px solid rgba(56,182,255,.15);border-radius:20px;padding:2px 10px;font-size:.72rem;">
+                                {{ $kw }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                    @endif
                 </div>
                 <div class="card-footer bg-light">
                     <div class="d-flex justify-content-between align-items-center">
@@ -72,10 +124,13 @@
                 </div>
             </div>
             
-            <!-- Sección de comentarios (si está habilitada) -->
+            {{-- Comentarios --}}
             <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
-                <div class="card-header bg-white">
-                    <h3 class="h5 mb-0">Comentarios</h3>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Comentarios</h5>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Sistema de comentarios aquí -->
@@ -106,12 +161,15 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-4">
-            <!-- Videos relacionados -->
+            {{-- Videos relacionados --}}
             <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
-                <div class="card-header bg-white">
-                    <h3 class="h5 mb-0">Videos relacionados</h3>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Videos relacionados</h5>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -147,10 +205,13 @@
                 </div>
             </div>
             
-            <!-- Categorías de videos -->
+            {{-- Categorías de videos --}}
             <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
-                <div class="card-header bg-white">
-                    <h3 class="h5 mb-0">Categorías</h3>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Categorías</h5>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
@@ -178,10 +239,13 @@
                 </div>
             </div>
             
-            <!-- Videos populares -->
+            {{-- Videos populares --}}
             <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                <div class="card-header bg-white">
-                    <h3 class="h5 mb-0">Más populares</h3>
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:4px;height:18px;background:var(--primary-color);border-radius:2px;"></div>
+                        <h5 class="mb-0 fw-bold" style="font-size:.9rem;">Más populares</h5>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -227,7 +291,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>{{-- /container --}}
 @endsection
 
 @push('styles')
