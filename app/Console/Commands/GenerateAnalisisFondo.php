@@ -40,8 +40,9 @@ class GenerateAnalisisFondo extends Command
     {
         $guard = app(GeminiQuotaGuard::class);
 
-        if (!$guard->canCall('medium')) {
-            $this->warn('Gemini quota insuficiente para análisis. ' . $guard->summary());
+        $claude = app(ClaudeService::class);
+        if (!$guard->canCall('medium') && !$claude->isAvailable()) {
+            $this->warn('Sin cuota Gemini ni Claude disponible. ' . $guard->summary());
             return Command::FAILURE;
         }
 
@@ -185,7 +186,7 @@ PROMPT;
                     "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}",
                     [
                         'contents'         => [['parts' => [['text' => $prompt]]]],
-                        'generationConfig' => ['temperature' => 0.72, 'maxOutputTokens' => 5000, 'responseMimeType' => 'application/json'],
+                        'generationConfig' => ['temperature' => 0.72, 'maxOutputTokens' => 16000, 'responseMimeType' => 'application/json'],
                     ]
                 );
                 if ($r->successful()) {
@@ -203,7 +204,7 @@ PROMPT;
         // ── Fallback: Claude 3.5 Sonnet ───────────────────────────────────────
         $claude = app(ClaudeService::class);
         if ($claude->isAvailable()) {
-            $data = $claude->generateJson($prompt, 5000, 0.72);
+            $data = $claude->generateJson($prompt, 8000, 0.72);
             if (!empty($data['content'])) {
                 Log::info('GenerateAnalisisFondo: generado con Claude (fallback).');
                 return $data;

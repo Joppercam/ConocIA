@@ -79,7 +79,7 @@ class ClaudeService
             $data = $this->extractJson($text);
 
             if ($data === null) {
-                Log::warning('ClaudeService: JSON inválido. Raw: ' . substr($text, 0, 300));
+                Log::warning('ClaudeService: JSON inválido. Error: ' . json_last_error_msg() . '. Raw: ' . substr($text, 0, 300));
                 return [];
             }
 
@@ -95,14 +95,25 @@ class ClaudeService
     {
         // 1. Bloque ```json ... ```
         if (preg_match('/```json\s*([\s\S]*?)\s*```/i', $text, $m)) {
-            $decoded = json_decode(trim($m[1]), true);
+            $candidate = trim($m[1]);
+            $decoded = json_decode($candidate, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+            // Retry with sanitized control chars
+            $decoded = json_decode($this->sanitizeControlChars($candidate), true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                 return $decoded;
             }
         }
 
         // 2. Texto directo
-        $decoded = json_decode(trim($text), true);
+        $trimmed = trim($text);
+        $decoded = json_decode($trimmed, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+        $decoded = json_decode($this->sanitizeControlChars($trimmed), true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
             return $decoded;
         }
@@ -123,7 +134,13 @@ class ClaudeService
                 if ($c === $close && --$depth === 0) { $end = $i; break; }
             }
             if ($end !== null) {
-                $decoded = json_decode(substr($text, $pos, $end - $pos + 1), true);
+                $candidate = substr($text, $pos, $end - $pos + 1);
+                $decoded = json_decode($candidate, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return $decoded;
+                }
+                // Retry with sanitized control chars
+                $decoded = json_decode($this->sanitizeControlChars($candidate), true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                     return $decoded;
                 }
@@ -131,5 +148,56 @@ class ClaudeService
         }
 
         return null;
+    }
+
+    /**
+     * Escapa caracteres de control (0x00–0x1F) que aparezcan dentro de strings JSON.
+     * Claude a veces genera HTML multilínea con newlines literales sin escapar.
+     */
+    private function sanitizeControlChars(string $json): string
+    {
+        $result   = '';
+        $inString = false;
+        $escaped  = false;
+        $len      = strlen($json);
+
+        for ($i = 0; $i < $len; $i++) {
+            $c = $json[$i];
+
+            if ($escaped) {
+                $result  .= $c;
+                $escaped  = false;
+                continue;
+            }
+
+            if ($c === '\\') {
+                $result  .= $c;
+                $escaped  = true;
+                continue;
+            }
+
+            if ($c === '"') {
+                $inString = !$inString;
+                $result  .= $c;
+                continue;
+            }
+
+            if ($inString) {
+                $ord = ord($c);
+                if ($ord < 0x20) {
+                    switch ($c) {
+                        case "\n": $result .= '\\n';  break;
+                        case "\r": $result .= '\\r';  break;
+                        case "\t": $result .= '\\t';  break;
+                        default:   $result .= sprintf('\\u%04x', $ord); break;
+                    }
+                    continue;
+                }
+            }
+
+            $result .= $c;
+        }
+
+        return $result;
     }
 }
