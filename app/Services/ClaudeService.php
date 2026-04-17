@@ -75,22 +75,61 @@ class ClaudeService
                 return [];
             }
 
-            // Limpiar posibles bloques ```json ... ```
-            $text = preg_replace('/^```json\s*/m', '', $text);
-            $text = preg_replace('/^```\s*/m', '', $text);
+            // Extraer JSON del texto (Claude suele envolver en ```json ... ```)
+            $data = $this->extractJson($text);
 
-            $data = json_decode(trim($text), true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::warning('ClaudeService: JSON inválido. Error: ' . json_last_error_msg());
+            if ($data === null) {
+                Log::warning('ClaudeService: JSON inválido. Raw: ' . substr($text, 0, 300));
                 return [];
             }
 
-            return $data ?? [];
+            return $data;
 
         } catch (\Exception $e) {
             Log::warning('ClaudeService exception: ' . $e->getMessage());
             return [];
         }
+    }
+
+    private function extractJson(string $text): ?array
+    {
+        // 1. Bloque ```json ... ```
+        if (preg_match('/```json\s*([\s\S]*?)\s*```/i', $text, $m)) {
+            $decoded = json_decode(trim($m[1]), true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        // 2. Texto directo
+        $decoded = json_decode(trim($text), true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+
+        // 3. Primer { } o [ ] balanceado
+        foreach (['{', '['] as $open) {
+            $pos = strpos($text, $open);
+            if ($pos === false) continue;
+            $close = $open === '{' ? '}' : ']';
+            $depth = 0; $inStr = false; $escaped = false; $end = null;
+            for ($i = $pos; $i < strlen($text); $i++) {
+                $c = $text[$i];
+                if ($escaped)     { $escaped = false; continue; }
+                if ($c === '\\')  { $escaped = true;  continue; }
+                if ($c === '"')   { $inStr = !$inStr; continue; }
+                if ($inStr)       continue;
+                if ($c === $open) $depth++;
+                if ($c === $close && --$depth === 0) { $end = $i; break; }
+            }
+            if ($end !== null) {
+                $decoded = json_decode(substr($text, $pos, $end - $pos + 1), true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return $decoded;
+                }
+            }
+        }
+
+        return null;
     }
 }
