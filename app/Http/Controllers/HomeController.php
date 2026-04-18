@@ -314,11 +314,21 @@ class HomeController extends Controller
 
     private function fetchFeaturedVideos()
     {
-        return Video::where('is_featured', true)
+        $featured = Video::where('is_featured', true)
             ->with('platform')
             ->orderBy('published_at', 'desc')
             ->take(5)
             ->get();
+
+        // Fallback: si no hay videos destacados, usar los más recientes
+        if ($featured->isEmpty()) {
+            $featured = Video::with('platform')
+                ->orderBy('published_at', 'desc')
+                ->take(5)
+                ->get();
+        }
+
+        return $featured;
     }
 
     /**

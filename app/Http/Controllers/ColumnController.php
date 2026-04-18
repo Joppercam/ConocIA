@@ -21,14 +21,13 @@ class ColumnController extends Controller
      */
     public function index()
     {
-        // Usar una única clave de caché para todos los datos de la página
-        $viewData = Cache::remember('columns_page_data', self::CACHE_TIME, function () {
-            // Columnas principales paginadas
-            $columns = Column::with(['author', 'category'])
-                ->published()
-                ->orderBy('published_at', 'desc')
-                ->paginate(12);
-            
+        // Los paginadores no son serializables — se paginan fuera del cache
+        $columns = Column::with(['author', 'category'])
+            ->published()
+            ->orderBy('published_at', 'desc')
+            ->paginate(12);
+
+        $sideData = Cache::remember('columns_page_side_data', self::CACHE_TIME, function () {
             // Columnas destacadas
             $featuredColumns = Column::with(['author', 'category'])
                 ->published()
@@ -36,7 +35,7 @@ class ColumnController extends Controller
                 ->orderBy('published_at', 'desc')
                 ->take(3)
                 ->get();
-            
+
             // Columnistas principales
             $columnists = User::whereHas('columns', function ($query) {
                     $query->published();
@@ -47,7 +46,7 @@ class ColumnController extends Controller
                 ->orderBy('columns_count', 'desc')
                 ->take(6)
                 ->get();
-            
+
             // Categorías con columnas
             $categories = Category::whereHas('columns', function ($query) {
                     $query->published();
@@ -58,17 +57,11 @@ class ColumnController extends Controller
                 ->orderBy('columns_count', 'desc')
                 ->take(10)
                 ->get();
-            
-            return [
-                'columns' => $columns,
-                'featuredColumns' => $featuredColumns,
-                'columnists' => $columnists,
-                'categories' => $categories
-            ];
+
+            return compact('featuredColumns', 'columnists', 'categories');
         });
-        
-        // Extraer datos de la caché
-        extract($viewData);
+
+        extract($sideData);
         
         // Helper functions para la vista (similar a ResearchController)
         $getImageUrl = function($imageName, $type = 'column', $size = 'medium') {
@@ -218,26 +211,16 @@ class ColumnController extends Controller
      */
     public function byCategory($slug)
     {
-        // Generar una clave de caché única para esta categoría
-        $cacheKey = "columns_by_category_{$slug}";
-        
-        $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($slug) {
-            $category = Category::where('slug', $slug)->firstOrFail();
-            
-            $columns = Column::with(['author', 'category'])
-                ->where('category_id', $category->id)
-                ->published()
-                ->orderBy('published_at', 'desc')
-                ->paginate(12);
-            
-            return [
-                'category' => $category,
-                'columns' => $columns
-            ];
-        });
-        
-        // Extraer datos de la caché
-        extract($viewData);
+        $category = Cache::remember("column_category_{$slug}", self::CACHE_TIME,
+            fn() => Category::where('slug', $slug)->firstOrFail()
+        );
+
+        // Paginator fuera del cache (no serializable)
+        $columns = Column::with(['author', 'category'])
+            ->where('category_id', $category->id)
+            ->published()
+            ->orderBy('published_at', 'desc')
+            ->paginate(12);
         
         // Helper functions para la vista
         $getImageUrl = function($imageName, $type = 'column', $size = 'medium') {
@@ -291,26 +274,16 @@ class ColumnController extends Controller
      */
     public function byAuthor($id)
     {
-        // Generar una clave de caché única para este autor
-        $cacheKey = "columns_by_author_{$id}";
-        
-        $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($id) {
-            $author = User::findOrFail($id);
-            
-            $columns = Column::with('category')
-                ->where('author_id', $author->id)
-                ->published()
-                ->orderBy('published_at', 'desc')
-                ->paginate(12);
-            
-            return [
-                'author' => $author,
-                'columns' => $columns
-            ];
-        });
-        
-        // Extraer datos de la caché
-        extract($viewData);
+        $author = Cache::remember("column_author_{$id}", self::CACHE_TIME,
+            fn() => User::findOrFail($id)
+        );
+
+        // Paginator fuera del cache (no serializable)
+        $columns = Column::with('category')
+            ->where('author_id', $author->id)
+            ->published()
+            ->orderBy('published_at', 'desc')
+            ->paginate(12);
         
         // Helper functions para la vista
         $getImageUrl = function($imageName, $type = 'author', $size = 'medium') {
