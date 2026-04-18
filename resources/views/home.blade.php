@@ -290,13 +290,13 @@
         <div class="card-body py-3">
             <div class="row g-3">
                 @foreach($recentNews->take(12) as $recent)
-                <div class="col-md-6">
-                    <div class="d-flex gap-2 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}">
+                <div class="col-md-6 d-flex">
+                    <div class="d-flex gap-2 w-100 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}" style="min-height:110px;">
                         {{-- Thumbnail --}}
                         @if(!empty($recent->image) && (str_starts_with($recent->image, 'http://') || str_starts_with($recent->image, 'https://')) && !str_contains($recent->image, '/storage/'))
                         <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}"
                            class="flex-shrink-0 rounded overflow-hidden"
-                           style="width:80px;height:60px;min-width:80px;display:flex;align-items:center;justify-content:center;background:#eef1f5;">
+                           style="width:90px;height:90px;min-width:90px;">
                             <img src="{{ $recent->image }}"
                                  alt="{{ $recent->title }}"
                                  class="w-100 h-100"
@@ -304,26 +304,28 @@
                                  loading="lazy">
                         </a>
                         @endif
-                        <div class="overflow-hidden">
-                            <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
-                                @if(isset($recent->category))
-                                <span class="badge rounded-pill" style="{{ $getCategoryStyle($recent->category) }}; font-size:.6rem;">
-                                    {{ $recent->category->name }}
-                                </span>
-                                @endif
-                                @if($recent->created_at->diffInHours(now()) < 48)
-                                <span class="badge bg-light text-secondary border" style="font-size:.6rem;">Nuevo</span>
+                        <div class="d-flex flex-column justify-content-between overflow-hidden flex-grow-1">
+                            <div>
+                                <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
+                                    @if(isset($recent->category))
+                                    <span class="badge rounded-pill" style="{{ $getCategoryStyle($recent->category) }}; font-size:.6rem;">
+                                        {{ $recent->category->name }}
+                                    </span>
+                                    @endif
+                                    @if($recent->created_at->diffInHours(now()) < 48)
+                                    <span class="badge bg-light text-secondary border" style="font-size:.6rem;">Nuevo</span>
+                                    @endif
+                                </div>
+                                <h6 class="fw-bold mb-1 lh-sm" style="font-size:.85rem;">
+                                    <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
+                                        {{ $recent->title }}
+                                    </a>
+                                </h6>
+                                @if(!empty($recent->excerpt))
+                                <p class="text-muted mb-0 lh-sm" style="font-size:.78rem;">{{ Str::limit($recent->excerpt, 130) }}</p>
                                 @endif
                             </div>
-                            <h6 class="fw-bold mb-1 lh-sm" style="font-size:.85rem;">
-                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
-                                    {{ $recent->title }}
-                                </a>
-                            </h6>
-                            @if(!empty($recent->excerpt))
-                            <p class="text-muted mb-1 lh-sm" style="font-size:.78rem;">{{ Str::limit($recent->excerpt, 120) }}</p>
-                            @endif
-                            <div class="d-flex gap-2 text-muted" style="font-size:.7rem;">
+                            <div class="d-flex gap-2 text-muted mt-1" style="font-size:.7rem;">
                                 <span><i class="far fa-calendar-alt me-1"></i>{{ $recent->created_at->locale('es')->isoFormat('D MMM') }}</span>
                                 <span><i class="far fa-eye me-1"></i>{{ number_format($recent->views ?? 0) }}</span>
                                 <span><i class="far fa-comment me-1"></i>{{ $recent->comments_count ?? 0 }}</span>
