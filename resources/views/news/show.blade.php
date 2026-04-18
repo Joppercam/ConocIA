@@ -69,7 +69,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 @section('content')
 {{-- Breadcrumb bar (dark, matching index) --}}
 <div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3 mb-4">
-    <div class="container-xl">
+    <div class="px-3 px-lg-4 px-xl-5">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0" style="font-size:.8rem;">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-primary text-decoration-none">Inicio</a></li>
@@ -89,7 +89,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     </div>
 </div>
 
-<div class="container-xl py-4">
+<div class="px-3 px-lg-4 px-xl-5 py-4">
     <div class="row g-4">
         <!-- Contenido Principal (Izquierda) -->
         <div class="col-lg-9">
