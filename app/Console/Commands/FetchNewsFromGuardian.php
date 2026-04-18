@@ -251,11 +251,8 @@ PROMPT;
         return $slug;
     }
 
-    protected function defaultImage(string $categorySlug): string
+    protected function defaultImage(string $categorySlug): ?string
     {
-        $colors = ['inteligencia-artificial' => '4285F4', 'nlp' => '673AB7', 'ia-generativa' => 'E91E63'];
-        $color  = $colors[$categorySlug] ?? '2c3e50';
-        $text   = urlencode(Str::title(str_replace('-', ' ', $categorySlug)));
-        return "https://via.placeholder.com/1200x630/{$color}/FFFFFF?text={$text}";
+        return null;
     }
 }
