@@ -60,10 +60,23 @@ return [
             'report' => false,
         ],
         
-        'custom_public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+        // En producción usa Cloudflare R2; localmente usa disco local.
+        // Basta con definir CLOUDFLARE_R2_KEY en el entorno para activar R2.
+        'custom_public' => env('CLOUDFLARE_R2_KEY') ? [
+            'driver'                  => 's3',
+            'key'                     => env('CLOUDFLARE_R2_KEY'),
+            'secret'                  => env('CLOUDFLARE_R2_SECRET'),
+            'region'                  => 'auto',
+            'bucket'                  => env('CLOUDFLARE_R2_BUCKET'),
+            'endpoint'                => 'https://' . env('CLOUDFLARE_ACCOUNT_ID') . '.r2.cloudflarestorage.com',
+            'use_path_style_endpoint' => true,
+            'url'                     => env('CLOUDFLARE_R2_PUBLIC_URL'),
+            'visibility'              => 'public',
+            'throw'                   => false,
+        ] : [
+            'driver'     => 'local',
+            'root'       => storage_path('app/public'),
+            'url'        => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
