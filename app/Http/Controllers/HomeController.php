@@ -165,7 +165,6 @@ class HomeController extends Controller
             $existingIds = $featured->pluck('id')->toArray();
             $additional  = Cache::remember('additional_news_' . implode(',', $existingIds), 1800,
                 fn() => News::with('category')
-                    ->where('featured', false)
                     ->where('status', 'published')
                     ->whereNotIn('id', $existingIds)
                     ->latest()
@@ -331,7 +330,16 @@ class HomeController extends Controller
 
         return Cache::remember($cacheKey, 1800, function () use ($news, $minCount) {
             $valid = $news->filter(function ($item) {
-                if (empty($item->image) || !Str::startsWith($item->image, 'storage/')) {
+                // Sin imagen: se muestra con imagen default, se acepta
+                if (empty($item->image)) {
+                    return true;
+                }
+                // Imagen externa (URL): se acepta directamente
+                if (Str::startsWith($item->image, ['http://', 'https://'])) {
+                    return true;
+                }
+                // Imagen local: verificar que el archivo exista
+                if (!Str::startsWith($item->image, 'storage/')) {
                     return false;
                 }
                 return Storage::disk('public')->exists(str_replace('storage/', '', $item->image));
