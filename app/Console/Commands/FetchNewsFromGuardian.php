@@ -78,11 +78,8 @@ class FetchNewsFromGuardian extends Command
                 ], $category->name);
 
                 if (!$enhanced) {
-                    $enhanced = [
-                        'title'   => $article['webTitle'],
-                        'content' => "<p>{$bodyText}</p>",
-                        'excerpt' => Str::limit($bodyText, 200),
-                    ];
+                    $this->warn("  Sin IA disponible, omitiendo: {$article['webTitle']}");
+                    continue;
                 }
 
                 $slug  = $this->uniqueSlug(Str::slug($enhanced['title']));
@@ -184,11 +181,11 @@ PROMPT;
 
         try {
             if (!empty($geminiKey) && $guard->canCall('high')) {
-                $r = Http::timeout(30)->post(
+                $r = Http::timeout(60)->post(
                     "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}",
                     [
                         'contents' => [['parts' => [['text' => $prompt]]]],
-                        'generationConfig' => ['temperature' => 0.7, 'maxOutputTokens' => 3500, 'responseMimeType' => 'application/json'],
+                        'generationConfig' => ['temperature' => 0.7, 'maxOutputTokens' => 4096, 'responseMimeType' => 'application/json'],
                     ]
                 );
                 if ($r->successful()) {
