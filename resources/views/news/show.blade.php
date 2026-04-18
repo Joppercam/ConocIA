@@ -92,7 +92,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 <div class="container-xl py-4">
     <div class="row g-4">
         <!-- Contenido Principal (Izquierda) -->
-        <div class="col-xl-9 col-lg-8">
+        <div class="col-lg-9">
             {{-- Categoría y Título --}}
             <div class="mb-3">
                 @php $catColor = is_object($article->category) ? ($article->category->color ?? 'var(--primary-color)') : 'var(--primary-color)'; @endphp
@@ -228,9 +228,9 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 
             <!-- Resumen -->
             @if($article->summary)
-            <div class="mb-4 rounded-3 p-4" style="background:rgba(56,182,255,.06);border-left:4px solid var(--primary-color);">
+            <div class="mb-4 rounded-3 p-4" style="background:rgba(56,182,255,.08);border-left:4px solid var(--primary-color);">
                 <h6 class="fw-semibold mb-2" style="color:var(--primary-color);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;">Resumen</h6>
-                <p class="mb-0" style="color:#cbd5e1;font-size:.97rem;line-height:1.7;">{{ $article->summary }}</p>
+                <p class="mb-0 news-summary-text" style="font-size:.97rem;line-height:1.7;">{{ $article->summary }}</p>
             </div>
             @endif
 
@@ -405,7 +405,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
         </div>
         
         <!-- Sidebar (Derecha) -->
-        <div class="col-xl-3 col-lg-4">
+        <div class="col-lg-3">
             @include('partials.table-of-contents', ['contentSelector' => '.news-content'])
 
             {{-- Artículos Relacionados --}}
@@ -582,105 +582,94 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 
 
 <style>
-    /* Estilos para el contenido principal */
+    /* ── Contenido del artículo — modo claro (default) ── */
     .news-content {
         font-size: 1.05rem;
-        line-height: 1.7;
-        color: #cbd5e1;
+        line-height: 1.8;
+        color: #1e293b;
     }
-
-    .news-content p {
-        margin-bottom: 1.5rem;
-        color: #cbd5e1;
+    .news-content p, .news-content li {
+        margin-bottom: 1.25rem;
+        color: #334155;
     }
-
-    /* h1 dentro del content = Gemini lo genera como título alternativo;
-       lo tratamos como h2 para no repetir el h1 del template */
     .news-content h1 {
         font-size: 1.4rem;
         font-weight: 700;
         margin-top: 2rem;
         margin-bottom: 1rem;
-        color: #e2e8f0;
+        color: #0f172a;
         line-height: 1.35;
     }
-
     .news-content h2 {
         font-size: 1.25rem;
         font-weight: 700;
         margin-top: 2rem;
         margin-bottom: 1rem;
-        color: #e2e8f0;
+        color: #0f172a;
     }
-
     .news-content h3, .news-content h4 {
         font-size: 1.05rem;
         font-weight: 600;
         margin-top: 1.5rem;
         margin-bottom: .75rem;
-        color: #e2e8f0;
+        color: #1e293b;
     }
-
-    .news-content img {
-        max-width: 100%;
-        height: auto;
-        margin: 1.5rem 0;
-        border-radius: 0.375rem;
-    }
-
     .news-content blockquote {
         border-left: 4px solid var(--primary-color, #38b6ff);
         background: rgba(56,182,255,.06);
         border-radius: 0 .5rem .5rem 0;
         padding: 1.1rem 1.4rem;
         margin: 1.8rem 0;
-        color: #94a3b8;
+        color: #475569;
         font-style: italic;
         font-size: 1.05rem;
         line-height: 1.75;
     }
-
-    /* Sección "Para profundizar" y listas dentro de artículo */
-    .news-content ul li {
-        margin-bottom: .8rem;
-        line-height: 1.65;
-    }
-    .news-content ul li strong {
-        color: var(--primary-color, #38b6ff);
-    }
-    
-    .news-content pre, .news-content code {
-        background-color: #f8f9fa;
-        border-radius: 0.375rem;
-        padding: 0.2rem 0.4rem;
-        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 0.875em;
-    }
-    
-    .news-content pre {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        overflow-x: auto;
-    }
-    
-    .news-content ul, .news-content ol {
-        margin-bottom: 1.5rem;
-        padding-left: 2rem;
-    }
-    
     .news-content a {
-        color: var(--primary-color, #38b6ff);
+        color: #0369a1;
         text-decoration: none;
     }
-
     .news-content a:hover {
         text-decoration: underline;
-        color: #7dd3fc;
+        color: var(--primary-color, #38b6ff);
     }
+    .news-content ul li strong {
+        color: #0369a1;
+    }
+    .news-content img {
+        max-width: 100%;
+        height: auto;
+        margin: 1.5rem 0;
+        border-radius: 0.375rem;
+    }
+    .news-content pre, .news-content code {
+        background-color: #f1f5f9;
+        border-radius: 0.375rem;
+        padding: 0.2rem 0.4rem;
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875em;
+    }
+    .news-content pre { padding: 1rem; margin-bottom: 1.5rem; overflow-x: auto; }
+    .news-content ul, .news-content ol { margin-bottom: 1.5rem; padding-left: 2rem; }
 
-    .news-content li {
-        color: #cbd5e1;
-    }
+    /* Resumen adaptivo */
+    .news-summary-text { color: #334155; }
+    body.theme-dark .news-summary-text { color: #cbd5e1; }
+
+    /* ── Modo oscuro ── */
+    body.theme-dark .news-content { color: #cbd5e1; }
+    body.theme-dark .news-content p,
+    body.theme-dark .news-content li { color: #cbd5e1; }
+    body.theme-dark .news-content h1,
+    body.theme-dark .news-content h2 { color: #e2e8f0; }
+    body.theme-dark .news-content h3,
+    body.theme-dark .news-content h4 { color: #e2e8f0; }
+    body.theme-dark .news-content blockquote { color: #94a3b8; }
+    body.theme-dark .news-content a { color: var(--primary-color, #38b6ff); }
+    body.theme-dark .news-content a:hover { color: #7dd3fc; }
+    body.theme-dark .news-content ul li strong { color: var(--primary-color, #38b6ff); }
+    body.theme-dark .news-content pre,
+    body.theme-dark .news-content code { background-color: #1e293b; color: #e2e8f0; }
     
     /* Estilos para el sidebar */
     .col-xl-3 .card-header h5, .col-lg-4 .card-header h5 {
