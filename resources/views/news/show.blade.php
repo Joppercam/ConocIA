@@ -69,7 +69,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 @section('content')
 {{-- Breadcrumb bar (dark, matching index) --}}
 <div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3 mb-4">
-    <div class="container">
+    <div class="container-xl">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0" style="font-size:.8rem;">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-primary text-decoration-none">Inicio</a></li>
@@ -89,10 +89,10 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     </div>
 </div>
 
-<div class="container py-4">
-    <div class="row">
+<div class="container-xl py-4">
+    <div class="row g-4">
         <!-- Contenido Principal (Izquierda) -->
-        <div class="col-lg-8">
+        <div class="col-xl-9 col-lg-8">
             {{-- Categoría y Título --}}
             <div class="mb-3">
                 @php $catColor = is_object($article->category) ? ($article->category->color ?? 'var(--primary-color)') : 'var(--primary-color)'; @endphp
@@ -405,7 +405,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
         </div>
         
         <!-- Sidebar (Derecha) -->
-        <div class="col-lg-4">
+        <div class="col-xl-3 col-lg-4">
             @include('partials.table-of-contents', ['contentSelector' => '.news-content'])
 
             {{-- Artículos Relacionados --}}
@@ -683,20 +683,20 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     }
     
     /* Estilos para el sidebar */
-    .col-lg-4 .card-header h5 {
+    .col-xl-3 .card-header h5, .col-lg-4 .card-header h5 {
         font-size: 0.9rem;
     }
     
-    .col-lg-4 .card-body {
+    .col-xl-3 .card-body, .col-lg-4 .card-body {
         font-size: 0.85rem;
     }
     
-    .col-lg-4 .card-body h6 {
+    .col-xl-3 .card-body h6, .col-lg-4 .card-body h6 {
         font-size: 0.85rem;
         line-height: 1.3;
     }
     
-    .col-lg-4 .card-body .small {
+    .col-xl-3 .card-body .small, .col-lg-4 .card-body .small {
         font-size: 0.75rem;
     }
     
