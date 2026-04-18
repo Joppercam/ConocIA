@@ -13,18 +13,13 @@ class CleanNewsContent extends Command
 
     public function handle(): int
     {
-        $news = News::whereRaw("content LIKE '%\`\`\`%'")->get();
+        $news = News::all();
 
-        if ($news->isEmpty()) {
-            $this->info('No se encontraron noticias con code fences. Todo limpio.');
-            return Command::SUCCESS;
-        }
-
-        $this->info("Encontradas {$news->count()} noticias con code fences. Limpiando...");
+        $this->info("Revisando {$news->count()} noticias...");
 
         $fixed = 0;
         foreach ($news as $item) {
-            $cleaned = $this->stripMarkdownFences($item->content);
+            $cleaned = $this->cleanContent($item->content ?? '');
             if ($cleaned !== $item->content) {
                 $item->update(['content' => $cleaned]);
                 $this->line("  ✓ #{$item->id}: {$item->title}");
@@ -32,16 +27,25 @@ class CleanNewsContent extends Command
             }
         }
 
-        $this->info("Listo. {$fixed} artículos corregidos.");
+        if ($fixed === 0) {
+            $this->info('No se encontraron problemas. Todo limpio.');
+        } else {
+            $this->info("Listo. {$fixed} artículos corregidos.");
+        }
+
         return Command::SUCCESS;
     }
 
-    private function stripMarkdownFences(string $text): string
+    private function cleanContent(string $text): string
     {
         $text = trim($text);
+        // Eliminar markdown code fences
         if (preg_match('/^```(?:html)?\s*\n?([\s\S]*?)\n?```\s*$/i', $text, $m)) {
-            return trim($m[1]);
+            $text = trim($m[1]);
         }
+        // Convertir <h1> a <h2> para no duplicar el título del artículo
+        $text = preg_replace('/<h1(\s[^>]*)?>/i', '<h2$1>', $text);
+        $text = preg_replace('/<\/h1>/i', '</h2>', $text);
         return $text;
     }
 }

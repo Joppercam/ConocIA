@@ -426,8 +426,11 @@ EXPAND;
         $text = trim($text);
         // Eliminar ```html o ``` al inicio
         if (preg_match('/^```(?:html)?\s*\n?([\s\S]*?)\n?```\s*$/i', $text, $m)) {
-            return trim($m[1]);
+            $text = trim($m[1]);
         }
+        // Convertir <h1> a <h2> — el template ya muestra el título real en h1
+        $text = preg_replace('/<h1(\s[^>]*)?>/i', '<h2$1>', $text);
+        $text = preg_replace('/<\/h1>/i', '</h2>', $text);
         return $text;
     }
 

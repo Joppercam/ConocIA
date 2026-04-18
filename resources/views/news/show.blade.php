@@ -227,12 +227,12 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
             @endif
 
             <!-- Resumen -->
-            <div class="card border-0 bg-light mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Resumen</h5>
-                    <p class="card-text">{{ $article->summary }}</p>
-                </div>
+            @if($article->summary)
+            <div class="mb-4 rounded-3 p-4" style="background:rgba(56,182,255,.06);border-left:4px solid var(--primary-color);">
+                <h6 class="fw-semibold mb-2" style="color:var(--primary-color);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;">Resumen</h6>
+                <p class="mb-0" style="color:#cbd5e1;font-size:.97rem;line-height:1.7;">{{ $article->summary }}</p>
             </div>
+            @endif
 
             <!-- Contenido Principal -->
             <div class="news-content mb-4">
@@ -586,33 +586,57 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     .news-content {
         font-size: 1.05rem;
         line-height: 1.7;
+        color: #cbd5e1;
     }
-    
+
     .news-content p {
         margin-bottom: 1.5rem;
+        color: #cbd5e1;
     }
-    
-    .news-content h2, .news-content h3, .news-content h4 {
+
+    /* h1 dentro del content = Gemini lo genera como título alternativo;
+       lo tratamos como h2 para no repetir el h1 del template */
+    .news-content h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
         margin-top: 2rem;
         margin-bottom: 1rem;
+        color: #e2e8f0;
+        line-height: 1.35;
     }
-    
+
+    .news-content h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #e2e8f0;
+    }
+
+    .news-content h3, .news-content h4 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: .75rem;
+        color: #e2e8f0;
+    }
+
     .news-content img {
         max-width: 100%;
         height: auto;
         margin: 1.5rem 0;
         border-radius: 0.375rem;
     }
-    
+
     .news-content blockquote {
-        border-left: 4px solid var(--primary-color, #0d6efd);
-        background: rgba(13,110,253,.06);
+        border-left: 4px solid var(--primary-color, #38b6ff);
+        background: rgba(56,182,255,.06);
         border-radius: 0 .5rem .5rem 0;
         padding: 1.1rem 1.4rem;
         margin: 1.8rem 0;
-        color: #e0e0e0;
+        color: #94a3b8;
         font-style: italic;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         line-height: 1.75;
     }
 
@@ -645,12 +669,17 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     }
     
     .news-content a {
-        color: #0d6efd;
+        color: var(--primary-color, #38b6ff);
         text-decoration: none;
     }
-    
+
     .news-content a:hover {
         text-decoration: underline;
+        color: #7dd3fc;
+    }
+
+    .news-content li {
+        color: #cbd5e1;
     }
     
     /* Estilos para el sidebar */
