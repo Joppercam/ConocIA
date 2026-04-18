@@ -317,7 +317,7 @@
                             </div>
                             <h6 class="fw-bold mb-1 lh-sm" style="font-size:.85rem;">
                                 <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
-                                    {{ Str::limit($recent->title, 90) }}
+                                    {{ $recent->title }}
                                 </a>
                             </h6>
                             @if(!empty($recent->excerpt))
