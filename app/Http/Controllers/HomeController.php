@@ -293,20 +293,20 @@ class HomeController extends Controller
 
     private function fetchProfundizaData(): array
     {
-        $latestConceptos = Cache::remember('home_latest_conceptos', 1800,
-            fn() => ConceptoIa::where('status', 'published')->latest()->take(3)->get()
+        $latestConceptos = Cache::remember('home_latest_conceptos', 300,
+            fn() => ConceptoIa::published()->latest()->take(3)->get()
         );
 
-        $latestAnalises = Cache::remember('home_latest_analises', 1800,
-            fn() => AnalisisFondo::where('status', 'published')->latest()->take(3)->get()
+        $latestAnalises = Cache::remember('home_latest_analises', 300,
+            fn() => AnalisisFondo::published()->latest()->take(3)->get()
         );
 
-        $latestPapers = Cache::remember('home_latest_papers', 1800,
-            fn() => ConocIaPaper::where('status', 'published')->latest()->take(3)->get()
+        $latestPapers = Cache::remember('home_latest_papers', 300,
+            fn() => ConocIaPaper::published()->orderByDesc('arxiv_published_date')->take(3)->get()
         );
 
-        $latestDigests = Cache::remember('home_latest_digests', 1800,
-            fn() => EstadoArte::where('status', 'published')->latest()->take(3)->get()
+        $latestDigests = Cache::remember('home_latest_digests', 300,
+            fn() => EstadoArte::published()->orderByDesc('week_start')->take(3)->get()
         );
 
         return compact('latestConceptos', 'latestAnalises', 'latestPapers', 'latestDigests');
