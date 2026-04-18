@@ -67,7 +67,7 @@
                                      class="editorial-img"
                                      alt="{{ $hero->title }}"
                                      loading="eager"
-                                     onerror="this.src='{{ asset('storage/images/defaults/news-default-large.jpg') }}';">
+                                     onerror="this.src='{{ asset('images/defaults/news-default-large.jpg') }}';">
                                 <div class="editorial-gradient"></div>
                                 @if(in_array($hero->id, $trendingIds ?? []))
                                 <span class="badge-trending" style="top:12px;left:12px;"><i class="fas fa-fire me-1"></i>Trending</span>
@@ -103,7 +103,7 @@
                                              class="editorial-img"
                                              alt="{{ $sec->title }}"
                                              loading="lazy"
-                                             onerror="this.src='{{ asset('storage/images/defaults/news-default-medium.jpg') }}';">
+                                             onerror="this.src='{{ asset('images/defaults/news-default-medium.jpg') }}';">
                                         <div class="editorial-gradient"></div>
                                         @if(in_array($sec->id, $trendingIds ?? []))
                                         <span class="badge-trending" style="top:6px;left:6px;padding:1px 5px;font-size:.6rem;">

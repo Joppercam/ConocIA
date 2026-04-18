@@ -47,7 +47,7 @@ class ImageHelper
         }
         
         // Si no hay avatar o no existe, devuelve el avatar predeterminado
-        return asset('storage/images/defaults/avatar-default.jpg');
+        return asset('images/defaults/avatar-default.jpg');
     }
 
     /**
@@ -90,7 +90,7 @@ class ImageHelper
                 }
                 
                 // Fallback final: imagen genérica predeterminada
-                return asset('storage/images/defaults/image-default.jpg');
+                return asset('images/defaults/image-default.jpg');
         }
     }
 }

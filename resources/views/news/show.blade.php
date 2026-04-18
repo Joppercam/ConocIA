@@ -22,7 +22,7 @@ if(isset($article->tags) && is_countable($article->tags) && count($article->tags
 }
 
 // Verificar si la imagen existe físicamente para metadatos
-$metaImage = asset('storage/images/defaults/social-share.jpg'); // Imagen por defecto
+$metaImage = asset('images/defaults/social-share.jpg'); // Imagen por defecto
 if (!empty($article->image) && !str_contains($article->image, 'default')) {
     // Extraer el nombre del archivo si es una ruta completa
     $imageName = $article->image;

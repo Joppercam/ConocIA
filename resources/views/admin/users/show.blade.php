@@ -22,11 +22,11 @@
         <div class="col-lg-4">
             <div class="card shadow-sm text-center mb-4">
                 <div class="card-body py-4">
-                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'storage/images/defaults/user-profile.jpg') }}"
+                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'images/defaults/user-profile.jpg') }}"
                          class="rounded-circle mb-3"
                          width="90" height="90"
                          style="object-fit:cover;border:3px solid #e9ecef;"
-                         onerror="this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
+                         onerror="this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
                     <h5 class="fw-bold mb-1">{{ $user->name }}</h5>
                     <div class="text-muted small mb-2">{{ $user->email }}</div>
                     @php

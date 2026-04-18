@@ -79,7 +79,7 @@ class ResearchController extends Controller
             }
             
             // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
+            return asset("images/defaults/{$type}-default-{$size}.jpg");
         };
         
         // Función para obtener el estilo de una categoría
@@ -213,7 +213,7 @@ class ResearchController extends Controller
             }
             
             // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
+            return asset("images/defaults/{$type}-default-{$size}.jpg");
         };
         
         // Función para obtener el estilo de una categoría
@@ -298,7 +298,7 @@ class ResearchController extends Controller
             }
             
             // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
+            return asset("images/defaults/{$type}-default-{$size}.jpg");
         };
         
         // Función para obtener el estilo de una categoría
@@ -394,7 +394,7 @@ class ResearchController extends Controller
             }
             
             // Imagen predeterminada
-            return asset("storage/images/defaults/{$type}-default-{$size}.jpg");
+            return asset("images/defaults/{$type}-default-{$size}.jpg");
         };
         
         // Función para obtener el estilo de una categoría

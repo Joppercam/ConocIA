@@ -105,11 +105,11 @@
         <div class="col-lg-4">
             <div class="card shadow-sm mb-3">
                 <div class="card-body text-center">
-                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'storage/images/defaults/user-profile.jpg') }}"
+                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'images/defaults/user-profile.jpg') }}"
                          class="rounded-circle mb-3"
                          width="80" height="80"
                          style="object-fit:cover;border:3px solid #e9ecef;"
-                         onerror="this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
+                         onerror="this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
                     <h6 class="fw-bold mb-0">{{ $user->name }}</h6>
                     <div class="text-muted small">{{ $user->email }}</div>
                     <div class="mt-2">

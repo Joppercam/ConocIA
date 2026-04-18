@@ -16,7 +16,7 @@ class OpenGraph
         $authorName = is_object($news->author) ? $news->author->name : ($news->author ?? 'ConocIA');
         $imageUrl = !empty($news->image) && !str_contains($news->image, 'default') 
             ? getImageUrl($news->image, 'news', 'large') 
-            : asset('storage/images/defaults/social-share.jpg');
+            : asset('images/defaults/social-share.jpg');
         $categoryName = is_object($news->category) ? $news->category->name : ($news->category ?? 'Tecnología');
         
         $description = $news->summary ?? $news->excerpt ?? substr(strip_tags($news->content), 0, 160);
@@ -50,7 +50,7 @@ class OpenGraph
         $authorName = is_object($research->author) ? $research->author->name : ($research->author ?? 'ConocIA');
         $imageUrl = !empty($research->image) && !str_contains($research->image, 'default') 
             ? getImageUrl($research->image, 'research', 'large') 
-            : asset('storage/images/defaults/research-social-share.jpg');
+            : asset('images/defaults/research-social-share.jpg');
         
         $description = $research->summary ?? $research->excerpt ?? substr(strip_tags($research->content), 0, 160);
         if (strlen($description) > 160) {
@@ -81,7 +81,7 @@ class OpenGraph
         $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Columnista');
         $imageUrl = is_object($column->author) && !empty($column->author->avatar) 
             ? getImageUrl($column->author->avatar, 'avatars', 'large') 
-            : asset('storage/images/defaults/columnist-social-share.jpg');
+            : asset('images/defaults/columnist-social-share.jpg');
         
         $description = $column->excerpt ?? substr(strip_tags($column->content), 0, 160);
         if (strlen($description) > 160) {

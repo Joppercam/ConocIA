@@ -5,7 +5,7 @@ if ($article) {
     $authorName = is_object($article->author) ? $article->author->name : ($article->author ?? 'ConocIA');
     $imageUrl = !empty($article->image) && !str_contains($article->image, 'default') 
     ? $getImageUrl($article->image, 'news', 'large') 
-    : asset('storage/images/defaults/social-share.jpg');
+    : asset('images/defaults/social-share.jpg');
     $categoryName = is_object($article->category) ? $article->category->name : ($article->category ?? 'Tecnología');
     
     $articleUrl = route('news.show', $article->slug ?? $article->id);

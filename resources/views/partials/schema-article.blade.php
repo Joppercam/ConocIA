@@ -17,7 +17,7 @@
 @if($item && $routeName)
 @php
     $itemUrl   = route($routeName, $item->slug ?? $item->id);
-    $itemImage = !empty($item->image) ? asset($item->image) : asset('storage/images/defaults/social-share.jpg');
+    $itemImage = !empty($item->image) ? asset($item->image) : asset('images/defaults/social-share.jpg');
     $authorName = is_object($item->author ?? null) ? $item->author->name : ($item->author ?? 'ConocIA');
     $excerpt   = $item->excerpt ?? $item->abstract ?? Str::limit(strip_tags($item->content ?? ''), 160);
     $published = ($item->published_at ?? $item->created_at)?->toIso8601String();

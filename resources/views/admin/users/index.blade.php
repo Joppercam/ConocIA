@@ -83,11 +83,11 @@
                         <tr>
                             <td class="ps-3">
                                 <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'storage/images/defaults/user-profile.jpg') }}"
+                                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'images/defaults/user-profile.jpg') }}"
                                          class="rounded-circle flex-shrink-0"
                                          width="36" height="36"
                                          style="object-fit:cover;"
-                                         onerror="this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
+                                         onerror="this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
                                     <div>
                                         <div class="fw-semibold" style="font-size:.9rem;">{{ $user->name }}</div>
                                         <div class="text-muted" style="font-size:.78rem;">{{ $user->email }}</div>

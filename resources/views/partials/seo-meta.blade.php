@@ -4,7 +4,7 @@
 $metaTitle = $metaTitle ?? ($title ?? config('app.name', 'ConocIA'));
 $metaDescription = $metaDescription ?? ($description ?? 'Noticias de tecnología e inteligencia artificial - ConocIA');
 $metaKeywords = $metaKeywords ?? ($keywords ?? 'inteligencia artificial, tecnología, noticias tecnología, IA');
-$metaImage = $metaImage ?? ($image ?? asset('storage/images/defaults/social-share.jpg'));
+$metaImage = $metaImage ?? ($image ?? asset('images/defaults/social-share.jpg'));
 $metaType = $metaType ?? ($type ?? 'website');
 $metaUrl = $metaUrl ?? ($url ?? url()->current());
 $metaAuthor = $metaAuthor ?? ($author ?? 'ConocIA');

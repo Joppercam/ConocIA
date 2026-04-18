@@ -52,11 +52,11 @@
                 @endif
 
                 <div class="d-flex align-items-center gap-3 flex-wrap">
-                    <img src="{{ asset($column->author->avatar ?? 'storage/images/defaults/user-profile.jpg') }}"
+                    <img src="{{ asset($column->author->avatar ?? 'images/defaults/user-profile.jpg') }}"
                          class="rounded-circle flex-shrink-0"
                          width="48" height="48"
                          alt="{{ $column->author->name }}"
-                         onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';">
+                         onerror="this.onerror=null; this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
                     <div>
                         <a href="{{ route('columns.author', $column->author->id) }}" class="text-white fw-semibold text-decoration-none" style="font-size:.9rem;">
                             {{ $column->author->name }}
@@ -139,11 +139,11 @@
 
                 {{-- Author bio card --}}
                 <div class="col-author-card d-flex gap-4 align-items-start mb-5">
-                    <img src="{{ asset($column->author->avatar ?? 'storage/images/defaults/user-profile.jpg') }}"
+                    <img src="{{ asset($column->author->avatar ?? 'images/defaults/user-profile.jpg') }}"
                          class="rounded-circle flex-shrink-0"
                          width="72" height="72"
                          alt="{{ $column->author->name }}"
-                         onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/user-profile.jpg') }}';"
+                         onerror="this.onerror=null; this.src='{{ asset('images/defaults/user-profile.jpg') }}';"
                          style="object-fit:cover;border:2px solid #2a2a2a;">
                     <div>
                         <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--primary-color);text-transform:uppercase;margin-bottom:.3rem;">Sobre el autor</div>

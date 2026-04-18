@@ -76,7 +76,7 @@
             <!-- Imagen destacada -->
             @if($image)
             <div class="article-featured-image mb-4">
-                <img src="{{ asset('storage/' . $image) }}" alt="{{ $title }}" class="img-fluid rounded shadow-sm" onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-large.jpg') }}';">
+                <img src="{{ asset('storage/' . $image) }}" alt="{{ $title }}" class="img-fluid rounded shadow-sm" onerror="this.onerror=null; this.src='{{ asset('images/defaults/research-default-large.jpg') }}';">
             </div>
             @endif
 
@@ -363,7 +363,7 @@
                                                      class="img-fluid rounded" 
                                                      alt="{{ $relatedTitle }}" 
                                                      style="width: 70px; height: 70px; object-fit: cover;"
-                                                     onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/research-default-small.jpg') }}';">
+                                                     onerror="this.onerror=null; this.src='{{ asset('images/defaults/research-default-small.jpg') }}';">
                                             @else
                                                 <div class="bg-light rounded d-flex align-items-center justify-content-center" 
                                                      style="width: 70px; height: 70px;">

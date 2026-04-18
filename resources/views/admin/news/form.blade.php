@@ -154,7 +154,7 @@
                                 <img src="{{ $getImageUrl($news->image, 'news', 'medium') }}" 
                                      class="img-fluid rounded" 
                                      alt="Imagen actual"
-                                     onerror="this.onerror=null; this.src='{{ asset('storage/images/defaults/news-default-medium.jpg') }}';">
+                                     onerror="this.onerror=null; this.src='{{ asset('images/defaults/news-default-medium.jpg') }}';">
                                 <div class="form-check mt-2">
                                     <input class="form-check-input" type="checkbox" value="1" id="remove_image" name="remove_image">
                                     <label class="form-check-label" for="remove_image">

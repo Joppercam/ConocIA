@@ -362,16 +362,16 @@ class HomeController extends Controller
     private function imageUrlHelper(): \Closure
     {
         $defaultImages = [
-            'news'     => ['large' => 'storage/images/defaults/news-default-large.jpg', 'medium' => 'storage/images/defaults/news-default-medium.jpg', 'small' => 'storage/images/defaults/news-default-small.jpg'],
-            'research' => ['large' => 'storage/images/defaults/research-default-large.jpg', 'medium' => 'storage/images/defaults/research-default-medium.jpg', 'small' => 'storage/images/defaults/research-default-small.jpg'],
-            'profile'  => 'storage/images/defaults/user-profile.jpg',
-            'avatars'  => 'storage/images/defaults/avatar-default.jpg',
+            'news'     => ['large' => 'images/defaults/news-default-large.jpg', 'medium' => 'images/defaults/news-default-medium.jpg', 'small' => 'images/defaults/news-default-small.jpg'],
+            'research' => ['large' => 'images/defaults/research-default-large.jpg', 'medium' => 'images/defaults/research-default-medium.jpg', 'small' => 'images/defaults/research-default-small.jpg'],
+            'profile'  => 'images/defaults/user-profile.jpg',
+            'avatars'  => 'images/defaults/avatar-default.jpg',
         ];
 
         return function ($imagePath, $type = 'news', $size = 'large') use ($defaultImages) {
             if (!$imagePath || $imagePath === '' || $imagePath === 'null') {
                 $def = $defaultImages[$type] ?? [];
-                return asset(is_array($def) ? ($def[$size] ?? $def['medium']) : ($def ?: 'storage/images/defaults/default.jpg'));
+                return asset(is_array($def) ? ($def[$size] ?? $def['medium']) : ($def ?: 'images/defaults/default.jpg'));
             }
             return asset(Str::startsWith($imagePath, 'storage/') ? $imagePath : 'storage/' . $imagePath);
         };
