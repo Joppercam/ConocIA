@@ -577,11 +577,11 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
     .news-content {
         font-size: 1.05rem;
         line-height: 1.8;
-        color: #1e293b;
+        color: #1e293b !important;
     }
     .news-content p, .news-content li {
         margin-bottom: 1.25rem;
-        color: #334155;
+        color: #334155 !important;
     }
     .news-content h1 {
         font-size: 1.4rem;
@@ -596,22 +596,22 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
         font-weight: 700;
         margin-top: 2rem;
         margin-bottom: 1rem;
-        color: #0f172a;
+        color: #0f172a !important;
     }
     .news-content h3, .news-content h4 {
         font-size: 1.05rem;
         font-weight: 600;
         margin-top: 1.5rem;
         margin-bottom: .75rem;
-        color: #1e293b;
+        color: #1e293b !important;
     }
     .news-content blockquote {
         border-left: 4px solid var(--primary-color, #38b6ff);
-        background: rgba(56,182,255,.06);
+        background: rgba(56,182,255,.06) !important;
         border-radius: 0 .5rem .5rem 0;
         padding: 1.1rem 1.4rem;
         margin: 1.8rem 0;
-        color: #475569;
+        color: #475569 !important;
         font-style: italic;
         font-size: 1.05rem;
         line-height: 1.75;
