@@ -4,6 +4,77 @@
 
 @php use Illuminate\Support\Str; @endphp
 
+@php
+    // Variables SEO — acceso seguro array/modelo (igual que dentro del content)
+    $_rTitle     = is_array($research) ? ($research['title']   ?? 'Investigación') : ($research->title   ?? 'Investigación');
+    $_rExcerpt   = is_array($research) ? ($research['excerpt'] ?? null)             : ($research->excerpt ?? null);
+    $_rContent   = is_array($research) ? ($research['content'] ?? '')               : ($research->content ?? '');
+    $_rImage     = is_array($research) ? ($research['image']   ?? null)             : ($research->image   ?? null);
+    $_rId        = is_array($research) ? ($research['id']      ?? 0)                : ($research->id      ?? 0);
+    $_rType      = is_array($research) ? ($research['type']    ?? null)             : ($research->type    ?? null);
+    $_rCategory  = is_array($research) ? null                                       : ($research->category ?? null);
+    $_rCreatedAt = is_array($research)
+        ? (isset($research['created_at']) ? \Carbon\Carbon::parse($research['created_at']) : now())
+        : ($research->created_at ?? now());
+    $_rAuthor    = is_array($research) ? ($research['author']  ?? null)             : ($research->author  ?? null);
+
+    $_rMetaDesc  = $_rExcerpt ?? Str::limit(strip_tags($_rContent), 160);
+    $_rMetaImage = $_rImage ? asset('storage/' . $_rImage) : asset('images/defaults/social-share.jpg');
+    $_rMetaUrl   = route('research.show', $_rId);
+    $_rMetaPublished = $_rCreatedAt->toIso8601String();
+    $_rMetaAuthor = is_object($_rAuthor) ? $_rAuthor->name : ($_rAuthor ?? 'ConocIA');
+    $_rMetaKeywords = 'investigación, inteligencia artificial'
+        . ($_rCategory ? ', ' . $_rCategory->name : '')
+        . ($_rType     ? ', ' . $_rType           : '');
+@endphp
+
+@section('title', $_rTitle . ' - ConocIA')
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $_rTitle . ' - ConocIA',
+        'metaDescription' => $_rMetaDesc,
+        'metaKeywords'    => $_rMetaKeywords,
+        'metaImage'       => $_rMetaImage,
+        'metaType'        => 'article',
+        'metaUrl'         => $_rMetaUrl,
+        'metaAuthor'      => $_rMetaAuthor,
+        'metaPublished'   => $_rMetaPublished,
+        'metaModified'    => null,
+    ])
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ScholarlyArticle",
+        "headline": "{{ addslashes($_rTitle) }}",
+        "description": "{{ addslashes($_rMetaDesc) }}",
+        "image": "{{ $_rMetaImage }}",
+        "datePublished": "{{ $_rMetaPublished }}",
+        "author": { "@type": "Person", "name": "{{ addslashes($_rMetaAuthor) }}" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "ConocIA",
+            "@id": "{{ url('/') }}/#organization",
+            "logo": { "@type": "ImageObject", "url": "{{ asset('storage/images/logo.png') }}" }
+        },
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ $_rMetaUrl }}" },
+        "articleSection": "Investigaciones",
+        "inLanguage": "es-CL",
+        "wordCount": {{ str_word_count(strip_tags($_rContent)) }}
+    }
+    </script>
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',          'url' => url('/')],
+        ['name' => 'Investigaciones', 'url' => route('research.index')],
+        @if($_rCategory)
+        ['name' => $_rCategory->name, 'url' => route('research.category', $_rCategory->slug)],
+        @elseif($_rType)
+        ['name' => $_rType, 'url' => route('research.type', $_rType)],
+        @endif
+        ['name' => $_rTitle],
+    ]])
+@endsection
+
 @section('content')
 
 @php

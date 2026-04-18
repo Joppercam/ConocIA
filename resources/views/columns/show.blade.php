@@ -6,6 +6,43 @@
 
 @section('title', $column->title . ' - ConocIA')
 
+@php
+    $colMetaDesc      = $column->excerpt ?? Str::limit(strip_tags($column->content ?? ''), 160);
+    $colMetaUrl       = route('columns.show', $column->slug);
+    $colMetaPublished = ($column->published_at ?? $column->created_at)?->toIso8601String();
+    $colMetaModified  = $column->updated_at?->toIso8601String();
+    $colMetaAuthor    = $column->author?->name ?? 'ConocIA';
+    $colMetaKeywords  = 'columnas, opinión, inteligencia artificial' . ($column->category ? ', ' . $column->category->name : '');
+@endphp
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $column->title . ' - ConocIA',
+        'metaDescription' => $colMetaDesc,
+        'metaKeywords'    => $colMetaKeywords,
+        'metaImage'       => asset('images/defaults/social-share.jpg'),
+        'metaType'        => 'article',
+        'metaUrl'         => $colMetaUrl,
+        'metaAuthor'      => $colMetaAuthor,
+        'metaPublished'   => $colMetaPublished,
+        'metaModified'    => $colMetaModified,
+    ])
+    @include('partials.schema-article', [
+        'item'      => $column,
+        'routeName' => 'columns.show',
+        'type'      => 'Article',
+        'section'   => 'Columnas de Opinión',
+    ])
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',   'url' => url('/')],
+        ['name' => 'Columnas', 'url' => route('columns.index')],
+        @if($column->category)
+        ['name' => $column->category->name, 'url' => route('columns.category', $column->category->slug)],
+        @endif
+        ['name' => $column->title],
+    ]])
+@endsection
+
 @section('content')
 
 {{-- Dark header --}}

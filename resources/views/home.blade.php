@@ -78,7 +78,7 @@
                                         <i class="fas {{ $getCategoryIcon($hero->category) }} me-1"></i>{{ $hero->category->name }}
                                     </span>
                                     @endif
-                                    <h2 class="fw-bold lh-sm mb-2" style="font-size:1.2rem;">{{ $hero->title }}</h2>
+                                    <h1 class="fw-bold lh-sm mb-2" style="font-size:1.2rem;">{{ $hero->title }}</h1>
                                     <p class="mb-2 d-none d-md-block" style="font-size:.85rem;opacity:.85;">
                                         {{ Str::limit($hero->excerpt, 110) }}
                                     </p>
