@@ -320,33 +320,48 @@ class SimpleImageDownloader
 
         foreach ($queries as $query) {
             try {
+                $page = rand(1, 3);
+                Log::info("[Pexels] Buscando: \"{$query}\" | page={$page} | category={$categorySlug}");
+
                 $response = Http::timeout(10)
                     ->withHeaders(['Authorization' => $apiKey])
                     ->get('https://api.pexels.com/v1/search', [
                         'query'       => $query,
                         'per_page'    => 15,
-                        'page'        => rand(1, 3), // página aleatoria para variedad
+                        'page'        => $page,
                         'orientation' => 'landscape',
                     ]);
+
+                Log::info("[Pexels] Status: " . $response->status() . " | Fotos: " . count($response->json()['photos'] ?? []));
 
                 if ($response->successful()) {
                     $photos = $response->json()['photos'] ?? [];
                     if (!empty($photos)) {
-                        // Selección aleatoria evitando siempre la primera foto
                         shuffle($photos);
                         $photo    = $photos[0];
                         $imageUrl = $photo['src']['large2x'] ?? $photo['src']['large'] ?? null;
+                        Log::info("[Pexels] Intentando descargar: {$imageUrl}");
                         if ($imageUrl) {
                             $downloaded = $this->download($imageUrl, $categorySlug);
-                            if ($downloaded) return $downloaded;
+                            if ($downloaded) {
+                                Log::info("[Pexels] ✓ Descargada: {$downloaded}");
+                                return $downloaded;
+                            } else {
+                                Log::warning("[Pexels] ✗ Falló la descarga de: {$imageUrl}");
+                            }
                         }
+                    } else {
+                        Log::warning("[Pexels] Sin resultados para: \"{$query}\"");
                     }
+                } else {
+                    Log::warning("[Pexels] Error HTTP {$response->status()} para: \"{$query}\"");
                 }
             } catch (\Exception $e) {
-                Log::warning("Pexels search failed for \"{$query}\": " . $e->getMessage());
+                Log::warning("[Pexels] Excepción para \"{$query}\": " . $e->getMessage());
             }
         }
 
+        Log::warning("[Pexels] Sin imagen para: \"{$title}\" [{$categorySlug}]");
         return null;
     }
 
