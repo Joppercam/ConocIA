@@ -316,6 +316,23 @@
     var currentChunkIndex = 0;
     var spanishVoice = null;
 
+    // Chrome background-tab bug: speechSynthesis pauses when tab loses focus.
+    // Fix: call resume() every 10s while playing to keep it alive.
+    var keepAliveTimer = null;
+    function startKeepAlive() {
+        stopKeepAlive();
+        keepAliveTimer = setInterval(function() {
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }
+        }, 10000);
+    }
+    function stopKeepAlive() {
+        clearInterval(keepAliveTimer);
+        keepAliveTimer = null;
+    }
+
     function buildChunks(text) {
         // Split on sentence boundaries, keeping the delimiter
         var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
@@ -335,7 +352,16 @@
 
     function resolveVoice() {
         var voices = window.speechSynthesis.getVoices();
-        spanishVoice = voices.find(function(v) { return v.lang.startsWith('es'); }) || null;
+        // Prefer es-AR, es-MX, es-ES in that order; fall back to any es-* voice
+        spanishVoice = voices.find(function(v) { return v.lang === 'es-AR'; })
+            || voices.find(function(v) { return v.lang === 'es-MX'; })
+            || voices.find(function(v) { return v.lang === 'es-ES'; })
+            || voices.find(function(v) { return v.lang.startsWith('es'); })
+            || null;
+    }
+    // Chrome loads voices asynchronously — pre-resolve when they become available
+    if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = resolveVoice;
     }
 
     function speakChunk(index) {
@@ -371,6 +397,7 @@
         playIcon.className = 'fas fa-pause';
         playBtn.classList.add('playing');
         startProgressTimer();
+        startKeepAlive();
         setWaveformState('playing');
         speakChunk(0);
     }
@@ -381,6 +408,7 @@
         playIcon.className = 'fas fa-play';
         playBtn.classList.remove('playing');
         stopProgressTimer();
+        stopKeepAlive();
         setWaveformState('idle');
     }
 
@@ -389,6 +417,7 @@
         playIcon.className = 'fas fa-pause';
         playBtn.classList.add('playing');
         startProgressTimer();
+        startKeepAlive();
         setWaveformState('playing');
         speakChunk(currentChunkIndex); // resume from last chunk
     }
@@ -401,6 +430,7 @@
         playIcon.className = 'fas fa-play';
         playBtn.classList.remove('playing');
         stopProgressTimer();
+        stopKeepAlive();
         if (progressFill) progressFill.style.width = '0%';
         if (progressThumb) progressThumb.style.left = '0%';
         if (timeCurrent) timeCurrent.textContent = '0:00';
