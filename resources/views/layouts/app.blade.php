@@ -696,13 +696,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('research.*') ? 'active' : '' }}" 
-                               href="{{ route('research.index') }}"
-                               aria-current="{{ request()->routeIs('research.*') ? 'page' : 'false' }}">
-                               <i class="fas fa-flask me-1 d-lg-none"></i>Investigación
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('columns.*') ? 'active' : '' }}"
                             href="{{ route('columns.index') }}"
                             aria-current="{{ request()->routeIs('columns.*') ? 'page' : 'false' }}">
