@@ -115,8 +115,8 @@ class VideoController extends Controller
             ->orderBy('published_at', 'desc')
             ->paginate(12);
 
-        // Reusar vista de categoría pasando el tag como $category
         $category = (object)[
+            'id'          => 0,
             'name'        => $tag->name,
             'description' => "Videos etiquetados con \"{$tag->name}\"",
             'slug'        => $tag->slug,
