@@ -220,7 +220,7 @@ class FetchNewsFromRss extends Command
                     'title'        => $enhanced['title'],
                     'slug'         => $slug,
                     'content'      => $enhanced['content'],
-                    'excerpt'      => $enhanced['excerpt'],
+                    'excerpt'      => $enhanced['excerpt'] ?? Str::limit(strip_tags($enhanced['content']), 220),
                     'image'        => $this->defaultImage($categorySlug),
                     'author'       => $feed['source'],
                     'source'       => $feed['source'],
