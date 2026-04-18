@@ -25,6 +25,8 @@ use App\Http\Controllers\Admin\ColumnController as AdminColumnController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\TikTokController;
+use App\Http\Controllers\Admin\PaperController as AdminPaperController;
+use App\Http\Controllers\Admin\EstadoArteAdminController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ConceptoIaController;
 use App\Http\Controllers\AnalisisFondoController;
@@ -403,6 +405,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/api/execute', [NewsApiController::class, 'execute'])->name('api.execute');
 
         Route::resource('columns', AdminColumnController::class);
+
+        // ConocIA Papers admin
+        Route::prefix('papers')->name('papers.')->group(function () {
+            Route::get('/',                     [AdminPaperController::class, 'index'])->name('index');
+            Route::get('/{paper}/edit',         [AdminPaperController::class, 'edit'])->name('edit');
+            Route::put('/{paper}',              [AdminPaperController::class, 'update'])->name('update');
+            Route::delete('/{paper}',           [AdminPaperController::class, 'destroy'])->name('destroy');
+            Route::patch('/{paper}/toggle',     [AdminPaperController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/run-fetch',           [AdminPaperController::class, 'runFetch'])->name('run-fetch');
+        });
+
+        // Estado del Arte admin
+        Route::prefix('estado-arte')->name('estado-arte.')->group(function () {
+            Route::get('/',                         [EstadoArteAdminController::class, 'index'])->name('index');
+            Route::get('/{estadoArte}/edit',        [EstadoArteAdminController::class, 'edit'])->name('edit');
+            Route::put('/{estadoArte}',             [EstadoArteAdminController::class, 'update'])->name('update');
+            Route::delete('/{estadoArte}',          [EstadoArteAdminController::class, 'destroy'])->name('destroy');
+            Route::patch('/{estadoArte}/toggle',    [EstadoArteAdminController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/run-generate',            [EstadoArteAdminController::class, 'runGenerate'])->name('run-generate');
+        });
 
 
         Route::prefix('social-media')->name('social-media.')->group(function () {

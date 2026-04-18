@@ -46,7 +46,7 @@
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex gap-2 flex-wrap">
                                 <span class="badge" style="background:var(--primary-color);color:#fff;font-size:.7rem;">{{ $paper->arxiv_category }}</span>
-                                @if($paper->difficulty_level)<span class="badge difficulty-badge-{{ $paper->difficulty_level }}" style="font-size:.7rem;">{{ ucfirst($paper->difficulty_level) }}</span>@endif
+                                @if($paper->difficulty_level)<span class="badge difficulty-badge-{{ Str::ascii(strtolower($paper->difficulty_level)) }}" style="font-size:.7rem;">{{ ucfirst($paper->difficulty_level) }}</span>@endif
                             </div>
                             <small style="color:#94a3b8;"><i class="fas fa-clock me-1"></i>{{ $paper->reading_time ?? 5 }} min</small>
                         </div>

@@ -175,6 +175,28 @@
                         <i class="fas fa-pen-fancy"></i> Columnas
                     </a>
                 </li>
+                <li class="{{ request()->routeIs('admin.papers.*') ? 'active' : '' }}">
+                    <a href="#papersSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.papers.*') ? 'true' : 'false' }}"
+                       class="dropdown-toggle">
+                        <i class="fas fa-file-alt me-2"></i> Papers
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.papers.*') ? 'show' : '' }}" id="papersSubmenu">
+                        <li><a href="{{ route('admin.papers.index') }}">Ver todos</a></li>
+                        <li><a href="{{ route('papers.index') }}" target="_blank">Ver portal</a></li>
+                    </ul>
+                </li>
+                <li class="{{ request()->routeIs('admin.estado-arte.*') ? 'active' : '' }}">
+                    <a href="#estadoArteSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.estado-arte.*') ? 'true' : 'false' }}"
+                       class="dropdown-toggle">
+                        <i class="fas fa-brain me-2"></i> Estado del Arte
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.estado-arte.*') ? 'show' : '' }}" id="estadoArteSubmenu">
+                        <li><a href="{{ route('admin.estado-arte.index') }}">Ver todos</a></li>
+                        <li><a href="{{ route('estado-arte.index') }}" target="_blank">Ver portal</a></li>
+                    </ul>
+                </li>
                 <!-- Agrega este código después de la sección de TikTok en el sidebar -->
                 <li class="{{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
                     <a href="#videosSubmenu" data-bs-toggle="collapse" 

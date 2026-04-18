@@ -20,7 +20,7 @@
             <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge" style="background:var(--primary-color);color:#fff;font-size:.75rem;">{{ $paper->arxiv_category }}</span>
                 @if($paper->difficulty_level)
-                <span class="badge difficulty-badge-{{ $paper->difficulty_level }}" style="font-size:.75rem;">{{ ucfirst($paper->difficulty_level) }}</span>
+                <span class="badge difficulty-badge-{{ Str::ascii(strtolower($paper->difficulty_level)) }}" style="font-size:.75rem;">{{ ucfirst($paper->difficulty_level) }}</span>
                 @endif
             </div>
 
@@ -111,6 +111,6 @@
         </div>
     </div>
 </div>
-@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')'], ['name' => 'ConocIA Papers', 'url' => route('papers.index')'], ['name' => $paper->title]]])
+@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')], ['name' => 'ConocIA Papers', 'url' => route('papers.index')], ['name' => $paper->title]]])
 @include('partials.schema-article', ['item' => $paper, 'routeName' => 'papers.show', 'type' => 'ScholarlyArticle', 'section' => 'ConocIA Papers'])
 @endsection

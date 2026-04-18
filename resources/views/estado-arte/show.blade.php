@@ -103,6 +103,6 @@
         </div>
     </div>
 </div>
-@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')'], ['name' => 'Estado del Arte', 'url' => route('estado-arte.index')'], ['name' => $digest->title]]])
+@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')], ['name' => 'Estado del Arte', 'url' => route('estado-arte.index')], ['name' => $digest->title]]])
 @include('partials.schema-article', ['item' => $digest, 'routeName' => 'estado-arte.show', 'type' => 'TechArticle', 'section' => 'Estado del Arte'])
 @endsection
