@@ -4,17 +4,12 @@ namespace App\Services\Video;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class VimeoService extends AbstractVideoService
 {
     public function __construct()
     {
-        if (Schema::hasTable('video_platforms')) {
-            $this->resolvePlatform('vimeo', 'services.vimeo.access_token');
-        } else {
-            $this->apiKey = config('services.vimeo.access_token', '');
-        }
+        $this->resolvePlatform('vimeo', 'services.vimeo.access_token');
     }
 
     public function search(array $keywords, int $limit = 5): array

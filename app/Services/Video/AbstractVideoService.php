@@ -5,6 +5,7 @@ namespace App\Services\Video;
 use App\Models\VideoPlatform;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 abstract class AbstractVideoService implements VideoServiceInterface
 {
@@ -16,8 +17,12 @@ abstract class AbstractVideoService implements VideoServiceInterface
      */
     protected function resolvePlatform(string $code, string $configKey): void
     {
-        $this->platform = VideoPlatform::where('code', $code)->first();
-        $this->apiKey   = $this->platform?->api_key ?: config($configKey, '');
+        if (Schema::hasTable('video_platforms')) {
+            $this->platform = VideoPlatform::where('code', $code)->first();
+            $this->apiKey   = $this->platform?->api_key ?: config($configKey, '');
+        } else {
+            $this->apiKey = config($configKey, '');
+        }
     }
 
     /**
