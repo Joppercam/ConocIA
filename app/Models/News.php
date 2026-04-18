@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
@@ -47,6 +48,21 @@ class News extends Model implements Feedable
         'updated_at' => 'datetime',
     ];
     
+    protected static function booted(): void
+    {
+        static::saved(fn() => static::clearHomeCache());
+        static::deleted(fn() => static::clearHomeCache());
+    }
+
+    public static function clearHomeCache(): void
+    {
+        Cache::forget('home_page_data');
+        Cache::forget('all_published_news');
+        Cache::forget('popular_news');
+        Cache::forget('secondary_news');
+        Cache::forget('trending_ids');
+    }
+
     // Mutador para las fechas
     public function getCreatedAtAttribute($value)
     {

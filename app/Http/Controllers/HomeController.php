@@ -26,7 +26,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $viewData = Cache::remember('home_page_data', 1800, function () {
+        $viewData = Cache::remember('home_page_data', 600, function () {
             $featuredNews  = $this->fetchFeaturedNews();
             $featuredIds   = $featuredNews->pluck('id')->toArray();
 
@@ -131,7 +131,7 @@ class HomeController extends Controller
 
     private function fetchFeaturedNews()
     {
-        $published = Cache::remember('all_published_news', 1800, function () {
+        $published = Cache::remember('all_published_news', 600, function () {
             // Intentar primero con imágenes reales
             $withImages = News::with('category')
                 ->where('status', 'published')
