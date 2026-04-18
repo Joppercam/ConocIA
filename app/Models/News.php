@@ -18,6 +18,7 @@ class News extends Model implements Feedable
         'excerpt', 
         'content', 
         'summary',
+        'keywords',
         'image', 
         'image_caption',
         'category_id', 
