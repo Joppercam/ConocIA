@@ -49,7 +49,6 @@ class TwitterPublisher implements SocialMediaPublisher
                 $this->configured = false;
             }
         } else {
-            Log::warning('Twitter API no está configurada correctamente.');
             $this->configured = false;
         }
     }

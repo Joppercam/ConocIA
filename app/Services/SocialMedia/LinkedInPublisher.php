@@ -29,7 +29,7 @@ class LinkedInPublisher implements SocialMediaPublisher
         if (!empty($this->accessToken) && !empty($this->companyId)) {
             $this->configured = true;
         } else {
-            Log::warning('LinkedIn API no está configurada correctamente.');
+            $this->configured = false;
         }
     }
     

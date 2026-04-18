@@ -40,7 +40,7 @@ class FacebookPublisher implements SocialMediaPublisher
                 Log::error('Error al inicializar Facebook API: ' . $e->getMessage());
             }
         } else {
-            Log::warning('Facebook API no está configurada correctamente.');
+            $this->configured = false;
         }
     }
     
