@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\News;
 use App\Models\Category;
 use App\Services\GeminiQuotaGuard;
+use App\Services\SimpleImageDownloader;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,11 @@ use Illuminate\Support\Str;
 class FetchNewsFromGuardian extends Command
 {
     protected $signature = 'news:fetch-guardian {--limit=5 : Artículos por ejecución} {--dry-run : Mostrar sin guardar}';
+
+    public function __construct(protected SimpleImageDownloader $imageDownloader)
+    {
+        parent::__construct();
+    }
 
     protected $description = 'Importa noticias de IA desde The Guardian API (alta calidad editorial, gratis)';
 
@@ -83,14 +89,13 @@ class FetchNewsFromGuardian extends Command
                 }
 
                 $slug  = $this->uniqueSlug(Str::slug($enhanced['title']));
-                $image = $article['fields']['thumbnail'] ?? null;
 
-                News::create([
+                $news = News::create([
                     'title'        => $enhanced['title'],
                     'slug'         => $slug,
                     'content'      => $enhanced['content'],
-                    'excerpt'      => $enhanced['excerpt'],
-                    'image'        => $image ?? $this->defaultImage($categorySlug),
+                    'excerpt'      => $enhanced['excerpt'] ?? Str::limit(strip_tags($enhanced['content']), 220),
+                    'image'        => null,
                     'author'       => $article['fields']['byline'] ?? 'The Guardian',
                     'source'       => 'The Guardian',
                     'source_url'   => $article['webUrl'],
@@ -105,7 +110,19 @@ class FetchNewsFromGuardian extends Command
                         : now(),
                 ]);
 
-                $this->line("  <fg=green>✓</> {$enhanced['title']}");
+                // Imagen: descargar thumbnail de Guardian o buscar en Pexels
+                $thumbnail    = $article['fields']['thumbnail'] ?? null;
+                $imageStored  = $thumbnail ? $this->imageDownloader->download($thumbnail, $categorySlug) : null;
+                if (!$imageStored) {
+                    $imageStored = $this->imageDownloader->searchAndDownloadFromPexels(
+                        $enhanced['title'], $categorySlug, $category->name
+                    );
+                }
+                if ($imageStored) {
+                    $news->update(['image' => $imageStored]);
+                }
+
+                $this->line("  <fg=green>✓</> {$enhanced['title']}" . ($imageStored ? ' 🖼' : ''));
                 $total++;
                 sleep(1);
             }

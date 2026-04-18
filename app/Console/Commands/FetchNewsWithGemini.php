@@ -186,19 +186,17 @@ class FetchNewsWithGemini extends Command
                 'published_at'=> now(),
             ]);
 
-            $this->info("  ✓ Guardada: {$article['title']}");
-            $saved++;
-
-            // Buscar imagen en Pexels usando el título como query
-            $imageUrl = $this->fetchPexelsImage($article['title'], $slug);
+            // Descargar imagen inline (no en lote)
+            $imageUrl = $this->imageDownloader->searchAndDownloadFromPexels(
+                $article['title'], $slug, $name
+            );
             if ($imageUrl) {
-                $imagesToUpdate[$imageUrl] = $news->id;
+                $news->update(['image' => $imageUrl]);
+                $this->info("  ✓ Guardada con imagen: {$article['title']}");
+            } else {
+                $this->info("  ✓ Guardada (sin imagen): {$article['title']}");
             }
-        }
-
-        // ── 4. Descargar imágenes en lote ────────────────────────────────────
-        if (!empty($imagesToUpdate)) {
-            $this->downloadImages($imagesToUpdate, $slug);
+            $saved++;
         }
 
         return $saved;

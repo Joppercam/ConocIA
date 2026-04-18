@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -297,6 +298,52 @@ class SimpleImageDownloader
             Log::error('Error al guardar imagen: ' . $url);
             return null;
         }
+    }
+
+    /**
+     * Busca una imagen en Pexels y la descarga inline.
+     * Usa el título como query principal, con fallback al nombre de categoría.
+     */
+    public function searchAndDownloadFromPexels(string $title, string $categorySlug, ?string $categoryName = null): ?string
+    {
+        $apiKey = config('services.pexels.api_key');
+        if (empty($apiKey)) {
+            return null;
+        }
+
+        // Queries: primeras 5 palabras del título, luego categoría, luego genérico
+        $words        = preg_split('/\s+/', strip_tags($title));
+        $titleQuery   = implode(' ', array_slice($words, 0, 5));
+        $categoryFallback = $categoryName ?? str_replace('-', ' ', $categorySlug);
+        $queries      = array_unique(array_filter([$titleQuery, $categoryFallback, 'artificial intelligence technology']));
+
+        foreach ($queries as $query) {
+            try {
+                $response = Http::timeout(10)
+                    ->withHeaders(['Authorization' => $apiKey])
+                    ->get('https://api.pexels.com/v1/search', [
+                        'query'       => $query,
+                        'per_page'    => 5,
+                        'orientation' => 'landscape',
+                    ]);
+
+                if ($response->successful()) {
+                    $photos = $response->json()['photos'] ?? [];
+                    if (!empty($photos)) {
+                        $photo    = $photos[array_rand($photos)];
+                        $imageUrl = $photo['src']['large2x'] ?? $photo['src']['large'] ?? null;
+                        if ($imageUrl) {
+                            $downloaded = $this->download($imageUrl, $categorySlug);
+                            if ($downloaded) return $downloaded;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning("Pexels search failed for \"{$query}\": " . $e->getMessage());
+            }
+        }
+
+        return null;
     }
 
     /**
