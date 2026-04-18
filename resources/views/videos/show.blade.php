@@ -4,6 +4,71 @@
 
 @section('title', $video->title . ' - ConocIA')
 
+@php
+    $vidMetaDesc  = $video->description ? Str::limit($video->description, 160) : 'Video sobre inteligencia artificial en ConocIA';
+    $vidMetaImage = $video->thumbnail_url ?? asset('images/defaults/social-share.jpg');
+    $vidMetaUrl   = route('videos.show', $video->id);
+    $vidMetaPublished = $video->published_at?->toIso8601String() ?? now()->toIso8601String();
+    $vidMetaKeywords  = 'video, inteligencia artificial, tecnología'
+        . ($video->categories->isNotEmpty() ? ', ' . $video->categories->pluck('name')->implode(', ') : '')
+        . ($video->tags->isNotEmpty() ? ', ' . $video->tags->pluck('name')->implode(', ') : '');
+
+    // Convertir segundos a duración ISO 8601 (PT1H2M3S)
+    $vidDuration = '';
+    if ($video->duration_seconds) {
+        $h = intdiv($video->duration_seconds, 3600);
+        $m = intdiv($video->duration_seconds % 3600, 60);
+        $s = $video->duration_seconds % 60;
+        $vidDuration = 'PT' . ($h ? "{$h}H" : '') . ($m ? "{$m}M" : '') . ($s ? "{$s}S" : '');
+    }
+@endphp
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $video->title . ' - ConocIA',
+        'metaDescription' => $vidMetaDesc,
+        'metaKeywords'    => $vidMetaKeywords,
+        'metaImage'       => $vidMetaImage,
+        'metaType'        => 'video.other',
+        'metaUrl'         => $vidMetaUrl,
+        'metaAuthor'      => 'ConocIA',
+        'metaPublished'   => $vidMetaPublished,
+        'metaModified'    => null,
+    ])
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "{{ addslashes($video->title) }}",
+        "description": "{{ addslashes($vidMetaDesc) }}",
+        "thumbnailUrl": "{{ $vidMetaImage }}",
+        "uploadDate": "{{ $vidMetaPublished }}",
+        @if($vidDuration)
+        "duration": "{{ $vidDuration }}",
+        @endif
+        "embedUrl": "{{ $video->embed_url }}",
+        "url": "{{ $vidMetaUrl }}",
+        "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/WatchAction",
+            "userInteractionCount": {{ $video->view_count ?? 0 }}
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "ConocIA",
+            "@id": "{{ url('/') }}/#organization",
+            "logo": { "@type": "ImageObject", "url": "{{ asset('storage/images/logo.png') }}" }
+        },
+        "inLanguage": "es-CL"
+    }
+    </script>
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',  'url' => url('/')],
+        ['name' => 'Videos',  'url' => route('videos.index')],
+        ['name' => $video->title],
+    ]])
+@endsection
+
 @section('content')
 {{-- Page header --}}
 <div style="background:var(--dark-bg);border-bottom:1px solid #2a2a2a;" class="py-3 mb-4">
