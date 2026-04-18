@@ -21,19 +21,13 @@ if(isset($article->tags) && is_countable($article->tags) && count($article->tags
     $metaKeywords .= ', ' . $tagNames;
 }
 
-// Verificar si la imagen existe físicamente para metadatos
-$metaImage = asset('images/defaults/social-share.jpg'); // Imagen por defecto
-if (!empty($article->image) && !str_contains($article->image, 'default')) {
-    // Extraer el nombre del archivo si es una ruta completa
-    $imageName = $article->image;
-    if (Str::startsWith($imageName, 'storage/') || Str::startsWith($imageName, '/storage/')) {
-        $imageName = basename($imageName);
-    }
-    
-    // Verificar si la imagen existe físicamente
-    $imagePath = "images/news/{$imageName}";
-    if (Storage::disk('public')->exists($imagePath)) {
-        $metaImage = asset('storage/' . $imagePath);
+// Imagen para metadatos OG
+$metaImage = asset('images/defaults/social-share.jpg');
+if (!empty($article->image) && !str_contains($article->image, 'default') && !str_contains($article->image, 'placeholder')) {
+    if (Str::startsWith($article->image, ['http://', 'https://'])) {
+        $metaImage = $article->image; // URL completa (R2, CDN, externa)
+    } elseif (Str::startsWith($article->image, 'storage/')) {
+        $metaImage = asset($article->image);
     }
 }
 
@@ -157,32 +151,26 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                 $imageSrc = null;
                 
                 // Solo verificar si existe una imagen para evitar consultas innecesarias
-                if (!empty($article->image) && 
-                    $article->image != 'default.jpg' && 
-                    !str_contains($article->image, 'default') && 
+                if (!empty($article->image) &&
+                    $article->image != 'default.jpg' &&
+                    !str_contains($article->image, 'default') &&
                     !str_contains($article->image, 'placeholder')) {
-                    
-                    // Extraer el nombre del archivo si es una ruta completa
+
                     $imageName = $article->image;
-                    if (Str::startsWith($imageName, 'storage/') || Str::startsWith($imageName, '/storage/')) {
-                        $imagePath = str_replace('storage/', '', $imageName);
-                        // Verificar si el archivo existe físicamente en la ruta directa
-                        if (Storage::disk('public')->exists($imagePath)) {
-                            $showImage = true;
-                            $imageSrc = asset('storage/' . $imagePath);
-                        }
+
+                    if (Str::startsWith($imageName, ['http://', 'https://'])) {
+                        // URL completa (R2, CDN o imagen externa)
+                        $showImage = true;
+                        $imageSrc  = $imageName;
+                    } elseif (Str::startsWith($imageName, 'storage/')) {
+                        $showImage = true;
+                        $imageSrc  = asset($imageName);
                     } else {
-                        // Probar múltiples rutas posibles donde podría estar la imagen
-                        $possiblePaths = [
-                            "images/news/{$imageName}",
-                            "news/{$imageName}",
-                            "{$imageName}"
-                        ];
-                        
-                        foreach ($possiblePaths as $path) {
+                        // Probar múltiples rutas posibles
+                        foreach (["images/news/{$imageName}", "news/{$imageName}", $imageName] as $path) {
                             if (Storage::disk('public')->exists($path)) {
                                 $showImage = true;
-                                $imageSrc = asset('storage/' . $path);
+                                $imageSrc  = asset('storage/' . $path);
                                 break;
                             }
                         }

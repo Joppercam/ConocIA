@@ -100,16 +100,16 @@ class SimpleImageDownloader
             
             // Guardar imagen usando Storage con el disco personalizado
             $success = Storage::disk('custom_public')->put($fullPath, $imageContent);
-            
+
             if (!$success) {
                 Log::error('No se pudo guardar la imagen en Storage');
                 return null;
             }
-            
+
             Log::info('Imagen guardada correctamente en: ' . $fullPath);
-            
-            // Devolver ruta relativa para usar en HTML
-            return 'storage/' . $fullPath;
+
+            // Retornar la URL pública real del disco (R2 en producción, path local en dev)
+            return Storage::disk('custom_public')->url($fullPath);
             
         } catch (RequestException $e) {
             Log::error('Error al realizar la petición HTTP: ' . $e->getMessage());
@@ -289,9 +289,10 @@ class SimpleImageDownloader
         
         // Guardar la imagen usando el disco personalizado
         $success = Storage::disk('custom_public')->put($fullPath, $imageContent);
-        
+
         if ($success) {
-            return 'storage/' . $fullPath;
+            // URL pública real (R2 en producción, URL local en dev)
+            return Storage::disk('custom_public')->url($fullPath);
         } else {
             Log::error('Error al guardar imagen: ' . $url);
             return null;

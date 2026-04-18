@@ -383,6 +383,11 @@ class HomeController extends Controller
                 $def = $defaultImages[$type] ?? [];
                 return asset(is_array($def) ? ($def[$size] ?? $def['medium']) : ($def ?: 'images/defaults/default.jpg'));
             }
+            // URL completa (R2, CDN o imagen externa) — devolver directamente
+            if (Str::startsWith($imagePath, ['http://', 'https://'])) {
+                return $imagePath;
+            }
+            // Ruta local storage/...
             return asset(Str::startsWith($imagePath, 'storage/') ? $imagePath : 'storage/' . $imagePath);
         };
     }

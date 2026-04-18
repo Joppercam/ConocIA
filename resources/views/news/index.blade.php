@@ -55,9 +55,13 @@
                     !str_contains($article->image, 'default') &&
                     !str_contains($article->image, 'placeholder')) {
 
-                    $imageSrc = Str::startsWith($article->image, 'storage/')
-                        ? asset($article->image)
-                        : asset('storage/news/' . $article->image);
+                    if (Str::startsWith($article->image, ['http://', 'https://'])) {
+                        $imageSrc = $article->image; // URL completa (R2, CDN, externa)
+                    } elseif (Str::startsWith($article->image, 'storage/')) {
+                        $imageSrc = asset($article->image);
+                    } else {
+                        $imageSrc = asset('storage/news/' . $article->image);
+                    }
 
                     $hasImage = true;
                 }
