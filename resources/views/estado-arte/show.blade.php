@@ -103,6 +103,13 @@
         </div>
     </div>
 </div>
-@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')], ['name' => 'Estado del Arte', 'url' => route('estado-arte.index')], ['name' => $digest->title]]])
+@php
+$breadcrumbs = [
+    ['name' => 'Inicio', 'url' => url('/')],
+    ['name' => 'Estado del Arte', 'url' => route('estado-arte.index')],
+    ['name' => $digest->title],
+];
+@endphp
+@include('partials.schema-breadcrumb', ['crumbs' => $breadcrumbs])
 @include('partials.schema-article', ['item' => $digest, 'routeName' => 'estado-arte.show', 'type' => 'TechArticle', 'section' => 'Estado del Arte'])
 @endsection

@@ -87,6 +87,13 @@
         </div>
     </div>
 </div>
-@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')], ['name' => 'Análisis de Fondo', 'url' => route('analisis.index')], ['name' => $analysis->title]]])
+@php
+$breadcrumbs = [
+    ['name' => 'Inicio', 'url' => url('/')],
+    ['name' => 'Análisis de Fondo', 'url' => route('analisis.index')],
+    ['name' => $analysis->title],
+];
+@endphp
+@include('partials.schema-breadcrumb', ['crumbs' => $breadcrumbs])
 @include('partials.schema-article', ['item' => $analysis, 'routeName' => 'analisis.show', 'type' => 'TechArticle', 'section' => 'Análisis de Fondo'])
 @endsection

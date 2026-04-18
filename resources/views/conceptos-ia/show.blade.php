@@ -109,6 +109,13 @@
         </div>
     </div>
 </div>
-@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')], ['name' => 'Conceptos IA', 'url' => route('conceptos.index')], ['name' => $concepto->title]]])
+@php
+$breadcrumbs = [
+    ['name' => 'Inicio', 'url' => url('/')],
+    ['name' => 'Conceptos IA', 'url' => route('conceptos.index')],
+    ['name' => $concepto->title],
+];
+@endphp
+@include('partials.schema-breadcrumb', ['crumbs' => $breadcrumbs])
 @include('partials.schema-article', ['item' => $concepto, 'routeName' => 'conceptos.show', 'type' => 'TechArticle', 'section' => 'Conceptos IA'])
 @endsection

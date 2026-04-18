@@ -111,6 +111,13 @@
         </div>
     </div>
 </div>
-@include('partials.schema-breadcrumb', ['crumbs' => [['name' => 'Inicio', 'url' => url('/')], ['name' => 'ConocIA Papers', 'url' => route('papers.index')], ['name' => $paper->title]]])
+@php
+$breadcrumbs = [
+    ['name' => 'Inicio', 'url' => url('/')],
+    ['name' => 'ConocIA Papers', 'url' => route('papers.index')],
+    ['name' => $paper->title],
+];
+@endphp
+@include('partials.schema-breadcrumb', ['crumbs' => $breadcrumbs])
 @include('partials.schema-article', ['item' => $paper, 'routeName' => 'papers.show', 'type' => 'ScholarlyArticle', 'section' => 'ConocIA Papers'])
 @endsection
