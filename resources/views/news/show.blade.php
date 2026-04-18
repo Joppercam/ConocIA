@@ -426,16 +426,17 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                     @endphp
                     <a href="{{ route('news.show', $rel->slug) }}" class="text-decoration-none">
                         <div class="d-flex p-2 {{ !$loop->last ? 'border-bottom' : '' }} related-item">
+                            @if($relImg)
                             <a href="{{ route('news.show', $rel->slug ?? $rel->id) }}"
                                class="flex-shrink-0 rounded overflow-hidden me-2"
                                style="width:64px;height:48px;min-width:64px;display:flex;align-items:center;justify-content:center;background:#eef1f5;">
-                                <img src="{{ $relImg ?: asset('images/defaults/news-default-small.jpg') }}"
+                                <img src="{{ $relImg }}"
                                      alt="{{ $rel->title }}"
                                      class="w-100 h-100"
                                      style="object-fit:cover;"
-                                     loading="lazy"
-                                     onerror="this.src='{{ asset('images/defaults/news-default-small.jpg') }}'">
+                                     loading="lazy">
                             </a>
+                            @endif
                             <div class="overflow-hidden">
                                 @if(isset($rel->category) && is_object($rel->category))
                                 <span class="badge mb-1" style="font-size:.65rem;background:{{ $rel->category->color ?? 'var(--primary-color)' }};">{{ $rel->category->name }}</span>

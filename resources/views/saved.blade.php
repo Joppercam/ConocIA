@@ -159,11 +159,11 @@ document.addEventListener('DOMContentLoaded', function () {
             : `${bookmarks.length} artículos guardados`;
 
         bookmarks.slice().reverse().forEach(function (bm) {
-            const thumbHtml = (bm.image && bm.image !== '' && !bm.image.includes('default') && !bm.image.includes('placeholder'))
-                ? `<img src="${escHtml(bm.image.startsWith('storage/') ? '/' + bm.image : '/storage/news/' + bm.image)}"
-                        class="saved-thumb me-3"
-                        alt="${escHtml(bm.title)}"
-                        onerror="this.outerHTML='<div class=\'saved-thumb-placeholder me-3\'><i class=\'far fa-newspaper\'></i></div>'">`
+            const isExtImg = bm.image && (bm.image.startsWith('http://') || bm.image.startsWith('https://'));
+            const isLocalImg = bm.image && bm.image.startsWith('storage/') && !bm.image.includes('default') && !bm.image.includes('placeholder');
+            const thumbSrc = isExtImg ? bm.image : (isLocalImg ? '/' + bm.image : null);
+            const thumbHtml = thumbSrc
+                ? `<img src="${escHtml(thumbSrc)}" class="saved-thumb me-3" alt="${escHtml(bm.title)}" onerror="this.outerHTML='<div class=\'saved-thumb-placeholder me-3\'><i class=\'far fa-newspaper\'></i></div>'">`
                 : `<div class="saved-thumb-placeholder me-3"><i class="far fa-newspaper"></i></div>`;
 
             const catHtml = bm.category

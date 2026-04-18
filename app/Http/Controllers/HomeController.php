@@ -131,9 +131,8 @@ class HomeController extends Controller
 
     private function fetchFeaturedNews()
     {
-        $published = Cache::remember('all_published_news', 600, function () {
-            // Intentar primero con imágenes reales
-            $withImages = News::with('category')
+        return Cache::remember('all_published_news', 600, function () {
+            return News::with('category')
                 ->where('status', 'published')
                 ->whereNotNull('image')
                 ->where(function ($q) {
@@ -141,40 +140,13 @@ class HomeController extends Controller
                       ->where('image', '!=', 'null')
                       ->where('image', '!=', 'default.jpg')
                       ->whereRaw("image NOT LIKE '%default%'")
-                      ->whereRaw("image NOT LIKE '%placeholder%'");
+                      ->whereRaw("image NOT LIKE '%placeholder%'")
+                      ->whereRaw("image NOT LIKE '%/storage/%'");
                 })
                 ->latest('published_at')
                 ->take(5)
                 ->get();
-
-            // Si no hay ninguna con imagen válida, usar cualquier noticia publicada
-            if ($withImages->isEmpty()) {
-                return News::with('category')
-                    ->where('status', 'published')
-                    ->latest('published_at')
-                    ->take(5)
-                    ->get();
-            }
-
-            return $withImages;
         });
-
-        $featured = $this->filterNewsWithPhysicalImages($published, 5);
-
-        if ($featured->count() < 5) {
-            $existingIds = $featured->pluck('id')->toArray();
-            $additional  = Cache::remember('additional_news_' . implode(',', $existingIds), 1800,
-                fn() => News::with('category')
-                    ->where('status', 'published')
-                    ->whereNotIn('id', $existingIds)
-                    ->latest()
-                    ->take(5 - $featured->count())
-                    ->get()
-            );
-            $featured = $featured->concat($additional);
-        }
-
-        return $featured;
     }
 
     private function fetchRecentNews(array $featuredIds): array
@@ -340,29 +312,17 @@ class HomeController extends Controller
 
         return Cache::remember($cacheKey, 1800, function () use ($news, $minCount) {
             $valid = $news->filter(function ($item) {
-                // Sin imagen: se muestra con imagen default, se acepta
-                if (empty($item->image)) {
-                    return true;
+                if (empty($item->image)) return false;
+                // URL externa (Pexels, CDN): válida directamente
+                if (Str::startsWith($item->image, ['http://', 'https://'])) return true;
+                // Imagen local: verificar existencia
+                if (Str::startsWith($item->image, 'storage/')) {
+                    return Storage::disk('public')->exists(str_replace('storage/', '', $item->image));
                 }
-                // Imagen externa (URL): se acepta directamente
-                if (Str::startsWith($item->image, ['http://', 'https://'])) {
-                    return true;
-                }
-                // Imagen local: verificar que el archivo exista
-                if (!Str::startsWith($item->image, 'storage/')) {
-                    return false;
-                }
-                return Storage::disk('public')->exists(str_replace('storage/', '', $item->image));
+                return false;
             });
 
-            // Si hay suficientes con imágenes reales, usarlas
-            if ($valid->count() >= $minCount) {
-                return $valid->take($minCount);
-            }
-
-            // Completar con el resto — se mostrarán con imagen default en la vista
-            $remaining = $news->diff($valid)->take($minCount - $valid->count());
-            return $valid->concat($remaining);
+            return $valid->take($minCount);
         });
     }
 
