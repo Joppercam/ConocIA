@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Column;
+use App\Models\User;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -10,6 +12,22 @@ class ColumnSeeder extends Seeder
 {
     public function run(): void
     {
+        // Resolver autores reales disponibles en esta BD
+        // Los IDs locales (14,15,16,18) pueden no existir en producción
+        $availableUsers = User::pluck('id')->toArray();
+        if (empty($availableUsers)) {
+            $this->command->error('No hay usuarios en la BD. Crea al menos uno antes de sembrar columnas.');
+            return;
+        }
+
+        // Mapear los IDs "editoriales" a usuarios reales de forma circular
+        // Si hay 4+ usuarios se asignan distintos; si hay menos, se reutilizan
+        $authorMap = [];
+        $editorialIds = [14, 15, 16, 18];
+        foreach ($editorialIds as $i => $localId) {
+            $authorMap[$localId] = $availableUsers[$i % count($availableUsers)];
+        }
+
         $columns = [
 
             // ── 1 ──────────────────────────────────────────────────────────────────
@@ -376,9 +394,32 @@ HTML,
             ],
         ]);
 
+        // Mapa de categorías: nombre → ID real en esta BD
+        $catByName = Category::pluck('id', 'name')->toArray();
+        $catById   = Category::pluck('name', 'id')->toArray();
+        $fallbackCat = Category::first()?->id ?? 1;
+
         $created = 0;
         foreach ($columns as $data) {
             $data['slug'] = Str::slug($data['title']);
+
+            // Reasignar author_id al usuario real disponible en esta BD
+            $localAuthor = $data['author_id'];
+            $data['author_id'] = $authorMap[$localAuthor] ?? $availableUsers[0];
+
+            // Reasignar category_id usando el nombre de la categoría local
+            // Si la categoría con ese ID existe, la usamos; si no, buscamos por nombre
+            $localCatId   = $data['category_id'];
+            $localCatName = $catById[$localCatId] ?? null;
+            if ($localCatName && isset($catByName[$localCatName])) {
+                $data['category_id'] = $catByName[$localCatName];
+            } elseif (Category::find($localCatId)) {
+                // el ID sí existe en esta BD (coincide)
+                $data['category_id'] = $localCatId;
+            } else {
+                $data['category_id'] = $fallbackCat;
+            }
+
             Column::firstOrCreate(
                 ['slug' => $data['slug']],
                 $data
