@@ -49,6 +49,16 @@ class Kernel extends ConsoleKernel
             ->dailyAt('10:00')
             ->withoutOverlapping(20)
             ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
+
+        // Pexels: rellenar imágenes faltantes — 3x al día, 30 min después de los fetches
+        $schedule->command('news:fetch-missing-images --limit=30')
+            ->dailyAt('07:30')
+            ->withoutOverlapping(15)
+            ->appendOutputTo(storage_path('logs/fetch-missing-images.log'));
+        $schedule->command('news:fetch-missing-images --limit=30')
+            ->dailyAt('17:30')
+            ->withoutOverlapping(15)
+            ->appendOutputTo(storage_path('logs/fetch-missing-images.log'));
    
    
             $schedule->command('newsletter:send --news=5 --include-research --include-columns')
