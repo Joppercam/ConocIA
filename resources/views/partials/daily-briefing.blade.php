@@ -334,35 +334,45 @@
     }
 
     function buildChunks(text) {
-        // Split on sentence boundaries, keeping the delimiter
+        // Oraciones cortas (máx 120 chars) para evitar bug de Chrome con utterances largas
         var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
         var chunks = [];
-        var current = '';
         sentences.forEach(function(s) {
-            if ((current + s).length > 200) {
-                if (current) chunks.push(current.trim());
-                current = s;
+            s = s.trim();
+            if (!s) return;
+            // Si la oración supera 120 chars, cortarla en comas
+            if (s.length > 120) {
+                var parts = s.split(/,\s*/);
+                var current = '';
+                parts.forEach(function(p) {
+                    if ((current + p).length > 120) {
+                        if (current) chunks.push(current.trim());
+                        current = p;
+                    } else {
+                        current += (current ? ', ' : '') + p;
+                    }
+                });
+                if (current.trim()) chunks.push(current.trim());
             } else {
-                current += s;
+                chunks.push(s);
             }
         });
-        if (current.trim()) chunks.push(current.trim());
-        return chunks;
+        return chunks.filter(function(c) { return c.length > 0; });
     }
 
     function resolveVoice() {
         var voices = window.speechSynthesis.getVoices();
-        // Prefer es-AR, es-MX, es-ES in that order; fall back to any es-* voice
-        spanishVoice = voices.find(function(v) { return v.lang === 'es-AR'; })
-            || voices.find(function(v) { return v.lang === 'es-MX'; })
+        spanishVoice = voices.find(function(v) { return v.lang === 'es-MX'; })
+            || voices.find(function(v) { return v.lang === 'es-AR'; })
             || voices.find(function(v) { return v.lang === 'es-ES'; })
             || voices.find(function(v) { return v.lang.startsWith('es'); })
             || null;
     }
-    // Chrome loads voices asynchronously — pre-resolve when they become available
     if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
         window.speechSynthesis.onvoiceschanged = resolveVoice;
     }
+
+    var chunkTimeout = null;
 
     function speakChunk(index) {
         if (index >= scriptChunks.length || !isPlaying) {
@@ -370,17 +380,29 @@
             return;
         }
         currentChunkIndex = index;
-        var u = new SpeechSynthesisUtterance(scriptChunks[index]);
-        u.lang  = 'es-AR';
+
+        // Safety timeout: si Chrome se congela, avanzar al siguiente chunk
+        clearTimeout(chunkTimeout);
+        var chunkText = scriptChunks[index];
+        var estMs = Math.max(3000, (chunkText.length / 15) * 1000); // ~15 chars/seg
+        chunkTimeout = setTimeout(function() {
+            if (isPlaying) speakChunk(index + 1);
+        }, estMs + 2000);
+
+        var u = new SpeechSynthesisUtterance(chunkText);
+        u.lang  = 'es-MX';
         u.rate  = 0.95;
         u.pitch = 1.0;
         if (spanishVoice) u.voice = spanishVoice;
 
         u.onend = function() {
+            clearTimeout(chunkTimeout);
             if (isPlaying) speakChunk(index + 1);
         };
-        u.onerror = function() {
-            stopPlayback();
+        u.onerror = function(e) {
+            // En Chrome 'interrupted' es normal al cancelar — ignorar y continuar
+            clearTimeout(chunkTimeout);
+            if (isPlaying && e.error !== 'interrupted') speakChunk(index + 1);
         };
         utterance = u;
         window.speechSynthesis.speak(u);
@@ -403,7 +425,8 @@
     }
 
     function pausePlayback() {
-        window.speechSynthesis.cancel(); // pause() is broken in Chrome; cancel + track index
+        clearTimeout(chunkTimeout);
+        window.speechSynthesis.cancel();
         isPlaying = false;
         playIcon.className = 'fas fa-play';
         playBtn.classList.remove('playing');
