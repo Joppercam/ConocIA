@@ -255,9 +255,25 @@ PROMPT;
             $rawJson = implode('', array_column($parts, 'text'));
             $found   = $this->extractJson($rawJson);
 
+            // Normalizar: Gemini a veces devuelve array directo o clave distinta
+            if (is_array($found)) {
+                if (isset($found[0])) {
+                    // Array directo [{...}, {...}]
+                    $found = ['articles' => $found];
+                } elseif (empty($found['articles'])) {
+                    // Buscar en claves alternativas
+                    foreach (['news', 'results', 'items', 'noticias'] as $key) {
+                        if (!empty($found[$key]) && is_array($found[$key])) {
+                            $found['articles'] = $found[$key];
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (empty($found['articles'])) {
                 $this->error("Gemini no devolvió artículos en paso 1.");
-                Log::error('FetchNewsWithGemini paso1 JSON error', ['raw' => substr($rawJson, 0, 600)]);
+                Log::error('FetchNewsWithGemini paso1 JSON error', ['raw' => substr($rawJson, 0, 800)]);
                 return [];
             }
 
