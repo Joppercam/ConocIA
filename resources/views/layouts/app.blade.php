@@ -689,13 +689,6 @@
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" 
-                               href="{{ route('home') }}" 
-                               aria-current="{{ request()->routeIs('home') ? 'page' : 'false' }}">
-                               <i class="fas fa-home me-1 d-lg-none"></i>Inicio
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('news.*') ? 'active' : '' }}" 
                                href="{{ route('news.index') }}"
                                aria-current="{{ request()->routeIs('news.*') ? 'page' : 'false' }}">
@@ -798,6 +791,39 @@
                             </button>
                         </form>
                         <div id="search-dropdown" class="search-dropdown shadow-lg" style="display:none;"></div>
+                    </div>
+
+                    {{-- Auth --}}
+                    <div class="d-flex align-items-center ms-2 gap-2">
+                        @auth
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light rounded-pill dropdown-toggle d-flex align-items-center gap-1 px-3"
+                                    style="font-size:.78rem;"
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i>
+                                <span class="d-none d-lg-inline">{{ Str::limit(auth()->user()->name, 14) }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2"></i>Mi perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        @else
+                        <a href="{{ route('login') }}" class="btn btn-sm btn-outline-light rounded-pill px-3" style="font-size:.78rem;">
+                            <i class="fas fa-sign-in-alt me-1"></i>Entrar
+                        </a>
+                        <a href="{{ route('register') }}" class="btn btn-sm btn-primary rounded-pill px-3" style="font-size:.78rem;">
+                            <i class="fas fa-user-plus me-1"></i>Registrarse
+                        </a>
+                        @endauth
                     </div>
 
                 </div>
