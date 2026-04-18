@@ -307,7 +307,8 @@ class NewsController extends Controller
     {
         $viewKey = 'news_viewed_' . $article->id;
 
-        if (session()->has($viewKey)) {
+        // Chequear tanto session como cookie — la cookie persiste entre sesiones
+        if (session()->has($viewKey) || Cookie::has($viewKey)) {
             return;
         }
 
@@ -339,9 +340,6 @@ class NewsController extends Controller
         });
 
         session()->put($viewKey, true);
-
-        if (!Cookie::has('news_viewed_' . $article->id)) {
-            Cookie::queue('news_viewed_' . $article->id, true, 1440);
-        }
+        Cookie::queue($viewKey, true, 1440);
     }
 }

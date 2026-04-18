@@ -754,6 +754,7 @@
                                         <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Editorial largo sobre un tema IA</div>
                                     </a>
                                 </li>
+                                @if(Cache::remember('papers_published_count', 3600, fn() => \App\Models\ConocIaPaper::published()->count()) > 0)
                                 <li>
                                     <a class="dropdown-item py-2" href="{{ route('papers.index') }}">
                                         <i class="fas fa-file-alt me-2" style="color:var(--primary-color);"></i>
@@ -761,6 +762,7 @@
                                         <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Papers de arXiv explicados en español</div>
                                     </a>
                                 </li>
+                                @endif
                                 <li>
                                     <a class="dropdown-item py-2" href="{{ route('estado-arte.index') }}">
                                         <i class="fas fa-chart-line me-2" style="color:var(--primary-color);"></i>

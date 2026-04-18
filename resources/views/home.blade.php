@@ -13,7 +13,7 @@
             </div>
             <div class="ticker-track overflow-hidden flex-grow-1 px-2">
                 <div class="ticker-inner d-flex gap-4 align-items-center">
-                    @foreach(($recentNews ?? collect())->take(6)->concat(($recentNews ?? collect())->take(6)) as $t)
+                    @foreach(($recentNews ?? collect())->take(12) as $t)
                     <a href="{{ route('news.show', $t->slug) }}"
                        class="text-decoration-none text-nowrap"
                        style="color:#ccc; font-size:.8rem;">

@@ -409,8 +409,10 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                     @php
                         $relImg = null;
                         $relName = $rel->image ?? '';
-                        if ($relName && !str_contains($relName, 'default') && !str_contains($relName, 'placeholder')) {
-                            if (Str::startsWith($relName, 'storage/') || Str::startsWith($relName, '/storage/')) {
+                        if ($relName && !str_contains($relName, 'default') && !str_contains($relName, 'placeholder') && !str_contains($relName, 'via.placeholder')) {
+                            if (Str::startsWith($relName, ['http://', 'https://'])) {
+                                $relImg = $relName; // URL externa (R2/CDN)
+                            } elseif (Str::startsWith($relName, 'storage/') || Str::startsWith($relName, '/storage/')) {
                                 $relPath = ltrim(str_replace('storage/', '', $relName), '/');
                                 if (Storage::disk('public')->exists($relPath)) {
                                     $relImg = asset('storage/' . $relPath);

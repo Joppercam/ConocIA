@@ -102,12 +102,12 @@ class FetchNewsFromRss extends Command
      * Mapa de keywords → categoría slug para auto-categorización.
      */
     protected array $categoryMap = [
+        'anthropic|claude\b'                                       => 'anthropic',  // primero: evita falsos positivos con otros patrones
         'openai|chatgpt|gpt-|sora|dall-e'                         => 'openai',
         'deepmind|gemini|google ai|google bard|notebooklm'        => 'google-ai',
         'microsoft|copilot|azure ai|phi-'                         => 'microsoft-ai',
         'meta ai|llama|meta\b'                                     => 'meta-ai',
         'amazon|bedrock|aws ai|sagemaker'                         => 'amazon-ai',
-        'anthropic|claude\b'                                       => 'anthropic',
         'startup|funding|inversión|serie a|ronda'                  => 'startups-de-ia',
         'generative|generativa|text-to-|imagen|diffusion|sora'    => 'ia-generativa',
         'robot|robótica|humanoid'                                  => 'robotica',
@@ -203,10 +203,14 @@ class FetchNewsFromRss extends Command
                 ], $category->name);
 
                 if (!$enhanced) {
+                    if (($feed['language'] ?? 'es') === 'en') {
+                        $this->warn("  Sin IA disponible, omitiendo artículo en inglés: {$title}");
+                        continue;
+                    }
                     $enhanced = [
                         'title'   => $title,
                         'content' => "<p>{$desc}</p>",
-                        'excerpt' => Str::limit($desc, 200),
+                        'excerpt' => Str::limit($desc, 220),
                     ];
                 }
 
@@ -489,8 +493,10 @@ PROMPT;
         return $slug;
     }
 
-    protected function defaultImage(string $categorySlug): string
+    protected function defaultImage(string $categorySlug): ?string
     {
+        return null;
+
         $colors = [
             'inteligencia-artificial' => '4285F4', 'machine-learning' => '0F9D58',
             'deep-learning' => 'DB4437', 'nlp' => '673AB7', 'openai' => '412991',
