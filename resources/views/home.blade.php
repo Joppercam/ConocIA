@@ -315,11 +315,14 @@
                                 <span class="badge bg-light text-secondary border" style="font-size:.6rem;">Nuevo</span>
                                 @endif
                             </div>
-                            <h6 class="fw-bold mb-1 lh-sm" style="font-size:.82rem;">
+                            <h6 class="fw-bold mb-1 lh-sm" style="font-size:.85rem;">
                                 <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
-                                    {{ Str::limit($recent->title, 72) }}
+                                    {{ Str::limit($recent->title, 90) }}
                                 </a>
                             </h6>
+                            @if(!empty($recent->excerpt))
+                            <p class="text-muted mb-1 lh-sm" style="font-size:.78rem;">{{ Str::limit($recent->excerpt, 120) }}</p>
+                            @endif
                             <div class="d-flex gap-2 text-muted" style="font-size:.7rem;">
                                 <span><i class="far fa-calendar-alt me-1"></i>{{ $recent->created_at->locale('es')->isoFormat('D MMM') }}</span>
                                 <span><i class="far fa-eye me-1"></i>{{ number_format($recent->views ?? 0) }}</span>
