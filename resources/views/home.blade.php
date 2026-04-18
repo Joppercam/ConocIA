@@ -58,16 +58,15 @@
                 <div class="row g-2">
 
                     {{-- ── Noticia principal (grande) ── --}}
-                    @if($featuredNews->count() > 0)
-                    @php $hero = $featuredNews->first(); @endphp
+                    @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://'))); @endphp
+                    @if($hero)
                     <div class="col-lg-5 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
                             <div class="editorial-card editorial-card-main position-relative rounded-3 overflow-hidden h-100">
-                                <img src="{{ $getImageUrl($hero->image, 'news', 'large') }}"
+                                <img src="{{ $hero->image }}"
                                      class="editorial-img"
                                      alt="{{ $hero->title }}"
-                                     loading="eager"
-                                     onerror="this.src='{{ asset('images/defaults/news-default-large.jpg') }}';">
+                                     loading="eager">
                                 <div class="editorial-gradient"></div>
                                 @if(in_array($hero->id, $trendingIds ?? []))
                                 <span class="badge-trending" style="top:12px;left:12px;"><i class="fas fa-fire me-1"></i>Trending</span>
@@ -93,17 +92,18 @@
                     @endif
 
                     {{-- ── Grid 2x2 de secundarias ── --}}
+                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== $hero->id && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://'))); @endphp
+                    @if($secNews->count() > 0)
                     <div class="col-lg-4 col-md-5">
                         <div class="row g-2 h-100">
-                            @foreach($featuredNews->skip(1)->take(4) as $sec)
+                            @foreach($secNews->take(4) as $sec)
                             <div class="col-6">
                                 <a href="{{ route('news.show', $sec->slug ?? $sec->id) }}" class="text-decoration-none d-block h-100">
                                     <div class="editorial-card position-relative rounded-3 overflow-hidden h-100" style="min-height:175px;">
-                                        <img src="{{ $getImageUrl($sec->image, 'news', 'medium') }}"
+                                        <img src="{{ $sec->image }}"
                                              class="editorial-img"
                                              alt="{{ $sec->title }}"
-                                             loading="lazy"
-                                             onerror="this.src='{{ asset('images/defaults/news-default-medium.jpg') }}';">
+                                             loading="lazy">
                                         <div class="editorial-gradient"></div>
                                         @if(in_array($sec->id, $trendingIds ?? []))
                                         <span class="badge-trending" style="top:6px;left:6px;padding:1px 5px;font-size:.6rem;">
@@ -129,6 +129,7 @@
                             @endforeach
                         </div>
                     </div>
+                    @endif
 
                     {{-- ── Sidebar columnas ── --}}
                     <div class="col-lg-3">
