@@ -313,8 +313,8 @@ class HomeController extends Controller
         return Cache::remember($cacheKey, 1800, function () use ($news, $minCount) {
             $valid = $news->filter(function ($item) {
                 if (empty($item->image)) return false;
-                // URL externa (Pexels, CDN): válida directamente
-                if (Str::startsWith($item->image, ['http://', 'https://'])) return true;
+                // URL externa (Pexels, CDN): válida directamente, pero no URLs de storage local
+                if (Str::startsWith($item->image, ['http://', 'https://']) && !Str::contains($item->image, '/storage/')) return true;
                 // Imagen local: verificar existencia
                 if (Str::startsWith($item->image, 'storage/')) {
                     return Storage::disk('public')->exists(str_replace('storage/', '', $item->image));

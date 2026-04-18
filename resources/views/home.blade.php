@@ -58,7 +58,7 @@
                 <div class="row g-2">
 
                     {{-- ── Noticia principal (grande) ── --}}
-                    @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://'))); @endphp
+                    @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($hero)
                     <div class="col-lg-5 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
@@ -92,7 +92,7 @@
                     @endif
 
                     {{-- ── Grid 2x2 de secundarias ── --}}
-                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== $hero->id && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://'))); @endphp
+                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($secNews->count() > 0)
                     <div class="col-lg-4 col-md-5">
                         <div class="row g-2 h-100">
@@ -293,7 +293,7 @@
                 <div class="col-md-6">
                     <div class="d-flex gap-2 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}">
                         {{-- Thumbnail --}}
-                        @if(!empty($recent->image) && (str_starts_with($recent->image, 'http://') || str_starts_with($recent->image, 'https://')))
+                        @if(!empty($recent->image) && (str_starts_with($recent->image, 'http://') || str_starts_with($recent->image, 'https://')) && !str_contains($recent->image, '/storage/'))
                         <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}"
                            class="flex-shrink-0 rounded overflow-hidden"
                            style="width:80px;height:60px;min-width:80px;display:flex;align-items:center;justify-content:center;background:#eef1f5;">
