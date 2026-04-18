@@ -428,6 +428,10 @@ EXPAND;
         if (preg_match('/^```(?:html)?\s*\n?([\s\S]*?)\n?```\s*$/i', $text, $m)) {
             $text = trim($m[1]);
         }
+        // Eliminar <style>...</style> — evita que Gemini reescriba el CSS global de la página
+        $text = preg_replace('/<style\b[^>]*>[\s\S]*?<\/style>/i', '', $text);
+        // Eliminar <link ...> — evita hojas de estilo externas inyectadas por Gemini
+        $text = preg_replace('/<link\b[^>]*>/i', '', $text);
         // Convertir <h1> a <h2> — el template ya muestra el título real en h1
         $text = preg_replace('/<h1(\s[^>]*)?>/i', '<h2$1>', $text);
         $text = preg_replace('/<\/h1>/i', '</h2>', $text);
