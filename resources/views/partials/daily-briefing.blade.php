@@ -310,39 +310,73 @@
         clearInterval(progressTimer);
     }
 
+    // Split script into sentence chunks to work around Chrome's SpeechSynthesis
+    // bug where long utterances are silently cut off after ~15 seconds.
+    var scriptChunks = [];
+    var currentChunkIndex = 0;
+    var spanishVoice = null;
+
+    function buildChunks(text) {
+        // Split on sentence boundaries, keeping the delimiter
+        var sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+        var chunks = [];
+        var current = '';
+        sentences.forEach(function(s) {
+            if ((current + s).length > 200) {
+                if (current) chunks.push(current.trim());
+                current = s;
+            } else {
+                current += s;
+            }
+        });
+        if (current.trim()) chunks.push(current.trim());
+        return chunks;
+    }
+
+    function resolveVoice() {
+        var voices = window.speechSynthesis.getVoices();
+        spanishVoice = voices.find(function(v) { return v.lang.startsWith('es'); }) || null;
+    }
+
+    function speakChunk(index) {
+        if (index >= scriptChunks.length || !isPlaying) {
+            if (index >= scriptChunks.length) stopPlayback();
+            return;
+        }
+        currentChunkIndex = index;
+        var u = new SpeechSynthesisUtterance(scriptChunks[index]);
+        u.lang  = 'es-AR';
+        u.rate  = 0.95;
+        u.pitch = 1.0;
+        if (spanishVoice) u.voice = spanishVoice;
+
+        u.onend = function() {
+            if (isPlaying) speakChunk(index + 1);
+        };
+        u.onerror = function() {
+            stopPlayback();
+        };
+        utterance = u;
+        window.speechSynthesis.speak(u);
+    }
+
     function startPlayback() {
         if (!briefingScript || !window.speechSynthesis) return;
 
-        // Cancel any ongoing speech
         window.speechSynthesis.cancel();
-
-        utterance = new SpeechSynthesisUtterance(briefingScript);
-        utterance.lang = 'es-AR';
-        utterance.rate = 0.95;
-        utterance.pitch = 1.0;
-
-        // Try to pick a Spanish voice
-        const voices = window.speechSynthesis.getVoices();
-        const spanishVoice = voices.find(v => v.lang.startsWith('es'));
-        if (spanishVoice) utterance.voice = spanishVoice;
-
-        utterance.onstart = function() {
-            isPlaying = true;
-            playIcon.className = 'fas fa-pause';
-            playBtn.classList.add('playing');
-            startProgressTimer();
-            setWaveformState('playing');
-        };
-
-        utterance.onend = utterance.onerror = function() {
-            stopPlayback();
-        };
-
-        window.speechSynthesis.speak(utterance);
+        resolveVoice();
+        scriptChunks = buildChunks(briefingScript);
+        currentChunkIndex = 0;
+        isPlaying = true;
+        playIcon.className = 'fas fa-pause';
+        playBtn.classList.add('playing');
+        startProgressTimer();
+        setWaveformState('playing');
+        speakChunk(0);
     }
 
     function pausePlayback() {
-        window.speechSynthesis.pause();
+        window.speechSynthesis.cancel(); // pause() is broken in Chrome; cancel + track index
         isPlaying = false;
         playIcon.className = 'fas fa-play';
         playBtn.classList.remove('playing');
@@ -351,18 +385,19 @@
     }
 
     function resumePlayback() {
-        window.speechSynthesis.resume();
         isPlaying = true;
         playIcon.className = 'fas fa-pause';
         playBtn.classList.add('playing');
         startProgressTimer();
         setWaveformState('playing');
+        speakChunk(currentChunkIndex); // resume from last chunk
     }
 
     function stopPlayback() {
         window.speechSynthesis.cancel();
         isPlaying = false;
         elapsedSeconds = 0;
+        currentChunkIndex = 0;
         playIcon.className = 'fas fa-play';
         playBtn.classList.remove('playing');
         stopProgressTimer();

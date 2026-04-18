@@ -86,7 +86,7 @@ class DailyBriefingService
     {
         return News::with('category')
             ->published()
-            ->where('published_at', '>=', now()->subHours(48))
+            ->where('published_at', '>=', now()->subDays(7))
             ->orderBy('views', 'desc')
             ->limit(5)
             ->get();

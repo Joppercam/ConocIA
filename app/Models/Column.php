@@ -92,7 +92,10 @@ class Column extends Model
      */
     public function scopePublished($query)
     {
-        return $query->where('published_at', '<=', now());
+        return $query->where(function ($q) {
+            $q->whereNull('published_at')
+              ->orWhere('published_at', '<=', now());
+        });
     }
     
     /**
