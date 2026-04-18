@@ -311,11 +311,12 @@ class SimpleImageDownloader
             return null;
         }
 
-        // Queries: primeras 5 palabras del título, luego categoría, luego genérico
-        $words        = preg_split('/\s+/', strip_tags($title));
-        $titleQuery   = implode(' ', array_slice($words, 0, 5));
+        // Queries: título completo → categoría (con página aleatoria para variedad)
+        $cleanTitle       = preg_replace('/[^\w\s]/u', ' ', strip_tags($title));
+        $words            = preg_split('/\s+/', trim($cleanTitle));
+        $titleQuery       = implode(' ', array_slice($words, 0, 7));
         $categoryFallback = $categoryName ?? str_replace('-', ' ', $categorySlug);
-        $queries      = array_unique(array_filter([$titleQuery, $categoryFallback, 'artificial intelligence technology']));
+        $queries          = array_unique(array_filter([$titleQuery, $categoryFallback]));
 
         foreach ($queries as $query) {
             try {
@@ -323,14 +324,17 @@ class SimpleImageDownloader
                     ->withHeaders(['Authorization' => $apiKey])
                     ->get('https://api.pexels.com/v1/search', [
                         'query'       => $query,
-                        'per_page'    => 5,
+                        'per_page'    => 15,
+                        'page'        => rand(1, 3), // página aleatoria para variedad
                         'orientation' => 'landscape',
                     ]);
 
                 if ($response->successful()) {
                     $photos = $response->json()['photos'] ?? [];
                     if (!empty($photos)) {
-                        $photo    = $photos[array_rand($photos)];
+                        // Selección aleatoria evitando siempre la primera foto
+                        shuffle($photos);
+                        $photo    = $photos[0];
                         $imageUrl = $photo['src']['large2x'] ?? $photo['src']['large'] ?? null;
                         if ($imageUrl) {
                             $downloaded = $this->download($imageUrl, $categorySlug);
