@@ -105,6 +105,12 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/estado-arte.log'));
 
+        // Importar videos de YouTube sobre IA (martes y viernes a las 10:00)
+        $schedule->command('videos:fetch-youtube --per-query=3')
+            ->twiceWeekly(2, 5)->at('10:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/youtube-fetch.log'));
+
         // Generar resúmenes IA para videos nuevos (una vez al día)
         $schedule->command('videos:generate-summaries --limit=5')
             ->dailyAt('08:00')

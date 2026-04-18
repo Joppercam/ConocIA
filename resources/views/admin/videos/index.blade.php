@@ -7,16 +7,29 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Administrar Videos</h1>
         
-        <div class="btn-group">
+        <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('admin.videos.create') }}" class="btn btn-sm btn-primary">
-                <i class="fas fa-plus-circle"></i> Agregar Video
+                <i class="fas fa-plus-circle me-1"></i> Agregar Video
             </a>
             <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#importUrlModal">
-                <i class="fas fa-link"></i> Importar desde URL
+                <i class="fas fa-link me-1"></i> Importar desde URL
             </button>
             <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#bulkImportModal">
-                <i class="fas fa-cloud-download-alt"></i> Importación Masiva
+                <i class="fas fa-cloud-download-alt me-1"></i> Importación Masiva
             </button>
+            {{-- Fetch YouTube por perfil editorial --}}
+            <form action="{{ route('admin.videos.fetch-youtube') }}" method="POST" class="d-flex gap-1 align-items-center">
+                @csrf
+                <select name="per_query" class="form-select form-select-sm" style="width:70px;">
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="5">5</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Importará hasta ~50 videos de YouTube sobre IA. ¿Continuar?')">
+                    <i class="fab fa-youtube me-1"></i>Importar IA de YouTube
+                </button>
+            </form>
         </div>
     </div>
 

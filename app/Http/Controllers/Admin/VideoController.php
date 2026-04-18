@@ -450,4 +450,18 @@ class VideoController extends Controller
         
         return null;
     }
+
+    /**
+     * Lanza el comando videos:fetch-youtube en background.
+     */
+    public function fetchYoutube(Request $request)
+    {
+        $perQuery = (int) ($request->per_query ?? 3);
+        $perQuery = max(1, min(5, $perQuery));
+
+        \Artisan::queue("videos:fetch-youtube --per-query={$perQuery}");
+
+        return redirect()->route('admin.videos.index')
+            ->with('success', "Importación de YouTube lanzada ({$perQuery} videos por búsqueda, 16 queries). Los videos aparecerán en unos minutos. Luego corre 'videos:generate-summaries' para agregar resúmenes IA.");
+    }
 }

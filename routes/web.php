@@ -448,6 +448,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
          // Rutas para gestionar videos
         Route::prefix('videos')->name('videos.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\VideoController::class, 'index'])->name('index');
+            Route::post('/fetch-youtube', [App\Http\Controllers\Admin\VideoController::class, 'fetchYoutube'])->name('fetch-youtube');
             Route::get('/create', [App\Http\Controllers\Admin\VideoController::class, 'create'])->name('create');
             Route::post('/', [App\Http\Controllers\Admin\VideoController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [App\Http\Controllers\Admin\VideoController::class, 'edit'])->name('edit');
