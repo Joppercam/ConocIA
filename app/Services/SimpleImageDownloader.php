@@ -340,15 +340,9 @@ class SimpleImageDownloader
                         shuffle($photos);
                         $photo    = $photos[0];
                         $imageUrl = $photo['src']['large2x'] ?? $photo['src']['large'] ?? null;
-                        Log::info("[Pexels] Intentando descargar: {$imageUrl}");
+                        Log::info("[Pexels] ✓ URL directa: {$imageUrl}");
                         if ($imageUrl) {
-                            $downloaded = $this->download($imageUrl, $categorySlug);
-                            if ($downloaded) {
-                                Log::info("[Pexels] ✓ Descargada: {$downloaded}");
-                                return $downloaded;
-                            } else {
-                                Log::warning("[Pexels] ✗ Falló la descarga de: {$imageUrl}");
-                            }
+                            return $imageUrl; // guardar URL de Pexels directamente (no descargar)
                         }
                     } else {
                         Log::warning("[Pexels] Sin resultados para: \"{$query}\"");
