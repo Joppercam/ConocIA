@@ -84,12 +84,25 @@ class DailyBriefingService
      */
     protected function fetchTopNews()
     {
-        return News::with('category')
+        // Intentar primero noticias recientes (últimos 7 días)
+        $news = News::with('category')
             ->published()
             ->where('published_at', '>=', now()->subDays(7))
-            ->orderBy('views', 'desc')
+            ->orderByDesc('views')
+            ->orderByDesc('published_at')
             ->limit(5)
             ->get();
+
+        // Fallback: cualquier noticia publicada reciente
+        if ($news->isEmpty()) {
+            $news = News::with('category')
+                ->published()
+                ->orderByDesc('published_at')
+                ->limit(5)
+                ->get();
+        }
+
+        return $news;
     }
 
     /**
@@ -148,7 +161,7 @@ PROMPT;
                     ],
                     'generationConfig' => [
                         'temperature'     => 0.75,
-                        'maxOutputTokens' => 800,
+                        'maxOutputTokens' => 2048,
                     ],
                 ]
             );
