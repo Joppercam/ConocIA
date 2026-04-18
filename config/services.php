@@ -39,6 +39,10 @@ return [
         'key' => env('NEWSAPI_KEY'),
     ],
 
+    'pexels' => [
+        'api_key' => env('PEXELS_API_KEY'),
+    ],
+
     'guardian' => [
         'api_key' => env('GUARDIAN_API_KEY'),
     ],

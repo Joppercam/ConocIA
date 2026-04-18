@@ -189,9 +189,10 @@ class FetchNewsWithGemini extends Command
             $this->info("  ✓ Guardada: {$article['title']}");
             $saved++;
 
-            // Si Gemini devolvió imagen URL, descargarla
-            if (!empty($article['image_url'])) {
-                $imagesToUpdate[$article['image_url']] = $news->id;
+            // Buscar imagen en Pexels usando el título como query
+            $imageUrl = $this->fetchPexelsImage($article['title'], $slug);
+            if ($imageUrl) {
+                $imagesToUpdate[$imageUrl] = $news->id;
             }
         }
 
@@ -368,6 +369,48 @@ EXPAND;
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                     return $decoded;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Busca una imagen relevante en Pexels para el título dado.
+     * Usa el título como query, con fallback a la categoría.
+     */
+    private function fetchPexelsImage(string $title, string $categorySlug): ?string
+    {
+        $apiKey = config('services.pexels.api_key');
+        if (empty($apiKey)) {
+            return null;
+        }
+
+        // Extraer palabras clave del título (primeras 4 palabras significativas)
+        $words    = preg_split('/\s+/', $title);
+        $query    = implode(' ', array_slice($words, 0, 4));
+        $fallback = $this->categories[$categorySlug] ?? 'technology artificial intelligence';
+
+        foreach ([$query, $fallback] as $searchQuery) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(10)
+                    ->withHeaders(['Authorization' => $apiKey])
+                    ->get('https://api.pexels.com/v1/search', [
+                        'query'       => $searchQuery,
+                        'per_page'    => 5,
+                        'orientation' => 'landscape',
+                    ]);
+
+                if ($response->successful()) {
+                    $photos = $response->json()['photos'] ?? [];
+                    if (!empty($photos)) {
+                        // Toma una foto aleatoria de los primeros 5 resultados
+                        $photo = $photos[array_rand($photos)];
+                        return $photo['src']['large2x'] ?? $photo['src']['large'] ?? null;
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('Pexels API error: ' . $e->getMessage());
             }
         }
 
