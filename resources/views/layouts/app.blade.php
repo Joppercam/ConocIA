@@ -939,7 +939,6 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/cookie-manager.js') }}" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -1086,7 +1085,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     @stack('scripts')
-    @include('components.cookie-consent')
 
     <!-- PWA — Service Worker -->
     <script>
