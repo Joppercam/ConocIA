@@ -297,7 +297,7 @@ EXPAND;
                     $htmlContent = $r2->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
                     if (!empty($htmlContent)) {
-                        $stub['content'] = $htmlContent;
+                        $stub['content'] = $this->stripMarkdownFences($htmlContent);
                     } else {
                         // Fallback: usar el resumen como contenido
                         $stub['content'] = '<p>' . implode('</p><p>', array_map('trim', explode("\n", $stub['summary']))) . '</p>';
@@ -415,6 +415,20 @@ EXPAND;
         }
 
         return null;
+    }
+
+    /**
+     * Elimina markdown code fences (```html ... ``` o ``` ... ```) del contenido
+     * que Gemini a veces añade alrededor del HTML generado.
+     */
+    private function stripMarkdownFences(string $text): string
+    {
+        $text = trim($text);
+        // Eliminar ```html o ``` al inicio
+        if (preg_match('/^```(?:html)?\s*\n?([\s\S]*?)\n?```\s*$/i', $text, $m)) {
+            return trim($m[1]);
+        }
+        return $text;
     }
 
     private function downloadImages(array $imagesToUpdate, string $categorySlug): void
