@@ -292,13 +292,15 @@
                 <div class="col-md-6">
                     <div class="d-flex gap-2 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}">
                         {{-- Thumbnail --}}
-                        <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="flex-shrink-0">
+                        <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}"
+                           class="flex-shrink-0 rounded overflow-hidden"
+                           style="width:80px;height:60px;min-width:80px;display:flex;align-items:center;justify-content:center;background:#eef1f5;">
                             <img src="{{ $getImageUrl($recent->image ?? null, 'news', 'small') }}"
                                  alt="{{ $recent->title }}"
-                                 class="rounded"
-                                 style="width:80px;height:60px;object-fit:cover;"
+                                 class="w-100 h-100"
+                                 style="object-fit:cover;"
                                  loading="lazy"
-                                 onerror="this.style.display='none'">
+                                 onerror="this.src='{{ asset('images/defaults/news-default-small.jpg') }}'">
                         </a>
                         <div class="overflow-hidden">
                             <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">

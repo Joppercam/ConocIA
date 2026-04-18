@@ -175,7 +175,7 @@
                                  class="rounded flex-shrink-0"
                                  style="width:52px;height:44px;object-fit:cover;"
                                  loading="lazy"
-                                 onerror="this.style.display='none'">
+                                 onerror="this.src='{{ asset('images/defaults/research-default-small.jpg') }}'">
                             @else
                             <div class="rounded flex-shrink-0 d-flex align-items-center justify-content-center"
                                  style="width:52px;height:44px;background:{{ $fColor }}18;">

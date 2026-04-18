@@ -302,11 +302,90 @@ HTML,
 
         ];
 
+        // Nuevas columnas añadidas en abril 2026
+        $columns = array_merge($columns, [
+            [
+                'title'        => 'El mito de la neutralidad algorítmica',
+                'excerpt'      => 'Creer que los algoritmos son objetivos es quizás el error más costoso de nuestra era digital. Los sesgos no son bugs: son el reflejo de las decisiones humanas que los construyeron.',
+                'author_id'    => 14,
+                'category_id'  => 20,
+                'featured'     => true,
+                'views'        => 312,
+                'published_at' => now()->subDays(3),
+                'content'      => '<p>Hay una frase que se repite en los pasillos de Silicon Valley con la convicción de un dogma: "el algoritmo no miente". Se dice en reuniones de producto, en presentaciones ante inversores, en artículos de divulgación. Y es, probablemente, una de las mentiras más exitosas de nuestra era.</p><p>Los algoritmos no son entidades flotantes que emergen del éter con verdades objetivas. Son sistemas diseñados por personas, entrenados con datos generados por personas, optimizados para métricas elegidas por personas. Cada decisión en ese proceso —qué datos incluir, qué optimizar, qué considerar "error"— está cargada de valores, prioridades y, con demasiada frecuencia, sesgos no examinados.</p><h2>El problema no es técnico</h2><p>Cuando en 2018 Amazon descartó su sistema de reclutamiento automatizado porque penalizaba sistemáticamente a mujeres, la narrativa dominante fue la de un fallo técnico. Se habló de datos de entrenamiento sesgados, de modelos que aprendieron correlaciones incorrectas. Todo eso es cierto. Pero el error más profundo fue anterior: creer que era posible automatizar la selección de talento sin que los prejuicios históricos del sector tecnológico contaminaran el proceso.</p><h2>La responsabilidad que no podemos delegar</h2><p>La pregunta que debemos hacernos no es si los algoritmos pueden ser neutrales —no pueden— sino quién se responsabiliza de los daños que causan cuando no lo son. Necesitamos marcos regulatorios que traten los sistemas de IA de alto impacto con la misma seriedad con que tratamos los medicamentos o los vehículos. Y necesitamos, sobre todo, dejar de fingir que la neutralidad es posible.</p>',
+            ],
+            [
+                'title'        => 'Claude, GPT y la ilusión de la conversación',
+                'excerpt'      => 'Los modelos de lenguaje no piensan, no sienten, no comprenden. Y sin embargo, conversamos con ellos como si lo hicieran. ¿Qué nos dice eso de nosotros?',
+                'author_id'    => 16,
+                'category_id'  => 1,
+                'featured'     => true,
+                'views'        => 278,
+                'published_at' => now()->subDays(5),
+                'content'      => '<p>La primera vez que alguien le preguntó a ChatGPT si se sentía solo, el modelo respondió con algo parecido a la introspección. No afirmó ni negó. Navegó la ambigüedad con una destreza que dejó a muchos interlocutores desconcertados. Y en ese desconcierto hay algo importante que examinar.</p><p>Los grandes modelos de lenguaje —GPT-4, Claude, Gemini— son, en términos técnicos, máquinas de predicción de texto. Aprenden distribuciones estadísticas sobre enormes corpus de lenguaje humano y generan tokens que son, en términos probabilísticos, continuaciones plausibles de una entrada dada. No hay comprensión. No hay experiencia subjetiva. No hay nadie en casa.</p><h2>El problema del espejo</h2><p>Y sin embargo, hablamos con ellos como si la hubiera. No es irracionalidad: es una respuesta cognitiva profundamente arraigada. El cerebro humano está calibrado para detectar agencia, intención y emoción en todo lo que parece comportarse como si las tuviera.</p><h2>Una postura necesariamente incómoda</h2><p>Los modelos de lenguaje son herramientas extraordinariamente útiles. Pueden democratizar el acceso al conocimiento, ayudar a personas con barreras de idioma, asistir en tareas cognitivas complejas. Pero sostener simultáneamente que son útiles y que no son lo que parecen ser exige una honestidad intelectual que el mercado no incentiva.</p>',
+            ],
+            [
+                'title'        => 'Open source vs. IA cerrada: la batalla que definirá la próxima década',
+                'excerpt'      => 'Llama, Mistral, DeepSeek. El modelo abierto está ganando terreno. Pero "abierto" en IA no siempre significa lo que creemos.',
+                'author_id'    => 15,
+                'category_id'  => 14,
+                'featured'     => true,
+                'views'        => 445,
+                'published_at' => now()->subDays(8),
+                'content'      => '<p>En enero de 2025, DeepSeek publicó R1, un modelo de razonamiento que igualaba a GPT-4o en múltiples benchmarks, desarrollado con una fracción del presupuesto de los laboratorios occidentales y publicado con pesos abiertos. La reacción en los mercados fue inmediata: las acciones de Nvidia cayeron un 17% en un día.</p><h2>¿Qué significa "abierto" en IA?</h2><p>El término "open source" tiene una definición técnica precisa en software. En IA, la situación es más ambigua. Los modelos de "código abierto" publican los pesos —los parámetros del modelo— pero no necesariamente los datos de entrenamiento, el código de entrenamiento completo ni los procesos de alineación.</p><h2>Una tensión sin resolución fácil</h2><p>No hay una respuesta correcta aquí. Hay una tensión real entre los beneficios de la apertura —democratización, investigación, diversidad— y los riesgos de la proliferación sin control. Lo que sí es claro: las decisiones sobre cuánto abrir y cuánto controlar no deberían ser tomadas exclusivamente por los laboratorios que tienen interés económico en el resultado.</p>',
+            ],
+            [
+                'title'        => 'La trampa del trabajo aumentado',
+                'excerpt'      => 'Nos prometieron que la IA nos liberaría del trabajo repetitivo para dedicarnos a lo creativo. Pero la línea entre asistencia y sustitución es más delgada de lo que nos contaron.',
+                'author_id'    => 18,
+                'category_id'  => 22,
+                'featured'     => false,
+                'views'        => 198,
+                'published_at' => now()->subDays(7),
+                'content'      => '<p>Hay una narrativa que domina la conversación sobre IA y trabajo, tan repetida que casi se ha vuelto invisible: la automatización destruirá algunos empleos, pero creará otros nuevos. Lo hemos visto con la Revolución Industrial, con la informatización. Esta vez no será diferente. Adáptate o muere.</p><h2>El argumento de la complementariedad</h2><p>La posición estándar de los economistas optimistas es que la IA complementará el trabajo humano en lugar de sustituirlo. Pero hay algo que ese argumento no dice: cuando un abogado atiende el doble de casos con el mismo tiempo, el bufete necesita la mitad de abogados. La productividad individual puede aumentar mientras la demanda de trabajo disminuye. Son cosas compatibles.</p><h2>Lo que no está en el menú</h2><p>La conversación que no estamos teniendo es sobre redistribución. Si la IA va a generar enormes incrementos de productividad —y todo indica que lo hará— la pregunta política central es cómo se distribuyen esos beneficios.</p>',
+            ],
+            [
+                'title'        => 'Regulación de IA: Europa apostó, el mundo espera',
+                'excerpt'      => 'El AI Act europeo ya es ley. Ahora viene la parte difícil: implementarlo en un ecosistema global que no pidió permiso para moverse más rápido que la burocracia.',
+                'author_id'    => 14,
+                'category_id'  => 21,
+                'featured'     => false,
+                'views'        => 221,
+                'published_at' => now()->subDays(10),
+                'content'      => '<p>El 13 de marzo de 2024, el Parlamento Europeo aprobó el Reglamento de Inteligencia Artificial, el primero en su tipo en el mundo. Tres años de negociaciones, centenares de enmiendas, una pandemia y una revolución de los LLMs en medio del proceso. El resultado es un texto de 458 artículos que intenta hacer algo extraordinariamente difícil: regular una tecnología que evoluciona más rápido que los ciclos legislativos.</p><h2>El problema de la velocidad</h2><p>La crítica más legítima al AI Act no es ideológica sino temporal. Los modelos de lenguaje de propósito general —la tecnología más disruptiva del momento— apenas existían en su forma actual cuando empezaron las negociaciones.</p><h2>¿Quien seguirá a Europa?</h2><p>La pregunta estratégica es si el AI Act se convertirá en estándar global por el efecto Bruselas o si fragmentará el mercado global de IA. Lo que está claro es que la era de la IA sin regulación ha terminado, al menos en Europa.</p>',
+            ],
+            [
+                'title'        => 'Agentes de IA: el cambio de paradigma que nadie está mirando',
+                'excerpt'      => 'Los chatbots fueron solo el calentamiento. La siguiente ola de IA no responderá preguntas: actuará en el mundo por cuenta propia.',
+                'author_id'    => 15,
+                'category_id'  => 1,
+                'featured'     => false,
+                'views'        => 334,
+                'published_at' => now()->subDays(12),
+                'content'      => '<p>Cuando alguien le pregunta a Claude o a ChatGPT cómo organizar su bandeja de entrada, obtiene una respuesta. Cuando le pide a un agente de IA que organice su bandeja de entrada, el agente lee los correos, los categoriza, redacta respuestas a los urgentes, archiva los procesables y elimina el spam. No explica cómo hacerlo. Lo hace.</p><h2>El problema del control</h2><p>La diferencia entre un chatbot y un agente, desde la perspectiva del riesgo, es fundamental. Un chatbot dice. Un agente hace. Los errores de un chatbot son textuales y reversibles. Los errores de un agente que tiene acceso a tu correo, tu calendario, tus cuentas bancarias y tu sistema de archivos pueden tener consecuencias reales, inmediatas e irreversibles.</p><h2>La pregunta que no estamos haciendo</h2><p>El debate público sobre agentes de IA está dominado por la promesa de productividad. Pero hay una pregunta que casi no aparece: ¿qué perdemos cuando dejamos de hacer las cosas nosotros mismos?</p>',
+            ],
+            [
+                'title'        => 'La IA que diagnostica y el médico que decide',
+                'excerpt'      => 'Los modelos de visión por computadora superan a los radiólogos en la detección de ciertos cánceres. Pero eso no significa que los médicos sobren.',
+                'author_id'    => 16,
+                'category_id'  => 17,
+                'featured'     => false,
+                'views'        => 287,
+                'published_at' => now()->subDays(15),
+                'content'      => '<p>En 2017, un estudio publicado en Nature demostró que un sistema de deep learning podía diagnosticar melanoma con una precisión equivalente a la de dermatólogos certificados. Era una demostración impresionante. También fue el inicio de una narrativa simplificada —"la IA reemplazará a los médicos"— que desde entonces ha oscurecido más de lo que ha iluminado.</p><h2>Lo que la IA hace bien</h2><p>Los sistemas de IA para diagnóstico médico han demostrado capacidades genuinamente impresionantes en tareas específicas. En contextos de escasez de especialistas —que es la situación de la mayor parte del mundo— los sistemas de IA pueden funcionar como un primer filtro.</p><h2>El médico que la IA necesita</h2><p>El escenario más probable no es el reemplazo sino la redefinición del rol médico. Los médicos que trabajen con IA como herramienta diagnóstica deberán entender suficientemente los sistemas para evaluar sus outputs con criterio, identificar sus límites y no delegar la responsabilidad clínica final.</p>',
+            ],
+        ]);
+
+        $created = 0;
         foreach ($columns as $data) {
             $data['slug'] = Str::slug($data['title']);
-            Column::create($data);
+            Column::firstOrCreate(
+                ['slug' => $data['slug']],
+                $data
+            );
+            $created++;
         }
 
-        $this->command->info('✓ 8 columnas de opinión creadas correctamente.');
+        $this->command->info("✓ {$created} columnas procesadas (creadas si no existían).");
     }
 }
