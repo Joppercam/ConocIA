@@ -19,9 +19,9 @@ abstract class AbstractVideoService implements VideoServiceInterface
     {
         if (Schema::hasTable('video_platforms')) {
             $this->platform = VideoPlatform::where('code', $code)->first();
-            $this->apiKey   = $this->platform?->api_key ?: config($configKey, '');
+            $this->apiKey   = $this->platform?->api_key ?? config($configKey) ?? '';
         } else {
-            $this->apiKey = config($configKey, '');
+            $this->apiKey = config($configKey) ?? '';
         }
     }
 
