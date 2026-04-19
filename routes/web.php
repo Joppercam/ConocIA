@@ -288,7 +288,7 @@ Route::get('/cookies', [App\Http\Controllers\PagesController::class, 'cookies'])
 
 
 // Rutas para el módulo TikTok en el panel de administración
-Route::prefix('admin/tiktok')->name('admin.tiktok.')->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+Route::prefix('cp-conocia/tiktok')->name('admin.tiktok.')->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
     
     // Dashboard principal
     Route::get('/', [TikTokController::class, 'index'])->name('index');
@@ -334,7 +334,7 @@ Route::prefix('admin/tiktok')->name('admin.tiktok.')->middleware(['auth', \App\H
 
 
 // Rutas de administración
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('cp-conocia')->name('admin.')->group(function () {
     // Rutas para usuarios no autenticados
     Route::middleware('guest')->group(function () {
         Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
