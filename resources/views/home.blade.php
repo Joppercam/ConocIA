@@ -60,7 +60,7 @@
                     {{-- ── Noticia principal (grande) ── --}}
                     @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($hero)
-                    <div class="col-lg-7 col-md-7">
+                    <div class="col-lg-5 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
                             <div class="editorial-card editorial-card-main position-relative rounded-3 overflow-hidden h-100">
                                 <img src="{{ $hero->image }}"
@@ -94,7 +94,7 @@
                     {{-- ── Grid 2x2 de secundarias ── --}}
                     @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($secNews->count() > 0)
-                    <div class="col-lg-5 col-md-5">
+                    <div class="col-lg-4 col-md-5">
                         <div class="row g-2 h-100">
                             @foreach($secNews->take(4) as $sec)
                             <div class="col-6">
@@ -131,8 +131,8 @@
                     </div>
                     @endif
 
-                    {{-- ── Sidebar columnas (eliminado — redundante con sección de columnas debajo) ── --}}
-                    <div class="col-lg-3 d-none">
+                    {{-- ── Sidebar columnas ── --}}
+                    <div class="col-lg-3">
 
 
 
@@ -637,103 +637,6 @@
                 @endforeach
             </div>
             
-            <!-- Separador -->
-            <hr class="my-4">
-            
-            <!-- Últimas columnas (listado) -->
-            <div class="mb-4">
-                <div class="d-flex align-items-center">
-                    <div class="bg-secondary me-2" style="width: 4px; height: 20px;"></div>
-                    <h4 class="fs-5 mb-0">Últimas Columnas</h4>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card border-0 shadow-sm rounded-3">
-                        
-                    
-                        
-
-                    <div class="list-group list-group-flush rounded-3">
-                        @if($latestColumnsSection->count() > 0)
-                            @foreach($latestColumnsSection->take(5) as $column)
-                            <div class="list-group-item border-0 border-bottom py-3 px-4 hover-bg-light transition-300">
-                                <div class="row g-0">
-                                    <!-- Avatar e info del autor -->
-                                    <div class="col-auto me-3">
-                                        @php
-                                            $authorName = is_object($column->author) 
-                                                ? $column->author->name 
-                                                : ($column->author ?? 'Columnista');
-                                            
-                                            $avatarPath = App\ImageHelper::getImageUrl(
-                                                is_object($column->author) && isset($column->author->avatar) 
-                                                    ? $column->author->avatar 
-                                                    : null,
-                                                'avatars',
-                                                'small'
-                                            );
-                                        @endphp
-                                        
-                                        <img src="{{ $avatarPath }}" 
-                                            class="rounded-circle border" 
-                                            width="48" height="48" 
-                                            alt="{{ $authorName }}"
-                                            style="object-fit: cover;">
-                                    </div>
-                                    
-                                    <!-- Contenido de la columna -->
-                                    <div class="col">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <h6 class="fw-bold text-secondary mb-0 fs-7">{{ $authorName }}</h6>
-                                            <small class="text-muted">{{ $column->created_at->locale('es')->diffForHumans() }}</small>
-                                        </div>
-                                        
-                                        <h5 class="mb-2 fs-6">
-                                            <a href="{{ route('columns.show', $column->slug ?? $column->id) }}" class="text-decoration-none text-dark stretched-link">
-                                                {{ Str::limit($column->title, 80) }}
-                                            </a>
-                                        </h5>
-                                        
-                                        <p class="text-muted small mb-2 line-clamp-2">{{ Str::limit($column->excerpt, 100) }}</p>
-                                        
-                                        <!-- Metadatos adicionales -->
-                                        <div class="d-flex align-items-center text-muted small">
-                                            <span class="me-3">
-                                                <i class="far fa-clock me-1"></i>
-                                                {{ ceil(str_word_count($column->content ?? '') / 200) ?? 5 }} min
-                                            </span>
-                                            <span class="me-3">
-                                                <i class="far fa-eye me-1"></i>
-                                                {{ number_format($column->views ?? rand(100, 800)) }}
-                                            </span>
-                                            <span>
-                                                <i class="far fa-comment me-1"></i>
-                                                {{ $column->comments_count ?? rand(0, 15) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        @else
-                            <div class="list-group-item border-0 py-4 text-center">
-                                <p class="text-muted mb-0">No hay columnas recientes disponibles en este momento.</p>
-                            </div>
-                        @endif
-                    </div>
-
-                        
-                        <!-- Footer con enlace a todas las columnas -->
-                        <div class="card-footer bg-light py-3 text-center">
-                            <a href="{{ route('columns.index') }}" class="btn btn-sm btn-secondary px-4">
-                                Ver todas las columnas <i class="fas fa-external-link-alt ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
