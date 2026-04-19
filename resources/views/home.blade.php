@@ -287,7 +287,7 @@
         </div>
         <div class="card-body py-3">
             <div class="row g-3">
-                @foreach($recentNews->take(12) as $recent)
+                @foreach($recentNews->take(20) as $recent)
                 <div class="col-md-6 d-flex">
                     <div class="d-flex gap-2 w-100 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}" style="min-height:110px;">
                         {{-- Thumbnail --}}
