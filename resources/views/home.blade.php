@@ -95,37 +95,35 @@
                     @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($secNews->count() > 0)
                     <div class="col-lg-4 col-md-5">
-                        <div class="row g-2 h-100">
-                            @foreach($secNews->take(4) as $sec)
-                            <div class="col-6">
-                                <a href="{{ route('news.show', $sec->slug ?? $sec->id) }}" class="text-decoration-none d-block h-100">
-                                    <div class="editorial-card position-relative rounded-3 overflow-hidden h-100" style="min-height:175px;">
-                                        <img src="{{ $sec->image }}"
-                                             class="editorial-img"
-                                             alt="{{ $sec->title }}"
-                                             loading="lazy">
-                                        <div class="editorial-gradient"></div>
-                                        @if(in_array($sec->id, $trendingIds ?? []))
-                                        <span class="badge-trending" style="top:6px;left:6px;padding:1px 5px;font-size:.6rem;">
-                                            <i class="fas fa-fire"></i>
+                        <div class="d-flex flex-column gap-2 h-100">
+                            @foreach($secNews->take(2) as $sec)
+                            <a href="{{ route('news.show', $sec->slug ?? $sec->id) }}" class="text-decoration-none flex-fill">
+                                <div class="editorial-card position-relative rounded-3 overflow-hidden h-100" style="min-height:160px;">
+                                    <img src="{{ $sec->image }}"
+                                         class="editorial-img"
+                                         alt="{{ $sec->title }}"
+                                         loading="lazy">
+                                    <div class="editorial-gradient"></div>
+                                    @if(in_array($sec->id, $trendingIds ?? []))
+                                    <span class="badge-trending" style="top:6px;left:6px;padding:1px 5px;font-size:.6rem;">
+                                        <i class="fas fa-fire"></i>
+                                    </span>
+                                    @endif
+                                    <div class="editorial-body p-2 text-white">
+                                        @if(isset($sec->category))
+                                        <span class="badge mb-1" style="{{ $getCategoryStyle($sec->category) }}; font-size:.6rem;">
+                                            {{ $sec->category->name }}
                                         </span>
                                         @endif
-                                        <div class="editorial-body p-2 text-white">
-                                            @if(isset($sec->category))
-                                            <span class="badge mb-1" style="{{ $getCategoryStyle($sec->category) }}; font-size:.6rem;">
-                                                {{ $sec->category->name }}
-                                            </span>
-                                            @endif
-                                            <h6 class="fw-bold lh-sm mb-1" style="font-size:.78rem;">
-                                                {{ Str::limit($sec->title, 65) }}
-                                            </h6>
-                                            <div style="font-size:.65rem;opacity:.7;">
-                                                <i class="far fa-clock me-1"></i>{{ $sec->created_at->locale('es')->diffForHumans() }}
-                                            </div>
+                                        <h6 class="fw-bold lh-sm mb-1" style="font-size:.82rem;">
+                                            {{ $sec->title }}
+                                        </h6>
+                                        <div style="font-size:.65rem;opacity:.7;">
+                                            <i class="far fa-clock me-1"></i>{{ $sec->created_at->locale('es')->diffForHumans() }}
                                         </div>
                                     </div>
-                                </a>
-                            </div>
+                                </div>
+                            </a>
                             @endforeach
                         </div>
                     </div>
