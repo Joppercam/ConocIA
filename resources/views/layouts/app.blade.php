@@ -857,32 +857,6 @@
 
    
     
-    <!-- Sección para enviar investigaciones (versión mejorada y más compacta) -->
-    @hasSection('exclude_submit_research')
-    @else
-    <section class="py-4 bg-primary text-white submit-research-section no-animation">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8 mb-3 mb-lg-0">
-                    <div class="d-flex align-items-center">
-                        <div class="me-4 d-none d-md-block">
-                            <i class="fas fa-flask fa-3x"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-2">¿Tienes una investigación sobre IA o tecnología?</h3>
-                            <p class="mb-0">Comparte tus conocimientos y descubrimientos con nuestra comunidad de expertos y entusiastas.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <a href="{{ route('submit-research') }}" class="btn btn-light">
-                        <i class="fas fa-upload me-2"></i>Enviar mi investigación
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-    @endif
 
 
 
