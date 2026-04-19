@@ -913,7 +913,6 @@
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Inicio</a></li>
                         <li class="mb-2"><a href="{{ route('news.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Noticias</a></li>
-                        <li class="mb-2"><a href="{{ route('research.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Investigación</a></li>
                         <li class="mb-2"><a href="{{ route('columns.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Columnas</a></li>
                         <li class="mb-2"><a href="{{ route('news.archive', date('Y')) }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Archivo</a></li>
                         <li class="mb-2"><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Enviar Investigación</a></li>
