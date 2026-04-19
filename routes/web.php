@@ -393,16 +393,12 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::post('/comments/{comment}/reply', [App\Http\Controllers\Admin\CommentController::class, 'reply'])->name('comments.reply');
 
         Route::resource('users', UserController::class);
-        Route::resource('newsletter', NewsletterController::class)->only(['index', 'destroy']);
-
-        // Rutas para administrar newsletter
+        // Rutas newsletter — send debe ir antes de {newsletter} para evitar conflicto
+        Route::get('/newsletter/send', [NewsletterSendController::class, 'form'])->name('newsletter.send');
+        Route::post('/newsletter/send', [NewsletterSendController::class, 'send'])->name('newsletter.send.post');
         Route::get('/newsletter', [NewsletterAdminController::class, 'index'])->name('newsletter.index');
         Route::delete('/newsletter/{newsletter}', [NewsletterAdminController::class, 'destroy'])->name('newsletter.destroy');
         Route::patch('/newsletter/{newsletter}/toggle', [NewsletterAdminController::class, 'toggleActive'])->name('newsletter.toggle');
-
-           // Rutas para administrar y enviar newsletter
-        Route::get('/newsletter/send', [NewsletterSendController::class, 'form'])->name('newsletter.send');
-        Route::post('/newsletter/send', [NewsletterSendController::class, 'send'])->name('newsletter.send.post');
 
         // Rutas para ejecutar API de noticias
         Route::get('/api', [NewsApiController::class, 'index'])->name('api.index');
