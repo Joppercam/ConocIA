@@ -144,9 +144,11 @@ class User extends Authenticatable
     public function getPhotoUrlAttribute(): string
     {
         if ($this->profile_photo) {
-            return str_starts_with($this->profile_photo, 'http')
-                ? $this->profile_photo
-                : asset('storage/' . $this->profile_photo);
+            if (str_starts_with($this->profile_photo, 'http')) {
+                return $this->profile_photo;
+            }
+            $disk = env('CLOUDFLARE_R2_KEY') ? 'custom_public' : 'public';
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($this->profile_photo);
         }
         if ($this->avatar) {
             return $this->avatar;

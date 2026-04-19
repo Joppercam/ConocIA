@@ -39,9 +39,9 @@ class FileUploadService
             $image->fit($width, $height);
         }
 
-        // Guardar usando Storage para compatibilidad con Laravel Cloud y discos externos
         $imageData = $image->encode(null, 80);
-        Storage::disk('public')->put("{$directory}/{$filename}", $imageData);
+        $disk = env('CLOUDFLARE_R2_KEY') ? 'custom_public' : 'public';
+        Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData, 'public');
 
         return "{$directory}/{$filename}";
     }
