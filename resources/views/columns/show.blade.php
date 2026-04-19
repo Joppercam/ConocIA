@@ -33,14 +33,17 @@
         'type'      => 'Article',
         'section'   => 'Columnas de Opinión',
     ])
-    @include('partials.schema-breadcrumb', ['crumbs' => [
-        ['name' => 'Inicio',   'url' => url('/')],
-        ['name' => 'Columnas', 'url' => route('columns.index')],
-        @if($column->category)
-        ['name' => $column->category->name, 'url' => route('columns.category', $column->category->slug)],
-        @endif
-        ['name' => $column->title],
-    ]])
+    @php
+        $breadcrumbs = [
+            ['name' => 'Inicio',   'url' => url('/')],
+            ['name' => 'Columnas', 'url' => route('columns.index')],
+        ];
+        if ($column->category) {
+            $breadcrumbs[] = ['name' => $column->category->name, 'url' => route('columns.category', $column->category->slug)];
+        }
+        $breadcrumbs[] = ['name' => $column->title];
+    @endphp
+    @include('partials.schema-breadcrumb', ['crumbs' => $breadcrumbs])
 @endsection
 
 @section('content')
