@@ -253,6 +253,9 @@ Route::get('/registro', [AuthController::class, 'showRegistrationForm'])->middle
 Route::post('/registro', [AuthController::class, 'register'])->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+Route::get('/login/google', [\App\Http\Controllers\Auth\GoogleController::class, 'redirect'])->middleware('guest')->name('login.google');
+Route::get('/login/google/callback', [\App\Http\Controllers\Auth\GoogleController::class, 'callback'])->middleware('guest');
+
 
 // Rutas para el perfil de usuario
 Route::middleware('auth')->group(function () {
