@@ -360,6 +360,53 @@
     </section>
 
 
+    {{-- ═══ SECCIONES POR CATEGORÍA ═══ --}}
+    @if(!empty($categoryGroups))
+    <section class="py-4 bg-light border-top">
+        <div class="container">
+            <div class="row g-4">
+                @foreach($categoryGroups as $group)
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-3 h-100">
+                        <div class="card-header border-0 py-2 px-3 d-flex align-items-center justify-content-between"
+                             style="background:{{ $group['color'] }}18; border-left:4px solid {{ $group['color'] }} !important;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas {{ $group['icon'] }}" style="color:{{ $group['color'] }};"></i>
+                                <span class="fw-bold" style="font-size:.9rem;">{{ $group['label'] }}</span>
+                            </div>
+                            <a href="{{ route('news.index') }}" class="text-decoration-none" style="font-size:.75rem;color:{{ $group['color'] }};">
+                                Ver más <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="card-body p-0">
+                            @foreach($group['news'] as $gNews)
+                            <a href="{{ route('news.show', $gNews->slug ?? $gNews->id) }}"
+                               class="d-flex align-items-start gap-2 px-3 py-2 text-decoration-none text-dark {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light">
+                                @if(!empty($gNews->image) && str_starts_with($gNews->image, 'http') && !str_contains($gNews->image, '/storage/'))
+                                <img src="{{ $gNews->image }}" alt="{{ $gNews->title }}"
+                                     class="rounded flex-shrink-0"
+                                     style="width:64px;height:48px;object-fit:cover;">
+                                @endif
+                                <div class="overflow-hidden flex-grow-1">
+                                    @if($gNews->category)
+                                    <span class="badge mb-1" style="background:{{ $group['color'] }};font-size:.6rem;">{{ $gNews->category->name }}</span>
+                                    @endif
+                                    <p class="mb-0 lh-sm fw-semibold" style="font-size:.82rem;">{{ $gNews->title }}</p>
+                                    <span class="text-muted" style="font-size:.7rem;">
+                                        <i class="far fa-clock me-1"></i>{{ $gNews->published_at?->locale('es')->diffForHumans() ?? $gNews->created_at->locale('es')->diffForHumans() }}
+                                    </span>
+                                </div>
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- ═══ NEWSLETTER INLINE ═══ -->
     <div style="background:linear-gradient(135deg,#0a1020 0%,#0f1b2d 100%);border-top:2px solid rgba(56,182,255,.2);border-bottom:2px solid rgba(56,182,255,.1);" class="py-4">
         <div class="container">
