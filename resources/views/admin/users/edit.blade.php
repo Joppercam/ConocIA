@@ -69,6 +69,22 @@
                             </div>
 
                             <div class="col-12">
+                                <label class="form-label fw-semibold">Foto de perfil</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="{{ $user->photo_url }}" id="admin-photo-preview"
+                                         class="rounded-circle flex-shrink-0"
+                                         width="64" height="64"
+                                         style="object-fit:cover;border:3px solid #e9ecef;">
+                                    <div>
+                                        <input type="file" id="admin_profile_photo" name="profile_photo"
+                                               accept="image/*" class="form-control form-control-sm"
+                                               onchange="document.getElementById('admin-photo-preview').src = URL.createObjectURL(this.files[0])">
+                                        <div class="form-text">JPG, PNG o WEBP. Máx 2MB.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
                                 <label class="form-label fw-semibold">Biografía</label>
                                 <textarea name="bio" class="form-control @error('bio') is-invalid @enderror"
                                           rows="3">{{ old('bio', $user->bio) }}</textarea>
@@ -105,19 +121,10 @@
         <div class="col-lg-4">
             <div class="card shadow-sm mb-3">
                 <div class="card-body text-center">
-                    <div class="position-relative d-inline-block mb-3">
-                        <img src="{{ $user->photo_url }}" id="admin-photo-preview"
-                             class="rounded-circle"
-                             width="80" height="80"
-                             style="object-fit:cover;border:3px solid #e9ecef;">
-                        <label for="admin_profile_photo" class="position-absolute bottom-0 end-0 bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                               style="width:24px;height:24px;cursor:pointer;" title="Cambiar foto">
-                            <i class="fas fa-camera text-white" style="font-size:.55rem;"></i>
-                        </label>
-                    </div>
-                    <input type="file" id="admin_profile_photo" name="profile_photo" accept="image/*" class="d-none"
-                           form="user-edit-form"
-                           onchange="document.getElementById('admin-photo-preview').src = URL.createObjectURL(this.files[0])">
+                    <img src="{{ $user->photo_url }}" id="admin-photo-preview"
+                         class="rounded-circle mb-3"
+                         width="80" height="80"
+                         style="object-fit:cover;border:3px solid #e9ecef;">
                     <h6 class="fw-bold mb-0">{{ $user->name }}</h6>
                     <div class="text-muted small">{{ $user->email }}</div>
                     <div class="mt-2">
