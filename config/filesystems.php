@@ -73,6 +73,25 @@ return [
             // R2 no soporta ACLs — sin visibility para no enviar header ACL
         ],
 
+        // Disco usado para imágenes de noticias.
+        // Producción: CUSTOM_PUBLIC_DRIVER=s3 → usa R2
+        // Local: omitir o CUSTOM_PUBLIC_DRIVER=local → usa public
+        'custom_public' => [
+            'driver'                  => env('CUSTOM_PUBLIC_DRIVER', 'local'),
+            'root'                    => storage_path('app/public'),
+            'url'                     => env('CLOUDFLARE_R2_PUBLIC_URL', env('APP_URL').'/storage'),
+            'visibility'              => 'public',
+            'throw'                   => false,
+            'report'                  => false,
+            // Credenciales R2 (ignoradas cuando driver=local)
+            'key'                     => env('CLOUDFLARE_R2_KEY'),
+            'secret'                  => env('CLOUDFLARE_R2_SECRET'),
+            'region'                  => 'auto',
+            'bucket'                  => env('CLOUDFLARE_R2_BUCKET'),
+            'endpoint'                => 'https://' . env('CLOUDFLARE_ACCOUNT_ID') . '.r2.cloudflarestorage.com',
+            'use_path_style_endpoint' => true,
+        ],
+
     ],
 
     /*
