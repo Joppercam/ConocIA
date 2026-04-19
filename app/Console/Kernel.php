@@ -127,9 +127,9 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/video-summaries.log'));
 
-        // Generar briefing diario con IA cada mañana
+        // Generar briefing diario con IA cada mañana (después de fetch-all y fetch-rss de las 08:00/09:00)
         $schedule->command('briefing:generate')
-            ->dailyAt('07:30')
+            ->dailyAt('08:30')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/briefing.log'));
    
