@@ -60,9 +60,7 @@ return [
             'report' => false,
         ],
         
-        // En producción usa Cloudflare R2; localmente usa disco local.
-        // Basta con definir CLOUDFLARE_R2_KEY en el entorno para activar R2.
-        'custom_public' => env('CLOUDFLARE_R2_KEY') ? [
+        'r2' => [
             'driver'                  => 's3',
             'key'                     => env('CLOUDFLARE_R2_KEY'),
             'secret'                  => env('CLOUDFLARE_R2_SECRET'),
@@ -73,11 +71,6 @@ return [
             'url'                     => env('CLOUDFLARE_R2_PUBLIC_URL'),
             'visibility'              => 'public',
             'throw'                   => false,
-        ] : [
-            'driver'     => 'local',
-            'root'       => storage_path('app/public'),
-            'url'        => env('APP_URL') . '/storage',
-            'visibility' => 'public',
         ],
 
     ],

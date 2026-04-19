@@ -40,7 +40,7 @@ class FileUploadService
         }
 
         $imageData = $image->encode(null, 80);
-        $disk = env('CLOUDFLARE_R2_KEY') ? 'custom_public' : 'public';
+        $disk = config('filesystems.disks.r2.key') ? 'r2' : 'public';
         Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData, 'public');
 
         return "{$directory}/{$filename}";
