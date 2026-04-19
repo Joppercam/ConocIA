@@ -70,7 +70,9 @@ return [
             'use_path_style_endpoint' => true,
             'url'                     => env('CLOUDFLARE_R2_PUBLIC_URL'),
             'visibility'              => 'public',
-            'throw'                   => false,
+            'throw'                   => true,
+            // R2 no soporta ACLs de S3 — usar bucket-level public access
+            'options'                 => ['ACL' => ''],
         ],
 
     ],
