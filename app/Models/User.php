@@ -140,4 +140,17 @@ class User extends Authenticatable
     {
         return $this->role_id == 1;
     }
+
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo) {
+            return str_starts_with($this->profile_photo, 'http')
+                ? $this->profile_photo
+                : asset('storage/' . $this->profile_photo);
+        }
+        if ($this->avatar) {
+            return $this->avatar;
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=0a66c2&color=fff&size=128';
+    }
 }

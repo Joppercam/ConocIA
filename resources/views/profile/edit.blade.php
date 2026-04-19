@@ -15,21 +15,23 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3 mb-4">
-                        @if(!empty($user->avatar))
-                        <img src="{{ $user->avatar }}" class="rounded-circle" width="56" height="56" style="object-fit:cover;">
-                        @else
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
-                             style="width:56px;height:56px;font-size:1.4rem;">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        <div class="position-relative">
+                            <img src="{{ $user->photo_url }}" id="photo-preview"
+                                 class="rounded-circle" width="72" height="72" style="object-fit:cover;border:3px solid #e9ecef;">
+                            <label for="profile_photo_input" class="position-absolute bottom-0 end-0 bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                   style="width:22px;height:22px;cursor:pointer;">
+                                <i class="fas fa-camera text-white" style="font-size:.55rem;"></i>
+                            </label>
                         </div>
-                        @endif
                         <div>
                             <h4 class="fw-bold mb-0">Mi perfil</h4>
                             <p class="text-muted mb-0" style="font-size:.85rem;">{{ $user->email }}</p>
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('profile.update') }}">
+                    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+                        <input type="file" id="profile_photo_input" name="profile_photo" accept="image/*" class="d-none"
+                               onchange="document.getElementById('photo-preview').src = URL.createObjectURL(this.files[0])">
                         @csrf
                         @method('PATCH')
 
