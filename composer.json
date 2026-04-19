@@ -9,6 +9,7 @@
         "php": "^8.2",
         "abraham/twitteroauth": "^7.0",
         "anhskohbo/no-captcha": "^3.7",
+        "intervention/image": "^2.7",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.26",
