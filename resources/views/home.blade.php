@@ -263,52 +263,102 @@
     </section>
 
 
-    {{-- ═══ SECCIONES POR CATEGORÍA ═══ --}}
-    @if(!empty($categoryGroups))
-    <section class="py-4 bg-light border-top">
+        <!-- Sección Noticias Recientes y Lo Más Leído (COMPLETA) -->
+    <section class="py-3 border-top">
         <div class="container">
-            <div class="row g-4">
-                @foreach($categoryGroups as $group)
-                <div class="col-lg-6">
-                    <div class="card border-0 shadow-sm rounded-3 h-100">
-                        <div class="card-header border-0 py-2 px-3 d-flex align-items-center justify-content-between"
-                             style="background:{{ $group['color'] }}18; border-left:4px solid {{ $group['color'] }} !important;">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fas {{ $group['icon'] }}" style="color:{{ $group['color'] }};"></i>
-                                <span class="fw-bold" style="font-size:.9rem;">{{ $group['label'] }}</span>
-                            </div>
-                            <a href="{{ route('news.index') }}" class="text-decoration-none" style="font-size:.75rem;color:{{ $group['color'] }};">
-                                Ver más <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                        <div class="card-body p-0">
-                            @foreach($group['news'] as $gNews)
-                            <a href="{{ route('news.show', $gNews->slug ?? $gNews->id) }}"
-                               class="d-flex align-items-start gap-2 px-3 py-2 text-decoration-none text-dark {{ !$loop->last ? 'border-bottom' : '' }} hover-bg-light">
-                                @if(!empty($gNews->image) && str_starts_with($gNews->image, 'http') && !str_contains($gNews->image, '/storage/'))
-                                <img src="{{ $gNews->image }}" alt="{{ $gNews->title }}"
-                                     class="rounded flex-shrink-0"
-                                     style="width:64px;height:48px;object-fit:cover;">
-                                @endif
-                                <div class="overflow-hidden flex-grow-1">
-                                    @if($gNews->category)
-                                    <span class="badge mb-1" style="background:{{ $group['color'] }};font-size:.6rem;">{{ $gNews->category->name }}</span>
-                                    @endif
-                                    <p class="mb-0 lh-sm fw-semibold" style="font-size:.82rem;">{{ $gNews->title }}</p>
-                                    <span class="text-muted" style="font-size:.7rem;">
-                                        <i class="far fa-clock me-1"></i>{{ $gNews->published_at?->locale('es')->diffForHumans() ?? $gNews->created_at->locale('es')->diffForHumans() }}
+            <div class="row">
+
+
+
+                
+                <!-- Noticias Recientes - Ancho completo -->
+<div class="col-12">
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-header bg-white py-2 px-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:4px;height:20px;background:var(--primary-color);border-radius:2px;"></div>
+                    <h5 class="mb-0 fw-bold" style="font-size:1rem;">Noticias Recientes</h5>
+                </div>
+                <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size:.75rem;">
+                    Ver todas <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="card-body py-3">
+            <div class="row g-3">
+                @foreach($recentNews->take(20) as $recent)
+                <div class="col-md-6 d-flex">
+                    <div class="d-flex gap-2 w-100 {{ !$loop->last ? 'pb-3 border-bottom' : '' }}" style="min-height:110px;">
+                        {{-- Thumbnail --}}
+                        @if(!empty($recent->image) && (str_starts_with($recent->image, 'http://') || str_starts_with($recent->image, 'https://')) && !str_contains($recent->image, '/storage/'))
+                        <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}"
+                           class="flex-shrink-0 rounded overflow-hidden"
+                           style="width:90px;height:90px;min-width:90px;">
+                            <img src="{{ $recent->image }}"
+                                 alt="{{ $recent->title }}"
+                                 class="w-100 h-100"
+                                 style="object-fit:cover;"
+                                 loading="lazy">
+                        </a>
+                        @endif
+                        <div class="d-flex flex-column justify-content-between overflow-hidden flex-grow-1">
+                            <div>
+                                <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
+                                    @if(isset($recent->category))
+                                    <span class="badge rounded-pill" style="{{ $getCategoryStyle($recent->category) }}; font-size:.6rem;">
+                                        {{ $recent->category->name }}
                                     </span>
+                                    @endif
+                                    @if($recent->created_at->diffInHours(now()) < 48)
+                                    <span class="badge bg-light text-secondary border" style="font-size:.6rem;">Nuevo</span>
+                                    @endif
                                 </div>
-                            </a>
-                            @endforeach
+                                <h6 class="fw-bold mb-1 lh-sm" style="font-size:.85rem;">
+                                    <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">
+                                        {{ $recent->title }}
+                                    </a>
+                                </h6>
+                                @if(!empty($recent->excerpt))
+                                <p class="text-muted mb-0 lh-sm" style="font-size:.78rem;">{{ Str::limit($recent->excerpt, 130) }}</p>
+                                @endif
+                            </div>
+                            <div class="d-flex gap-2 text-muted mt-1" style="font-size:.7rem;">
+                                <span><i class="far fa-calendar-alt me-1"></i>{{ $recent->created_at->locale('es')->isoFormat('D MMM') }}</span>
+                                <span><i class="far fa-eye me-1"></i>{{ number_format($recent->views ?? 0) }}</span>
+                                <span><i class="far fa-comment me-1"></i>{{ $recent->comments_count ?? 0 }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 @endforeach
             </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ route('news.index') }}" class="btn btn-primary btn-sm px-4">
+                    Ver más noticias <i class="fas fa-newspaper ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+                
+
+
+
+
+
+
+            </div>
         </div>
     </section>
-    @endif
+
 
     <!-- ═══ NEWSLETTER INLINE ═══ -->
     <div style="background:linear-gradient(135deg,#0a1020 0%,#0f1b2d 100%);border-top:2px solid rgba(56,182,255,.2);border-bottom:2px solid rgba(56,182,255,.1);" class="py-4">

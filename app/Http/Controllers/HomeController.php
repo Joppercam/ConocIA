@@ -36,7 +36,6 @@ class HomeController extends Controller
                     'popularNews'  => $this->fetchPopularNews(),
                     'secondaryNews' => $this->fetchSecondaryNews(),
                     'featuredCategories' => $this->fetchFeaturedCategories(),
-                    'categoryGroups' => $this->fetchCategoryGroups(),
                 ],
                 $this->fetchRecentNews($featuredIds),
                 $this->fetchColumnsData(),
@@ -67,7 +66,6 @@ class HomeController extends Controller
         $getCategoryIcon  = fn($cat) => $cat && isset($cat->icon) ? $cat->icon : 'fa-tag';
 
         return view('home', compact(
-            'categoryGroups',
             'featuredNews',
             'recentNews',
             'popularNews',
@@ -352,53 +350,5 @@ class HomeController extends Controller
             // Ruta local storage/...
             return asset(Str::startsWith($imagePath, 'storage/') ? $imagePath : 'storage/' . $imagePath);
         };
-    }
-
-    private function fetchCategoryGroups(): array
-    {
-        $groups = [
-            [
-                'label' => 'Modelos y Empresas',
-                'icon'  => 'fa-robot',
-                'color' => '#38b6ff',
-                'slugs' => ['openai', 'anthropic', 'google-ai', 'ia-generativa', 'nlp'],
-            ],
-            [
-                'label' => 'Impacto Social',
-                'icon'  => 'fa-users',
-                'color' => '#7b61ff',
-                'slugs' => ['etica-de-la-ia', 'regulacion-de-ia', 'impacto-laboral'],
-            ],
-            [
-                'label' => 'Aplicaciones',
-                'icon'  => 'fa-microchip',
-                'color' => '#00c896',
-                'slugs' => ['ia-en-salud', 'educacion', 'robotica', 'innovacion'],
-            ],
-            [
-                'label' => 'Tecnología',
-                'icon'  => 'fa-shield-alt',
-                'color' => '#ff6b6b',
-                'slugs' => ['ciberseguridad', 'investigacion', 'tecnologia', 'inteligencia-artificial'],
-            ],
-        ];
-
-        $result = [];
-        foreach ($groups as $group) {
-            $news = Cache::remember('category_group_' . md5(implode(',', $group['slugs'])), 600, function () use ($group) {
-                return News::with('category')
-                    ->published()
-                    ->whereHas('category', fn($q) => $q->whereIn('slug', $group['slugs']))
-                    ->orderByDesc('published_at')
-                    ->limit(5)
-                    ->get();
-            });
-
-            if ($news->isNotEmpty()) {
-                $result[] = array_merge($group, ['news' => $news]);
-            }
-        }
-
-        return $result;
     }
 }
