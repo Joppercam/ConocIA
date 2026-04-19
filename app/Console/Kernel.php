@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,32 +26,50 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        // ══════════════════════════════════════════════════════════════
+        // TEST: Horarios temporales para verificar ejecución en producción
+        // Programado para las 16:47 (10 min desde ahora - 2026-04-19 16:37)
+        // RESTAURAR a horarios originales después de confirmar funcionamiento
+        // ══════════════════════════════════════════════════════════════
+
         // Gemini Search Grounding: 3 noticias por las 4 categorías más activas — 2x al día
-        // No consume NewsAPI, Gemini busca en Google en tiempo real
+        // ORIGINAL: ->twiceDaily(7, 17)
         $schedule->command('news:fetch-gemini --all --count=3 --days=2')
-            ->twiceDaily(7, 17)
+            ->dailyAt('16:47')
             ->withoutOverlapping(90)
+            ->before(function () { Log::info('[SCHEDULER] ▶ Iniciando news:fetch-gemini', ['at' => now()->toDateTimeString()]); })
+            ->after(function () { Log::info('[SCHEDULER] ✓ Completado news:fetch-gemini', ['at' => now()->toDateTimeString()]); })
             ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
 
-        // NewsAPI: 1 noticia por categoría IA (sin categorías genéricas) — 1x al día
+        // NewsAPI: 1 noticia por categoría IA — 1x al día
+        // ORIGINAL: ->dailyAt('08:00')
         $schedule->command('news:fetch-all --count=1')
-            ->dailyAt('08:00')
+            ->dailyAt('16:49')
             ->withoutOverlapping(60)
+            ->before(function () { Log::info('[SCHEDULER] ▶ Iniciando news:fetch-all', ['at' => now()->toDateTimeString()]); })
+            ->after(function () { Log::info('[SCHEDULER] ✓ Completado news:fetch-all', ['at' => now()->toDateTimeString()]); })
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
 
         // RSS curado (Xataka, Hipertextual, VentureBeat, The Verge, TechCrunch) — 2x al día
+        // ORIGINAL: ->twiceDaily(9, 18)
         $schedule->command('news:fetch-rss --limit=3')
-            ->twiceDaily(9, 18)
+            ->dailyAt('16:51')
             ->withoutOverlapping(30)
+            ->before(function () { Log::info('[SCHEDULER] ▶ Iniciando news:fetch-rss', ['at' => now()->toDateTimeString()]); })
+            ->after(function () { Log::info('[SCHEDULER] ✓ Completado news:fetch-rss', ['at' => now()->toDateTimeString()]); })
             ->appendOutputTo(storage_path('logs/fetch-rss.log'));
 
         // The Guardian API — 1x al día (requiere GUARDIAN_API_KEY en .env)
+        // ORIGINAL: ->dailyAt('10:00')
         $schedule->command('news:fetch-guardian --limit=5')
-            ->dailyAt('10:00')
+            ->dailyAt('16:53')
             ->withoutOverlapping(20)
+            ->before(function () { Log::info('[SCHEDULER] ▶ Iniciando news:fetch-guardian', ['at' => now()->toDateTimeString()]); })
+            ->after(function () { Log::info('[SCHEDULER] ✓ Completado news:fetch-guardian', ['at' => now()->toDateTimeString()]); })
             ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
 
-        // Pexels: rellenar imágenes faltantes — 3x al día, 30 min después de los fetches
+        // Pexels: rellenar imágenes faltantes
+        // ORIGINAL: ->dailyAt('07:30') y ->dailyAt('17:30')
         $schedule->command('news:fetch-missing-images --limit=30')
             ->dailyAt('07:30')
             ->withoutOverlapping(15)
