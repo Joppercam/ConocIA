@@ -60,7 +60,7 @@
                     {{-- ── Noticia principal (grande) ── --}}
                     @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($hero)
-                    <div class="col-lg-5 col-md-7">
+                    <div class="col-lg-7 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
                             <div class="editorial-card editorial-card-main position-relative rounded-3 overflow-hidden h-100">
                                 <img src="{{ $hero->image }}"
@@ -94,7 +94,7 @@
                     {{-- ── Grid 2x2 de secundarias ── --}}
                     @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
                     @if($secNews->count() > 0)
-                    <div class="col-lg-4 col-md-5">
+                    <div class="col-lg-5 col-md-5">
                         <div class="row g-2 h-100">
                             @foreach($secNews->take(4) as $sec)
                             <div class="col-6">
@@ -131,8 +131,8 @@
                     </div>
                     @endif
 
-                    {{-- ── Sidebar columnas ── --}}
-                    <div class="col-lg-3">
+                    {{-- ── Sidebar columnas (eliminado — redundante con sección de columnas debajo) ── --}}
+                    <div class="col-lg-3 d-none">
 
 
 
