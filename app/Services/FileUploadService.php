@@ -49,11 +49,14 @@ class FileUploadService
             Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData);
             Log::info("[FileUpload] result=OK url=" . Storage::disk($disk)->url("{$directory}/{$filename}"));
         } catch (\Throwable $e) {
-            Log::error("[FileUpload] ERROR FULL: " . substr($e->getMessage(), 0, 2000));
-            Log::error("[FileUpload] ERROR CLASS: " . get_class($e));
-            if (method_exists($e, 'getResponse') && $e->getResponse()) {
-                Log::error("[FileUpload] HTTP STATUS: " . $e->getResponse()->getStatusCode());
-                Log::error("[FileUpload] HTTP BODY: " . substr((string) $e->getResponse()->getBody(), 0, 1000));
+            Log::error("[FileUpload] ERROR: " . substr($e->getMessage(), 0, 500));
+            $prev = $e->getPrevious();
+            if ($prev) {
+                Log::error("[FileUpload] CAUSE: " . get_class($prev) . ': ' . substr($prev->getMessage(), 0, 1000));
+                $prev2 = $prev->getPrevious();
+                if ($prev2) {
+                    Log::error("[FileUpload] ROOT: " . get_class($prev2) . ': ' . substr($prev2->getMessage(), 0, 1000));
+                }
             }
             throw $e;
         }
