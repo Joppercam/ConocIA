@@ -101,16 +101,18 @@ class UserController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active');
 
+        // Manejar foto por separado para no sobreescribir con null
+        unset($validated['profile_photo']);
         if ($request->hasFile('profile_photo')) {
             if ($user->profile_photo) {
                 $this->fileUpload->deleteFile($user->profile_photo);
             }
-            $validated['profile_photo'] = $this->fileUpload->uploadImage(
+            $user->profile_photo = $this->fileUpload->uploadImage(
                 $request->file('profile_photo'), 'profiles', 400, 400, false
             );
         }
 
-        $user->update($validated);
+        $user->fill($validated)->save();
 
         return redirect()->route('admin.users.index')
                          ->with('success', 'Usuario actualizado correctamente.');
