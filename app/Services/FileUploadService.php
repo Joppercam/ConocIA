@@ -26,15 +26,10 @@ class FileUploadService
         int $height = 800, 
         bool $keepAspectRatio = true
     ): string {
-        // Crear un nombre único para la imagen
         $filename = Str::random(20) . '.' . $file->getClientOriginalExtension();
-        
-        // Crear carpeta si no existe
-        Storage::makeDirectory("public/{$directory}");
-        
-        // Optimizar imagen con Intervention Image
+
         $image = Image::make($file);
-        
+
         if ($keepAspectRatio) {
             $image->resize($width, $height, function ($constraint) {
                 $constraint->aspectRatio();
@@ -43,12 +38,11 @@ class FileUploadService
         } else {
             $image->fit($width, $height);
         }
-        
-        // Guardar imagen optimizada
-        $path = storage_path("app/public/{$directory}/{$filename}");
-        $image->save($path, 80); // 80% de calidad
-        
-        // Devolver ruta relativa
+
+        // Guardar usando Storage para compatibilidad con Laravel Cloud y discos externos
+        $imageData = $image->encode(null, 80);
+        Storage::disk('public')->put("{$directory}/{$filename}", $imageData);
+
         return "{$directory}/{$filename}";
     }
     
