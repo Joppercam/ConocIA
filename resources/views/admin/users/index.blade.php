@@ -83,7 +83,7 @@
                         <tr>
                             <td class="ps-3">
                                 <div class="d-flex align-items-center gap-2">
-                                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'images/defaults/user-profile.jpg') }}"
+                                    <img src="{{ $user->photo_url }}"
                                          class="rounded-circle flex-shrink-0"
                                          width="36" height="36"
                                          style="object-fit:cover;"
