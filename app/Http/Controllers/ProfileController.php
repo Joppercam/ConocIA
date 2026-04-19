@@ -99,6 +99,18 @@ class ProfileController extends Controller
     /**
      * Eliminar la cuenta del usuario.
      */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password'  => 'required|current_password',
+            'password'          => 'required|string|min:8|confirmed',
+        ]);
+
+        auth()->user()->update(['password' => Hash::make($request->password)]);
+
+        return back()->with('success', 'Contraseña actualizada correctamente.');
+    }
+
     public function destroy(Request $request)
     {
         $request->validate([
