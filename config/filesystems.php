@@ -69,10 +69,8 @@ return [
             'endpoint'                => 'https://' . env('CLOUDFLARE_ACCOUNT_ID') . '.r2.cloudflarestorage.com',
             'use_path_style_endpoint' => true,
             'url'                     => env('CLOUDFLARE_R2_PUBLIC_URL'),
-            'visibility'              => 'public',
-            'throw'                   => true,
-            // R2 no soporta ACLs de S3 — usar bucket-level public access
-            'options'                 => ['ACL' => ''],
+            'throw'                   => false,
+            // R2 no soporta ACLs — sin visibility para no enviar header ACL
         ],
 
     ],
