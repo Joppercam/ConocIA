@@ -45,9 +45,13 @@ class FileUploadService
 
         Log::info("[FileUpload] disk={$disk} path={$directory}/{$filename}");
 
-        $result = Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData);
-
-        Log::info("[FileUpload] result=" . ($result ? 'OK' : 'FAIL') . " url=" . Storage::disk($disk)->url("{$directory}/{$filename}"));
+        try {
+            Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData);
+            Log::info("[FileUpload] result=OK url=" . Storage::disk($disk)->url("{$directory}/{$filename}"));
+        } catch (\Throwable $e) {
+            Log::error("[FileUpload] ERROR: " . $e->getMessage());
+            throw $e;
+        }
 
         return "{$directory}/{$filename}";
     }
