@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    public function __construct(protected FileUploadService $fileUpload) {}
+
     public function index(Request $request)
     {
         $query = User::with('role')->withCount('columns');
@@ -78,14 +82,15 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed',
-            'role_id'  => 'required|exists:roles,id',
-            'bio'      => 'nullable|string|max:500',
-            'twitter'  => 'nullable|string|max:100',
-            'linkedin' => 'nullable|string|max:100',
-            'is_active'=> 'boolean',
+            'name'          => 'required|string|max:255',
+            'email'         => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'password'      => 'nullable|string|min:8|confirmed',
+            'role_id'       => 'required|exists:roles,id',
+            'bio'           => 'nullable|string|max:500',
+            'twitter'       => 'nullable|string|max:100',
+            'linkedin'      => 'nullable|string|max:100',
+            'is_active'     => 'boolean',
+            'profile_photo' => 'nullable|image|max:2048',
         ]);
 
         if (empty($validated['password'])) {
@@ -95,6 +100,15 @@ class UserController extends Controller
         }
 
         $validated['is_active'] = $request->boolean('is_active');
+
+        if ($request->hasFile('profile_photo')) {
+            if ($user->profile_photo) {
+                $this->fileUpload->deleteFile($user->profile_photo);
+            }
+            $validated['profile_photo'] = $this->fileUpload->uploadImage(
+                $request->file('profile_photo'), 'profiles', 400, 400, false
+            );
+        }
 
         $user->update($validated);
 

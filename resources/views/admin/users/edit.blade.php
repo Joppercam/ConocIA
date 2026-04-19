@@ -16,7 +16,7 @@
         <div class="col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form action="{{ route('admin.users.update', $user) }}" method="POST">
+                    <form id="user-edit-form" action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
 
                         <div class="row g-3">
@@ -105,11 +105,19 @@
         <div class="col-lg-4">
             <div class="card shadow-sm mb-3">
                 <div class="card-body text-center">
-                    <img src="{{ asset($user->avatar ?? $user->profile_photo ?? 'images/defaults/user-profile.jpg') }}"
-                         class="rounded-circle mb-3"
-                         width="80" height="80"
-                         style="object-fit:cover;border:3px solid #e9ecef;"
-                         onerror="this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
+                    <div class="position-relative d-inline-block mb-3">
+                        <img src="{{ $user->photo_url }}" id="admin-photo-preview"
+                             class="rounded-circle"
+                             width="80" height="80"
+                             style="object-fit:cover;border:3px solid #e9ecef;">
+                        <label for="admin_profile_photo" class="position-absolute bottom-0 end-0 bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                               style="width:24px;height:24px;cursor:pointer;" title="Cambiar foto">
+                            <i class="fas fa-camera text-white" style="font-size:.55rem;"></i>
+                        </label>
+                    </div>
+                    <input type="file" id="admin_profile_photo" name="profile_photo" accept="image/*" class="d-none"
+                           form="user-edit-form"
+                           onchange="document.getElementById('admin-photo-preview').src = URL.createObjectURL(this.files[0])">
                     <h6 class="fw-bold mb-0">{{ $user->name }}</h6>
                     <div class="text-muted small">{{ $user->email }}</div>
                     <div class="mt-2">
