@@ -114,6 +114,8 @@ class UserController extends Controller
 
         $user->fill($validated)->save();
 
+        \Illuminate\Support\Facades\Log::info("[UserUpdate] profile_photo=" . ($user->profile_photo ?? 'NULL') . " photo_url=" . $user->photo_url);
+
         return redirect()->route('admin.users.index')
                          ->with('success', 'Usuario actualizado correctamente.');
     }
