@@ -161,12 +161,7 @@
                                                 // Determina el nombre del autor de forma segura
                                                 $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor');
                                                 
-                                                // Obtiene el avatar con el helper actualizado
-                                                $avatarPath = App\ImageHelper::getImageUrl(
-                                                    is_object($column->author) && isset($column->author->avatar) ? $column->author->avatar : null,
-                                                    'avatars',
-                                                    'small'
-                                                );
+                                                $avatarPath = is_object($column->author) ? $column->author->photo_url : asset('images/defaults/user-profile.jpg');
                                             @endphp
                                             
                                             <img src="{{ $avatarPath }}" 
@@ -581,13 +576,7 @@
                                         ? $column->author->name 
                                         : ($column->author ?? 'Columnista');
                                     
-                                    $avatarPath = App\ImageHelper::getImageUrl(
-                                        is_object($column->author) && isset($column->author->avatar) 
-                                            ? $column->author->avatar 
-                                            : null,
-                                        'avatars',
-                                        'small'
-                                    );
+                                    $avatarPath = is_object($column->author) ? $column->author->photo_url : asset('images/defaults/user-profile.jpg');
                                 @endphp
                                 
                                 <img src="{{ $avatarPath }}" 

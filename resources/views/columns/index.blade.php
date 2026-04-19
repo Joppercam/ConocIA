@@ -61,7 +61,7 @@
         <div class="d-flex gap-4 flex-wrap">
             @foreach($columnists as $columnist)
             <a href="{{ route('columns.author', $columnist->id) }}" class="columnist-chip text-decoration-none d-flex align-items-center gap-2">
-                <img src="{{ asset($columnist->avatar ?? 'images/defaults/user-profile.jpg') }}"
+                <img src="{{ $columnist->photo_url }}"
                      class="rounded-circle columnist-avatar"
                      width="44" height="44"
                      alt="{{ $columnist->name }}"
@@ -109,7 +109,7 @@
                 </p>
                 @endif
                 <div class="d-flex align-items-center gap-3 mb-4">
-                    <img src="{{ asset($hero->author->avatar ?? 'images/defaults/user-profile.jpg') }}"
+                    <img src="{{ $hero->author->photo_url }}"
                          class="rounded-circle flex-shrink-0"
                          width="42" height="42"
                          alt="{{ $hero->author->name }}"
@@ -135,7 +135,7 @@
                     @foreach($featuredColumns->skip(1) as $fc)
                     @php $fcColor = $fc->category ? ($fc->category->color ?? '#38b6ff') : '#38b6ff'; @endphp
                     <a href="{{ route('columns.show', $fc->slug) }}" class="text-decoration-none col-feat-card d-flex gap-3 align-items-start p-3 rounded-3">
-                        <img src="{{ asset($fc->author->avatar ?? 'images/defaults/user-profile.jpg') }}"
+                        <img src="{{ $fc->author->photo_url }}"
                              class="rounded-circle flex-shrink-0 mt-1"
                              width="36" height="36"
                              alt="{{ $fc->author->name }}"
@@ -181,7 +181,7 @@
                 <div class="col-card h-100 d-flex flex-column">
 
                     <div class="d-flex align-items-center gap-2 mb-3">
-                        <img src="{{ asset($column->author->avatar ?? 'images/defaults/user-profile.jpg') }}"
+                        <img src="{{ $column->author->photo_url }}"
                              class="rounded-circle flex-shrink-0"
                              width="38" height="38"
                              alt="{{ $column->author->name ?? 'Autor' }}"
