@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
@@ -41,7 +42,12 @@ class FileUploadService
 
         $imageData = $image->encode(null, 80);
         $disk = config('filesystems.disks.r2.key') ? 'r2' : 'public';
-        Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData, 'public');
+
+        Log::info("[FileUpload] disk={$disk} path={$directory}/{$filename}");
+
+        $result = Storage::disk($disk)->put("{$directory}/{$filename}", (string) $imageData, 'public');
+
+        Log::info("[FileUpload] result=" . ($result ? 'OK' : 'FAIL') . " url=" . Storage::disk($disk)->url("{$directory}/{$filename}"));
 
         return "{$directory}/{$filename}";
     }
