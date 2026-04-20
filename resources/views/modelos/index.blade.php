@@ -101,11 +101,11 @@
                         <div class="col-4">
                             <div class="p-2 text-center rounded-2" style="background:#f8fafc;">
                                 @if($model->price_input)
-                                <div class="fw-bold" style="font-size:.85rem;color:#0f172a;">${{ number_format($model->price_input, 2) }}</div>
-                                <div style="font-size:.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;">Input /1M</div>
+                                <div class="fw-bold" style="font-size:.85rem;color:#0f172a;">USD ${{ number_format($model->price_input, 2) }}</div>
+                                <div style="font-size:.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;">por 1M tokens</div>
                                 @else
                                 <div class="fw-bold" style="font-size:.95rem;color:#00875a;">{{ $model->has_free_tier ? 'Gratis' : 'Varía' }}</div>
-                                <div style="font-size:.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;">Precio</div>
+                                <div style="font-size:.68rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;">Precio USD</div>
                                 @endif
                             </div>
                         </div>
