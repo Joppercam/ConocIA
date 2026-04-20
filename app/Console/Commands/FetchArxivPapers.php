@@ -243,6 +243,17 @@ PROMPT;
         } catch (\Exception) {}
 
         try {
+            $claude = app(\App\Services\ClaudeService::class);
+            if ($claude->isAvailable()) {
+                $data = $claude->generateJson($prompt, 3000, 0.65);
+                if (!empty($data['content'])) {
+                    Log::info('FetchArxivPapers: generado con Claude (fallback).');
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
+
+        try {
             if (!empty($openaiKey)) {
                 $r = Http::timeout(60)->withToken($openaiKey)->post('https://api.openai.com/v1/chat/completions', [
                     'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
