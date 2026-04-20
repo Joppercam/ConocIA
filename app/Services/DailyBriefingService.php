@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DailyBriefing;
 use App\Models\News;
+use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +37,12 @@ class DailyBriefingService
             return null;
         }
 
-        $script = $this->callGemini($news);
+        $script = $this->callClaude($news);
+
+        if (empty($script)) {
+            Log::info('DailyBriefing: Claude failed, trying Gemini fallback.');
+            $script = $this->callGemini($news);
+        }
 
         if (empty($script)) {
             Log::info('DailyBriefing: Gemini failed, trying OpenAI fallback.');
@@ -136,6 +142,30 @@ INSTRUCCIONES:
 - Extensión: entre 350 y 500 palabras.
 - NO uses negritas, asteriscos, markdown ni títulos. Solo texto corrido natural.
 PROMPT;
+    }
+
+    /**
+     * Call Claude API (primary) to generate podcast-style script.
+     */
+    protected function callClaude($news): string
+    {
+        $claude = app(ClaudeService::class);
+
+        if (!$claude->isAvailable()) {
+            Log::info('DailyBriefing: ANTHROPIC_API_KEY no configurado, saltando Claude.');
+            return '';
+        }
+
+        $prompt = $this->buildPrompt($news);
+
+        $script = $claude->generateText($prompt, 1024, 0.75);
+
+        if (empty($script)) {
+            Log::warning('DailyBriefing: Claude devolvió respuesta vacía.');
+            return '';
+        }
+
+        return $script;
     }
 
     /**

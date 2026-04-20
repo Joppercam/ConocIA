@@ -39,6 +39,42 @@ class ClaudeService
      * @param  float  $temperature
      * @return array  Array decodificado del JSON generado, o [] en error
      */
+    public function generateText(string $prompt, int $maxTokens = 2048, float $temperature = 0.75): string
+    {
+        if (!$this->isAvailable()) {
+            Log::warning('ClaudeService: ANTHROPIC_API_KEY no configurado.');
+            return '';
+        }
+
+        try {
+            $response = Http::timeout(120)
+                ->withHeaders([
+                    'x-api-key'         => $this->apiKey,
+                    'anthropic-version' => $this->apiVersion,
+                    'content-type'      => 'application/json',
+                ])
+                ->post('https://api.anthropic.com/v1/messages', [
+                    'model'       => $this->model,
+                    'max_tokens'  => $maxTokens,
+                    'temperature' => $temperature,
+                    'messages'    => [
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                ]);
+
+            if ($response->failed()) {
+                Log::warning('ClaudeService generateText HTTP error: ' . $response->status() . ' ' . $response->body());
+                return '';
+            }
+
+            return trim($response->json()['content'][0]['text'] ?? '');
+
+        } catch (\Exception $e) {
+            Log::warning('ClaudeService generateText exception: ' . $e->getMessage());
+            return '';
+        }
+    }
+
     public function generateJson(string $prompt, int $maxTokens = 4096, float $temperature = 0.7): array
     {
         if (!$this->isAvailable()) {
