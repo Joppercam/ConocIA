@@ -68,6 +68,6 @@ class Event extends Model
             'workshop'   => '#ffa502',
             'summit'     => '#9c27b0',
             default      => '#64748b',
-        ];
+        };
     }
 }
