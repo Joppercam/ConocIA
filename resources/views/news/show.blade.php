@@ -189,9 +189,11 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 
             @if($showImage)
             <div class="mb-4">
-                <img src="{{ $imageSrc }}" 
-                    class="img-fluid rounded w-100" 
-                    alt="{{ $article->title }}">
+                <img src="{{ $imageSrc }}"
+                    class="img-fluid rounded w-100"
+                    alt="{{ $article->title }}"
+                    fetchpriority="high"
+                    loading="eager">
                 @if($article->image_caption)
                     <p class="text-muted small mt-1 fst-italic">{{ $article->image_caption }}</p>
                 @endif

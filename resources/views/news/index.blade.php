@@ -82,6 +82,7 @@
                                  class="w-100 h-100 news-thumb-img"
                                  style="object-fit:cover;"
                                  alt="{{ $article->title }}"
+                                 loading="lazy"
                                  onerror="this.closest('.col-md-4').remove(); this.closest('.row.g-0').querySelector('.news-content').classList.replace('col-md-8','col-12');">
                         </a>
                     </div>

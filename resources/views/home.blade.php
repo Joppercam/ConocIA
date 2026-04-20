@@ -66,6 +66,7 @@
                                 <img src="{{ $hero->image }}"
                                      class="editorial-img"
                                      alt="{{ $hero->title }}"
+                                     fetchpriority="high"
                                      loading="eager">
                                 <div class="editorial-gradient"></div>
                                 @if(in_array($hero->id, $trendingIds ?? []))
