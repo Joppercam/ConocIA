@@ -55,8 +55,8 @@
                     @endif
                     <div class="d-flex flex-wrap gap-3" style="font-size:.83rem;color:#94a3b8;">
                         <span><i class="fas fa-calendar me-1" style="color:var(--primary-color);"></i>
-                            {{ $featured->start_date->locale('es')->isoFormat('D [de] MMMM') }}
-                            @if($featured->end_date) — {{ $featured->end_date->locale('es')->isoFormat('D [de] MMMM, YYYY') }}
+                            {{ $featured->start_date->day }} de {{ $featured->start_date->locale('es')->monthName }}
+                            @if($featured->end_date) — {{ $featured->end_date->day }} de {{ $featured->end_date->locale('es')->monthName }}, {{ $featured->end_date->year }}
                             @else, {{ $featured->start_date->year }} @endif
                         </span>
                         @if($featured->location)
