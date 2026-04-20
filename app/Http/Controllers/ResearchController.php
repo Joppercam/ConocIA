@@ -125,12 +125,16 @@ class ResearchController extends Controller
         $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($slug) {
             // Intentar encontrar por slug, si no, por ID con eager loading
             $research = Research::with(['category', 'author', 'tags', 'comments' => function($query) {
-                    $query->latest()->take(5); // Solo cargar los 5 comentarios más recientes
+                    $query->latest()->take(5);
                 }])
                 ->where('slug', $slug)
-                ->first() 
-                ?? Research::with(['category', 'author', 'tags', 'comments'])
-                   ->findOrFail($slug);
+                ->first();
+
+            if (!$research && is_numeric($slug)) {
+                $research = Research::with(['category', 'author', 'tags', 'comments'])->find($slug);
+            }
+
+            abort_if(!$research, 404);
             
             // Obtener investigaciones relacionadas - Por categoría y tags
             $relatedResearch = $this->getRelatedResearch($research);
