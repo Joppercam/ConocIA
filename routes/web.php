@@ -210,6 +210,12 @@ Route::get('/api/briefing/today', function () {
     ]);
 })->name('briefing.today');
 
+// Comparador de modelos IA
+Route::get('/modelos', [\App\Http\Controllers\AiModelController::class, 'index'])->name('modelos.index');
+
+// Agenda de eventos IA
+Route::get('/agenda', [\App\Http\Controllers\EventController::class, 'index'])->name('agenda.index');
+
 // Rutas para noticias
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');

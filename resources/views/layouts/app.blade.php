@@ -754,6 +754,24 @@
                             </ul>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('modelos.*') ? 'active' : '' }}"
+                               href="{{ route('modelos.index') }}"
+                               aria-current="{{ request()->routeIs('modelos.*') ? 'page' : 'false' }}">
+                                <i class="fas fa-robot me-1 d-lg-none"></i>
+                                <span class="d-lg-none">Modelos</span>
+                                <span class="d-none d-lg-inline">Modelos</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('agenda.*') ? 'active' : '' }}"
+                               href="{{ route('agenda.index') }}"
+                               aria-current="{{ request()->routeIs('agenda.*') ? 'page' : 'false' }}">
+                                <i class="fas fa-calendar-alt me-1 d-lg-none"></i>
+                                <span class="d-lg-none">Agenda</span>
+                                <span class="d-none d-lg-inline">Agenda</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link position-relative {{ request()->routeIs('saved') ? 'active' : '' }}"
                                href="{{ route('saved') }}" title="Artículos guardados">
                                 <i class="fas fa-bookmark me-1 d-lg-none"></i>
