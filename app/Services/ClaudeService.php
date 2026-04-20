@@ -63,14 +63,14 @@ class ClaudeService
                 ]);
 
             if ($response->failed()) {
-                Log::warning('ClaudeService generateText HTTP error: ' . $response->status() . ' ' . $response->body());
+                Log::error('ClaudeService generateText HTTP error: ' . $response->status() . ' ' . $response->body());
                 return '';
             }
 
             return trim($response->json()['content'][0]['text'] ?? '');
 
         } catch (\Exception $e) {
-            Log::warning('ClaudeService generateText exception: ' . $e->getMessage());
+            Log::error('ClaudeService generateText exception: ' . $e->getMessage());
             return '';
         }
     }

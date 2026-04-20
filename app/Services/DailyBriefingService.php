@@ -40,7 +40,7 @@ class DailyBriefingService
         $script = $this->callClaude($news);
 
         if (empty($script)) {
-            Log::info('DailyBriefing: Claude failed, trying Gemini fallback.');
+            Log::warning('DailyBriefing: Claude devolvió vacío, revisá logs de ClaudeService.');
             $script = $this->callGemini($news);
         }
 

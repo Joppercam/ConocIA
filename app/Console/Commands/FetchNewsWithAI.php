@@ -709,43 +709,58 @@ PROMPT;
             $temperature = $isTruncated ? 0.8 : 0.7;
             $guard       = app(GeminiQuotaGuard::class);
 
-            if (!$guard->canCall('medium')) {
-                $this->warn("Gemini quota: saltando mejora de IA. " . $guard->summary());
-                throw new \Exception('Gemini quota exceeded for news enhancement.');
+            $enhancedContent = null;
+
+            if ($guard->canCall('medium')) {
+                $this->info("Enviando solicitud a Gemini ({$geminiModel})...");
+
+                $geminiResponse = Http::timeout(60)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
+                    [
+                        'system_instruction' => [
+                            'parts' => [['text' => "Eres un periodista senior especializado en {$categoryName}. Crea artículos de largo aliento, bien estructurados en HTML, que enganchen y profundicen. Responde siempre en formato JSON según se te indique."]],
+                        ],
+                        'contents' => [
+                            ['parts' => [['text' => $prompt]]]
+                        ],
+                        'generationConfig' => [
+                            'temperature'      => $temperature,
+                            'maxOutputTokens'  => 3500,
+                            'responseMimeType' => 'application/json',
+                        ],
+                    ]
+                );
+
+                if ($geminiResponse->successful()) {
+                    $this->info("Respuesta recibida de Gemini");
+                    $guard->record();
+                    $content = $geminiResponse->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    $enhancedContent = json_decode($content, true);
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        $this->warn("Gemini JSON inválido, usando fallback a Claude.");
+                        $enhancedContent = null;
+                    }
+                } else {
+                    $this->warn("Gemini falló (" . $geminiResponse->status() . "), usando fallback a Claude.");
+                }
+            } else {
+                $this->warn("Gemini quota agotada. " . $guard->summary() . " Usando Claude.");
             }
 
-            $this->info("Enviando solicitud a Gemini ({$geminiModel})...");
-
-            $geminiResponse = Http::timeout(60)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
-                [
-                    'system_instruction' => [
-                        'parts' => [['text' => "Eres un periodista senior especializado en {$categoryName}. Crea artículos de largo aliento, bien estructurados en HTML, que enganchen y profundicen. Responde siempre en formato JSON según se te indique."]],
-                    ],
-                    'contents' => [
-                        ['parts' => [['text' => $prompt]]]
-                    ],
-                    'generationConfig' => [
-                        'temperature'      => $temperature,
-                        'maxOutputTokens'  => 3500,
-                        'responseMimeType' => 'application/json',
-                    ],
-                ]
-            );
-
-            if ($geminiResponse->failed()) {
-                throw new \Exception('Gemini API Error: ' . $geminiResponse->body());
+            if ($enhancedContent === null) {
+                $claude = app(\App\Services\ClaudeService::class);
+                if ($claude->isAvailable()) {
+                    $this->info("Enviando solicitud a Claude como fallback...");
+                    $enhancedContent = $claude->generateJson($prompt, 3500, $temperature);
+                    if (!empty($enhancedContent)) {
+                        $this->info("Respuesta recibida de Claude");
+                    } else {
+                        $this->warn("Claude también falló.");
+                    }
+                }
             }
 
-            $this->info("Respuesta recibida de Gemini");
-            $guard->record();
-
-            $content = $geminiResponse->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
-            $enhancedContent = json_decode($content, true);
-            
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->warn("Error al decodificar JSON de la respuesta de IA: " . json_last_error_msg());
-                $this->warn("Contenido recibido: " . substr($content, 0, 100) . "...");
+            if (empty($enhancedContent)) {
                 return null;
             }
             
@@ -762,22 +777,38 @@ PROMPT;
 
                 $expansionPrompt = "El siguiente artículo sobre {$categoryName} quedó demasiado corto. Expándelo a mínimo 1.000 palabras añadiendo: contexto histórico o comparativo, implicaciones para la industria, perspectivas de expertos (si las hay en el original), y una sección 'Para profundizar' con 3 ítems en formato <ul><li><strong>Tema</strong> — descripción</li></ul>. Mantén el HTML válido y el tono periodístico.\n\n" . $enhancedContent['content'];
 
-                $expansionResult = Http::timeout(60)->post(
-                    "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
-                    [
-                        'contents' => [
-                            ['parts' => [['text' => $expansionPrompt]]]
-                        ],
-                        'generationConfig' => [
-                            'temperature'     => 0.7,
-                            'maxOutputTokens' => 3500,
-                        ],
-                    ]
-                );
+                $expandedContent = '';
 
-                $expandedContent = $expansionResult->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
-                $enhancedContent['content'] = $expandedContent;
-                $this->info("Contenido expandido exitosamente");
+                if ($guard->canCall('low')) {
+                    $expansionResult = Http::timeout(60)->post(
+                        "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
+                        [
+                            'contents' => [
+                                ['parts' => [['text' => $expansionPrompt]]]
+                            ],
+                            'generationConfig' => [
+                                'temperature'     => 0.7,
+                                'maxOutputTokens' => 3500,
+                            ],
+                        ]
+                    );
+                    if ($expansionResult->successful()) {
+                        $guard->record();
+                        $expandedContent = $expansionResult->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
+                    }
+                }
+
+                if (empty($expandedContent)) {
+                    $claude = app(\App\Services\ClaudeService::class);
+                    if ($claude->isAvailable()) {
+                        $expandedContent = $claude->generateText($expansionPrompt, 3500, 0.7);
+                    }
+                }
+
+                if (!empty($expandedContent)) {
+                    $enhancedContent['content'] = $expandedContent;
+                    $this->info("Contenido expandido exitosamente");
+                }
             }
             
             $this->info("Contenido mejorado con IA correctamente");
