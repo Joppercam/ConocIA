@@ -19,20 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        // Gemini Search Grounding — 2x al día
-        $schedule->command('news:fetch-gemini --all --count=3 --days=2')
-            ->twiceDaily(7, 17)
-            ->withoutOverlapping(90)
+        // Gemini Search Grounding — 1 noticia por hora (evita timeout)
+        $schedule->command('news:fetch-gemini --all --count=1 --days=1')
+            ->hourly()
+            ->withoutOverlapping(55)
             ->before(fn() => Log::info('[SCHEDULER] ▶ Iniciando news:fetch-gemini', ['at' => now()->toDateTimeString()]))
             ->after(fn() => Log::info('[SCHEDULER] ✓ Completado news:fetch-gemini', ['at' => now()->toDateTimeString()]))
-            ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
-
-        // TEST temporal: verificar que el scheduler funciona hoy (eliminar mañana)
-        $schedule->command('news:fetch-gemini --all --count=1 --days=1')
-            ->dailyAt('17:10')
-            ->withoutOverlapping(90)
-            ->before(fn() => Log::info('[SCHEDULER-TEST] ▶ Iniciando news:fetch-gemini TEST', ['at' => now()->toDateTimeString()]))
-            ->after(fn() => Log::info('[SCHEDULER-TEST] ✓ Completado news:fetch-gemini TEST', ['at' => now()->toDateTimeString()]))
             ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
 
         // NewsAPI — 1x al día
@@ -43,10 +35,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ->after(fn() => Log::info('[SCHEDULER] ✓ Completado news:fetch-all', ['at' => now()->toDateTimeString()]))
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
 
-        // RSS curado — 2x al día
-        $schedule->command('news:fetch-rss --limit=3')
-            ->twiceDaily(9, 18)
-            ->withoutOverlapping(30)
+        // RSS curado — 1 noticia cada 30 minutos (evita timeout por reescritura IA)
+        $schedule->command('news:fetch-rss --limit=1')
+            ->everyThirtyMinutes()
+            ->withoutOverlapping(25)
             ->before(fn() => Log::info('[SCHEDULER] ▶ Iniciando news:fetch-rss', ['at' => now()->toDateTimeString()]))
             ->after(fn() => Log::info('[SCHEDULER] ✓ Completado news:fetch-rss', ['at' => now()->toDateTimeString()]))
             ->appendOutputTo(storage_path('logs/fetch-rss.log'));
