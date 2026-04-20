@@ -432,6 +432,28 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
             Route::post('/run-fetch',           [AdminPaperController::class, 'runFetch'])->name('run-fetch');
         });
 
+        // Modelos IA admin
+        Route::prefix('modelos')->name('modelos.')->group(function () {
+            Route::get('/',                 [\App\Http\Controllers\Admin\AiModelController::class, 'index'])->name('index');
+            Route::get('/create',           [\App\Http\Controllers\Admin\AiModelController::class, 'create'])->name('create');
+            Route::post('/',                [\App\Http\Controllers\Admin\AiModelController::class, 'store'])->name('store');
+            Route::get('/{modelo}/edit',    [\App\Http\Controllers\Admin\AiModelController::class, 'edit'])->name('edit');
+            Route::put('/{modelo}',         [\App\Http\Controllers\Admin\AiModelController::class, 'update'])->name('update');
+            Route::delete('/{modelo}',      [\App\Http\Controllers\Admin\AiModelController::class, 'destroy'])->name('destroy');
+            Route::patch('/{modelo}/toggle',[\App\Http\Controllers\Admin\AiModelController::class, 'toggleActive'])->name('toggle');
+        });
+
+        // Agenda de Eventos IA admin
+        Route::prefix('agenda')->name('agenda.')->group(function () {
+            Route::get('/',                 [\App\Http\Controllers\Admin\EventController::class, 'index'])->name('index');
+            Route::get('/create',           [\App\Http\Controllers\Admin\EventController::class, 'create'])->name('create');
+            Route::post('/',                [\App\Http\Controllers\Admin\EventController::class, 'store'])->name('store');
+            Route::get('/{agenda}/edit',    [\App\Http\Controllers\Admin\EventController::class, 'edit'])->name('edit');
+            Route::put('/{agenda}',         [\App\Http\Controllers\Admin\EventController::class, 'update'])->name('update');
+            Route::delete('/{agenda}',      [\App\Http\Controllers\Admin\EventController::class, 'destroy'])->name('destroy');
+            Route::patch('/{agenda}/toggle',[\App\Http\Controllers\Admin\EventController::class, 'toggleActive'])->name('toggle');
+        });
+
         // Estado del Arte admin
         Route::prefix('estado-arte')->name('estado-arte.')->group(function () {
             Route::get('/',                         [EstadoArteAdminController::class, 'index'])->name('index');

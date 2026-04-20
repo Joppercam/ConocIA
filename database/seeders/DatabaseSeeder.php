@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             ResearchSeeder::class,
             VideoPlatformSeeder::class,
             VideoCategorySeeder::class,
+            AiModelSeeder::class,
+            EventSeeder::class,
         ]);
     }
 }

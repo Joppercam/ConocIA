@@ -186,6 +186,28 @@
                         <li><a href="{{ route('papers.index') }}" target="_blank">Ver portal</a></li>
                     </ul>
                 </li>
+                <li class="{{ request()->routeIs('admin.modelos.*') ? 'active' : '' }}">
+                    <a href="#modelosSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.modelos.*') ? 'true' : 'false' }}"
+                       class="dropdown-toggle">
+                        <i class="fas fa-robot me-2"></i> Modelos IA
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.modelos.*') ? 'show' : '' }}" id="modelosSubmenu">
+                        <li><a href="{{ route('admin.modelos.index') }}">Ver todos</a></li>
+                        <li><a href="{{ route('admin.modelos.create') }}">Nuevo modelo</a></li>
+                    </ul>
+                </li>
+                <li class="{{ request()->routeIs('admin.agenda.*') ? 'active' : '' }}">
+                    <a href="#agendaSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.agenda.*') ? 'true' : 'false' }}"
+                       class="dropdown-toggle">
+                        <i class="fas fa-calendar-alt me-2"></i> Agenda IA
+                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.agenda.*') ? 'show' : '' }}" id="agendaSubmenu">
+                        <li><a href="{{ route('admin.agenda.index') }}">Ver todos</a></li>
+                        <li><a href="{{ route('admin.agenda.create') }}">Nuevo evento</a></li>
+                    </ul>
+                </li>
                 <li class="{{ request()->routeIs('admin.estado-arte.*') ? 'active' : '' }}">
                     <a href="#estadoArteSubmenu" data-bs-toggle="collapse"
                        aria-expanded="{{ request()->routeIs('admin.estado-arte.*') ? 'true' : 'false' }}"
