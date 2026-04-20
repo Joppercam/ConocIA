@@ -2,7 +2,39 @@
 
 @section('reading_progress', true)
 
-@section('title', $paper->title . ' — ConocIA Papers | ConocIA')
+@php
+    $metaTitle       = $paper->title . ' — Paper explicado en español | ConocIA';
+    $metaDescription = \Illuminate\Support\Str::limit(strip_tags($paper->excerpt ?? $paper->original_abstract ?? $paper->content ?? ''), 155);
+    $metaUrl         = route('papers.show', $paper->slug);
+    $metaImage       = !empty($paper->image) ? asset($paper->image) : asset('images/defaults/social-share.jpg');
+@endphp
+
+@section('title', $metaTitle)
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $metaTitle,
+        'metaDescription' => $metaDescription,
+        'metaKeywords'    => 'paper inteligencia artificial, ' . $paper->title . ', arxiv español, investigación IA',
+        'metaImage'       => $metaImage,
+        'metaType'        => 'article',
+        'metaUrl'         => $metaUrl,
+        'metaAuthor'      => 'ConocIA',
+        'metaPublished'   => $paper->published_at?->toIso8601String(),
+        'metaModified'    => $paper->updated_at?->toIso8601String(),
+    ])
+    @include('partials.schema-article', [
+        'item'      => $paper,
+        'routeName' => 'papers.show',
+        'type'      => 'ScholarlyArticle',
+        'section'   => 'ConocIA Papers',
+    ])
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',          'url' => url('/')],
+        ['name' => 'ConocIA Papers',  'url' => route('papers.index')],
+        ['name' => $paper->title],
+    ]])
+@endsection
 
 @section('content')
 <div class="container py-5">

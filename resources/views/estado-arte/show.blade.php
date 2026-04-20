@@ -2,7 +2,39 @@
 
 @section('reading_progress', true)
 
-@section('title', $digest->title . ' — Estado del Arte | ConocIA')
+@php
+    $metaTitle       = $digest->title . ' | Estado del Arte en IA — ConocIA';
+    $metaDescription = \Illuminate\Support\Str::limit(strip_tags($digest->excerpt ?? $digest->content ?? ''), 155);
+    $metaUrl         = route('estado-arte.show', $digest->slug);
+    $metaImage       = !empty($digest->image) ? asset($digest->image) : asset('images/defaults/social-share.jpg');
+@endphp
+
+@section('title', $metaTitle)
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $metaTitle,
+        'metaDescription' => $metaDescription,
+        'metaKeywords'    => 'estado del arte inteligencia artificial, ' . $digest->title . ', digest IA semanal, avances IA',
+        'metaImage'       => $metaImage,
+        'metaType'        => 'article',
+        'metaUrl'         => $metaUrl,
+        'metaAuthor'      => 'ConocIA',
+        'metaPublished'   => $digest->published_at?->toIso8601String(),
+        'metaModified'    => $digest->updated_at?->toIso8601String(),
+    ])
+    @include('partials.schema-article', [
+        'item'      => $digest,
+        'routeName' => 'estado-arte.show',
+        'type'      => 'Article',
+        'section'   => 'Estado del Arte',
+    ])
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',         'url' => url('/')],
+        ['name' => 'Estado del Arte','url' => route('estado-arte.index')],
+        ['name' => $digest->title],
+    ]])
+@endsection
 
 @section('content')
 <div class="container py-5">

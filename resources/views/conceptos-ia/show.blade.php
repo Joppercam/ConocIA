@@ -2,7 +2,41 @@
 
 @section('reading_progress', true)
 
-@section('title', $concepto->title . ' — Conceptos IA | ConocIA')
+@php
+    $metaTitle       = $concepto->title . ': qué es y cómo funciona | ConocIA';
+    $metaDescription = $concepto->definition
+        ? \Illuminate\Support\Str::limit(strip_tags($concepto->definition), 155)
+        : \Illuminate\Support\Str::limit(strip_tags($concepto->excerpt ?? ''), 155);
+    $metaUrl         = route('conceptos.show', $concepto->slug);
+    $metaImage       = !empty($concepto->image) ? asset($concepto->image) : asset('images/defaults/social-share.jpg');
+@endphp
+
+@section('title', $metaTitle)
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $metaTitle,
+        'metaDescription' => $metaDescription,
+        'metaKeywords'    => 'inteligencia artificial, ' . $concepto->title . ', ' . ($concepto->category ?? 'IA') . ', qué es, explicado en español',
+        'metaImage'       => $metaImage,
+        'metaType'        => 'article',
+        'metaUrl'         => $metaUrl,
+        'metaAuthor'      => 'ConocIA',
+        'metaPublished'   => $concepto->published_at?->toIso8601String(),
+        'metaModified'    => $concepto->updated_at?->toIso8601String(),
+    ])
+    @include('partials.schema-article', [
+        'item'      => $concepto,
+        'routeName' => 'conceptos.show',
+        'type'      => 'TechArticle',
+        'section'   => 'Conceptos IA',
+    ])
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',       'url' => url('/')],
+        ['name' => 'Conceptos IA', 'url' => route('conceptos.index')],
+        ['name' => $concepto->title],
+    ]])
+@endsection
 
 @section('content')
 <div class="container py-5">

@@ -3,7 +3,37 @@
 @php
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Str;
+
+    $isCategory      = isset($category);
+    $metaTitle       = $isCategory
+        ? $category->name . ' — Noticias de IA | ConocIA'
+        : 'Últimas Noticias de Inteligencia Artificial | ConocIA';
+    $metaDescription = $isCategory && $category->description
+        ? Str::limit($category->description, 155)
+        : 'Las últimas noticias sobre inteligencia artificial, machine learning y tecnología en español. Actualización diaria.';
+    $metaUrl         = $isCategory ? route('news.category', $category->slug) : route('news.index');
 @endphp
+
+@section('title', $metaTitle)
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $metaTitle,
+        'metaDescription' => $metaDescription,
+        'metaKeywords'    => $isCategory
+            ? $category->name . ', noticias inteligencia artificial, IA en español'
+            : 'noticias inteligencia artificial, IA, machine learning, tecnología, noticias IA español',
+        'metaType'        => 'website',
+        'metaUrl'         => $metaUrl,
+    ])
+    @if($isCategory)
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',   'url' => url('/')],
+        ['name' => 'Noticias', 'url' => route('news.index')],
+        ['name' => $category->name],
+    ]])
+    @endif
+@endsection
 
 @section('content')
 

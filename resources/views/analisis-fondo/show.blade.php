@@ -2,7 +2,39 @@
 
 @section('reading_progress', true)
 
-@section('title', $analysis->title . ' — Análisis de Fondo | ConocIA')
+@php
+    $metaTitle       = $analysis->title . ' | ConocIA';
+    $metaDescription = \Illuminate\Support\Str::limit(strip_tags($analysis->excerpt ?? $analysis->summary ?? $analysis->content ?? ''), 155);
+    $metaUrl         = route('analisis.show', $analysis->slug);
+    $metaImage       = !empty($analysis->image) ? asset($analysis->image) : asset('images/defaults/social-share.jpg');
+@endphp
+
+@section('title', $metaTitle)
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle'       => $metaTitle,
+        'metaDescription' => $metaDescription,
+        'metaKeywords'    => 'análisis inteligencia artificial, ' . $analysis->title . ', IA en español',
+        'metaImage'       => $metaImage,
+        'metaType'        => 'article',
+        'metaUrl'         => $metaUrl,
+        'metaAuthor'      => 'ConocIA',
+        'metaPublished'   => $analysis->published_at?->toIso8601String(),
+        'metaModified'    => $analysis->updated_at?->toIso8601String(),
+    ])
+    @include('partials.schema-article', [
+        'item'      => $analysis,
+        'routeName' => 'analisis.show',
+        'type'      => 'Article',
+        'section'   => 'Análisis de Fondo',
+    ])
+    @include('partials.schema-breadcrumb', ['crumbs' => [
+        ['name' => 'Inicio',            'url' => url('/')],
+        ['name' => 'Análisis de Fondo', 'url' => route('analisis.index')],
+        ['name' => $analysis->title],
+    ]])
+@endsection
 
 @section('content')
 <div class="container py-5">
