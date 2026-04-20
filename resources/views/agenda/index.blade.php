@@ -114,7 +114,7 @@
                         @php $days = $event->days_until; @endphp
                         @if($days >= 0 && $days <= 30)
                         <span style="font-size:.72rem;color:#ff4757;font-weight:600;">
-                            {{ $days === 0 ? '¡Hoy!' : "En {$days} días" }}
+                            {{ $days === 0 ? '¡Hoy!' : 'En '.$days.' días' }}
                         </span>
                         @endif
                     </div>
