@@ -11,6 +11,7 @@ use App\Models\ConceptoIa;
 use App\Models\AnalisisFondo;
 use App\Models\ConocIaPaper;
 use App\Models\EstadoArte;
+use App\Models\Video;
 
 class SitemapController extends Controller
 {
@@ -24,6 +25,8 @@ class SitemapController extends Controller
         $papers     = ConocIaPaper::where('status', 'published')->latest('updated_at')->first();
         $digests    = EstadoArte::where('status', 'published')->latest('updated_at')->first();
 
+        $videos = Video::latest('updated_at')->first();
+
         $sitemaps = [
             ['url' => 'sitemap-main.xml',        'last' => now()],
             ['url' => 'sitemap-news.xml',         'last' => $news?->updated_at ?? now()],
@@ -32,6 +35,7 @@ class SitemapController extends Controller
             ['url' => 'sitemap-columns.xml',      'last' => $columns?->updated_at ?? now()],
             ['url' => 'sitemap-profundiza.xml',   'last' => collect([$conceptos, $analises, $papers, $digests])
                 ->filter()->max(fn($m) => $m->updated_at) ?? now()],
+            ['url' => 'sitemap-videos.xml',       'last' => $videos?->updated_at ?? now()],
         ];
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -49,10 +53,13 @@ class SitemapController extends Controller
 
     public function news()
     {
+        // Google News sitemap spec: only articles published in the last 2 days
         $news = News::where('status', 'published')
-            ->orderBy('updated_at', 'desc')
+            ->where('published_at', '>=', now()->subDays(2))
+            ->orderBy('published_at', 'desc')
+            ->limit(1000)
             ->get();
-            
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">';
         
@@ -195,6 +202,50 @@ class SitemapController extends Controller
             $xml .= '<loc>' . route('estado-arte.show', $item->slug ?? $item->id) . '</loc>';
             $xml .= '<lastmod>' . $item->updated_at->toIso8601String() . '</lastmod>';
             $xml .= '<changefreq>monthly</changefreq><priority>0.7</priority>';
+            $xml .= '</url>';
+        }
+
+        $xml .= '</urlset>';
+
+        return response($xml)->header('Content-Type', 'text/xml');
+    }
+
+    public function videos()
+    {
+        $videos = Video::whereNotNull('original_url')
+            ->orderBy('published_at', 'desc')
+            ->get();
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
+              . ' xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">';
+
+        $xml .= '<url>'
+              . '<loc>' . url('/videos') . '</loc>'
+              . '<changefreq>weekly</changefreq>'
+              . '<priority>0.8</priority>'
+              . '</url>';
+
+        foreach ($videos as $video) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . route('videos.show', $video->id) . '</loc>';
+            $xml .= '<lastmod>' . $video->updated_at->toIso8601String() . '</lastmod>';
+            $xml .= '<changefreq>monthly</changefreq>';
+            $xml .= '<priority>0.6</priority>';
+            $xml .= '<video:video>';
+            $xml .= '<video:thumbnail_loc>' . htmlspecialchars($video->thumbnail_url ?? '') . '</video:thumbnail_loc>';
+            $xml .= '<video:title>' . htmlspecialchars($video->title) . '</video:title>';
+            if ($video->description) {
+                $xml .= '<video:description>' . htmlspecialchars(mb_substr(strip_tags($video->description), 0, 2048)) . '</video:description>';
+            }
+            $xml .= '<video:content_loc>' . htmlspecialchars($video->original_url) . '</video:content_loc>';
+            if ($video->published_at) {
+                $xml .= '<video:publication_date>' . $video->published_at->toIso8601String() . '</video:publication_date>';
+            }
+            if ($video->duration_seconds) {
+                $xml .= '<video:duration>' . $video->duration_seconds . '</video:duration>';
+            }
+            $xml .= '</video:video>';
             $xml .= '</url>';
         }
 

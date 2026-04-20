@@ -128,7 +128,16 @@ Route::get('sitemap-main.xml', function() {
     $xml .= '<changefreq>weekly</changefreq>';
     $xml .= '<priority>0.8</priority>';
     $xml .= '</url>';
-    
+
+    foreach (['/videos', '/conceptos-ia', '/analisis', '/papers', '/estado-del-arte'] as $section) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . url($section) . '</loc>';
+        $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
+        $xml .= '<changefreq>weekly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+    }
+
     $xml .= '<url>';
     $xml .= '<loc>' . url('/acerca-de') . '</loc>';
     $xml .= '<lastmod>' . now()->toIso8601String() . '</lastmod>';
@@ -174,6 +183,7 @@ Route::get('sitemap-categories.xml', [SitemapController::class, 'categories']);
 Route::get('sitemap-research.xml', [SitemapController::class, 'research']);
 Route::get('sitemap-columns.xml', [SitemapController::class, 'columns']);
 Route::get('sitemap-profundiza.xml', [SitemapController::class, 'profundiza']);
+Route::get('sitemap-videos.xml', [SitemapController::class, 'videos']);
 
 // RSS Feed
 Route::feeds();
