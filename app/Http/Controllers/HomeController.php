@@ -223,7 +223,6 @@ class HomeController extends Controller
                 fn() => Column::with('author')->where('featured', false)->latest()->take(9)->get()
             );
 
-            Log::info("Columnas destacadas: {$latestColumnsSectionFeatured->count()}, No destacadas: {$latestColumnsSection->count()}");
         } catch (\Exception $e) {
             $latestColumns                = collect([]);
             $latestColumnsSectionFeatured = collect([]);
