@@ -69,6 +69,25 @@ class NewsController extends Controller
 
     public function show($slug)
     {
+        // Si la URL tiene sufijo -archive-XXXXX, redirigir al slug base (301 para SEO)
+        if (preg_match('/^(.+)-archive-[a-f0-9]+$/i', $slug, $matches)) {
+            $baseSlug = $matches[1];
+
+            // Buscar en news activas primero
+            $active = News::where('slug', $baseSlug)->first();
+            if ($active) {
+                return redirect()->route('news.show', $baseSlug, 301);
+            }
+
+            // Buscar en histórico por slug base
+            $historic = NewsHistoric::where('slug', 'like', $baseSlug . '-archive-%')->first();
+            if ($historic) {
+                return redirect()->route('news.show', $baseSlug, 301);
+            }
+
+            abort(404);
+        }
+
         $article = News::where('slug', $slug)
             ->with(['category', 'tags', 'author', 'comments' => fn($q) =>
                 $q->where('status', 'approved')->whereNull('parent_id')->orderBy('created_at', 'desc')
@@ -76,7 +95,8 @@ class NewsController extends Controller
             ->first();
 
         if (!$article) {
-            $article = NewsHistoric::where('slug', 'like', $slug . '%')
+            // Buscar en histórico: el slug guardado es base-archive-XXXXX
+            $article = NewsHistoric::where('slug', 'like', $slug . '-archive-%')
                 ->with(['category', 'author', 'comments' => fn($q) =>
                     $q->where('status', 'approved')->whereNull('parent_id')->orderBy('created_at', 'desc')
                 ])
