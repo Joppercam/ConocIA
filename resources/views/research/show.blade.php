@@ -63,16 +63,19 @@
         "wordCount": {{ str_word_count(strip_tags($_rContent)) }}
     }
     </script>
-    @include('partials.schema-breadcrumb', ['crumbs' => [
-        ['name' => 'Inicio',          'url' => url('/')],
-        ['name' => 'Investigaciones', 'url' => route('research.index')],
-        @if($_rCategory)
-        ['name' => $_rCategory->name, 'url' => route('research.category', $_rCategory->slug)],
-        @elseif($_rType)
-        ['name' => $_rType, 'url' => route('research.type', $_rType)],
-        @endif
-        ['name' => $_rTitle],
-    ]])
+    @php
+        $_rCrumbs = [
+            ['name' => 'Inicio',          'url' => url('/')],
+            ['name' => 'Investigaciones', 'url' => route('research.index')],
+        ];
+        if ($_rCategory) {
+            $_rCrumbs[] = ['name' => $_rCategory->name, 'url' => route('research.category', $_rCategory->slug)];
+        } elseif ($_rType) {
+            $_rCrumbs[] = ['name' => $_rType, 'url' => route('research.type', $_rType)];
+        }
+        $_rCrumbs[] = ['name' => $_rTitle];
+    @endphp
+    @include('partials.schema-breadcrumb', ['crumbs' => $_rCrumbs])
 @endsection
 
 @section('content')
