@@ -716,18 +716,11 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->routeIs('startups.*','agents.*','modelos.*','agenda.*') ? 'active' : '' }}"
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('agents.*','modelos.*','agenda.*') ? 'active' : '' }}"
                                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-layer-group me-1 d-lg-none"></i>Ecosistema
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" style="min-width:240px;">
-                                <li>
-                                    <a class="dropdown-item py-2" href="{{ route('startups.index') }}">
-                                        <i class="fas fa-rocket me-2" style="color:var(--primary-color);"></i>
-                                        <strong>Startups IA</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Directorio de startups de inteligencia artificial</div>
-                                    </a>
-                                </li>
                                 <li>
                                     <a class="dropdown-item py-2" href="{{ route('agents.index') }}">
                                         <i class="fas fa-robot me-2" style="color:var(--primary-color);"></i>
