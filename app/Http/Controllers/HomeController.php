@@ -154,7 +154,7 @@ class HomeController extends Controller
                       ->where('image', '!=', 'default.jpg')
                       ->whereRaw("image NOT LIKE '%default%'")
                       ->whereRaw("image NOT LIKE '%placeholder%'")
-                      ->whereRaw("image NOT LIKE '%placeholder%'");
+                      ->whereRaw("image LIKE 'http%'");
                 })
                 ->latest('published_at')
                 ->take(5)
