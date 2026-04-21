@@ -4,57 +4,69 @@ namespace App\Console\Commands;
 
 use App\Models\News;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class FixBrokenImageUrls extends Command
 {
     protected $signature = 'news:fix-image-urls {--dry-run : Mostrar cambios sin aplicarlos}';
-    protected $description = 'Corrige URLs de imágenes que contienen el path absoluto del servidor';
+    protected $description = 'Corrige y nullea URLs de imágenes rotas (path absoluto o R2 inaccesible)';
 
     public function handle()
     {
-        $dryRun  = $this->option('dry-run');
-        $baseUrl = rtrim(config('filesystems.disks.custom_public.url', env('APP_URL') . '/storage'), '/');
-        $badPattern = '/var/www/html/storage/app/public/';
+        $dryRun     = $this->option('dry-run');
+        $r2Domain   = parse_url(config('filesystems.disks.custom_public.url', ''), PHP_URL_HOST) ?? '';
+        $absPattern = '/var/www/html/storage/app/public/';
 
-        $news = News::whereNotNull('image')
-            ->where('image', 'like', '%' . $badPattern . '%')
+        // 1. URLs con path absoluto del servidor → corregir el path
+        $withAbsPath = News::whereNotNull('image')
+            ->where('image', 'like', '%' . $absPattern . '%')
             ->get();
 
-        if ($news->isEmpty()) {
+        // 2. URLs que apuntan a R2 directamente (no Pexels) → nullear para que fetch-missing-images las reemplace
+        $withR2 = collect();
+        if ($r2Domain) {
+            $withR2 = News::whereNotNull('image')
+                ->where('image', 'like', '%' . $r2Domain . '%')
+                ->where('image', 'not like', '%pexels%')
+                ->get();
+        }
+
+        $total = $withAbsPath->count() + $withR2->count();
+
+        if ($total === 0) {
             $this->info('No se encontraron imágenes con URLs rotas.');
             return 0;
         }
 
-        $this->info("Encontradas {$news->count()} noticias con URLs rotas.");
+        $this->info("Encontradas: {$withAbsPath->count()} con path absoluto, {$withR2->count()} con URL de R2.");
 
         $fixed = 0;
-        foreach ($news as $item) {
-            $pos = strpos($item->image, $badPattern);
+
+        // Corregir path absoluto
+        $baseUrl = rtrim(config('filesystems.disks.custom_public.url', env('APP_URL') . '/storage'), '/');
+        foreach ($withAbsPath as $item) {
+            $pos = strpos($item->image, $absPattern);
             if ($pos === false) continue;
-
-            $relativePath = substr($item->image, $pos + strlen($badPattern));
+            $relativePath = substr($item->image, $pos + strlen($absPattern));
             $newUrl = $baseUrl . '/' . ltrim($relativePath, '/');
+            $this->line("  <fg=yellow>ABS → NULL:</> {$item->image}");
+            if (!$dryRun) $item->update(['image' => null]);
+            $fixed++;
+        }
 
-            $this->line("  <fg=yellow>ANTES:</> {$item->image}");
-            $this->line("  <fg=green>DESPUÉS:</> {$newUrl}");
-            $this->line('');
-
-            if (!$dryRun) {
-                $item->update(['image' => $newUrl]);
-            }
-
+        // Nullear URLs de R2 para que se reemplacen con Pexels
+        foreach ($withR2 as $item) {
+            $this->line("  <fg=yellow>R2 → NULL:</> {$item->image}");
+            if (!$dryRun) $item->update(['image' => null]);
             $fixed++;
         }
 
         if ($dryRun) {
-            $this->warn("SIMULACIÓN: {$fixed} URLs serían corregidas.");
+            $this->warn("SIMULACIÓN: {$fixed} imágenes serían nuleadas.");
         } else {
-            $this->info("{$fixed} URLs corregidas.");
-            // Limpiar caches relacionadas
-            \Illuminate\Support\Facades\Cache::forget('all_published_news');
-            \Illuminate\Support\Facades\Cache::forget('home_page_data');
-            $this->info('Cache limpiado.');
+            $this->info("{$fixed} imágenes nuleadas. Ejecutá 'news:fetch-missing-images' para reemplazarlas con Pexels.");
+            Cache::forget('all_published_news');
+            Cache::forget('home_page_data');
         }
 
         return 0;

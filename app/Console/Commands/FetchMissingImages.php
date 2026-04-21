@@ -113,16 +113,9 @@ class FetchMissingImages extends Command
                 continue;
             }
 
-            $localPath = $this->imageDownloader->download($url, $catSlug);
-
-            if ($localPath) {
-                $article->update(['image' => $localPath]);
-                $this->info("  ✓ [{$article->id}] " . Str::limit($article->title, 60));
-                $ok++;
-            } else {
-                $this->warn("  ✗ Descarga fallida para: {$article->title}");
-                $fail++;
-            }
+            $article->update(['image' => $url]);
+            $this->info("  ✓ [{$article->id}] " . Str::limit($article->title, 60));
+            $ok++;
 
             // Respetar rate-limit de Pexels (200 req/hora en plan free)
             usleep(300_000); // 300ms entre requests
