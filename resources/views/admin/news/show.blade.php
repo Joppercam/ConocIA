@@ -32,9 +32,9 @@
                 <div class="card-body">
                     <h1 class="h4 mb-3">{{ $news->title }}</h1>
                     
-                    @if($news->featured_image)
+                    @if($news->image)
                         <div class="mb-4">
-                            <img src="{{ asset('storage/' . $news->featured_image) }}" alt="{{ $news->title }}" class="img-fluid rounded">
+                            <img src="{{ str_starts_with($news->image, 'http') ? $news->image : asset('storage/' . $news->image) }}" alt="{{ $news->title }}" class="img-fluid rounded">
                         </div>
                     @endif
                     

@@ -133,9 +133,9 @@
                         <div class="card mb-3">
                             <div class="card-header">Imagen destacada</div>
                             <div class="card-body">
-                                @if($news->featured_image)
+                                @if($news->image)
                                     <div class="mb-2">
-                                        <img src="{{ asset('storage/' . $news->featured_image) }}" alt="{{ $news->title }}" class="img-fluid" style="max-height: 200px;">
+                                        <img src="{{ str_starts_with($news->image, 'http') ? $news->image : asset('storage/' . $news->image) }}" alt="{{ $news->title }}" class="img-fluid" style="max-height: 200px;">
                                     </div>
                                 @endif
                                 
