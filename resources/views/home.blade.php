@@ -258,38 +258,6 @@
         </div>{{-- /hero-overlay --}}
     </section>
 
-    {{-- ═══ HERRAMIENTAS DESTACADAS ═══ --}}
-    <div style="background:#0d1117;border-bottom:1px solid #1e2430;">
-        <div class="container">
-            <div class="row g-0">
-                <div class="col-md-6 border-end border-dark">
-                    <a href="{{ route('modelos.index') }}" class="d-flex align-items-center gap-3 px-4 py-3 text-decoration-none" style="transition:background .2s;" onmouseover="this.style.background='#161b22'" onmouseout="this.style.background='transparent'">
-                        <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-2" style="width:40px;height:40px;background:rgba(56,182,255,.12);">
-                            <i class="fas fa-robot" style="color:var(--primary-color);font-size:.95rem;"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold text-white" style="font-size:.88rem;line-height:1.2;">Comparador de Modelos IA</div>
-                            <div style="font-size:.75rem;color:#64748b;">GPT-4o, Claude, Gemini, Llama y más</div>
-                        </div>
-                        <i class="fas fa-chevron-right ms-auto" style="color:#334155;font-size:.7rem;"></i>
-                    </a>
-                </div>
-                <div class="col-md-6">
-                    <a href="{{ route('agenda.index') }}" class="d-flex align-items-center gap-3 px-4 py-3 text-decoration-none" style="transition:background .2s;" onmouseover="this.style.background='#161b22'" onmouseout="this.style.background='transparent'">
-                        <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-2" style="width:40px;height:40px;background:rgba(0,200,150,.1);">
-                            <i class="fas fa-calendar-alt" style="color:#00c896;font-size:.95rem;"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold text-white" style="font-size:.88rem;line-height:1.2;">Agenda de Eventos IA</div>
-                            <div style="font-size:.75rem;color:#64748b;">Conferencias, webinars y deadlines 2025</div>
-                        </div>
-                        <i class="fas fa-chevron-right ms-auto" style="color:#334155;font-size:.7rem;"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- ═══ STARTUP DE LA SEMANA ═══ --}}
     @include('partials.startup-of-week')
 

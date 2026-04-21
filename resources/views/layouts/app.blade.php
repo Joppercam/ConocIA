@@ -715,34 +715,12 @@
                                 <span class="d-none d-lg-inline">ConocIA <span style="color:var(--primary-color);">Radio</span></span>
                             </a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->routeIs('agents.*','modelos.*','agenda.*') ? 'active' : '' }}"
-                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-layer-group me-1 d-lg-none"></i>Ecosistema
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('agents.*') ? 'active' : '' }}"
+                               href="{{ route('agents.index') }}"
+                               aria-current="{{ request()->routeIs('agents.*') ? 'page' : 'false' }}">
+                                <i class="fas fa-robot me-1 d-lg-none"></i>Agentes IA
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:240px;">
-                                <li>
-                                    <a class="dropdown-item py-2" href="{{ route('agents.index') }}">
-                                        <i class="fas fa-robot me-2" style="color:var(--primary-color);"></i>
-                                        <strong>Agentes IA</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Frameworks y herramientas de agentes autónomos</div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2" href="{{ route('modelos.index') }}">
-                                        <i class="fas fa-microchip me-2" style="color:var(--primary-color);"></i>
-                                        <strong>Modelos IA</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Comparador de modelos de lenguaje</div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2" href="{{ route('agenda.index') }}">
-                                        <i class="fas fa-calendar-alt me-2" style="color:var(--primary-color);"></i>
-                                        <strong>Agenda IA</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Conferencias, webinars y eventos del sector</div>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->routeIs('conceptos.*','analisis.*','papers.*','estado-arte.*') ? 'active' : '' }}"
