@@ -214,6 +214,13 @@ class FetchNewsFromRss extends Command
                     ];
                 }
 
+                // Omitir artículos con contenido demasiado corto
+                $wordCount = str_word_count(strip_tags($enhanced['content']));
+                if ($wordCount < 200) {
+                    $this->warn("  Contenido demasiado corto ({$wordCount} palabras), omitiendo: {$title}");
+                    continue;
+                }
+
                 $slug = $this->uniqueSlug(Str::slug($enhanced['title']));
 
                 $news = News::create([
@@ -468,21 +475,13 @@ PROMPT;
             }
         } catch (\Exception) {}
 
-        // Fallback OpenAI
+        // Fallback Claude
         try {
-            if (!empty($openaiKey)) {
-                $r = Http::timeout(30)->withToken($openaiKey)->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
-                    'temperature' => 0.7,
-                    'max_tokens'  => 3500,
-                    'messages'    => [
-                        ['role' => 'system', 'content' => 'Responde siempre en JSON válido con claves: title, content, excerpt.'],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
-                ]);
-                if ($r->successful()) {
-                    $data = json_decode($r->json()['choices'][0]['message']['content'] ?? '{}', true);
-                    if (!empty($data['title']) && !empty($data['content'])) return $data;
+            $claude = app(\App\Services\ClaudeService::class);
+            if ($claude->isAvailable()) {
+                $data = $claude->generateJson($prompt, 3500, 0.7);
+                if (!empty($data['title']) && !empty($data['content'])) {
+                    return $data;
                 }
             }
         } catch (\Exception) {}
