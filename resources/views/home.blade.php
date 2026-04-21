@@ -58,7 +58,7 @@
                 <div class="row g-2">
 
                     {{-- ── Noticia principal (grande) ── --}}
-                    @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
+                    @php $hero = $featuredNews->first(fn($n) => !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://'))); @endphp
                     @if($hero)
                     <div class="col-lg-5 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
@@ -93,7 +93,7 @@
                     @endif
 
                     {{-- ── Grid 2x2 de secundarias ── --}}
-                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://')) && !str_contains($n->image, '/storage/')); @endphp
+                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && !empty($n->image) && (str_starts_with($n->image, 'http://') || str_starts_with($n->image, 'https://'))); @endphp
                     @if($secNews->count() > 0)
                     <div class="col-lg-4 col-md-5">
                         <div class="d-flex flex-column gap-2 h-100">
