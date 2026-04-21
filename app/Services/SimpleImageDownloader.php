@@ -109,8 +109,7 @@ class SimpleImageDownloader
 
             Log::info('Imagen guardada correctamente en: ' . $fullPath);
 
-            // Retornar la URL pública real del disco (R2 en producción, path local en dev)
-            return Storage::disk('custom_public')->url($fullPath);
+            return $this->buildPublicUrl($fullPath);
             
         } catch (RequestException $e) {
             Log::error('Error al realizar la petición HTTP: ' . $e->getMessage());
@@ -292,8 +291,7 @@ class SimpleImageDownloader
         $success = Storage::disk('custom_public')->put($fullPath, $imageContent);
 
         if ($success) {
-            // URL pública real (R2 en producción, URL local en dev)
-            return Storage::disk('custom_public')->url($fullPath);
+            return $this->buildPublicUrl($fullPath);
         } else {
             Log::error('Error al guardar imagen: ' . $url);
             return null;
@@ -366,6 +364,12 @@ class SimpleImageDownloader
      * @param string $categorySlug Slug de la categoría
      * @return string|null Ruta de la imagen guardada o null si falla
      */
+    private function buildPublicUrl(string $relativePath): string
+    {
+        $base = rtrim(config('filesystems.disks.custom_public.url', env('APP_URL') . '/storage'), '/');
+        return $base . '/' . ltrim($relativePath, '/');
+    }
+
     private function downloadWithFallbackMethod($url, $categorySlug)
     {
         try {
