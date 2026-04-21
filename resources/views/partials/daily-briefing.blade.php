@@ -460,16 +460,28 @@
         setWaveformState('idle');
     }
 
+    const TYPE_ICONS = {
+        'paper':    { icon: 'fas fa-file-alt',  color: '#a78bfa' },
+        'concepto': { icon: 'fas fa-book-open', color: '#00c896' },
+        'news':     { icon: null,               color: null },
+    };
+
     function renderHeadlines(headlines) {
         if (!headlinesList || !headlines) return;
         headlinesList.innerHTML = '';
         headlines.forEach(function(h) {
+            const typeInfo = TYPE_ICONS[h.type] || TYPE_ICONS['news'];
+            const dotColor = typeInfo.color || h.color || '#38b6ff';
+            const iconHtml = typeInfo.icon
+                ? `<i class="${escHtml(typeInfo.icon)}" style="color:${escHtml(dotColor)};font-size:.65rem;flex-shrink:0;"></i>`
+                : `<div style="width:6px;height:6px;border-radius:50%;background:${escHtml(dotColor)};flex-shrink:0;"></div>`;
+
             const item = document.createElement('a');
             item.href = h.url || '#';
             item.className = 'briefing-headline-chip text-decoration-none';
             item.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid #2a2a4a;transition:background .15s;';
             item.innerHTML = `
-                <div style="width:6px;height:6px;border-radius:50%;background:${escHtml(h.color || '#38b6ff')};flex-shrink:0;"></div>
+                ${iconHtml}
                 <span style="color:#bbb;font-size:.75rem;line-height:1.3;">${escHtml(h.title.length > 55 ? h.title.slice(0,55) + '…' : h.title)}</span>`;
             item.addEventListener('mouseenter', function(){ this.style.background = 'rgba(255,255,255,.08)'; });
             item.addEventListener('mouseleave', function(){ this.style.background = 'rgba(255,255,255,.04)'; });
@@ -544,7 +556,7 @@
 
             if (dateLabel)  dateLabel.textContent  = data.date_label || '';
             if (timeTotal)  timeTotal.textContent  = fmtTime(totalSeconds);
-            if (newsCount)  newsCount.textContent  = (data.news_count || 5) + ' noticias';
+            if (newsCount)  newsCount.textContent  = (data.news_count || 10) + ' contenidos';
 
             renderHeadlines(data.headlines || []);
 

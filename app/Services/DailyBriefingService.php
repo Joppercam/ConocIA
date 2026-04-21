@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\DailyBriefing;
 use App\Models\News;
+use App\Models\ConocIaPaper;
+use App\Models\ConceptoIa;
 use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
 use Illuminate\Support\Facades\Http;
@@ -21,9 +23,6 @@ class DailyBriefingService
         $this->geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
     }
 
-    /**
-     * Generate (or regenerate) today's briefing.
-     */
     public function generate(bool $force = false): ?DailyBriefing
     {
         $existing = DailyBriefing::today();
@@ -31,45 +30,65 @@ class DailyBriefingService
             return $existing;
         }
 
-        $news = $this->fetchTopNews();
-        if ($news->isEmpty()) {
+        $content = $this->fetchContent();
+
+        if ($content['news']->isEmpty()) {
             Log::warning('DailyBriefing: no news found to generate briefing.');
             return null;
         }
 
-        $script = $this->callClaude($news);
+        $script = $this->callClaude($content);
 
         if (empty($script)) {
-            Log::warning('DailyBriefing: Claude devolvió vacío, revisá logs de ClaudeService.');
-            $script = $this->callGemini($news);
+            Log::warning('DailyBriefing: Claude devolvió vacío, intentando Gemini.');
+            $script = $this->callGemini($content);
         }
 
         if (empty($script)) {
             Log::info('DailyBriefing: Gemini failed, trying OpenAI fallback.');
-            $script = $this->callOpenAI($news);
+            $script = $this->callOpenAI($content);
         }
 
         if (empty($script)) {
             return null;
         }
 
-        // Estimate ~145 words per minute for Spanish speech
         $wordCount       = str_word_count($script);
         $durationSeconds = (int) round(($wordCount / 145) * 60);
 
-        $headlines = $news->map(fn($n) => [
-            'title'    => $n->title,
-            'url'      => route('news.show', $n->slug),
-            'category' => $n->category?->name,
-            'color'    => $n->category?->color ?? '#38b6ff',
-        ])->values()->toArray();
+        $headlines = collect()
+            ->concat($content['news']->map(fn($n) => [
+                'title'    => $n->title,
+                'url'      => route('news.show', $n->slug),
+                'category' => $n->category?->name,
+                'color'    => $n->category?->color ?? '#38b6ff',
+                'type'     => 'news',
+            ]))
+            ->concat($content['papers']->map(fn($p) => [
+                'title'    => $p->title,
+                'url'      => route('papers.show', $p->slug),
+                'category' => 'Paper',
+                'color'    => '#a78bfa',
+                'type'     => 'paper',
+            ]))
+            ->concat($content['conceptos']->map(fn($c) => [
+                'title'    => $c->title,
+                'url'      => route('conceptos.show', $c->slug),
+                'category' => 'Concepto',
+                'color'    => '#00c896',
+                'type'     => 'concepto',
+            ]))
+            ->values()
+            ->toArray();
+
+        $totalCount = $content['news']->count() + $content['papers']->count() + $content['conceptos']->count();
 
         if ($existing) {
             $existing->update([
                 'script'           => $script,
                 'headlines'        => $headlines,
                 'duration_seconds' => $durationSeconds,
-                'news_count'       => $news->count(),
+                'news_count'       => $totalCount,
                 'generated_at'     => now(),
             ]);
             return $existing->fresh();
@@ -80,44 +99,52 @@ class DailyBriefingService
             'script'           => $script,
             'headlines'        => $headlines,
             'duration_seconds' => $durationSeconds,
-            'news_count'       => $news->count(),
+            'news_count'       => $totalCount,
             'generated_at'     => now(),
         ]);
     }
 
-    /**
-     * Fetch top 5 recent published news (last 48 hours, by views).
-     */
-    protected function fetchTopNews()
+    protected function fetchContent(): array
     {
-        // Intentar primero noticias recientes (últimos 7 días)
+        // Top 7 noticias por vistas (últimos 7 días)
         $news = News::with('category')
             ->published()
             ->where('published_at', '>=', now()->subDays(7))
             ->orderByDesc('views')
             ->orderByDesc('published_at')
-            ->limit(5)
+            ->limit(7)
             ->get();
 
-        // Fallback: cualquier noticia publicada reciente
         if ($news->isEmpty()) {
             $news = News::with('category')
                 ->published()
                 ->orderByDesc('published_at')
-                ->limit(5)
+                ->limit(7)
                 ->get();
         }
 
-        return $news;
+        // 2 papers más recientes
+        $papers = ConocIaPaper::published()
+            ->orderByDesc('published_at')
+            ->limit(2)
+            ->get();
+
+        // 1 concepto destacado o más reciente
+        $conceptos = ConceptoIa::published()
+            ->where(fn($q) => $q->where('featured', true)->orWhereNotNull('definition'))
+            ->orderByDesc('featured')
+            ->orderByDesc('published_at')
+            ->limit(1)
+            ->get();
+
+        return compact('news', 'papers', 'conceptos');
     }
 
-    /**
-     * Build the podcast script prompt (shared by Gemini and OpenAI).
-     */
-    protected function buildPrompt($news): string
+    protected function buildPrompt(array $content): string
     {
-        $today     = Carbon::today()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
-        $newsBlock = $news->map(fn($n, $i) => sprintf(
+        $today = Carbon::today()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+
+        $newsBlock = $content['news']->map(fn($n, $i) => sprintf(
             "NOTICIA %d:\nTítulo: %s\nCategoría: %s\nResumen: %s",
             $i + 1,
             $n->title,
@@ -125,29 +152,61 @@ class DailyBriefingService
             strip_tags($n->excerpt ?? $n->summary ?? mb_substr($n->content ?? '', 0, 300))
         ))->implode("\n\n");
 
+        $papersBlock = $content['papers']->isNotEmpty()
+            ? $content['papers']->map(fn($p, $i) => sprintf(
+                "PAPER %d:\nTítulo: %s\nResumen: %s",
+                $i + 1,
+                $p->title,
+                strip_tags($p->excerpt ?? mb_substr($p->content ?? $p->original_abstract ?? '', 0, 250))
+            ))->implode("\n\n")
+            : null;
+
+        $conceptoBlock = $content['conceptos']->isNotEmpty()
+            ? sprintf(
+                "CONCEPTO:\nNombre: %s\nDefinición: %s",
+                $content['conceptos']->first()->title,
+                strip_tags($content['conceptos']->first()->definition ?? $content['conceptos']->first()->excerpt ?? '')
+            )
+            : null;
+
+        $sections = "=== NOTICIAS ===\n{$newsBlock}";
+
+        if ($papersBlock) {
+            $sections .= "\n\n=== PAPERS CIENTÍFICOS ===\n{$papersBlock}";
+        }
+        if ($conceptoBlock) {
+            $sections .= "\n\n=== CONCEPTO DEL DÍA ===\n{$conceptoBlock}";
+        }
+
+        $papersInstructions = $papersBlock
+            ? "- Tras las noticias, dedica 2-3 oraciones a cada paper: qué investigan y por qué importa para el campo."
+            : "";
+        $conceptoInstructions = $conceptoBlock
+            ? "- Cierra con el Concepto del día: explícalo en 3-4 oraciones como si hablaras con alguien curioso pero sin conocimientos técnicos. Usa la frase \"El concepto de hoy es...\" para introducirlo."
+            : "";
+
         return <<<PROMPT
-Eres el locutor de "ConocIA Briefing", un podcast diario sobre inteligencia artificial y tecnología en español.
+Eres el locutor de "ConocIA Briefing", un podcast diario sobre inteligencia artificial en español.
 Fecha de hoy: {$today}
 
-Genera un guión en español, natural y fluido, para el episodio de hoy con las siguientes noticias:
+Genera un guión en español, natural y fluido, para el episodio de hoy con el siguiente contenido:
 
-{$newsBlock}
+{$sections}
 
 INSTRUCCIONES:
-- Abre con una bienvenida cálida mencionando la fecha.
-- Cubre CADA noticia con 2-3 oraciones: lo que ocurrió, por qué importa.
+- Abre con una bienvenida cálida mencionando la fecha y que hoy el briefing trae noticias, ciencia y un concepto.
+- Cubre CADA noticia con 2-3 oraciones: qué ocurrió y por qué importa.
 - Usa transiciones naturales entre noticias ("Por otro lado...", "En el mundo de...", "También hoy...").
-- Cierra con una frase de despedida breve invitando a seguir leyendo en ConocIA.
+{$papersInstructions}
+{$conceptoInstructions}
+- Cierra con una frase breve invitando a seguir leyendo en ConocIA.cl.
 - Tono: profesional pero cercano, como un podcast de calidad.
-- Extensión: entre 350 y 500 palabras.
-- NO uses negritas, asteriscos, markdown ni títulos. Solo texto corrido natural.
+- Extensión: entre 600 y 900 palabras.
+- NO uses negritas, asteriscos, markdown, títulos ni numeraciones. Solo texto corrido natural.
 PROMPT;
     }
 
-    /**
-     * Call Claude API (primary) to generate podcast-style script.
-     */
-    protected function callClaude($news): string
+    protected function callClaude(array $content): string
     {
         $claude = app(ClaudeService::class);
 
@@ -156,22 +215,16 @@ PROMPT;
             return '';
         }
 
-        $prompt = $this->buildPrompt($news);
-
-        $script = $claude->generateText($prompt, 1024, 0.75);
+        $script = $claude->generateText($this->buildPrompt($content), 2048, 0.75);
 
         if (empty($script)) {
             Log::warning('DailyBriefing: Claude devolvió respuesta vacía.');
-            return '';
         }
 
-        return $script;
+        return $script ?? '';
     }
 
-    /**
-     * Call Gemini API to generate podcast-style script.
-     */
-    protected function callGemini($news): string
+    protected function callGemini(array $content): string
     {
         $guard = app(GeminiQuotaGuard::class);
 
@@ -180,18 +233,16 @@ PROMPT;
             return '';
         }
 
-        $prompt = $this->buildPrompt($news);
-
         try {
-            $response = Http::timeout(45)->post(
+            $response = Http::timeout(60)->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$this->geminiModel}:generateContent?key={$this->geminiKey}",
                 [
                     'contents' => [
-                        ['parts' => [['text' => $prompt]]]
+                        ['parts' => [['text' => $this->buildPrompt($content)]]]
                     ],
                     'generationConfig' => [
                         'temperature'     => 0.75,
-                        'maxOutputTokens' => 2048,
+                        'maxOutputTokens' => 3000,
                     ],
                 ]
             );
@@ -211,10 +262,7 @@ PROMPT;
         }
     }
 
-    /**
-     * Call OpenAI API as fallback when Gemini is unavailable.
-     */
-    protected function callOpenAI($news): string
+    protected function callOpenAI(array $content): string
     {
         $apiKey = config('services.openai.api_key', env('OPENAI_API_KEY', ''));
         $model  = env('OPENAI_MODEL_NAME', 'gpt-4-turbo');
@@ -224,17 +272,15 @@ PROMPT;
             return '';
         }
 
-        $prompt = $this->buildPrompt($news);
-
         try {
-            $response = Http::timeout(45)
+            $response = Http::timeout(60)
                 ->withToken($apiKey)
                 ->post('https://api.openai.com/v1/chat/completions', [
                     'model'       => $model,
                     'temperature' => 0.75,
-                    'max_tokens'  => 800,
+                    'max_tokens'  => 1800,
                     'messages'    => [
-                        ['role' => 'user', 'content' => $prompt],
+                        ['role' => 'user', 'content' => $this->buildPrompt($content)],
                     ],
                 ]);
 
