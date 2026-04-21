@@ -725,7 +725,7 @@ PROMPT;
                         ],
                         'generationConfig' => [
                             'temperature'      => $temperature,
-                            'maxOutputTokens'  => 3500,
+                            'maxOutputTokens'  => 8000,
                             'responseMimeType' => 'application/json',
                         ],
                     ]
@@ -751,7 +751,7 @@ PROMPT;
                 $claude = app(\App\Services\ClaudeService::class);
                 if ($claude->isAvailable()) {
                     $this->info("Enviando solicitud a Claude como fallback...");
-                    $enhancedContent = $claude->generateJson($prompt, 3500, $temperature);
+                    $enhancedContent = $claude->generateJson($prompt, 7000, $temperature);
                     if (!empty($enhancedContent)) {
                         $this->info("Respuesta recibida de Claude");
                     } else {
@@ -788,7 +788,7 @@ PROMPT;
                             ],
                             'generationConfig' => [
                                 'temperature'     => 0.7,
-                                'maxOutputTokens' => 3500,
+                                'maxOutputTokens' => 8000,
                             ],
                         ]
                     );
@@ -801,7 +801,7 @@ PROMPT;
                 if (empty($expandedContent)) {
                     $claude = app(\App\Services\ClaudeService::class);
                     if ($claude->isAvailable()) {
-                        $expandedContent = $claude->generateText($expansionPrompt, 3500, 0.7);
+                        $expandedContent = $claude->generateText($expansionPrompt, 7000, 0.7);
                     }
                 }
 

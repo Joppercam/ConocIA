@@ -462,7 +462,7 @@ PROMPT;
                     "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}",
                     [
                         'contents' => [['parts' => [['text' => $prompt]]]],
-                        'generationConfig' => ['temperature' => 0.7, 'maxOutputTokens' => 3500, 'responseMimeType' => 'application/json'],
+                        'generationConfig' => ['temperature' => 0.7, 'maxOutputTokens' => 8000, 'responseMimeType' => 'application/json'],
                     ]
                 );
                 if ($r->successful()) {
@@ -479,7 +479,7 @@ PROMPT;
         try {
             $claude = app(\App\Services\ClaudeService::class);
             if ($claude->isAvailable()) {
-                $data = $claude->generateJson($prompt, 3500, 0.7);
+                $data = $claude->generateJson($prompt, 7000, 0.7);
                 if (!empty($data['title']) && !empty($data['content'])) {
                     return $data;
                 }
