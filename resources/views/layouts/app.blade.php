@@ -715,13 +715,6 @@
                                 <span class="d-none d-lg-inline">ConocIA <span style="color:var(--primary-color);">Radio</span></span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('agents.*') ? 'active' : '' }}"
-                               href="{{ route('agents.index') }}"
-                               aria-current="{{ request()->routeIs('agents.*') ? 'page' : 'false' }}">
-                                <i class="fas fa-robot me-1 d-lg-none"></i>Agentes IA
-                            </a>
-                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->routeIs('conceptos.*','analisis.*','papers.*','estado-arte.*') ? 'active' : '' }}"
                                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

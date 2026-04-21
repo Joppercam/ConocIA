@@ -220,9 +220,6 @@ Route::get('/agenda', [\App\Http\Controllers\EventController::class, 'index'])->
 Route::get('/startups', [\App\Http\Controllers\StartupController::class, 'index'])->name('startups.index');
 Route::get('/startups/{startup:slug}', [\App\Http\Controllers\StartupController::class, 'show'])->name('startups.show');
 
-// Agentes IA
-Route::get('/agentes', [\App\Http\Controllers\AiAgentController::class, 'index'])->name('agents.index');
-Route::get('/agentes/{agent:slug}', [\App\Http\Controllers\AiAgentController::class, 'show'])->name('agents.show');
 
 // Rutas para noticias
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
