@@ -160,6 +160,32 @@ class Kernel extends ConsoleKernel
                 // TikTok desactivado temporalmente
                 // $schedule->command('tiktok:generate-scripts --count=5')->twiceDaily(9, 16)->withoutOverlapping()->appendOutputTo(storage_path('logs/tiktok-scripts.log'));
                 // $schedule->command('tiktok:notify-pending-scripts')->dailyAt('10:00')->weekdays();
+
+        // ── Ecosistema IA ─────────────────────────────────────────────────────
+
+        // Eventos IA: buscar próximos eventos (martes y sábados a las 10:30)
+        $schedule->command('events:fetch --months=5 --limit=15')
+            ->twiceWeekly(2, 6)->at('10:30')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/events-fetch.log'));
+
+        // Modelos IA: sincronizar información (lunes a las 05:00, baja frecuencia)
+        $schedule->command('models:sync')
+            ->weekly()->mondays()->at('05:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/models-sync.log'));
+
+        // Startups: detectar nuevas startups (miércoles y domingo a las 12:00)
+        $schedule->command('startups:fetch --limit=8')
+            ->twiceWeekly(3, 0)->at('12:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/startups-fetch.log'));
+
+        // Agentes IA: importar nuevos agentes y sincronizar stars (viernes a las 11:00)
+        $schedule->command('agents:fetch --limit=8 --sync-stars')
+            ->weekly()->fridays()->at('11:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/agents-fetch.log'));
     }
 
     /**

@@ -216,6 +216,14 @@ Route::get('/modelos', [\App\Http\Controllers\AiModelController::class, 'index']
 // Agenda de eventos IA
 Route::get('/agenda', [\App\Http\Controllers\EventController::class, 'index'])->name('agenda.index');
 
+// Startups de IA
+Route::get('/startups', [\App\Http\Controllers\StartupController::class, 'index'])->name('startups.index');
+Route::get('/startups/{startup:slug}', [\App\Http\Controllers\StartupController::class, 'show'])->name('startups.show');
+
+// Agentes IA
+Route::get('/agentes', [\App\Http\Controllers\AiAgentController::class, 'index'])->name('agents.index');
+Route::get('/agentes/{agent:slug}', [\App\Http\Controllers\AiAgentController::class, 'show'])->name('agents.show');
+
 // Rutas para noticias
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
@@ -452,6 +460,28 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
             Route::put('/{agenda}',         [\App\Http\Controllers\Admin\EventController::class, 'update'])->name('update');
             Route::delete('/{agenda}',      [\App\Http\Controllers\Admin\EventController::class, 'destroy'])->name('destroy');
             Route::patch('/{agenda}/toggle',[\App\Http\Controllers\Admin\EventController::class, 'toggleActive'])->name('toggle');
+        });
+
+        // Startups IA admin
+        Route::prefix('startups')->name('startups.')->group(function () {
+            Route::get('/',                     [\App\Http\Controllers\Admin\StartupController::class, 'index'])->name('index');
+            Route::get('/create',               [\App\Http\Controllers\Admin\StartupController::class, 'create'])->name('create');
+            Route::post('/',                    [\App\Http\Controllers\Admin\StartupController::class, 'store'])->name('store');
+            Route::get('/{startup}/edit',       [\App\Http\Controllers\Admin\StartupController::class, 'edit'])->name('edit');
+            Route::put('/{startup}',            [\App\Http\Controllers\Admin\StartupController::class, 'update'])->name('update');
+            Route::delete('/{startup}',         [\App\Http\Controllers\Admin\StartupController::class, 'destroy'])->name('destroy');
+            Route::patch('/{startup}/toggle',   [\App\Http\Controllers\Admin\StartupController::class, 'toggleActive'])->name('toggle');
+        });
+
+        // Agentes IA admin
+        Route::prefix('agentes')->name('agents.')->group(function () {
+            Route::get('/',                     [\App\Http\Controllers\Admin\AiAgentController::class, 'index'])->name('index');
+            Route::get('/create',               [\App\Http\Controllers\Admin\AiAgentController::class, 'create'])->name('create');
+            Route::post('/',                    [\App\Http\Controllers\Admin\AiAgentController::class, 'store'])->name('store');
+            Route::get('/{agent}/edit',         [\App\Http\Controllers\Admin\AiAgentController::class, 'edit'])->name('edit');
+            Route::put('/{agent}',              [\App\Http\Controllers\Admin\AiAgentController::class, 'update'])->name('update');
+            Route::delete('/{agent}',           [\App\Http\Controllers\Admin\AiAgentController::class, 'destroy'])->name('destroy');
+            Route::patch('/{agent}/toggle',     [\App\Http\Controllers\Admin\AiAgentController::class, 'toggleActive'])->name('toggle');
         });
 
         // Estado del Arte admin
