@@ -165,7 +165,7 @@ class FetchAiAgents extends Command
 
     protected function fetchCuratedFromAI(GeminiQuotaGuard $guard): array
     {
-        if (!$guard->canCall('medium')) return [];
+        if (!$guard->canCall('high')) return [];
 
         $today         = now()->format('Y-m-d');
         $existingNames = AiAgent::pluck('name')->implode(', ');

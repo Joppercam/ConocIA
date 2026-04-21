@@ -152,7 +152,7 @@ class FetchStartups extends Command
 
     protected function extractStartupsFromArticles(array $articles, GeminiQuotaGuard $guard): array
     {
-        if (!$guard->canCall('medium')) return [];
+        if (!$guard->canCall('high')) return [];
 
         $articleText = '';
         foreach ($articles as $a) {
@@ -223,7 +223,7 @@ PROMPT;
 
     protected function fetchCuratedFromAI(GeminiQuotaGuard $guard): array
     {
-        if (!$guard->canCall('medium')) return [];
+        if (!$guard->canCall('high')) return [];
 
         $today       = now()->format('Y-m-d');
         $existingNames = Startup::pluck('name')->implode(', ');

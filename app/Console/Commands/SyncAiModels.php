@@ -159,7 +159,7 @@ PROMPT;
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
 
         try {
-            if (!empty($geminiKey) && $guard->canCall('medium')) {
+            if (!empty($geminiKey) && $guard->canCall('high')) {
                 $r = Http::timeout(60)->post(
                     "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}",
                     [
