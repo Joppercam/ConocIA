@@ -142,14 +142,23 @@ class DailyBriefingService
 
     protected function buildPrompt(array $content): string
     {
-        $today = Carbon::today()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        $today    = Carbon::today()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        $mainNews = $content['news']->first();
+        $restNews = $content['news']->skip(1);
 
-        $newsBlock = $content['news']->map(fn($n, $i) => sprintf(
+        $mainBlock = $mainNews ? sprintf(
+            "NOTICIA PRINCIPAL:\nTítulo: %s\nCategoría: %s\nResumen: %s",
+            $mainNews->title,
+            $mainNews->category?->name ?? 'General',
+            strip_tags($mainNews->excerpt ?? $mainNews->summary ?? mb_substr($mainNews->content ?? '', 0, 400))
+        ) : '';
+
+        $restBlock = $restNews->map(fn($n, $i) => sprintf(
             "NOTICIA %d:\nTítulo: %s\nCategoría: %s\nResumen: %s",
-            $i + 1,
+            $i + 2,
             $n->title,
             $n->category?->name ?? 'General',
-            strip_tags($n->excerpt ?? $n->summary ?? mb_substr($n->content ?? '', 0, 300))
+            strip_tags($n->excerpt ?? $n->summary ?? mb_substr($n->content ?? '', 0, 250))
         ))->implode("\n\n");
 
         $papersBlock = $content['papers']->isNotEmpty()
@@ -163,46 +172,53 @@ class DailyBriefingService
 
         $conceptoBlock = $content['conceptos']->isNotEmpty()
             ? sprintf(
-                "CONCEPTO:\nNombre: %s\nDefinición: %s",
+                "CONCEPTO DEL DÍA:\nNombre: %s\nDefinición: %s",
                 $content['conceptos']->first()->title,
                 strip_tags($content['conceptos']->first()->definition ?? $content['conceptos']->first()->excerpt ?? '')
             )
             : null;
 
-        $sections = "=== NOTICIAS ===\n{$newsBlock}";
-
-        if ($papersBlock) {
-            $sections .= "\n\n=== PAPERS CIENTÍFICOS ===\n{$papersBlock}";
-        }
-        if ($conceptoBlock) {
-            $sections .= "\n\n=== CONCEPTO DEL DÍA ===\n{$conceptoBlock}";
-        }
+        $sections = $mainBlock;
+        if ($restBlock) $sections .= "\n\n=== RESTO DE NOTICIAS ===\n{$restBlock}";
+        if ($papersBlock) $sections .= "\n\n=== CIENCIA Y PAPERS ===\n{$papersBlock}";
+        if ($conceptoBlock) $sections .= "\n\n=== CONCEPTO ===\n{$conceptoBlock}";
 
         $papersInstructions = $papersBlock
-            ? "- Tras las noticias, dedica 2-3 oraciones a cada paper: qué investigan y por qué importa para el campo."
+            ? "- CIENCIA: dedica un párrafo a los papers. Explica qué investigan y por qué podrían cambiar algo concreto. Nada de jerga — habla como si le contaras a un colega inteligente pero no especialista."
             : "";
+
         $conceptoInstructions = $conceptoBlock
-            ? "- Cierra con el Concepto del día: explícalo en 3-4 oraciones como si hablaras con alguien curioso pero sin conocimientos técnicos. Usa la frase \"El concepto de hoy es...\" para introducirlo."
+            ? "- CONCEPTO DEL DÍA: cierra con este bloque. Introdúcelo con algo como \"Antes de cerrar, hoy quiero explicarte qué es...\". Explícalo en 3-4 oraciones usando una analogía del mundo real. Que quien nunca oyó el término lo entienda y lo recuerde."
             : "";
 
         return <<<PROMPT
-Eres el locutor de "ConocIA Briefing", un podcast diario sobre inteligencia artificial en español.
-Fecha de hoy: {$today}
+Eres Alex, el analista de ConocIA Briefing — el resumen diario de inteligencia artificial de ConocIA.cl.
 
-Genera un guión en español, natural y fluido, para el episodio de hoy con el siguiente contenido:
+Tu voz es directa, analítica y sin relleno. No eres un locutor de radio entusiasta ni un académico distante. Eres alguien que lee todo lo que pasa en IA, lo filtra con criterio y le cuenta a tu audiencia lo que realmente importa — y por qué. Hablas con convicción, usas ironía cuando corresponde, y nunca dices "es un placer estar aquí" ni frases de relleno.
 
+Fecha: {$today}
+
+CONTENIDO DEL DÍA:
 {$sections}
 
-INSTRUCCIONES:
-- Abre con una bienvenida cálida mencionando la fecha y que hoy el briefing trae noticias, ciencia y un concepto.
-- Cubre CADA noticia con 2-3 oraciones: qué ocurrió y por qué importa.
-- Usa transiciones naturales entre noticias ("Por otro lado...", "En el mundo de...", "También hoy...").
+ESTRUCTURA DEL GUIÓN:
+
+1. APERTURA — No empieces con la fecha ni con bienvenidas genéricas. Arranca directamente con el dato, la pregunta o la tensión más interesante del día. Una o dos oraciones que hagan que el oyente quiera escuchar el resto. Algo como: "Hoy Google movió ficha..." o "Hay una pregunta que recorre la industria esta semana..." o "Si creías que los modelos de lenguaje ya habían tocado techo, hoy hay razones para dudar de eso."
+
+2. NOTICIA PRINCIPAL — Desarróllala con profundidad: qué ocurrió, quiénes son los actores clave, qué implica para la industria o para los usuarios. 4-5 oraciones. No resumas — analiza.
+
+3. RESTO DE NOTICIAS — Cubre cada una con 2-3 oraciones. Prioriza lo que tiene consecuencias reales sobre lo que es solo anuncio. Usa transiciones que conecten temáticamente cuando sea posible ("Relacionado con esto...", "En la misma semana en que...", "Mientras tanto, en el frente de..."). Evita transiciones mecánicas como "También hoy..." o "Por otro lado..." repetidas.
+
 {$papersInstructions}
 {$conceptoInstructions}
-- Cierra con una frase breve invitando a seguir leyendo en ConocIA.cl.
-- Tono: profesional pero cercano, como un podcast de calidad.
-- Extensión: entre 600 y 900 palabras.
-- NO uses negritas, asteriscos, markdown, títulos ni numeraciones. Solo texto corrido natural.
+
+4. CIERRE — Una o dos oraciones que dejen al oyente con algo en qué pensar, no una despedida corporativa. Puede ser una pregunta abierta, una tensión sin resolver, o una predicción. Termina con: "Seguí leyendo en ConocIA.cl."
+
+REGLAS:
+- Texto corrido, sin títulos, sin asteriscos, sin markdown, sin numeraciones.
+- Entre 700 y 950 palabras. Ni más ni menos — el briefing tiene que caber en menos de 7 minutos.
+- Nunca menciones que eres una IA ni que generaste este texto.
+- No repitas el título de las noticias textualmente — parafraséalas con criterio editorial.
 PROMPT;
     }
 
@@ -215,7 +231,7 @@ PROMPT;
             return '';
         }
 
-        $script = $claude->generateText($this->buildPrompt($content), 2048, 0.75);
+        $script = $claude->generateText($this->buildPrompt($content), 3500, 0.78);
 
         if (empty($script)) {
             Log::warning('DailyBriefing: Claude devolvió respuesta vacía.');
@@ -242,7 +258,7 @@ PROMPT;
                     ],
                     'generationConfig' => [
                         'temperature'     => 0.75,
-                        'maxOutputTokens' => 3000,
+                        'maxOutputTokens' => 4000,
                     ],
                 ]
             );
