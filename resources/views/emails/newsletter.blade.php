@@ -5,631 +5,435 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>{{ $subject }}</title>
     <style>
-        /* Estilos base */
         body {
-            background-color: #f8f9fa;
-            font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
+            background-color: #f0f2f5;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-size: 16px;
             line-height: 1.5;
             margin: 0;
             padding: 0;
-            -ms-text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%;
             color: #333333;
         }
-        
-        /* Contenedor principal */
-        .container {
-            max-width: 600px;
+        .wrapper {
+            max-width: 620px;
             margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 24px 0;
         }
-        
-        /* Encabezado */
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* HEADER */
         .header {
-            background: linear-gradient(135deg, #2a2a72 0%, #38b6ff 100%);
-            color: white;
-            padding: 24px;
+            background: linear-gradient(135deg, #1a1a5e 0%, #2a6dd9 100%);
+            padding: 32px 24px 28px;
             text-align: center;
         }
-        
-        .logo {
-            margin-bottom: 16px;
-        }
-        
         .logo-text {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 34px;
+            font-weight: 800;
             color: #ffffff;
-            margin: 0;
+            margin: 0 0 8px;
+            letter-spacing: -0.5px;
         }
-        
-        .text-highlight {
-            position: relative;
-            font-weight: 900;
+        .logo-text span {
             color: #00e1ff;
         }
-        
         .header-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            margin: 8px 0 0;
-        }
-        
-        /* Contenido principal */
-        .content {
-            padding: 24px;
-        }
-        
-        .greeting {
-            font-size: 18px;
-            margin-bottom: 16px;
-        }
-        
-        .intro {
-            color: #555;
-            margin-bottom: 24px;
-            font-size: 16px;
-        }
-        
-        /* Secciones */
-        .section-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 32px 0 16px;
-            padding: 10px 15px;
-            background: linear-gradient(135deg, #2a2a72 0%, #38b6ff 100%);
-            border-radius: 6px;
-            text-align: center;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .section-title-icon {
-            margin-right: 8px;
-            color: #ffffff;
-        }
-        
-        /* Artículos */
-        .article {
-            margin-bottom: 28px;
-            background-color: #f8f9ff;
-            border-radius: 8px;
-            padding: 16px;
-            border-left: 4px solid #38b6ff;
-            text-align: left;
-        }
-        
-        .article:last-child {
-            margin-bottom: 16px;
-        }
-        
-        .article-featured {
-            background-color: #f8f9ff;
-            border-radius: 8px;
-            padding: 16px;
-            border-left: 4px solid #38b6ff;
-            margin-bottom: 32px;
-            text-align: left;
-        }
-        
-        /* Eliminamos los estilos de imágenes ya que no los usaremos */
-        
-        .article-badge {
-            background-color: #38b6ff;
-            color: white;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 4px;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-        
-        .article-category {
-            display: inline-block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #38b6ff;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            text-align: left;
-        }
-        
-        .article-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0 0 12px;
-            color: #2a2a72;
-            line-height: 1.3;
-            text-align: left;
-        }
-        
-        .article-title a {
-            color: #2a2a72;
-            text-decoration: none;
-        }
-        
-        .article-title a:hover {
-            color: #38b6ff;
-        }
-        
-        .article-meta {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
             font-size: 14px;
-            color: #777;
-            text-align: left;
+            color: rgba(255,255,255,0.8);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        
-        .article-author {
-            margin-right: 16px;
+
+        /* GREETING */
+        .greeting-section {
+            padding: 24px 28px 8px;
         }
-        
-        .article-date {
-            margin-right: 16px;
-        }
-        
-        .article-reading-time {
-            display: flex;
-            align-items: center;
-        }
-        
-        .article-excerpt {
+        .greeting-section p {
+            margin: 0 0 8px;
             color: #444;
-            margin-bottom: 16px;
-            line-height: 1.6;
-            text-align: left;
+            font-size: 16px;
         }
-        
-        .article-button-container {
-            text-align: center;
-            margin-top: 16px;
+
+        /* SECTION TITLES */
+        .section-header {
+            margin: 28px 28px 16px;
+            border-left: 4px solid #2a6dd9;
+            padding-left: 12px;
         }
-        
-        .article-button {
-            display: inline-block;
-            padding: 8px 20px;
-            background-color: #38b6ff;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: background 0.2s;
-        }
-        
-        .article-button:hover {
-            background-color: #00e1ff;
-        }
-        
-        /* Sección de estadísticas */
-        .stats-section {
-            background-color: #f8faff;
-            padding: 16px;
-            border-radius: 8px;
-            margin: 32px 0;
-        }
-        
-        .stats-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #2a2a72;
-        }
-        
-        .stats-container {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            text-align: center;
-        }
-        
-        .stat-item {
-            margin: 8px 0;
-            flex-basis: 30%;
-        }
-        
-        .stat-number {
-            font-size: 24px;
+        .section-header h2 {
+            font-size: 13px;
             font-weight: 700;
-            color: #38b6ff;
-            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #2a6dd9;
+            margin: 0;
         }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #666;
+
+        /* CARD BASE */
+        .card {
+            margin: 0 28px 16px;
+            border-radius: 8px;
+            padding: 18px 20px;
+            background: #f8f9ff;
+            border: 1px solid #e8ecf8;
         }
-        
-        /* Call to action */
-        .cta-section {
-            background-color: #2a2a72;
+
+        /* NOTICIA DESTACADA */
+        .card-featured {
+            background: linear-gradient(135deg, #1a1a5e 0%, #2a6dd9 100%);
             color: white;
-            padding: 24px;
-            text-align: center;
-            margin: 32px -24px;
+            border: none;
         }
-        
-        .cta-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 16px;
+        .card-featured .article-category {
+            color: #00e1ff;
         }
-        
-        .cta-subtitle {
-            margin-bottom: 24px;
-            font-size: 16px;
-            opacity: 0.9;
+        .card-featured .article-title a {
+            color: #ffffff;
         }
-        
-        .cta-button {
+        .card-featured .article-meta {
+            color: rgba(255,255,255,0.7);
+        }
+        .card-featured .article-excerpt {
+            color: rgba(255,255,255,0.85);
+        }
+        .badge-featured {
             display: inline-block;
-            background-color: white;
-            color: #2a2a72;
-            padding: 12px 24px;
+            background: #00e1ff;
+            color: #1a1a5e;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* ARTICLE ELEMENTS */
+        .article-category {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #2a6dd9;
+            margin-bottom: 6px;
+        }
+        .article-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 10px;
+            line-height: 1.3;
+            color: #1a1a5e;
+        }
+        .article-title a {
+            color: #1a1a5e;
+            text-decoration: none;
+        }
+        .article-meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .article-excerpt {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.6;
+            margin: 0 0 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 9px 20px;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: 600;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
         }
-        
-        .cta-button:hover {
-            background-color: #f8f9fa;
+        .btn-primary {
+            background-color: #2a6dd9;
+            color: #ffffff;
         }
-        
-        /* Footer */
+        .btn-white {
+            background-color: #ffffff;
+            color: #1a1a5e;
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: #2a6dd9;
+            border: 1.5px solid #2a6dd9;
+        }
+
+        /* STARTUP CARD */
+        .card-startup {
+            background: #fffdf5;
+            border: 1px solid #f0e8cc;
+        }
+        .startup-tag {
+            display: inline-block;
+            background: #f7c948;
+            color: #7a5a00;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        .startup-meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .startup-tagline {
+            font-size: 15px;
+            font-style: italic;
+            color: #666;
+            margin: 0 0 12px;
+            border-left: 3px solid #f7c948;
+            padding-left: 10px;
+        }
+
+        /* PAPER CARD */
+        .card-paper {
+            background: #f5f9ff;
+            border: 1px solid #d0e3ff;
+        }
+        .paper-tag {
+            display: inline-block;
+            background: #2a6dd9;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* DIVIDER */
+        .divider {
+            border: none;
+            border-top: 1px solid #eaecf0;
+            margin: 4px 28px;
+        }
+
+        /* CTA SECTION */
+        .cta-section {
+            background: linear-gradient(135deg, #1a1a5e 0%, #2a6dd9 100%);
+            padding: 28px 28px;
+            text-align: center;
+            margin-top: 28px;
+        }
+        .cta-section h3 {
+            color: #ffffff;
+            font-size: 18px;
+            margin: 0 0 8px;
+        }
+        .cta-section p {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            margin: 0 0 18px;
+        }
+
+        /* FOOTER */
         .footer {
             background-color: #f8f9fa;
-            padding: 24px;
+            padding: 24px 28px;
             text-align: center;
-            color: #777;
-            font-size: 14px;
+            color: #888;
+            font-size: 13px;
         }
-        
-        .social-links {
-            margin: 16px 0;
-        }
-        
-        .social-link {
-            display: inline-block;
-            width: 36px;
-            height: 36px;
-            line-height: 36px;
-            background-color: #38b6ff;
-            color: white;
-            border-radius: 50%;
-            margin: 0 6px;
-            text-align: center;
-            text-decoration: none;
-        }
-        
-        .social-link:hover {
-            background-color: #00e1ff;
-        }
-        
         .footer-links {
-            margin: 16px 0;
+            margin: 12px 0;
         }
-        
         .footer-link {
-            color: #555;
+            color: #666;
             text-decoration: none;
             margin: 0 8px;
         }
-        
-        .footer-link:hover {
-            color: #38b6ff;
-            text-decoration: underline;
-        }
-        
         .unsubscribe {
-            color: #888;
-            margin-top: 16px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #aaa;
         }
-        
         .unsubscribe a {
-            color: #888;
+            color: #aaa;
             text-decoration: underline;
-        }
-        
-        /* Media queries para responsividad */
-        @media only screen and (max-width: 620px) {
-            .container {
-                width: 100% !important;
-                border-radius: 0;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .article-title {
-                font-size: 18px;
-            }
-            
-            .stats-container {
-                flex-direction: column;
-            }
-            
-            .stat-item {
-                margin: 8px 0;
-                flex-basis: 100%;
-            }
-            
-            .cta-section {
-                margin: 32px -20px;
-                padding: 24px 20px;
-            }
         }
 
-        /* Media queries específicas para correos electrónicos */
-        @media all {
-            .ExternalClass {
-                width: 100%;
-            }
-            
-            .ExternalClass,
-            .ExternalClass p,
-            .ExternalClass span,
-            .ExternalClass font,
-            .ExternalClass td,
-            .ExternalClass div {
-                line-height: 100%;
-            }
-            
-            .apple-link a {
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                line-height: inherit !important;
-                text-decoration: none !important;
-            }
-            
-            #MessageViewBody a {
-                color: inherit;
-                text-decoration: none;
-                font-size: inherit;
-                font-family: inherit;
-                font-weight: inherit;
-                line-height: inherit;
-            }
+        @media only screen and (max-width: 620px) {
+            .wrapper { padding: 0; }
+            .container { border-radius: 0; }
+            .card, .section-header, .divider { margin-left: 16px; margin-right: 16px; }
+            .greeting-section { padding: 20px 16px 8px; }
+            .cta-section, .footer { padding-left: 16px; padding-right: 16px; }
+            .article-title { font-size: 16px; }
         }
     </style>
 </head>
 <body>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-            <td align="center" style="padding: 24px 0;">
-                <div class="container">
-                    <!-- HEADER -->
-                    <div class="header">
-                        <div class="logo">
-                            <h1 class="logo-text">Conoc<span class="text-highlight">IA</span></h1>
-                        </div>
-                        <p class="header-subtitle">{{ $subject ?? 'Tu actualización semanal de noticias e investigaciones en IA' }}</p>
-                    </div>
-                    
-                    <!-- CONTENT -->
-                    <div class="content">
-                        <p class="greeting">Hola,</p>
-                        <p class="intro">Bienvenido a nuestra newsletter semanal donde encontrarás las novedades más interesantes sobre Inteligencia Artificial, tecnología e investigación.</p>
-                        
-                        <!-- NOTICIAS DESTACADAS -->
-                        @if(isset($featuredNews) && $featuredNews->count() > 0)
-                        <div class="article-featured">
-                            <span class="article-category">Noticia Destacada</span>
-                            <h2 class="article-title">
-                                <a href="{{ route('news.show', $featuredNews->first()->slug ?? $featuredNews->first()->id) }}" target="_blank">
-                                    {{ $featuredNews->first()->title }}
-                                </a>
-                            </h2>
-                            <div class="article-meta">
-                                @if($featuredNews->first()->author)
-                                <span class="article-author">
-                                    <i class="fas fa-user-circle" style="color: #777;"></i> 
-                                    {{ $featuredNews->first()->author->name ?? 'Editor' }}
-                                </span>
-                                @endif
-                                <span class="article-date">
-                                    <i class="fas fa-calendar-alt" style="color: #777;"></i> 
-                                    {{ $featuredNews->first()->created_at->format('d M, Y') }}
-                                </span>
-                                @if($featuredNews->first()->reading_time)
-                                <span class="article-reading-time">
-                                    <i class="fas fa-clock" style="color: #777;"></i> 
-                                    {{ $featuredNews->first()->reading_time }} min
-                                </span>
-                                @endif
-                            </div>
-                            <span class="article-badge" style="margin-bottom: 12px;">Destacado</span>
-                            <p class="article-excerpt">{{ $featuredNews->first()->excerpt }}</p>
-                            <div class="article-button-container">
-                                <a href="{{ route('news.show', $featuredNews->first()->slug ?? $featuredNews->first()->id) }}" class="article-button" target="_blank">Leer artículo completo</a>
-                            </div>
-                        </div>
-                        @endif
-                        
-                        <!-- NOTICIAS RECIENTES -->
-                        <h2 class="section-title">
-                            <i class="fas fa-newspaper section-title-icon"></i> Últimas Noticias
-                        </h2>
-                        
-                        @foreach($news as $item)
-                        @if(!isset($featuredNews) || (isset($featuredNews) && $featuredNews->first()->id != $item->id))
-                        <div class="article">
-                            @if($item->category)
-                            <span class="article-category">{{ $item->category->name }}</span>
-                            @endif
-                            <h3 class="article-title">
-                                <a href="{{ route('news.show', $item->slug ?? $item->id) }}" target="_blank">
-                                    {{ $item->title }}
-                                </a>
-                            </h3>
-                            <div class="article-meta">
-                                @if($item->author)
-                                <span class="article-author">
-                                    <i class="fas fa-user-circle" style="color: #777;"></i> 
-                                    {{ $item->author->name ?? 'Editor' }}
-                                </span>
-                                @endif
-                                <span class="article-date">
-                                    <i class="fas fa-calendar-alt" style="color: #777;"></i> 
-                                    {{ $item->created_at->format('d M, Y') }}
-                                </span>
-                                @if($item->reading_time)
-                                <span class="article-reading-time">
-                                    <i class="fas fa-clock" style="color: #777;"></i> 
-                                    {{ $item->reading_time }} min
-                                </span>
-                                @endif
-                            </div>
-                            <p class="article-excerpt">{{ $item->excerpt }}</p>
-                            <div class="article-button-container">
-                                <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="article-button" target="_blank">Leer artículo</a>
-                            </div>
-                        </div>
-                        @endif
-                        @endforeach
-                        
-                        <!-- INVESTIGACIONES RECIENTES -->
-                        @if(isset($researches) && $researches->count() > 0)
-                        <h2 class="section-title">
-                            <i class="fas fa-flask section-title-icon"></i> Investigaciones Recientes
-                        </h2>
-                        
-                        @foreach($researches as $research)
-                        <div class="article">
-                            @if($research->category)
-                            <span class="article-category">{{ $research->category->name }}</span>
-                            @endif
-                            <h3 class="article-title">
-                                <a href="{{ route('research.show', $research->slug ?? $research->id) }}" target="_blank">
-                                    {{ $research->title }}
-                                </a>
-                            </h3>
-                            <div class="article-meta">
-                                @if($research->author || $research->user)
-                                <span class="article-author">
-                                    <i class="fas fa-user-circle" style="color: #777;"></i> 
-                                    {{ $research->author ?? $research->user->name ?? 'Investigador' }}
-                                </span>
-                                @endif
-                                @if($research->published_at || $research->created_at)
-                                <span class="article-date">
-                                    <i class="fas fa-calendar-alt" style="color: #777;"></i> 
-                                    {{ ($research->published_at ?? $research->created_at)->format('d M, Y') }}
-                                </span>
-                                @endif
-                            </div>
-                            <p class="article-excerpt">{{ $research->abstract ?? $research->excerpt ?? $research->summary }}</p>
-                            <div class="article-button-container">
-                                <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="article-button" target="_blank">Ver investigación</a>
-                            </div>
-                        </div>
-                        @endforeach
-                        @endif
-                        
-                        <!-- COLUMNAS RECIENTES -->
-                        @if(isset($columns) && $columns->count() > 0)
-                        <h2 class="section-title">
-                            <i class="fas fa-pen-fancy section-title-icon"></i> Columnas de Opinión
-                        </h2>
-                        
-                        @foreach($columns as $column)
-                        <div class="article">
-                            @if($column->category)
-                            <span class="article-category">{{ $column->category->name }}</span>
-                            @endif
-                            <h3 class="article-title">
-                                <a href="{{ route('columns.show', $column->slug) }}" target="_blank">
-                                    {{ $column->title }}
-                                </a>
-                            </h3>
-                            <div class="article-meta">
-                                @if($column->author)
-                                <span class="article-author">
-                                    <i class="fas fa-user-circle" style="color: #777;"></i> 
-                                    {{ $column->author->name ?? 'Columnista' }}
-                                </span>
-                                @endif
-                                <span class="article-date">
-                                    <i class="fas fa-calendar-alt" style="color: #777;"></i> 
-                                    {{ $column->published_at->format('d M, Y') }}
-                                </span>
-                                @if($column->reading_time)
-                                <span class="article-reading-time">
-                                    <i class="fas fa-clock" style="color: #777;"></i> 
-                                    {{ $column->reading_time }} min
-                                </span>
-                                @endif
-                            </div>
-                            <p class="article-excerpt">{{ $column->excerpt }}</p>
-                            <div class="article-button-container">
-                                <a href="{{ route('columns.show', $column->slug) }}" class="article-button" target="_blank">Leer columna</a>
-                            </div>
-                        </div>
-                        @endforeach
-                        @endif
-                        
-                        <!-- SECTION: PARTICIPACIÓN / SUBMIT RESEARCH -->
-                        <div class="cta-section">
-                            <h3 class="cta-title">¿Tienes una investigación sobre IA o tecnología?</h3>
-                            <p class="cta-subtitle">Comparte tus conocimientos con nuestra comunidad de expertos y entusiastas.</p>
-                            <a href="{{ route('submit-research') }}" class="cta-button" target="_blank">
-                                Enviar investigación
-                            </a>
-                        </div>
-                        
-                        <p style="margin-top: 32px;">¡Gracias por formar parte de nuestra comunidad! Esperamos que disfrutes de estos contenidos.</p>
-                        <p>El equipo de ConocIA</p>
-                    </div>
-                    
-                    <!-- FOOTER -->
-                    <div class="footer">
-                        <div class="social-links">
-                            <a href="#" class="social-link" target="_blank" aria-label="Twitter">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="social-link" target="_blank" aria-label="Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="social-link" target="_blank" aria-label="LinkedIn">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            <a href="#" class="social-link" target="_blank" aria-label="YouTube">
-                                <i class="fab fa-youtube"></i>
-                            </a>
-                        </div>
-                        
-                        <div class="footer-links">
-                            <a href="{{ route('home') }}" class="footer-link" target="_blank">Inicio</a>
-                            <a href="{{ route('news.index') }}" class="footer-link" target="_blank">Noticias</a>
-                            <a href="{{ route('research.index') }}" class="footer-link" target="_blank">Investigación</a>
-                            <a href="{{ route('columns.index') }}" class="footer-link" target="_blank">Columnas</a>
-                        </div>
-                        
-                        <p>&copy; {{ date('Y') }} ConocIA - Todos los derechos reservados</p>
-                        
-                        <div class="unsubscribe">
-                            <p>
-                                Estás recibiendo este correo porque te suscribiste a nuestro newsletter.<br>
-                                <a href="{{ route('newsletter.unsubscribe', $unsubscribeToken) }}" target="_blank">Cancelar suscripción</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div class="wrapper">
+<div class="container">
+
+    {{-- HEADER --}}
+    <div class="header">
+        <h1 class="logo-text">Conoc<span>IA</span></h1>
+        <p class="header-subtitle">{{ $subject }}</p>
+    </div>
+
+    {{-- GREETING --}}
+    <div class="greeting-section">
+        <p>Hola{{ isset($subscriber->name) && $subscriber->name ? ', ' . $subscriber->name : '' }},</p>
+        <p>Aquí tienes lo más relevante en Inteligencia Artificial que seleccionamos para ti.</p>
+    </div>
+
+    {{-- NOTICIA DESTACADA --}}
+    @if(isset($featuredNews) && $featuredNews->count() > 0)
+    @php $featured = $featuredNews->first(); @endphp
+    <div class="section-header">
+        <h2>Noticia Destacada</h2>
+    </div>
+    <div class="card card-featured">
+        <span class="badge-featured">Destacado</span>
+        @if($featured->category)
+        <span class="article-category">{{ $featured->category->name }}</span>
+        @endif
+        <div class="article-title">
+            <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" target="_blank">{{ $featured->title }}</a>
+        </div>
+        <div class="article-meta">{{ $featured->created_at->format('d M, Y') }}</div>
+        <p class="article-excerpt">{{ $featured->excerpt }}</p>
+        <a href="{{ route('news.show', $featured->slug ?? $featured->id) }}" class="btn btn-white" target="_blank">Leer artículo completo</a>
+    </div>
+    @endif
+
+    {{-- ÚLTIMAS NOTICIAS --}}
+    @if($news->count() > 0)
+    <hr class="divider">
+    <div class="section-header">
+        <h2>Últimas Noticias</h2>
+    </div>
+    @foreach($news as $item)
+    <div class="card">
+        @if($item->category)
+        <span class="article-category">{{ $item->category->name }}</span>
+        @endif
+        <div class="article-title">
+            <a href="{{ route('news.show', $item->slug ?? $item->id) }}" target="_blank">{{ $item->title }}</a>
+        </div>
+        <div class="article-meta">{{ $item->created_at->format('d M, Y') }}</div>
+        <p class="article-excerpt">{{ $item->excerpt }}</p>
+        <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="btn btn-outline" target="_blank">Leer más</a>
+    </div>
+    @endforeach
+    @endif
+
+    {{-- PAPERS DE IA --}}
+    @if(isset($papers) && $papers->count() > 0)
+    <hr class="divider">
+    <div class="section-header">
+        <h2>Papers de IA</h2>
+    </div>
+    @foreach($papers as $paper)
+    <div class="card card-paper">
+        <span class="paper-tag">Investigación</span>
+        @if($paper->arxiv_category)
+        <span class="article-category">{{ $paper->arxiv_category }}</span>
+        @endif
+        <div class="article-title">
+            <a href="{{ route('papers.show', $paper->slug) }}" target="_blank">{{ $paper->title }}</a>
+        </div>
+        @if($paper->authors && count($paper->authors) > 0)
+        <div class="article-meta">{{ implode(', ', array_slice($paper->authors, 0, 3)) }}{{ count($paper->authors) > 3 ? ' y otros' : '' }}</div>
+        @endif
+        <p class="article-excerpt">{{ $paper->excerpt }}</p>
+        <a href="{{ route('papers.show', $paper->slug) }}" class="btn btn-outline" target="_blank">Ver paper</a>
+    </div>
+    @endforeach
+    @endif
+
+    {{-- STARTUP DE LA SEMANA --}}
+    @if(isset($startup) && $startup)
+    <hr class="divider">
+    <div class="section-header">
+        <h2>Startup de la Semana</h2>
+    </div>
+    <div class="card card-startup">
+        <span class="startup-tag">Startup</span>
+        <div class="article-title" style="color:#1a1a5e;">{{ $startup->name }}</div>
+        <div class="startup-meta">
+            {{ $startup->sector ?? '' }}{{ ($startup->country && $startup->sector) ? ' · ' : '' }}{{ $startup->country ?? '' }}
+            @if($startup->stage) · {{ $startup->stage_label }} @endif
+        </div>
+        @if($startup->tagline)
+        <p class="startup-tagline">{{ $startup->tagline }}</p>
+        @endif
+        @if($startup->why_it_matters)
+        <p class="article-excerpt">{{ Str::limit($startup->why_it_matters, 200) }}</p>
+        @elseif($startup->description)
+        <p class="article-excerpt">{{ Str::limit($startup->description, 200) }}</p>
+        @endif
+        <a href="{{ route('startups.show', $startup->slug) }}" class="btn btn-outline" target="_blank">Ver startup</a>
+    </div>
+    @endif
+
+    {{-- INVESTIGACIONES --}}
+    @if(isset($researches) && $researches->count() > 0)
+    <hr class="divider">
+    <div class="section-header">
+        <h2>Investigación</h2>
+    </div>
+    @foreach($researches as $research)
+    <div class="card">
+        @if($research->category)
+        <span class="article-category">{{ $research->category->name }}</span>
+        @endif
+        <div class="article-title">
+            <a href="{{ route('research.show', $research->slug ?? $research->id) }}" target="_blank">{{ $research->title }}</a>
+        </div>
+        <div class="article-meta">{{ ($research->published_at ?? $research->created_at)->format('d M, Y') }}</div>
+        <p class="article-excerpt">{{ Str::limit($research->abstract ?? $research->excerpt ?? $research->summary, 200) }}</p>
+        <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="btn btn-outline" target="_blank">Ver investigación</a>
+    </div>
+    @endforeach
+    @endif
+
+    {{-- CTA --}}
+    <div class="cta-section">
+        <h3>Explora más en ConocIA</h3>
+        <p>Noticias, papers, investigaciones y startups de inteligencia artificial en un solo lugar.</p>
+        <a href="{{ route('home') }}" class="btn btn-white" target="_blank">Visitar ConocIA</a>
+    </div>
+
+    {{-- FOOTER --}}
+    <div class="footer">
+        <div class="footer-links">
+            <a href="{{ route('home') }}" class="footer-link" target="_blank">Inicio</a>
+            <a href="{{ route('news.index') }}" class="footer-link" target="_blank">Noticias</a>
+            <a href="{{ route('papers.index') }}" class="footer-link" target="_blank">Papers</a>
+            <a href="{{ route('research.index') }}" class="footer-link" target="_blank">Investigación</a>
+            <a href="{{ route('startups.index') }}" class="footer-link" target="_blank">Startups</a>
+        </div>
+        <p>&copy; {{ date('Y') }} ConocIA — Todos los derechos reservados</p>
+        <div class="unsubscribe">
+            Recibís este correo porque te suscribiste a ConocIA.<br>
+            <a href="{{ route('newsletter.unsubscribe', $unsubscribeToken) }}" target="_blank">Cancelar suscripción</a>
+        </div>
+    </div>
+
+</div>
+</div>
+</td></tr>
+</table>
 </body>
 </html>

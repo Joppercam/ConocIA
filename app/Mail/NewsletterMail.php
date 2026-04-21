@@ -15,57 +15,44 @@ class NewsletterMail extends Mailable
     public $unsubscribeToken;
     public $subject;
     public $featuredNews;
+    public $papers;
+    public $startup;
     public $researches;
-    public $columns;
     public $subscriber;
 
-    /**
-     * Create a new message instance.
-     *
-     * @param  Collection  $news
-     * @param  string|null  $subject
-     * @param  string  $token
-     * @param  Collection|null  $featuredNews
-     * @param  Collection|null  $researches
-     * @param  Collection|null  $columns
-     * @param  object|null  $subscriber
-     * @return void
-     */
     public function __construct(
-        Collection $news, 
-        ?string $subject = null, 
+        Collection $news,
+        ?string $subject = null,
         string $token,
         ?Collection $featuredNews = null,
+        ?Collection $papers = null,
+        $startup = null,
         ?Collection $researches = null,
-        ?Collection $columns = null,
         $subscriber = null
     ) {
-        $this->news = $news;
-        $this->subject = $subject ?? 'Novedades de ConocIA';
+        $this->news             = $news;
+        $this->subject          = $subject ?? 'Novedades de ConocIA';
         $this->unsubscribeToken = $token;
-        $this->featuredNews = $featuredNews ?? collect();
-        $this->researches = $researches ?? collect();
-        $this->columns = $columns ?? collect();
-        $this->subscriber = $subscriber;
+        $this->featuredNews     = $featuredNews ?? collect();
+        $this->papers           = $papers ?? collect();
+        $this->startup          = $startup;
+        $this->researches       = $researches ?? collect();
+        $this->subscriber       = $subscriber;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
         return $this->subject($this->subject)
             ->view('emails.newsletter')
             ->with([
-                'news' => $this->news,
-                'subject' => $this->subject,
+                'news'             => $this->news,
+                'subject'          => $this->subject,
                 'unsubscribeToken' => $this->unsubscribeToken,
-                'featuredNews' => $this->featuredNews,
-                'researches' => $this->researches,
-                'columns' => $this->columns,
-                'subscriber' => $this->subscriber
+                'featuredNews'     => $this->featuredNews,
+                'papers'           => $this->papers,
+                'startup'          => $this->startup,
+                'researches'       => $this->researches,
+                'subscriber'       => $this->subscriber,
             ]);
     }
 }

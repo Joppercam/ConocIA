@@ -84,9 +84,16 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path('logs/fetch-missing-images.log'));
    
    
-            $schedule->command('newsletter:send --news=5 --include-research --include-columns')
+            $schedule->command('newsletter:send --news=4')
             ->weekly()
             ->mondays()
+            ->at('08:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/newsletter-cron.log'));
+
+            $schedule->command('newsletter:send --news=4')
+            ->weekly()
+            ->fridays()
             ->at('08:00')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/newsletter-cron.log'));
