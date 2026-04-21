@@ -181,6 +181,12 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/startups-fetch.log'));
 
+        // Startup de la semana: generar perfil profundo cada lunes a las 06:30
+        $schedule->command('startups:feature-weekly')
+            ->weekly()->mondays()->at('06:30')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/startups-feature-weekly.log'));
+
         // Agentes IA: importar nuevos agentes y sincronizar stars (viernes a las 11:00)
         $schedule->command('agents:fetch --limit=8 --sync-stars')
             ->weekly()->fridays()->at('11:00')

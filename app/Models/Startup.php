@@ -10,16 +10,19 @@ class Startup extends Model
         'name', 'slug', 'tagline', 'description', 'logo', 'website_url',
         'founded_year', 'country', 'city', 'sector', 'stage',
         'total_funding_usd', 'last_funding_date', 'investors', 'products',
-        'source_url', 'featured', 'active', 'auto_generated', 'last_synced_at',
+        'profile_content', 'key_quote', 'why_it_matters', 'founder_names',
+        'featured_week', 'source_url', 'featured', 'active', 'auto_generated', 'last_synced_at',
     ];
 
     protected $casts = [
         'investors'         => 'array',
         'products'          => 'array',
+        'founder_names'     => 'array',
         'featured'          => 'boolean',
         'active'            => 'boolean',
         'auto_generated'    => 'boolean',
         'last_funding_date' => 'date',
+        'featured_week'     => 'date',
         'last_synced_at'    => 'datetime',
         'total_funding_usd' => 'decimal:2',
     ];

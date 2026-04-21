@@ -39,8 +39,14 @@
                 </div>
             </div>
 
-            {{-- Descripción --}}
-            @if($startup->description)
+            {{-- Perfil profundo (si existe) o descripción básica --}}
+            @if($startup->profile_content)
+            <div class="card border-0 shadow-sm mb-4" style="border-radius:12px;">
+                <div class="card-body p-4 startup-profile-content" style="line-height:1.8;">
+                    {!! $startup->profile_content !!}
+                </div>
+            </div>
+            @elseif($startup->description)
             <div class="card border-0 shadow-sm mb-4" style="border-radius:12px;">
                 <div class="card-body p-4">
                     <h5 class="fw-semibold mb-3">Sobre la empresa</h5>

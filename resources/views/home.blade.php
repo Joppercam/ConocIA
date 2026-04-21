@@ -290,6 +290,9 @@
         </div>
     </div>
 
+    {{-- ═══ STARTUP DE LA SEMANA ═══ --}}
+    @include('partials.startup-of-week')
+
         <!-- Sección Noticias Recientes y Lo Más Leído (COMPLETA) -->
     <section class="py-3 border-top">
         <div class="container">

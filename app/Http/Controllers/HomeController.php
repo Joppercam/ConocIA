@@ -11,6 +11,7 @@ use App\Models\ConceptoIa;
 use App\Models\AnalisisFondo;
 use App\Models\ConocIaPaper;
 use App\Models\EstadoArte;
+use App\Models\Startup;
 use App\Mail\ContactFormMail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -47,7 +48,13 @@ class HomeController extends Controller
         extract($viewData);
 
         $recentNews     = $recentNews->shuffle();
-        $featuredVideos = $this->fetchFeaturedVideos();
+        $featuredVideos  = $this->fetchFeaturedVideos();
+        $startupOfWeek   = Cache::remember('startup_of_week', 3600, fn() =>
+            Startup::active()
+                ->where('featured_week', now()->startOfWeek()->toDateString())
+                ->whereNotNull('profile_content')
+                ->first()
+        );
 
         // IDs de artículos "trending": top 5 en vistas de los últimos 7 días
         $trendingIds = Cache::remember('trending_ids', 900, fn() =>
@@ -82,7 +89,8 @@ class HomeController extends Controller
             'latestConceptos',
             'latestAnalises',
             'latestPapers',
-            'latestDigests'
+            'latestDigests',
+            'startupOfWeek'
         ))->with([
             'getImageUrl'      => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,
