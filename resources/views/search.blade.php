@@ -45,7 +45,7 @@
         <h1 class="text-white fw-bold mb-1" style="font-size:1.8rem;">
             Resultados para <span style="color:#38b6ff;">"{{ $query }}"</span>
         </h1>
-        @php $total = $news->total() + $researches->total() + $guestPosts->total(); @endphp
+        @php $total = $news->total() + $researches->total() + $papers->total() + $conceptos->total() + $columns->total() + $guestPosts->total(); @endphp
         <p class="text-secondary mb-3">{{ number_format($total) }} resultado{{ $total !== 1 ? 's' : '' }} encontrados</p>
 
         {{-- Nueva búsqueda --}}
@@ -149,8 +149,92 @@
             </div>
             @endif
 
+            {{-- Papers académicos --}}
+            @if($papers->count() > 0)
+            <hr class="section-divider">
+            <h2 class="fw-bold mb-3" style="font-size:1.1rem;color:#0a1020;">
+                <i class="fas fa-file-alt me-2" style="color:#a78bfa;"></i>Papers de IA
+                <span class="badge ms-2" style="background:#a78bfa;font-size:.75rem;">{{ $papers->total() }}</span>
+            </h2>
+            <div class="d-flex flex-column gap-3 mb-4">
+                @foreach($papers as $paper)
+                <a href="{{ route('papers.show', $paper->slug) }}" class="text-decoration-none">
+                    <div class="search-result-card p-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="search-type-badge text-white" style="background:#a78bfa;">Paper</span>
+                            @if($paper->arxiv_published_date)
+                            <span class="text-muted" style="font-size:.8rem;">{{ $paper->arxiv_published_date->format('M Y') }}</span>
+                            @endif
+                        </div>
+                        <h3 class="fw-semibold text-dark mb-1" style="font-size:.95rem;line-height:1.4;">{{ $paper->title }}</h3>
+                        @if($paper->excerpt)
+                        <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.5;">{{ Str::limit($paper->excerpt, 140) }}</p>
+                        @endif
+                    </div>
+                </a>
+                @endforeach
+            </div>
+            {{ $papers->appends(['query' => $query])->links('pagination::bootstrap-5') }}
+            @endif
+
+            {{-- Conceptos IA --}}
+            @if($conceptos->count() > 0)
+            <hr class="section-divider">
+            <h2 class="fw-bold mb-3" style="font-size:1.1rem;color:#0a1020;">
+                <i class="fas fa-book-open me-2" style="color:#00c896;"></i>Conceptos de IA
+                <span class="badge ms-2" style="background:#00c896;font-size:.75rem;">{{ $conceptos->total() }}</span>
+            </h2>
+            <div class="d-flex flex-column gap-3 mb-4">
+                @foreach($conceptos as $concepto)
+                <a href="{{ route('conceptos.show', $concepto->slug) }}" class="text-decoration-none">
+                    <div class="search-result-card p-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="search-type-badge text-white" style="background:#00c896;">Concepto</span>
+                            @if($concepto->category)
+                            <span class="text-muted" style="font-size:.8rem;">{{ $concepto->category }}</span>
+                            @endif
+                        </div>
+                        <h3 class="fw-semibold text-dark mb-1" style="font-size:.95rem;line-height:1.4;">{{ $concepto->title }}</h3>
+                        @if($concepto->definition)
+                        <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.5;">{{ Str::limit($concepto->definition, 140) }}</p>
+                        @elseif($concepto->excerpt)
+                        <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.5;">{{ Str::limit($concepto->excerpt, 140) }}</p>
+                        @endif
+                    </div>
+                </a>
+                @endforeach
+            </div>
+            {{ $conceptos->appends(['query' => $query])->links('pagination::bootstrap-5') }}
+            @endif
+
+            {{-- Columnas --}}
+            @if($columns->count() > 0)
+            <hr class="section-divider">
+            <h2 class="fw-bold mb-3" style="font-size:1.1rem;color:#0a1020;">
+                <i class="fas fa-pen-nib me-2" style="color:#f59e0b;"></i>Columnas de opinión
+                <span class="badge ms-2" style="background:#f59e0b;font-size:.75rem;">{{ $columns->total() }}</span>
+            </h2>
+            <div class="d-flex flex-column gap-3 mb-4">
+                @foreach($columns as $column)
+                <a href="{{ route('columns.show', $column->slug) }}" class="text-decoration-none">
+                    <div class="search-result-card p-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="search-type-badge text-white" style="background:#f59e0b;">Columna</span>
+                            <span class="text-muted" style="font-size:.8rem;">{{ $column->published_at?->locale('es')->diffForHumans() }}</span>
+                        </div>
+                        <h3 class="fw-semibold text-dark mb-1" style="font-size:.95rem;line-height:1.4;">{{ $column->title }}</h3>
+                        @if($column->excerpt)
+                        <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.5;">{{ Str::limit($column->excerpt, 140) }}</p>
+                        @endif
+                    </div>
+                </a>
+                @endforeach
+            </div>
+            {{ $columns->appends(['query' => $query])->links('pagination::bootstrap-5') }}
+            @endif
+
             {{-- Sin resultados --}}
-            @if($news->count() === 0 && $researches->count() === 0 && $guestPosts->count() === 0)
+            @if($news->count() === 0 && $researches->count() === 0 && $papers->count() === 0 && $conceptos->count() === 0 && $columns->count() === 0 && $guestPosts->count() === 0)
             <div class="text-center py-5">
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
                 <h3 class="fw-semibold text-muted">No encontramos resultados para "{{ $query }}"</h3>

@@ -859,49 +859,71 @@
     <!-- Footer -->
     <footer class="pt-5 pb-3">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-                    <div class="mb-4">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="mb-3">
                         <span class="logo-text footer-logo">Conoc<span class="text-highlight">IA</span></span>
-                        <p class="text-light mt-2">"El futuro del conocimiento es artificialmente inteligente"</p>
+                        <p class="text-light mt-2 mb-1" style="font-size:.85rem;">"El futuro del conocimiento es artificialmente inteligente"</p>
                     </div>
-                    <p>Tu portal de noticias sobre tecnología e inteligencia artificial. Mantente al día con las últimas innovaciones, investigaciones y tendencias en el mundo de la IA.</p>
-                    <div class="social-links mt-4">
+                    <p style="font-size:.82rem;">Tu portal de noticias, análisis y conocimiento sobre inteligencia artificial en español.</p>
+                    <div class="social-links mt-3">
                         <a href="#" class="text-white me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
                         <a href="#" class="text-white me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" class="text-white me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                         <a href="#" class="text-white me-2" aria-label="GitHub"><i class="fab fa-github"></i></a>
                         <a href="#" class="text-white" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                     </div>
+                    <ul class="list-unstyled mt-3 mb-0" style="font-size:.8rem;">
+                        <li class="mb-1"><i class="fas fa-envelope me-2" style="color:var(--primary-color);"></i>info@conocia.cl</li>
+                        <li><i class="fas fa-map-marker-alt me-2" style="color:var(--primary-color);"></i>Santiago, Chile</li>
+                    </ul>
                 </div>
-                
-                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
-                    <h5>Explora</h5>
-                    <ul class="list-unstyled">
+
+                <div class="col-lg-2 col-md-3 col-6">
+                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;">Explora</h5>
+                    <ul class="list-unstyled mb-0" style="font-size:.82rem;">
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Inicio</a></li>
                         <li class="mb-2"><a href="{{ route('news.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Noticias</a></li>
                         <li class="mb-2"><a href="{{ route('columns.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Columnas</a></li>
+                        <li class="mb-2"><a href="{{ route('startups.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Startups IA</a></li>
                         <li class="mb-2"><a href="{{ route('news.archive', date('Y')) }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Archivo</a></li>
-                        <li class="mb-2"><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Enviar Investigación</a></li>
+                        <li><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Enviar investigación</a></li>
                     </ul>
                 </div>
-                
-                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
-                    <h5>Legal</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('pages.privacy') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Privacidad</a></li>
-                        <li class="mb-2"><a href="{{ route('pages.terms') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Términos</a></li>
-                        <li class="mb-2"><a href="{{ route('pages.cookies') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Cookies</a></li>
+
+                <div class="col-lg-3 col-md-3 col-6">
+                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;">Profundiza</h5>
+                    <ul class="list-unstyled mb-3" style="font-size:.82rem;">
+                        <li class="mb-2"><a href="{{ route('conceptos.index') }}" class="text-white"><i class="fas fa-book-open me-2"></i>Conceptos IA</a></li>
+                        <li class="mb-2"><a href="{{ route('papers.index') }}" class="text-white"><i class="fas fa-file-alt me-2"></i>ConocIA Papers</a></li>
+                        <li class="mb-2"><a href="{{ route('analisis.index') }}" class="text-white"><i class="fas fa-microscope me-2"></i>Análisis de Fondo</a></li>
+                        <li><a href="{{ route('estado-arte.index') }}" class="text-white"><i class="fas fa-chart-line me-2"></i>Estado del Arte</a></li>
+                    </ul>
+                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;margin-top:1.2rem;">Media</h5>
+                    <ul class="list-unstyled mb-0" style="font-size:.82rem;">
+                        <li class="mb-2"><a href="{{ route('videos.index') }}" class="text-white"><i class="fas fa-play-circle me-2"></i>ConocIA TV</a></li>
+                        <li><a href="{{ route('radio.index') }}" class="text-white"><i class="fas fa-podcast me-2"></i>ConocIA Radio</a></li>
                     </ul>
                 </div>
-                
-                <div class="col-lg-4 col-md-6">
-                    <h5>Suscríbete</h5>
-                    <p class="mb-4">Recibe las últimas noticias y actualizaciones directamente en tu bandeja de entrada.</p>
-                    
-                    <ul class="list-unstyled mt-4">
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@conocia.cl</li>
-                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Santiago, Chile</li>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;">Newsletter</h5>
+                    <p style="font-size:.8rem;" class="mb-2">Recibe lo mejor de ConocIA directo en tu correo.</p>
+                    <form action="{{ route('newsletter.subscribe') }}" method="POST" class="mb-4">
+                        @csrf
+                        <div class="input-group input-group-sm">
+                            <input type="email" name="email" placeholder="tu@correo.com" required
+                                   class="form-control" style="border-radius:6px 0 0 6px;font-size:.8rem;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#fff;">
+                            <button type="submit" class="btn btn-primary btn-sm" style="background:var(--primary-color);border:none;border-radius:0 6px 6px 0;font-size:.8rem;">
+                                Suscribir
+                            </button>
+                        </div>
+                    </form>
+                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;">Legal</h5>
+                    <ul class="list-unstyled mb-0" style="font-size:.82rem;">
+                        <li class="mb-1"><a href="{{ route('pages.privacy') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Privacidad</a></li>
+                        <li class="mb-1"><a href="{{ route('pages.terms') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Términos</a></li>
+                        <li><a href="{{ route('pages.cookies') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Cookies</a></li>
                     </ul>
                 </div>
             </div>
@@ -1117,6 +1139,8 @@
 
         function renderDropdown(data) {
             let html = '';
+            const hasAny = data.news?.length || data.research?.length || data.papers?.length || data.conceptos?.length;
+
             if (data.news && data.news.length) {
                 html += '<div class="search-result-section">Noticias</div>';
                 data.news.forEach(item => {
@@ -1129,6 +1153,22 @@
                     </a>`;
                 });
             }
+            if (data.papers && data.papers.length) {
+                html += '<div class="search-result-section">Papers de IA</div>';
+                data.papers.forEach(item => {
+                    html += `<a class="search-result-item" href="${item.url}">
+                        <div><span class="search-result-title"><i class="fas fa-file-alt me-1" style="color:#a78bfa;font-size:.7rem;"></i>${escHtml(item.title)}</span></div>
+                    </a>`;
+                });
+            }
+            if (data.conceptos && data.conceptos.length) {
+                html += '<div class="search-result-section">Conceptos IA</div>';
+                data.conceptos.forEach(item => {
+                    html += `<a class="search-result-item" href="${item.url}">
+                        <div><span class="search-result-title"><i class="fas fa-book-open me-1" style="color:#00c896;font-size:.7rem;"></i>${escHtml(item.title)}</span></div>
+                    </a>`;
+                });
+            }
             if (data.research && data.research.length) {
                 html += '<div class="search-result-section">Investigación</div>';
                 data.research.forEach(item => {
@@ -1137,7 +1177,7 @@
                     </a>`;
                 });
             }
-            if (!data.news?.length && !data.research?.length) {
+            if (!hasAny) {
                 html = '<div class="p-3 text-muted text-center" style="font-size:.82rem;">Sin resultados para <strong>' + escHtml(data.query) + '</strong></div>';
             } else {
                 html += `<a class="search-more-link" href="${data.more_url}"><i class="fas fa-search me-1"></i>Ver todos los resultados</a>`;

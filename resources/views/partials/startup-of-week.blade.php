@@ -91,4 +91,48 @@
         </div>
     </div>
 </div>
+
+@elseif(isset($recentStartups) && $recentStartups->isNotEmpty())
+@php $sectorLabels = \App\Models\Startup::sectorLabels(); @endphp
+<div style="background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:3px solid #00c896;">
+    <div class="container py-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <span class="fw-bold text-uppercase" style="font-size:.7rem;letter-spacing:.07em;color:#00c896;">
+                <i class="fas fa-rocket me-2"></i>Startups de IA destacadas
+            </span>
+            <a href="{{ route('startups.index') }}" class="text-decoration-none" style="color:#64748b;font-size:.75rem;">
+                Ver todas <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            @foreach($recentStartups as $s)
+            <div class="col-md-4">
+                <a href="{{ route('startups.show', $s) }}" class="text-decoration-none d-block h-100">
+                    <div class="h-100 rounded-2 p-3 d-flex gap-3 align-items-start"
+                         style="background:#fff;border:1px solid #e2e8f0;transition:border-color .2s;"
+                         onmouseover="this.style.borderColor='#00c896'" onmouseout="this.style.borderColor='#e2e8f0'">
+                        @if($s->logo)
+                            <img src="{{ $s->logo }}" alt="{{ $s->name }}"
+                                 style="width:40px;height:40px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#fff;flex-shrink:0;">
+                        @else
+                            <div style="width:40px;height:40px;background:#ecfdf5;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid #d1fae5;flex-shrink:0;">
+                                <i class="fas fa-rocket" style="color:#00c896;font-size:.85rem;"></i>
+                            </div>
+                        @endif
+                        <div>
+                            <div class="fw-semibold mb-1" style="font-size:.88rem;color:#0f172a;">{{ $s->name }}</div>
+                            @if($s->tagline)
+                            <div style="font-size:.75rem;color:#64748b;line-height:1.4;">{{ Str::limit($s->tagline, 70) }}</div>
+                            @endif
+                            @if($s->sector)
+                            <span class="badge bg-light text-secondary border mt-1" style="font-size:.62rem;">{{ $sectorLabels[$s->sector] ?? $s->sector }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
 @endif

@@ -49,11 +49,15 @@ class HomeController extends Controller
 
         $recentNews     = $recentNews->shuffle();
         $featuredVideos  = $this->fetchFeaturedVideos();
-        $startupOfWeek   = Cache::remember('startup_of_week', 3600, fn() =>
+        $startupOfWeek = Cache::remember('startup_of_week', 3600, fn() =>
             Startup::active()
                 ->where('featured_week', now()->startOfWeek()->toDateString())
                 ->whereNotNull('profile_content')
                 ->first()
+        );
+
+        $recentStartups = $startupOfWeek ? collect([]) : Cache::remember('recent_startups_fallback', 3600, fn() =>
+            Startup::active()->orderByDesc('created_at')->limit(3)->get()
         );
 
         // IDs de artículos "trending": top 5 en vistas de los últimos 7 días
@@ -90,7 +94,8 @@ class HomeController extends Controller
             'latestAnalises',
             'latestPapers',
             'latestDigests',
-            'startupOfWeek'
+            'startupOfWeek',
+            'recentStartups'
         ))->with([
             'getImageUrl'      => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,

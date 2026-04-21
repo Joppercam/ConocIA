@@ -5,18 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use App\Models\Research;
 use App\Models\GuestPost;
+use App\Models\ConocIaPaper;
+use App\Models\ConceptoIa;
+use App\Models\Column;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    /**
-     * Endpoint JSON para búsqueda live (AJAX)
-     */
     public function live(Request $request)
     {
         $q = trim($request->input('q', ''));
         if (mb_strlen($q) < 2) {
-            return response()->json(['news' => [], 'research' => [], 'query' => $q]);
+            return response()->json(['news' => [], 'research' => [], 'papers' => [], 'conceptos' => [], 'query' => $q]);
         }
 
         $news = News::with('category')
@@ -26,7 +26,7 @@ class SearchController extends Controller
                       ->orWhere('excerpt', 'like', "%{$q}%");
             })
             ->latest('published_at')
-            ->limit(5)
+            ->limit(4)
             ->get()
             ->map(fn($n) => [
                 'title'    => $n->title,
@@ -38,18 +38,48 @@ class SearchController extends Controller
 
         $research = Research::published()
             ->where('title', 'like', "%{$q}%")
-            ->limit(3)
+            ->limit(2)
             ->get()
             ->map(fn($r) => [
                 'title' => $r->title,
                 'url'   => route('research.show', $r->slug ?? $r->id),
             ]);
 
+        $papers = ConocIaPaper::published()
+            ->where(function ($query) use ($q) {
+                $query->where('title', 'like', "%{$q}%")
+                      ->orWhere('original_title', 'like', "%{$q}%")
+                      ->orWhere('excerpt', 'like', "%{$q}%");
+            })
+            ->latest('published_at')
+            ->limit(2)
+            ->get()
+            ->map(fn($p) => [
+                'title' => $p->title,
+                'url'   => route('papers.show', $p->slug),
+            ]);
+
+        $conceptos = ConceptoIa::published()
+            ->where(function ($query) use ($q) {
+                $query->where('title', 'like', "%{$q}%")
+                      ->orWhere('definition', 'like', "%{$q}%")
+                      ->orWhere('excerpt', 'like', "%{$q}%");
+            })
+            ->latest('published_at')
+            ->limit(2)
+            ->get()
+            ->map(fn($c) => [
+                'title' => $c->title,
+                'url'   => route('conceptos.show', $c->slug),
+            ]);
+
         return response()->json([
-            'news'     => $news,
-            'research' => $research,
-            'query'    => $q,
-            'more_url' => route('search', ['query' => $q]),
+            'news'      => $news,
+            'research'  => $research,
+            'papers'    => $papers,
+            'conceptos' => $conceptos,
+            'query'     => $q,
+            'more_url'  => route('search', ['query' => $q]),
         ]);
     }
 
@@ -81,6 +111,35 @@ class SearchController extends Controller
             ->latest('published_at')
             ->paginate(5);
 
+        $papers = ConocIaPaper::published()
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                  ->orWhere('original_title', 'like', "%{$query}%")
+                  ->orWhere('excerpt', 'like', "%{$query}%")
+                  ->orWhere('content', 'like', "%{$query}%");
+            })
+            ->latest('published_at')
+            ->paginate(5);
+
+        $conceptos = ConceptoIa::published()
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                  ->orWhere('definition', 'like', "%{$query}%")
+                  ->orWhere('excerpt', 'like', "%{$query}%")
+                  ->orWhere('content', 'like', "%{$query}%");
+            })
+            ->latest('published_at')
+            ->paginate(5);
+
+        $columns = Column::published()
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                  ->orWhere('excerpt', 'like', "%{$query}%")
+                  ->orWhere('content', 'like', "%{$query}%");
+            })
+            ->latest('published_at')
+            ->paginate(5);
+
         $guestPosts = GuestPost::with(['category', 'user'])
             ->published()
             ->where(function ($q) use ($query) {
@@ -91,6 +150,6 @@ class SearchController extends Controller
             ->latest('published_at')
             ->paginate(5);
 
-        return view('search', compact('news', 'researches', 'guestPosts', 'query'));
+        return view('search', compact('news', 'researches', 'papers', 'conceptos', 'columns', 'guestPosts', 'query'));
     }
 }
