@@ -148,7 +148,7 @@ class VideoService
             
             // Agregar palabras clave
             foreach ($keywords as $keyword) {
-                VideoKeyword::create([
+                VideoKeyword::firstOrCreate([
                     'video_id' => $video->id,
                     'keyword' => trim($keyword)
                 ]);
