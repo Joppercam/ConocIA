@@ -60,6 +60,15 @@ class HomeController extends Controller
             Startup::active()->orderByDesc('created_at')->limit(3)->get()
         );
 
+        $chileNews = Cache::remember('chile_news_home', 900, fn() =>
+            News::with('category')
+                ->published()
+                ->whereHas('category', fn($q) => $q->where('slug', 'ia-en-chile'))
+                ->latest('published_at')
+                ->limit(8)
+                ->get()
+        );
+
         // IDs de artículos "trending": top 5 en vistas de los últimos 7 días
         $trendingIds = Cache::remember('trending_ids', 900, fn() =>
             News::where('status', 'published')
@@ -95,7 +104,8 @@ class HomeController extends Controller
             'latestPapers',
             'latestDigests',
             'startupOfWeek',
-            'recentStartups'
+            'recentStartups',
+            'chileNews'
         ))->with([
             'getImageUrl'      => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,
