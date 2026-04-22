@@ -39,32 +39,32 @@
             {{-- Contenido principal --}}
             <div class="col">
                 {{-- Mobile label --}}
-                <div class="d-lg-none mb-2">
-                    <span class="badge rounded-pill px-2 py-1" style="background:#00c896;color:#fff;font-size:.65rem;">
+                <div class="d-lg-none mb-1">
+                    <span class="badge rounded-pill px-2 py-1" style="background:#00c896;color:#fff;font-size:.62rem;">
                         <i class="fas fa-rocket me-1"></i>Startup de la semana
                     </span>
                 </div>
 
+                {{-- Nombre + badges (badges ocultos en móvil) --}}
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                    <span class="fw-bold" style="font-size:1.05rem;color:#0f172a;">{{ $s->name }}</span>
+                    <span class="fw-bold" style="font-size:1rem;color:#0f172a;">{{ $s->name }}</span>
                     @if($s->stage)
-                    <span class="badge" style="background:{{ $s->stage_color }};font-size:.68rem;">{{ $s->stage_label }}</span>
+                    <span class="badge d-none d-sm-inline" style="background:{{ $s->stage_color }};font-size:.68rem;">{{ $s->stage_label }}</span>
                     @endif
                     @if($s->sector)
-                    <span class="badge bg-light text-secondary border" style="font-size:.68rem;">{{ $sectorLabels[$s->sector] ?? $s->sector }}</span>
-                    @endif
-                    @if($s->country)
-                    <span style="color:#94a3b8;font-size:.75rem;"><i class="fas fa-map-marker-alt me-1"></i>{{ $s->country }}</span>
+                    <span class="badge bg-light text-secondary border d-none d-sm-inline" style="font-size:.68rem;">{{ $sectorLabels[$s->sector] ?? $s->sector }}</span>
                     @endif
                 </div>
 
+                {{-- Tagline / why it matters --}}
                 @if($s->why_it_matters)
-                <p class="mb-2" style="color:#475569;font-size:.88rem;line-height:1.6;max-width:600px;">{{ $s->why_it_matters }}</p>
+                <p class="mb-1" style="color:#475569;font-size:.85rem;line-height:1.5;max-width:600px;">{{ Str::limit($s->why_it_matters, 120) }}</p>
                 @elseif($s->tagline)
-                <p class="mb-2" style="color:#475569;font-size:.88rem;line-height:1.6;max-width:600px;">{{ $s->tagline }}</p>
+                <p class="mb-1" style="color:#475569;font-size:.85rem;line-height:1.5;max-width:600px;">{{ Str::limit($s->tagline, 120) }}</p>
                 @endif
 
-                <div class="d-flex flex-wrap align-items-center gap-3">
+                {{-- Metadatos: ocultos en móvil --}}
+                <div class="d-none d-sm-flex flex-wrap align-items-center gap-3 mt-1">
                     @if($s->total_funding_usd)
                     <span style="color:#64748b;font-size:.78rem;">
                         <i class="fas fa-dollar-sign me-1" style="color:#00c896;"></i>
@@ -82,9 +82,9 @@
             {{-- CTA --}}
             <div class="col-auto">
                 <a href="{{ route('startups.show', $s) }}"
-                   class="btn btn-sm rounded-pill fw-semibold px-4"
-                   style="background:#00c896;color:#fff;font-size:.82rem;white-space:nowrap;">
-                    Leer perfil <i class="fas fa-arrow-right ms-1"></i>
+                   class="btn btn-sm rounded-pill fw-semibold px-3 px-sm-4"
+                   style="background:#00c896;color:#fff;font-size:.8rem;white-space:nowrap;">
+                    <span class="d-none d-sm-inline">Leer perfil </span><i class="fas fa-arrow-right"></i>
                 </a>
             </div>
 

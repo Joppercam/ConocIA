@@ -365,6 +365,115 @@
     </section>
 
 
+    <!-- ═══ PROFUNDIZA ═══ -->
+    <section class="py-4" style="background:#f0f4f8;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+        <div class="container">
+
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:4px;height:20px;background:var(--primary-color);border-radius:2px;"></div>
+                    <h3 class="mb-0 fw-bold" style="font-size:1rem;color:#0f172a;">Profundiza</h3>
+                    <span style="color:#64748b;font-size:.8rem;">— Ciencia, análisis y conocimiento de frontera sobre IA</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('conceptos.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill" style="font-size:.72rem;"><i class="fas fa-book-open me-1"></i>Conceptos</a>
+                    <a href="{{ route('papers.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill" style="font-size:.72rem;"><i class="fas fa-file-alt me-1"></i>Papers</a>
+                    <a href="{{ route('analisis.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill d-none d-md-inline-flex" style="font-size:.72rem;"><i class="fas fa-microscope me-1"></i>Análisis</a>
+                    <a href="{{ route('estado-arte.index') }}" class="btn btn-sm rounded-pill d-none d-md-inline-flex" style="font-size:.72rem;background:var(--primary-color);color:#fff;"><i class="fas fa-chart-line me-1"></i>Estado del Arte</a>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                {{-- Conceptos IA --}}
+                <div class="col-6 col-lg-3">
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
+                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-book-open" style="color:var(--primary-color);font-size:.65rem;"></i>
+                            </div>
+                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Conceptos IA</span>
+                            <a href="{{ route('conceptos.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;" class="text-decoration-none"><i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        @forelse($latestConceptos->take(2) as $item)
+                        <a href="{{ route('conceptos.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
+                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
+                            @if($item->short_definition)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ Str::limit($item->short_definition, 60) }}</div>@endif
+                        </a>
+                        @empty
+                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Análisis de Fondo --}}
+                <div class="col-6 col-lg-3">
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
+                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-microscope" style="color:var(--primary-color);font-size:.65rem;"></i>
+                            </div>
+                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Análisis de Fondo</span>
+                            <a href="{{ route('analisis.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        @forelse($latestAnalises->take(2) as $item)
+                        <a href="{{ route('analisis.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
+                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
+                            @if($item->excerpt)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ Str::limit($item->excerpt, 60) }}</div>@endif
+                        </a>
+                        @empty
+                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- ConocIA Papers --}}
+                <div class="col-6 col-lg-3">
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
+                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-file-alt" style="color:var(--primary-color);font-size:.65rem;"></i>
+                            </div>
+                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">ConocIA Papers</span>
+                            <a href="{{ route('papers.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        @forelse($latestPapers->take(2) as $item)
+                        <a href="{{ route('papers.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
+                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
+                            @if($item->original_title)<div style="color:#94a3b8;font-size:.72rem;font-style:italic;margin-top:2px;">{{ Str::limit($item->original_title, 55) }}</div>@endif
+                        </a>
+                        @empty
+                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Estado del Arte --}}
+                <div class="col-6 col-lg-3">
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
+                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-chart-line" style="color:var(--primary-color);font-size:.65rem;"></i>
+                            </div>
+                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Estado del Arte</span>
+                            <a href="{{ route('estado-arte.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        @forelse($latestDigests->take(2) as $item)
+                        <a href="{{ route('estado-arte.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
+                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
+                            @if($item->period_label)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ $item->period_label }}</div>@endif
+                        </a>
+                        @empty
+                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
+                        @endforelse
+                    </div>
+                </div>
+
+            </div>{{-- /row --}}
+
+        </div>
+    </section>
+
     <!-- ═══ NEWSLETTER INLINE ═══ -->
     <div style="background:linear-gradient(135deg,#0a1020 0%,#0f1b2d 100%);border-top:2px solid rgba(56,182,255,.2);border-bottom:2px solid rgba(56,182,255,.1);" class="py-4">
         <div class="container">
@@ -398,115 +507,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ═══ PROFUNDIZA ═══ -->
-    <section class="py-4" style="background:#f0f4f8;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
-        <div class="container">
-
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <div style="width:4px;height:20px;background:var(--primary-color);border-radius:2px;"></div>
-                    <h3 class="mb-0 fw-bold" style="font-size:1rem;color:#0f172a;">Profundiza</h3>
-                    <span style="color:#64748b;font-size:.8rem;">— Ciencia, análisis y conocimiento de frontera sobre IA</span>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('conceptos.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill" style="font-size:.72rem;"><i class="fas fa-book-open me-1"></i>Conceptos</a>
-                    <a href="{{ route('papers.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill" style="font-size:.72rem;"><i class="fas fa-file-alt me-1"></i>Papers</a>
-                    <a href="{{ route('analisis.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill d-none d-md-inline-flex" style="font-size:.72rem;"><i class="fas fa-microscope me-1"></i>Análisis</a>
-                    <a href="{{ route('estado-arte.index') }}" class="btn btn-sm rounded-pill d-none d-md-inline-flex" style="font-size:.72rem;background:var(--primary-color);color:#fff;"><i class="fas fa-chart-line me-1"></i>Estado del Arte</a>
-                </div>
-            </div>
-
-            <div class="row g-3">
-
-                {{-- Conceptos IA --}}
-                <div class="col-md-6 col-lg-3">
-                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
-                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-book-open" style="color:var(--primary-color);font-size:.65rem;"></i>
-                            </div>
-                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Conceptos IA</span>
-                            <a href="{{ route('conceptos.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;" class="text-decoration-none"><i class="fas fa-arrow-right"></i></a>
-                        </div>
-                        @forelse($latestConceptos->take(2) as $item)
-                        <a href="{{ route('conceptos.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
-                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
-                            @if($item->short_definition)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ Str::limit($item->short_definition, 60) }}</div>@endif
-                        </a>
-                        @empty
-                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
-                        @endforelse
-                    </div>
-                </div>
-
-                {{-- Análisis de Fondo --}}
-                <div class="col-md-6 col-lg-3">
-                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
-                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-microscope" style="color:var(--primary-color);font-size:.65rem;"></i>
-                            </div>
-                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Análisis de Fondo</span>
-                            <a href="{{ route('analisis.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
-                        </div>
-                        @forelse($latestAnalises->take(2) as $item)
-                        <a href="{{ route('analisis.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
-                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
-                            @if($item->excerpt)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ Str::limit($item->excerpt, 60) }}</div>@endif
-                        </a>
-                        @empty
-                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
-                        @endforelse
-                    </div>
-                </div>
-
-                {{-- ConocIA Papers --}}
-                <div class="col-md-6 col-lg-3">
-                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
-                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-file-alt" style="color:var(--primary-color);font-size:.65rem;"></i>
-                            </div>
-                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">ConocIA Papers</span>
-                            <a href="{{ route('papers.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
-                        </div>
-                        @forelse($latestPapers->take(2) as $item)
-                        <a href="{{ route('papers.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
-                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
-                            @if($item->original_title)<div style="color:#94a3b8;font-size:.72rem;font-style:italic;margin-top:2px;">{{ Str::limit($item->original_title, 55) }}</div>@endif
-                        </a>
-                        @empty
-                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
-                        @endforelse
-                    </div>
-                </div>
-
-                {{-- Estado del Arte --}}
-                <div class="col-md-6 col-lg-3">
-                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-                        <div class="d-flex align-items-center gap-2 px-3 py-2" style="border-bottom:1px solid #f1f5f9;">
-                            <div style="width:22px;height:22px;background:rgba(56,182,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas fa-chart-line" style="color:var(--primary-color);font-size:.65rem;"></i>
-                            </div>
-                            <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Estado del Arte</span>
-                            <a href="{{ route('estado-arte.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
-                        </div>
-                        @forelse($latestDigests->take(2) as $item)
-                        <a href="{{ route('estado-arte.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
-                            <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
-                            @if($item->period_label)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ $item->period_label }}</div>@endif
-                        </a>
-                        @empty
-                        <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>
-                        @endforelse
-                    </div>
-                </div>
-
-            </div>{{-- /row --}}
-
-        </div>
-    </section>
 
 
     {{-- ═══ CONOCIA TV SPOTLIGHT ═══ --}}
