@@ -322,7 +322,7 @@
                         <div class="card-header py-2 px-3" style="background:linear-gradient(135deg,#fff 0%,#fff5f5 100%);">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span style="font-size:1.1rem;" title="Chile">🇨🇱</span>
+                                    <div style="width:4px;height:20px;background:#e63946;border-radius:2px;"></div>
                                     <h5 class="mb-0 fw-bold" style="font-size:1rem;color:#c1121f;">IA en Chile</h5>
                                 </div>
                                 <a href="{{ route('news.category', 'ia-en-chile') }}" class="btn btn-sm rounded-pill px-3" style="font-size:.75rem;background:#fff0f0;color:#c1121f;border:1px solid #fca5a5;">
@@ -351,7 +351,7 @@
                             @endforeach
                             @else
                             <div class="text-center py-5">
-                                <span style="font-size:2rem;">🇨🇱</span>
+                                <i class="fas fa-newspaper mb-2 d-block" style="color:#e63946;opacity:.3;font-size:1.8rem;"></i>
                                 <p class="text-muted mt-2 mb-3" style="font-size:.85rem;">Pronto tendremos cobertura<br>especializada sobre IA en Chile.</p>
                                 <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Ver noticias</a>
                             </div>
