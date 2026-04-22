@@ -284,19 +284,10 @@ class FetchNewsFromRss extends Command
                     'published_at' => $pubDate ? now()->parse($pubDate) : now(),
                 ]);
 
-                // Descargar imagen: primero desde el feed, fallback a Pexels
-                $imageStored = null;
-                if ($image) {
-                    $local = $this->imageDownloader->downloadMultiple(
-                        [$image => ['categorySlug' => $categorySlug, 'newsId' => $news->id]]
-                    );
-                    $imageStored = $local[$image] ?? null;
-                }
-                if (!$imageStored) {
-                    $imageStored = $this->imageDownloader->searchAndDownloadFromPexels(
-                        $enhanced['title'], $categorySlug, $category->name
-                    );
-                }
+                // Imagen: Pexels directo (URL externa, sin upload a R2)
+                $imageStored = $this->imageDownloader->searchAndDownloadFromPexels(
+                    $enhanced['title'], $categorySlug, $category->name
+                );
                 if ($imageStored) {
                     $news->update(['image' => $imageStored]);
                 }
