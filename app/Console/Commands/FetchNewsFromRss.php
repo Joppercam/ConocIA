@@ -84,33 +84,26 @@ class FetchNewsFromRss extends Command
             'language' => 'es',
             'ai_only'  => true,
         ],
-        // ── Medios chilenos (filtro IA + categoría local forzada) ──────────
+        // ── Chile: Google News RSS (agrega DF, La Tercera, El Mostrador, etc.) ──
         [
-            'url'         => 'https://www.latercera.com/feed/',
-            'source'      => 'La Tercera',
+            'url'         => 'https://news.google.com/rss/search?q=inteligencia+artificial+Chile&hl=es-419&gl=CL&ceid=CL:es-419',
+            'source'      => 'Google News Chile',
             'language'    => 'es',
-            'ai_only'     => true,
+            'ai_only'     => false,
             'local_chile' => true,
         ],
         [
-            'url'         => 'https://www.elmostrador.cl/feed/',
-            'source'      => 'El Mostrador',
+            'url'         => 'https://news.google.com/rss/search?q=IA+universidad+investigacion+Chile&hl=es-419&gl=CL&ceid=CL:es-419',
+            'source'      => 'Google News Chile Académico',
             'language'    => 'es',
-            'ai_only'     => true,
+            'ai_only'     => false,
             'local_chile' => true,
         ],
         [
-            'url'         => 'https://www.biobiochile.cl/feed/',
-            'source'      => 'BioBioChile',
+            'url'         => 'https://news.google.com/rss/search?q=startup+tecnologia+IA+Chile+CORFO+ANID&hl=es-419&gl=CL&ceid=CL:es-419',
+            'source'      => 'Google News Chile Ecosistema',
             'language'    => 'es',
-            'ai_only'     => true,
-            'local_chile' => true,
-        ],
-        [
-            'url'         => 'https://www.df.cl/noticias/feed/',
-            'source'      => 'Diario Financiero',
-            'language'    => 'es',
-            'ai_only'     => true,
+            'ai_only'     => false,
             'local_chile' => true,
         ],
     ];
