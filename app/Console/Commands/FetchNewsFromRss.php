@@ -338,10 +338,16 @@ class FetchNewsFromRss extends Command
                 ->withHeaders(['User-Agent' => 'ConocIA RSS Reader/1.0'])
                 ->get($url);
 
-            if ($response->failed()) return [];
+            if ($response->failed()) {
+                $this->warn("  Error HTTP {$response->status()}: {$url}");
+                return [];
+            }
 
             $xml = @simplexml_load_string($response->body(), 'SimpleXMLElement', LIBXML_NOCDATA);
-            if (!$xml) return [];
+            if (!$xml) {
+                $this->warn("  XML inválido o vacío: {$url}");
+                return [];
+            }
 
             $items = [];
 
@@ -360,6 +366,7 @@ class FetchNewsFromRss extends Command
 
             return $items;
         } catch (\Exception $e) {
+            $this->warn("  Excepción: " . $e->getMessage());
             Log::warning("FetchNewsFromRss: error parsing {$url}: " . $e->getMessage());
             return [];
         }
