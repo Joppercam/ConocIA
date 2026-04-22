@@ -26,6 +26,11 @@ class DailyBriefing extends Model
         return static::where('date', today()->toDateString())->first();
     }
 
+    public static function latest(): ?self
+    {
+        return static::orderByDesc('date')->first();
+    }
+
     public function getFormattedDateAttribute(): string
     {
         return $this->date->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');

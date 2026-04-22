@@ -197,8 +197,9 @@ Route::get('/buscar', [SearchController::class, 'search'])->name('search');
 Route::get('/api/buscar', [SearchController::class, 'live'])->name('search.live');
 Route::get('/guardados', fn() => view('saved'))->name('saved');
 Route::get('/api/briefing/today', function () {
-    $b = \App\Models\DailyBriefing::today();
+    $b = \App\Models\DailyBriefing::today() ?? \App\Models\DailyBriefing::latest();
     if (!$b) return response()->json(['available' => false]);
+    $isToday = $b->date->isToday();
     return response()->json([
         'available'        => true,
         'script'           => $b->script,
@@ -207,6 +208,7 @@ Route::get('/api/briefing/today', function () {
         'estimated_minutes'=> $b->estimated_minutes,
         'date_label'       => $b->formatted_date,
         'news_count'       => $b->news_count,
+        'is_today'         => $isToday,
     ]);
 })->name('briefing.today');
 

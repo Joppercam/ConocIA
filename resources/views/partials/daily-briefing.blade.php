@@ -554,7 +554,13 @@
             briefingScript = data.script;
             totalSeconds   = data.duration_seconds || 120;
 
-            if (dateLabel)  dateLabel.textContent  = data.date_label || '';
+            if (dateLabel) {
+                if (data.is_today) {
+                    dateLabel.textContent = data.date_label || '';
+                } else {
+                    dateLabel.innerHTML = '<span style="color:#f59e0b;font-size:.65rem;margin-right:4px;">● Último disponible</span>' + (data.date_label || '');
+                }
+            }
             if (timeTotal)  timeTotal.textContent  = fmtTime(totalSeconds);
             if (newsCount)  newsCount.textContent  = (data.news_count || 10) + ' contenidos';
 
