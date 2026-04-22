@@ -252,6 +252,9 @@ Route::post('/comments', [CommentController::class, 'store']);
 
 // Rutas para el frontend
 Route::get('/columnas', [ColumnController::class, 'index'])->name('columns.index');
+Route::get('/columnas/columnistas', [ColumnController::class, 'columnists'])->name('columns.columnists');
+Route::get('/columnas/escribe', [ColumnController::class, 'writeForUs'])->name('columns.write-for-us');
+Route::post('/columnas/escribe', [ColumnController::class, 'submitWriteForUs'])->name('columns.write-for-us.submit');
 Route::get('/columnas/categoria/{slug}', [ColumnController::class, 'byCategory'])->name('columns.category');
 Route::get('/columnas/autor/{id}', [ColumnController::class, 'byAuthor'])->name('columns.author');
 Route::get('/columnas/{slug}', [ColumnController::class, 'show'])->name('columns.show');

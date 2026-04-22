@@ -690,12 +690,34 @@
                                <i class="fas fa-newspaper me-1 d-lg-none"></i>Noticias
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('columns.*') ? 'active' : '' }}"
-                            href="{{ route('columns.index') }}"
-                            aria-current="{{ request()->routeIs('columns.*') ? 'page' : 'false' }}">
-                            <i class="fas fa-pen-fancy me-1 d-lg-none"></i>Columnas
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('columns.*') ? 'active' : '' }}"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-pen-fancy me-1 d-lg-none"></i>Columnas
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:220px;">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('columns.index') }}">
+                                        <i class="fas fa-list me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Todas las columnas</strong>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('columns.columnists') }}">
+                                        <i class="fas fa-users me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Columnistas</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Expertos que escriben en ConocIA</div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider opacity-25"></li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('columns.write-for-us') }}">
+                                        <i class="fas fa-pencil-alt me-2" style="color:#00c896;"></i>
+                                        <strong style="color:#00c896;">Escribí para ConocIA</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Convocatoria a expertos</div>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('videos.*') ? 'active' : '' }}"

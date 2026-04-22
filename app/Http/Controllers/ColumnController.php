@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class ColumnController extends Controller
@@ -323,12 +325,70 @@ class ColumnController extends Controller
         };
         
         return view('columns.by-author', compact(
-            'columns', 
+            'columns',
             'author'
         ))->with([
             'getImageUrl' => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,
             'getCategoryIcon' => $getCategoryIcon
         ]);
+    }
+
+    public function columnists()
+    {
+        $featured = User::featuredColumnists()
+            ->withCount(['columns' => fn($q) => $q->published()])
+            ->having('columns_count', '>', 0)
+            ->orderByDesc('columns_count')
+            ->get();
+
+        $all = User::where('is_active', true)
+            ->whereHas('columns', fn($q) => $q->published())
+            ->where('is_featured_columnist', false)
+            ->withCount(['columns' => fn($q) => $q->published()])
+            ->orderByDesc('columns_count')
+            ->get();
+
+        return view('columns.columnists', compact('featured', 'all'));
+    }
+
+    public function writeForUs()
+    {
+        return view('columns.write-for-us');
+    }
+
+    public function submitWriteForUs(Request $request)
+    {
+        $validated = $request->validate([
+            'name'        => 'required|string|max:120',
+            'email'       => 'required|email|max:120',
+            'institution' => 'nullable|string|max:120',
+            'expertise'   => 'nullable|string|max:120',
+            'title'       => 'required|string|max:200',
+            'summary'     => 'required|string|min:30|max:2000',
+            'linkedin'    => 'nullable|url|max:255',
+        ]);
+
+        try {
+            $adminEmail = config('mail.from.address', 'newsletter@conocia.cl');
+            Mail::raw(
+                "Nueva propuesta de columna para ConocIA\n\n" .
+                "Nombre: {$validated['name']}\n" .
+                "Email: {$validated['email']}\n" .
+                "Institución: " . ($validated['institution'] ?? '—') . "\n" .
+                "Expertise: " . ($validated['expertise'] ?? '—') . "\n" .
+                "LinkedIn: " . ($validated['linkedin'] ?? '—') . "\n\n" .
+                "Título propuesto:\n{$validated['title']}\n\n" .
+                "Resumen:\n{$validated['summary']}",
+                fn($msg) => $msg->to($adminEmail)
+                                 ->subject("Propuesta columna: {$validated['title']}")
+                                 ->replyTo($validated['email'], $validated['name'])
+            );
+        } catch (\Exception $e) {
+            Log::error('WriteForUs mail failed: ' . $e->getMessage());
+        }
+
+        return redirect()->route('columns.write-for-us')
+            ->with('success', '¡Propuesta recibida! Te responderemos a ' . $validated['email'] . ' en los próximos 5 días hábiles.');
     }
 }

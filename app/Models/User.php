@@ -33,6 +33,11 @@ class User extends Authenticatable
         'github',
         'role_id',
         'is_active',
+        'academic_title',
+        'institution',
+        'expertise_area',
+        'linkedin_url',
+        'is_featured_columnist',
     ];
 
     /**
@@ -51,10 +56,21 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'is_active' => 'boolean',
+        'email_verified_at'      => 'datetime',
+        'password'               => 'hashed',
+        'is_active'              => 'boolean',
+        'is_featured_columnist'  => 'boolean',
     ];
+
+    public function scopeFeaturedColumnists($query)
+    {
+        return $query->where('is_featured_columnist', true)->where('is_active', true);
+    }
+
+    public function getFullTitleAttribute(): string
+    {
+        return trim(($this->academic_title ? $this->academic_title . ' ' : '') . $this->name);
+    }
 
     /**
      * Obtiene el rol del usuario.

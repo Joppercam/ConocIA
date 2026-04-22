@@ -15,7 +15,7 @@ class FetchNewsFromRss extends Command
 {
     protected $signature = 'news:fetch-rss {--limit=3 : Máximo de artículos por feed} {--dry-run : Mostrar lo que se importaría sin guardar}';
 
-    protected $description = 'Importa noticias de feeds RSS curados de alta calidad (Xataka, Hipertextual, VentureBeat, The Verge)';
+    protected $description = 'Importa noticias de feeds RSS curados de alta calidad (Xataka, Hipertextual, VentureBeat, The Verge, medios chilenos)';
 
     /**
      * Feeds RSS configurados con sus metadatos.
@@ -84,6 +84,42 @@ class FetchNewsFromRss extends Command
             'language' => 'es',
             'ai_only'  => true,
         ],
+        // ── Medios chilenos (filtro IA + categoría local forzada) ──────────
+        [
+            'url'         => 'https://www.df.cl/rss/',
+            'source'      => 'Diario Financiero',
+            'language'    => 'es',
+            'ai_only'     => true,
+            'local_chile' => true,
+        ],
+        [
+            'url'         => 'https://www.latercera.com/categoria/tecnologia/feed/',
+            'source'      => 'La Tercera',
+            'language'    => 'es',
+            'ai_only'     => true,
+            'local_chile' => true,
+        ],
+        [
+            'url'         => 'https://elmostrador.cl/feed/',
+            'source'      => 'El Mostrador',
+            'language'    => 'es',
+            'ai_only'     => true,
+            'local_chile' => true,
+        ],
+        [
+            'url'         => 'https://www.emol.com/rss/_top/tecnologia.xml',
+            'source'      => 'Emol Tecnología',
+            'language'    => 'es',
+            'ai_only'     => true,
+            'local_chile' => true,
+        ],
+        [
+            'url'         => 'https://www.biobiochile.cl/lista/categorias/tecnologia/feed',
+            'source'      => 'BioBioChile',
+            'language'    => 'es',
+            'ai_only'     => true,
+            'local_chile' => true,
+        ],
     ];
 
     /**
@@ -96,6 +132,16 @@ class FetchNewsFromRss extends Command
         'generative ai', 'ia generativa', 'neural network', 'transformer',
         'ai model', 'modelo ia', 'copilot', 'diffusion', 'autonomous ai',
         'ai agent', 'agente ia', 'foundation model', 'ai regulation', 'ley ia',
+    ];
+
+    // Keywords adicionales para detectar IA en contexto chileno/latinoamericano
+    protected array $chileAiKeywords = [
+        'inteligencia artificial', 'ia generativa', 'machine learning', 'modelo de ia',
+        'chatgpt', 'gemini', 'copilot', 'startup tecnológica', 'startup chilena',
+        'transformación digital', 'corfo', 'anid', 'minciencia', 'economia digital',
+        'automatización', 'datos', 'algoritmo', 'tecnología', 'innovación',
+        'fintech', 'legaltech', 'healthtech', 'edtech', 'digitalización',
+        'ciberseguridad', 'nube', 'cloud', 'deepfake', 'modelo predictivo',
     ];
 
     /**
@@ -163,11 +209,17 @@ class FetchNewsFromRss extends Command
 
                 if (empty($title) || empty($url)) continue;
 
-                // Filtrar por relevancia IA (feeds mixtos Y validación final para todos)
-                if ($feed['ai_only'] && !$this->isAiRelated($title . ' ' . $desc)) {
-                    $skipped++;
-                    $this->line("  <fg=yellow>Filtrado (no-IA):</> {$title}");
-                    continue;
+                // Filtrar por relevancia IA
+                $isLocalChile = !empty($feed['local_chile']);
+                if ($feed['ai_only']) {
+                    $relevant = $isLocalChile
+                        ? $this->isChileAiRelated($title . ' ' . $desc)
+                        : $this->isAiRelated($title . ' ' . $desc);
+                    if (!$relevant) {
+                        $skipped++;
+                        $this->line("  <fg=yellow>Filtrado (no-IA):</> {$title}");
+                        continue;
+                    }
                 }
 
                 // Validación de calidad mínima para todos los feeds
@@ -183,8 +235,10 @@ class FetchNewsFromRss extends Command
                     continue;
                 }
 
-                // Usar categoría forzada del feed o auto-detectar
-                $categorySlug = $feed['category'] ?? $this->detectCategory($title . ' ' . $desc);
+                // Feeds chilenos → categoría "IA en Chile"; resto: forzada o auto-detectada
+                $categorySlug = $isLocalChile
+                    ? 'ia-en-chile'
+                    : ($feed['category'] ?? $this->detectCategory($title . ' ' . $desc));
                 $category     = $this->getOrCreateCategory($categorySlug);
 
                 if ($dryRun) {
@@ -373,6 +427,15 @@ class FetchNewsFromRss extends Command
         return false;
     }
 
+    protected function isChileAiRelated(string $text): bool
+    {
+        $text = mb_strtolower($text);
+        foreach ($this->chileAiKeywords as $kw) {
+            if (str_contains($text, $kw)) return true;
+        }
+        return false;
+    }
+
     protected function detectCategory(string $text): string
     {
         $text = mb_strtolower($text);
@@ -400,6 +463,7 @@ class FetchNewsFromRss extends Command
             'privacidad-y-seguridad' => 'Privacidad y Seguridad', 'nlp' => 'NLP',
             'computer-vision' => 'Computer Vision', 'machine-learning' => 'Machine Learning',
             'deep-learning' => 'Deep Learning', 'inteligencia-artificial' => 'Inteligencia Artificial',
+            'ia-en-chile' => 'IA en Chile',
         ];
 
         $cat = Category::firstOrCreate(
