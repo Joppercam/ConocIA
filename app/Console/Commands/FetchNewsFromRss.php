@@ -197,9 +197,11 @@ class FetchNewsFromRss extends Command
                 continue;
             }
 
-            $imported = 0;
+            $imported   = 0;
+            $isLocalChileFeed = !empty($feed['local_chile']);
+            $effectiveLimit   = $isLocalChileFeed ? max($limit, 10) : $limit;
             foreach ($items as $item) {
-                if ($imported >= $limit) break;
+                if ($imported >= $effectiveLimit) break;
 
                 $title   = $this->cleanText($item['title'] ?? '');
                 $desc    = $this->cleanText($item['description'] ?? '');
@@ -210,7 +212,7 @@ class FetchNewsFromRss extends Command
                 if (empty($title) || empty($url)) continue;
 
                 // Filtrar por relevancia IA
-                $isLocalChile = !empty($feed['local_chile']);
+                $isLocalChile = $isLocalChileFeed;
                 if ($feed['ai_only']) {
                     $relevant = $isLocalChile
                         ? $this->isChileAiRelated($title . ' ' . $desc)
@@ -269,8 +271,9 @@ class FetchNewsFromRss extends Command
                 }
 
                 // Omitir artículos con contenido demasiado corto
-                $wordCount = str_word_count(strip_tags($enhanced['content']));
-                if ($wordCount < 200) {
+                $wordCount   = str_word_count(strip_tags($enhanced['content']));
+                $minWords    = $isLocalChile ? 50 : 200;
+                if ($wordCount < $minWords) {
                     $this->warn("  Contenido demasiado corto ({$wordCount} palabras), omitiendo: {$title}");
                     continue;
                 }
