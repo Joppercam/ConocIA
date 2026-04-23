@@ -116,13 +116,14 @@ if (!function_exists('format_news_content')) {
             $content = preg_replace($pattern, '', $content);
         }
 
-        // Si ya viene estructurado en HTML, solo saneamos residuos y lo devolvemos.
-        if (preg_match('/<(p|h2|h3|ul|ol|blockquote|figure|iframe|img)\b/i', $content)) {
+        // Si ya viene con una estructura editorial razonable, solo saneamos residuos y lo devolvemos.
+        if (news_content_has_usable_structure($content)) {
             return trim($content);
         }
 
         $text = html_entity_decode(strip_tags($content), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = preg_replace("/\r\n|\r/", "\n", $text);
+        $text = preg_replace('/([a-záéíóúñ]{4,})([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{3,})/u', '$1 $2', $text);
         $text = preg_replace('/([\.\!\?])([A-ZÁÉÍÓÚÑ¿"])/u', '$1 $2', $text);
         $text = preg_replace('/[ \t]+/', ' ', $text);
         $text = preg_replace("/\n{3,}/", "\n\n", $text);
@@ -137,6 +138,7 @@ if (!function_exists('format_news_content')) {
         $headingStarters = '(?:Como|Si|Lo|Vamos|Ahora|Por|Además|Esto|Este|Esta|Estas|Estos|Tenemos|Puede|Puedes|Debería|Importante|En|Para)';
         $text = preg_replace('/(¿[^?\n]{6,90}\?)(?=\s*' . $headingStarters . '\b)/u', "\n\n$1\n\n", $text);
         $text = preg_replace('/([A-ZÁÉÍÓÚÑ][^\.!\?\n]{12,90}?)(?=\s+' . $headingStarters . '\b)/u', "\n\n$1\n\n", $text);
+        $text = preg_replace('/(?<=[\.\!\?])\s+([A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñ0-9"\-]{2,}(?:\s+[A-ZÁÉÍÓÚÑa-záéíóúñ0-9"\-]{2,}){1,8})(?=\s+(?:[A-ZÁÉÍÓÚÑ¿]|Si|Como|Lo|Vamos|Ahora|Por|Además|Esto|Este|Esta|Estas|Estos|Tenemos|Puede|Puedes|Debería|Importante|En|Para)\b)/u', "\n\n$1\n\n", $text);
         $text = preg_replace('/(Algunos [^\.!\?\n]{6,80})(?=\s+Cargador\b)/u', "\n\n$1\n\n", $text);
         $text = preg_replace('/(Cargador [A-Z0-9ÁÉÍÓÚÑ][^\.!\?\n]{2,60})(?=\s+(?:Este|Tenemos|Cuenta)\b)/u', "\n\n$1\n\n", $text);
         $text = preg_replace("/\n{3,}/", "\n\n", $text);
@@ -197,6 +199,41 @@ if (!function_exists('format_news_content')) {
         }
 
         return implode("\n", $htmlChunks);
+    }
+}
+
+if (!function_exists('news_content_has_usable_structure')) {
+    function news_content_has_usable_structure(string $content): bool
+    {
+        if (!preg_match('/<(p|h2|h3|ul|ol|blockquote|figure|iframe|img)\b/i', $content)) {
+            return false;
+        }
+
+        $blockCount = preg_match_all('/<(p|h2|h3|ul|ol|blockquote|figure)\b/i', $content);
+        $paragraphCount = preg_match_all('/<p\b/i', $content);
+        $headingCount = preg_match_all('/<h2\b|<h3\b/i', $content);
+
+        preg_match_all('/<p\b[^>]*>(.*?)<\/p>/is', $content, $paragraphs);
+        $maxParagraphLength = 0;
+
+        foreach ($paragraphs[1] ?? [] as $paragraph) {
+            $length = mb_strlen(trim(strip_tags($paragraph)));
+            $maxParagraphLength = max($maxParagraphLength, $length);
+        }
+
+        if ($headingCount >= 1 && $paragraphCount >= 2) {
+            return true;
+        }
+
+        if ($paragraphCount >= 3 && $maxParagraphLength > 0 && $maxParagraphLength <= 900) {
+            return true;
+        }
+
+        if ($blockCount >= 5 && $maxParagraphLength > 0 && $maxParagraphLength <= 900) {
+            return true;
+        }
+
+        return false;
     }
 }
 
