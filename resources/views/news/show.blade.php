@@ -226,7 +226,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
 
             <!-- Contenido Principal -->
             <div class="news-content mb-4">
-                {!! $article->content !!}
+                {!! format_news_content($article->content) !!}
             </div>
            
             {{-- Newsletter inline post-artículo --}}

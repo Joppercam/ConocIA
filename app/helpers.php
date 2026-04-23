@@ -84,3 +84,83 @@ if (!function_exists('getYoutubeApiKey')) {
         return $dbKey ?: $configKey ?: $envKey;
     }
 }
+
+if (!function_exists('format_news_content')) {
+    /**
+     * Formatea contenido editorial para evitar bloques ilegibles cuando una noticia
+     * llega como texto plano o con residuos incrustados desde una fuente externa.
+     */
+    function format_news_content(?string $content): string
+    {
+        if (blank($content)) {
+            return '';
+        }
+
+        $content = trim($content);
+
+        // Eliminar scripts inline y residuos de widgets/embeds.
+        $content = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $content);
+        $content = preg_replace('/\{\s*"videoId"\s*:\s*"[^"]+".*?\}/is', '', $content);
+        $content = preg_replace('/\(function\(\)\s*\{[\s\S]*$/i', '', $content);
+
+        // Eliminar bloques editoriales de origen que no aportan al artículo.
+        $cleanupPatterns = [
+            '/Índice de Contenidos\s*\(\d+\).*?(?=(El primer filtro|Vamos al turrón|[A-ZÁÉÍÓÚÑ][^\.]{0,80}\.))/isu',
+            '/Algunos de los enlaces de este artículo son afiliados.*$/isu',
+            '/Imágenes\s*\|.*$/isu',
+            '/En Xataka\s*\|.*$/isu',
+            '/- La noticia .* fue publicada originalmente .*$/isu',
+        ];
+
+        foreach ($cleanupPatterns as $pattern) {
+            $content = preg_replace($pattern, '', $content);
+        }
+
+        // Si ya viene estructurado en HTML, solo saneamos residuos y lo devolvemos.
+        if (preg_match('/<(p|h2|h3|ul|ol|blockquote|figure|iframe|img)\b/i', $content)) {
+            return trim($content);
+        }
+
+        $text = html_entity_decode(strip_tags($content), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace("/\r\n|\r/", "\n", $text);
+        $text = preg_replace('/[ \t]+/', ' ', $text);
+        $text = preg_replace("/\n{3,}/", "\n\n", $text);
+        $text = trim($text);
+
+        if ($text === '') {
+            return '';
+        }
+
+        // Intentar separar frases para reconstruir párrafos legibles.
+        $sentences = preg_split('/(?<=[\.\!\?])\s+(?=[A-ZÁÉÍÓÚÑ0-9"])/u', $text) ?: [$text];
+        $paragraphs = [];
+        $buffer = [];
+
+        foreach ($sentences as $sentence) {
+            $sentence = trim($sentence);
+            if ($sentence === '') {
+                continue;
+            }
+
+            $buffer[] = $sentence;
+
+            if (count($buffer) >= 2 || mb_strlen(implode(' ', $buffer)) > 420) {
+                $paragraphs[] = implode(' ', $buffer);
+                $buffer = [];
+            }
+        }
+
+        if (!empty($buffer)) {
+            $paragraphs[] = implode(' ', $buffer);
+        }
+
+        $paragraphs = array_values(array_filter(array_map(
+            fn ($p) => trim($p),
+            $paragraphs
+        )));
+
+        return collect($paragraphs)
+            ->map(fn ($p) => '<p>' . e($p) . '</p>')
+            ->implode("\n");
+    }
+}
