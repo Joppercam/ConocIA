@@ -14,9 +14,9 @@ class OpenAIService
 
     public function __construct()
     {
-        $this->apiKey       = config('services.openai.api_key', config('openai.api_key', ''));
-        $this->model        = config('services.openai.model', env('OPENAI_MODEL_NAME', 'gpt-4.1'));
-        $this->organization = config('services.openai.organization', config('openai.organization', ''));
+        $this->apiKey       = (string) (config('services.openai.api_key') ?? config('openai.api_key') ?? '');
+        $this->model        = (string) (config('services.openai.model') ?? env('OPENAI_MODEL_NAME', 'gpt-4.1'));
+        $this->organization = (string) (config('services.openai.organization') ?? config('openai.organization') ?? '');
         $this->timeout      = (int) config('services.openai.request_timeout', config('openai.request_timeout', 60));
     }
 
