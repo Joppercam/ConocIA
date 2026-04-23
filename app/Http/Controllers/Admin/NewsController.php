@@ -103,11 +103,15 @@ class NewsController extends Controller
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['title']);
         }
+
+        // Compatibilidad con el esquema real de noticias:
+        // el admin trabaja con "summary", pero la tabla exige "excerpt".
+        $validated['excerpt'] = Str::limit(strip_tags($validated['summary']), 500);
         
         // Manejar la imagen destacada
         if ($request->hasFile('featured_image')) {
             $path = $request->file('featured_image')->store('news', 'public');
-            $validated['featured_image'] = $path;
+            $validated['image'] = 'storage/' . $path;
         }
         
         // Configurar fecha de publicación
@@ -194,16 +198,18 @@ class NewsController extends Controller
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['title']);
         }
+
+        $validated['excerpt'] = Str::limit(strip_tags($validated['summary']), 500);
         
         // Manejar la imagen destacada
         if ($request->hasFile('featured_image')) {
             // Eliminar imagen anterior si existe
-            if ($news->featured_image) {
-                Storage::disk('public')->delete($news->featured_image);
+            if ($news->image && str_starts_with($news->image, 'storage/')) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
             }
             
             $path = $request->file('featured_image')->store('news', 'public');
-            $validated['featured_image'] = $path;
+            $validated['image'] = 'storage/' . $path;
         }
         
         // Configurar fecha de publicación
@@ -229,8 +235,8 @@ class NewsController extends Controller
     public function destroy(News $news)
     {
         // Eliminar imagen si existe
-        if ($news->featured_image) {
-            Storage::disk('public')->delete($news->featured_image);
+        if ($news->image && str_starts_with($news->image, 'storage/')) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
         }
         
         // Eliminar noticia
@@ -271,8 +277,8 @@ class NewsController extends Controller
                 $newsToDelete = News::whereIn('id', $validated['ids'])->get();
                 
                 foreach ($newsToDelete as $news) {
-                    if ($news->featured_image) {
-                        Storage::disk('public')->delete($news->featured_image);
+                    if ($news->image && str_starts_with($news->image, 'storage/')) {
+                        Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
                     }
                 }
                 

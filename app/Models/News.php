@@ -23,6 +23,7 @@ class News extends Model implements Feedable
         'image', 
         'image_caption',
         'category_id', 
+        'user_id',
         'author_id',
         'views', 
         'status',
