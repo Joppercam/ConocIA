@@ -408,9 +408,25 @@ class FetchNewsFromRss extends Command
     protected function isAiRelated(string $text): bool
     {
         $text = mb_strtolower($text);
+
+        $headlineWindow = mb_substr($text, 0, 140);
+
         foreach ($this->aiKeywords as $kw) {
-            if (str_contains($text, $kw)) return true;
+            if (str_contains($headlineWindow, $kw)) {
+                return true;
+            }
         }
+
+        $hits = 0;
+        foreach ($this->aiKeywords as $kw) {
+            if (str_contains($text, $kw)) {
+                $hits++;
+            }
+            if ($hits >= 2) {
+                return true;
+            }
+        }
+
         return false;
     }
 
