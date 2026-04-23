@@ -26,7 +26,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $aiAutomationEnabled = (bool) env('AI_AUTOMATION_ENABLED', true);
+        $aiAutomationEnabled = filter_var(
+            env('AI_AUTOMATION_ENABLED', true),
+            FILTER_VALIDATE_BOOL,
+            FILTER_NULL_ON_FAILURE
+        );
+        $aiAutomationEnabled = $aiAutomationEnabled ?? true;
 
         if (!$aiAutomationEnabled) {
             Log::info('AI_AUTOMATION_ENABLED=false: tareas automáticas de contenido desactivadas.');
