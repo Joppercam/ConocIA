@@ -123,6 +123,7 @@ if (!function_exists('format_news_content')) {
 
         $text = html_entity_decode(strip_tags($content), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = preg_replace("/\r\n|\r/", "\n", $text);
+        $text = preg_replace('/([\.\!\?])([A-ZÁÉÍÓÚÑ¿"])/u', '$1 $2', $text);
         $text = preg_replace('/[ \t]+/', ' ', $text);
         $text = preg_replace("/\n{3,}/", "\n\n", $text);
         $text = trim($text);
@@ -131,36 +132,103 @@ if (!function_exists('format_news_content')) {
             return '';
         }
 
-        // Intentar separar frases para reconstruir párrafos legibles.
-        $sentences = preg_split('/(?<=[\.\!\?])\s+(?=[A-ZÁÉÍÓÚÑ0-9"])/u', $text) ?: [$text];
-        $paragraphs = [];
-        $buffer = [];
+        // Intentar rescatar subtítulos incrustados típicos de artículos importados
+        // en texto plano, donde un encabezado aparece pegado al comienzo del párrafo.
+        $headingStarters = '(?:Como|Si|Lo|Vamos|Ahora|Por|Además|Esto|Este|Esta|Estas|Estos|Tenemos|Puede|Puedes|Debería|Importante|En|Para)';
+        $text = preg_replace('/(¿[^?\n]{6,90}\?)(?=\s*' . $headingStarters . '\b)/u', "\n\n$1\n\n", $text);
+        $text = preg_replace('/([A-ZÁÉÍÓÚÑ][^\.!\?\n]{12,90}?)(?=\s+' . $headingStarters . '\b)/u', "\n\n$1\n\n", $text);
+        $text = preg_replace('/(Algunos [^\.!\?\n]{6,80})(?=\s+Cargador\b)/u', "\n\n$1\n\n", $text);
+        $text = preg_replace('/(Cargador [A-Z0-9ÁÉÍÓÚÑ][^\.!\?\n]{2,60})(?=\s+(?:Este|Tenemos|Cuenta)\b)/u', "\n\n$1\n\n", $text);
+        $text = preg_replace("/\n{3,}/", "\n\n", $text);
 
-        foreach ($sentences as $sentence) {
-            $sentence = trim($sentence);
-            if ($sentence === '') {
+        $chunks = preg_split("/\n{2,}/", $text) ?: [$text];
+        $htmlChunks = [];
+
+        foreach ($chunks as $chunk) {
+            $chunk = trim($chunk);
+
+            if ($chunk === '') {
                 continue;
             }
 
-            $buffer[] = $sentence;
+            if (news_chunk_looks_like_heading($chunk)) {
+                $htmlChunks[] = '<h2>' . e($chunk) . '</h2>';
+                continue;
+            }
 
-            if (count($buffer) >= 2 || mb_strlen(implode(' ', $buffer)) > 420) {
+            $sentences = preg_split('/(?<=[\.\!\?])\s+(?=[A-ZÁÉÍÓÚÑ0-9"])/u', $chunk) ?: [$chunk];
+            $paragraphs = [];
+            $buffer = [];
+
+            foreach ($sentences as $sentence) {
+                $sentence = trim($sentence);
+                if ($sentence === '') {
+                    continue;
+                }
+
+                if (news_chunk_looks_like_heading($sentence)) {
+                    if (!empty($buffer)) {
+                        $paragraphs[] = implode(' ', $buffer);
+                        $buffer = [];
+                    }
+                    $paragraphs[] = '__HEADING__' . $sentence;
+                    continue;
+                }
+
+                $buffer[] = $sentence;
+
+                if (count($buffer) >= 2 || mb_strlen(implode(' ', $buffer)) > 420) {
+                    $paragraphs[] = implode(' ', $buffer);
+                    $buffer = [];
+                }
+            }
+
+            if (!empty($buffer)) {
                 $paragraphs[] = implode(' ', $buffer);
-                $buffer = [];
+            }
+
+            foreach ($paragraphs as $paragraph) {
+                if (str_starts_with($paragraph, '__HEADING__')) {
+                    $htmlChunks[] = '<h2>' . e(str_replace('__HEADING__', '', $paragraph)) . '</h2>';
+                } else {
+                    $htmlChunks[] = '<p>' . e(trim($paragraph)) . '</p>';
+                }
             }
         }
 
-        if (!empty($buffer)) {
-            $paragraphs[] = implode(' ', $buffer);
+        return implode("\n", $htmlChunks);
+    }
+}
+
+if (!function_exists('news_chunk_looks_like_heading')) {
+    function news_chunk_looks_like_heading(string $chunk): bool
+    {
+        $chunk = trim($chunk);
+
+        if ($chunk === '') {
+            return false;
         }
 
-        $paragraphs = array_values(array_filter(array_map(
-            fn ($p) => trim($p),
-            $paragraphs
-        )));
+        $length = mb_strlen($chunk);
+        $words  = preg_split('/\s+/u', $chunk) ?: [];
+        $count  = count($words);
 
-        return collect($paragraphs)
-            ->map(fn ($p) => '<p>' . e($p) . '</p>')
-            ->implode("\n");
+        if ($length < 8 || $length > 95 || $count < 2 || $count > 14) {
+            return false;
+        }
+
+        if (str_contains($chunk, ':') || str_contains($chunk, ';')) {
+            return false;
+        }
+
+        if (preg_match('/[\.!]\s*$/u', $chunk)) {
+            return false;
+        }
+
+        if (preg_match('/^¿[^?]+\?$/u', $chunk)) {
+            return true;
+        }
+
+        return preg_match('/^[A-ZÁÉÍÓÚÑ]/u', $chunk) === 1;
     }
 }
