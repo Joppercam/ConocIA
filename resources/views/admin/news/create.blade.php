@@ -62,7 +62,8 @@
                         <!-- Contenido -->
                         <div class="mb-3">
                             <label for="content" class="form-label">Contenido <span class="text-danger">*</span></label>
-                            <textarea class="form-control editor @error('content') is-invalid @enderror" id="content" name="content" rows="10" required>{{ old('content') }}</textarea>
+                            <textarea class="form-control news-content-textarea @error('content') is-invalid @enderror" id="content" name="content" rows="18" required placeholder="<p>Escribe o pega aquí el contenido de la noticia...</p>">{{ old('content') }}</textarea>
+                            <div class="form-text">Puedes escribir texto normal o pegar HTML limpio con etiquetas como `<p>`, `<h2>` y `<ul>`.</div>
                             @error('content')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -156,11 +157,18 @@
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .news-content-textarea {
+        min-height: 520px;
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.65;
+        resize: vertical;
+    }
+</style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.tiny.cloud/1/y7gn7np7foqprg37706om9j9ca8f9ulxd80quxbadv6a3gc8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     // Inicializar Select2 para las etiquetas
     $(document).ready(function() {
@@ -170,19 +178,6 @@
             tags: true,
             tokenSeparators: [',', ' ']
         });
-    });
-    
-    // Inicializar TinyMCE para el editor de contenido
-    tinymce.init({
-        selector: '.editor',
-        plugins: 'autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table code help wordcount',
-        toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
-        height: 500,
-        setup: function (editor) {
-            editor.on('change', function () {
-                editor.save();
-            });
-        }
     });
     
     // Generar slug automáticamente
