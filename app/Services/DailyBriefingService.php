@@ -8,6 +8,7 @@ use App\Models\ConocIaPaper;
 use App\Models\ConceptoIa;
 use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -37,16 +38,16 @@ class DailyBriefingService
             return null;
         }
 
-        $script = $this->callClaude($content);
+        $script = $this->callOpenAI($content);
 
         if (empty($script)) {
-            Log::warning('DailyBriefing: Claude devolvió vacío, intentando Gemini.');
+            Log::warning('DailyBriefing: OpenAI devolvio vacio, intentando Gemini.');
             $script = $this->callGemini($content);
         }
 
         if (empty($script)) {
-            Log::info('DailyBriefing: Gemini failed, trying OpenAI fallback.');
-            $script = $this->callOpenAI($content);
+            Log::info('DailyBriefing: Gemini failed, trying Claude fallback.');
+            $script = $this->callClaude($content);
         }
 
         if (empty($script)) {
@@ -280,37 +281,13 @@ PROMPT;
 
     protected function callOpenAI(array $content): string
     {
-        $apiKey = config('services.openai.api_key', env('OPENAI_API_KEY', ''));
-        $model  = env('OPENAI_MODEL_NAME', 'gpt-4-turbo');
+        $openai = app(OpenAIService::class);
 
-        if (empty($apiKey)) {
+        if (!$openai->isAvailable()) {
             Log::warning('DailyBriefing: OpenAI API key not configured.');
             return '';
         }
 
-        try {
-            $response = Http::timeout(60)
-                ->withToken($apiKey)
-                ->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => $model,
-                    'temperature' => 0.75,
-                    'max_tokens'  => 1800,
-                    'messages'    => [
-                        ['role' => 'user', 'content' => $this->buildPrompt($content)],
-                    ],
-                ]);
-
-            if ($response->failed()) {
-                Log::error('DailyBriefing OpenAI error: ' . $response->body());
-                return '';
-            }
-
-            return trim(
-                $response->json()['choices'][0]['message']['content'] ?? ''
-            );
-        } catch (\Exception $e) {
-            Log::error('DailyBriefing OpenAI exception: ' . $e->getMessage());
-            return '';
-        }
+        return $openai->generateText($this->buildPrompt($content), 1800, 0.75);
     }
 }

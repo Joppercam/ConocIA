@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\ConocIaPaper;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -221,7 +222,17 @@ PROMPT;
 
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
-        $openaiKey   = env('OPENAI_API_KEY', '');
+        $openai      = app(OpenAIService::class);
+
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 3000, 0.65);
+                if (!empty($data['content'])) {
+                    Log::info('FetchArxivPapers: generado con OpenAI.');
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
 
         try {
             if (!empty($geminiKey) && $guard->canCall('medium')) {
@@ -249,24 +260,6 @@ PROMPT;
                 if (!empty($data['content'])) {
                     Log::info('FetchArxivPapers: generado con Claude (fallback).');
                     return $data;
-                }
-            }
-        } catch (\Exception) {}
-
-        try {
-            if (!empty($openaiKey)) {
-                $r = Http::timeout(60)->withToken($openaiKey)->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
-                    'temperature' => 0.65,
-                    'max_tokens'  => 3000,
-                    'messages'    => [
-                        ['role' => 'system', 'content' => 'Responde siempre en JSON válido.'],
-                        ['role' => 'user',   'content' => $prompt],
-                    ],
-                ]);
-                if ($r->successful()) {
-                    $data = json_decode($r->json()['choices'][0]['message']['content'] ?? '{}', true);
-                    if (!empty($data['content'])) return $data;
                 }
             }
         } catch (\Exception) {}

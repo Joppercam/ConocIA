@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ConceptoIa;
 use App\Services\GeminiQuotaGuard;
 use App\Services\ClaudeService;
+use App\Services\OpenAIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -174,7 +175,16 @@ PROMPT;
 
     protected function callAI(string $prompt, string $geminiKey, string $geminiModel, GeminiQuotaGuard $guard): array
     {
-        // ── Primario: Gemini 2.0 Flash ────────────────────────────────────────
+        $openai = app(OpenAIService::class);
+
+        if ($openai->isAvailable()) {
+            $data = $openai->generateJson($prompt, 4000, 0.65);
+            if (!empty($data['content'])) {
+                Log::info('GenerateConceptosIa: generado con OpenAI.');
+                return $data;
+            }
+        }
+
         try {
             if (!empty($geminiKey) && $guard->canCall('low')) {
                 $r = Http::timeout(60)->post(
@@ -196,7 +206,6 @@ PROMPT;
             Log::warning('GenerateConceptosIa Gemini error: ' . $e->getMessage());
         }
 
-        // ── Fallback: Claude 3.5 Sonnet ───────────────────────────────────────
         $claude = app(ClaudeService::class);
         if ($claude->isAvailable()) {
             $data = $claude->generateJson($prompt, 4000, 0.65);

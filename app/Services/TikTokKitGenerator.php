@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\TikTokScript;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -141,8 +142,17 @@ PROMPT;
     protected function callAI(string $prompt): array
     {
         $guard = app(GeminiQuotaGuard::class);
+        $openai = app(OpenAIService::class);
 
-        // Gemini primero (solo si hay cuota disponible para prioridad baja)
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 600, 0.7);
+                if (!empty($data)) {
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
+
         try {
             if (!empty($this->geminiKey) && $guard->canCall('low')) {
                 $r = Http::timeout(30)->post(
@@ -162,26 +172,6 @@ PROMPT;
                         $guard->record();
                         return $data;
                     }
-                }
-            }
-        } catch (\Exception) {}
-
-        // OpenAI fallback
-        try {
-            if (!empty($this->openaiKey)) {
-                $r = Http::timeout(30)->withToken($this->openaiKey)->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
-                    'temperature' => 0.7,
-                    'max_tokens'  => 600,
-                    'messages'    => [
-                        ['role' => 'system', 'content' => 'Responde siempre en JSON válido.'],
-                        ['role' => 'user',   'content' => $prompt],
-                    ],
-                ]);
-                if ($r->successful()) {
-                    $raw  = $r->json()['choices'][0]['message']['content'] ?? '{}';
-                    $data = json_decode($raw, true);
-                    if (!empty($data)) return $data;
                 }
             }
         } catch (\Exception) {}

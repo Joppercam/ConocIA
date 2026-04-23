@@ -161,7 +161,7 @@ class FetchNewsFromGuardian extends Command
     {
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
-        $openaiKey   = env('OPENAI_API_KEY', '');
+        $openai      = app(\App\Services\OpenAIService::class);
         $guard       = app(GeminiQuotaGuard::class);
 
         $prompt = <<<PROMPT
@@ -193,8 +193,17 @@ REQUISITOS TÉCNICOS:
 - Excerpt: 2 oraciones en español que capturan la esencia y generan curiosidad. Máximo 220 caracteres.
 - No menciones que el artículo fue traducido ni reescrito.
 
-Responde SOLO en JSON con estas claves: title, content, excerpt.
+        Responde SOLO en JSON con estas claves: title, content, excerpt.
 PROMPT;
+
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 3500, 0.7);
+                if (!empty($data['title']) && !empty($data['content'])) {
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
 
         try {
             if (!empty($geminiKey) && $guard->canCall('high')) {
@@ -211,24 +220,6 @@ PROMPT;
                         $guard->record();
                         return $data;
                     }
-                }
-            }
-        } catch (\Exception) {}
-
-        try {
-            if (!empty($openaiKey)) {
-                $r = Http::timeout(30)->withToken($openaiKey)->post('https://api.openai.com/v1/chat/completions', [
-                    'model'       => env('OPENAI_MODEL_NAME', 'gpt-4-turbo'),
-                    'temperature' => 0.7,
-                    'max_tokens'  => 3500,
-                    'messages'    => [
-                        ['role' => 'system', 'content' => 'Responde siempre en JSON válido con claves: title, content, excerpt.'],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
-                ]);
-                if ($r->successful()) {
-                    $data = json_decode($r->json()['choices'][0]['message']['content'] ?? '{}', true);
-                    if (!empty($data['title']) && !empty($data['content'])) return $data;
                 }
             }
         } catch (\Exception) {}

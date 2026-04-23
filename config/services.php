@@ -46,6 +46,13 @@ return [
     'guardian' => [
         'api_key' => env('GUARDIAN_API_KEY'),
     ],
+
+    'openai' => [
+        'api_key'         => env('OPENAI_API_KEY'),
+        'organization'    => env('OPENAI_ORGANIZATION'),
+        'model'           => env('OPENAI_MODEL_NAME', 'gpt-4.1'),
+        'request_timeout' => env('OPENAI_REQUEST_TIMEOUT', 60),
+    ],
     
     // Google Gemini — fetch noticias (Search Grounding) + tareas batch
     'gemini' => [

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Startup;
 use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -58,7 +59,7 @@ class FeatureWeeklyStartup extends Command
         $profile = $this->generateDeepProfile($startup, $guard);
 
         if (empty($profile)) {
-            $this->error('La IA no pudo generar el perfil. Verificá la cuota de Gemini/Claude.');
+            $this->error('La IA no pudo generar el perfil. Verifica OpenAI y los fallbacks configurados.');
             return Command::FAILURE;
         }
 
@@ -182,8 +183,18 @@ PROMPT;
 
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+        $openai      = app(OpenAIService::class);
 
-        // Intentar con Gemini primero
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 5000, 0.7);
+                if (!empty($data['profile_content'])) {
+                    Log::info('FeatureWeeklyStartup: perfil generado con OpenAI.');
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
+
         try {
             if (!empty($geminiKey) && $guard->canCall('high')) {
                 $r = Http::timeout(90)->post(
@@ -204,7 +215,6 @@ PROMPT;
             }
         } catch (\Exception) {}
 
-        // Fallback Claude
         try {
             $claude = app(ClaudeService::class);
             if ($claude->isAvailable()) {

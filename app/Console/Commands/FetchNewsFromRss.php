@@ -466,7 +466,7 @@ class FetchNewsFromRss extends Command
     {
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
-        $openaiKey   = env('OPENAI_API_KEY', '');
+        $openai      = app(\App\Services\OpenAIService::class);
 
         $isEnglish = ($item['language'] ?? 'es') === 'en';
         $langNote  = $isEnglish ? "El artículo original está en inglés. Tradúcelo al español.\n" : '';
@@ -506,7 +506,15 @@ PROMPT;
 
         $guard = app(GeminiQuotaGuard::class);
 
-        // Intentar Gemini primero (solo si hay cuota para prioridad alta)
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 3500, 0.7);
+                if (!empty($data['title']) && !empty($data['content'])) {
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
+
         try {
             if (!empty($geminiKey) && $guard->canCall('high')) {
                 $r = Http::timeout(30)->post(
@@ -526,7 +534,6 @@ PROMPT;
             }
         } catch (\Exception) {}
 
-        // Fallback Claude
         try {
             $claude = app(\App\Services\ClaudeService::class);
             if ($claude->isAvailable()) {

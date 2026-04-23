@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\News;
 use App\Models\TikTokScript;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +30,11 @@ class TikTokScriptGenerator
     {
         try {
             $prompt   = $this->getPromptForArticle($news);
-            $response = $this->callGemini($prompt);
+            $response = $this->callOpenAI($prompt);
+
+            if (empty($response)) {
+                $response = $this->callGemini($prompt);
+            }
 
             return $this->processResponse($news, $response);
         } catch (Exception $e) {
@@ -181,6 +186,22 @@ El guión completo aquí...
 [HASHTAGS]
 #hashtag1 #hashtag2
 [/HASHTAGS]";
+    }
+
+    protected function callOpenAI(string $prompt): string
+    {
+        $openai = app(OpenAIService::class);
+
+        if (!$openai->isAvailable()) {
+            return '';
+        }
+
+        return $openai->generateText(
+            $prompt,
+            $this->maxTokens,
+            0.7,
+            'Eres un experto en creación de contenido viral para TikTok a partir de noticias. Conviertes artículos periodísticos en guiones breves pero impactantes, adecuados para audiencias jóvenes.'
+        );
     }
 
     /**

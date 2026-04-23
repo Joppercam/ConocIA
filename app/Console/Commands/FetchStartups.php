@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Startup;
 use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -186,6 +187,16 @@ PROMPT;
 
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+        $openai      = app(OpenAIService::class);
+
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 3000, 0.3);
+                if (is_array($data)) {
+                    return isset($data[0]) ? $data : ($data['startups'] ?? []);
+                }
+            }
+        } catch (\Exception) {}
 
         try {
             if (!empty($geminiKey)) {
@@ -254,6 +265,16 @@ PROMPT;
 
         $geminiKey   = config('services.gemini.api_key', '');
         $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+        $openai      = app(OpenAIService::class);
+
+        try {
+            if ($openai->isAvailable()) {
+                $data = $openai->generateJson($prompt, 3000, 0.3);
+                if (is_array($data)) {
+                    return isset($data[0]) ? $data : ($data['startups'] ?? []);
+                }
+            }
+        } catch (\Exception) {}
 
         try {
             if (!empty($geminiKey)) {

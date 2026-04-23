@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\News;
 use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -20,7 +21,7 @@ class ReprocessShortNews extends Command
 
     protected $description = 'Re-expande con IA noticias que quedaron demasiado cortas';
 
-    public function handle(ClaudeService $claude, GeminiQuotaGuard $guard): int
+    public function handle(ClaudeService $claude, GeminiQuotaGuard $guard, OpenAIService $openai): int
     {
         $minWords = (int) $this->option('min-words');
         $limit    = (int) $this->option('limit');
@@ -61,11 +62,21 @@ class ReprocessShortNews extends Command
             $prompt = $this->buildPrompt($item->title, $item->content, $categoryName);
             $enhanced = null;
 
-            // Intentar Gemini primero
             $apiKey      = config('services.gemini.api_key');
             $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
 
-            if ($apiKey && $guard->canCall('medium')) {
+            if ($openai->isAvailable()) {
+                try {
+                    $data = $openai->generateJson($prompt, 7000, 0.7);
+                    if (!empty($data['content']) && str_word_count(strip_tags($data['content'])) >= $minWords) {
+                        $enhanced = $data;
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('ReprocessShortNews OpenAI error: ' . $e->getMessage());
+                }
+            }
+
+            if (!$enhanced && $apiKey && $guard->canCall('medium')) {
                 try {
                     $r = Http::timeout(90)->post(
                         "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
@@ -90,7 +101,6 @@ class ReprocessShortNews extends Command
                 }
             }
 
-            // Fallback Claude
             if (!$enhanced && $claude->isAvailable()) {
                 try {
                     $data = $claude->generateJson($prompt, 7000, 0.7);

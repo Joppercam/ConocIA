@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Models\SocialMediaQueue;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use App\Services\SimpleImageDownloader;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -708,10 +709,25 @@ PROMPT;
             $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
             $temperature = $isTruncated ? 0.8 : 0.7;
             $guard       = app(GeminiQuotaGuard::class);
+            $openai      = app(OpenAIService::class);
 
             $enhancedContent = null;
 
-            if ($guard->canCall('medium')) {
+            if ($openai->isAvailable()) {
+                $this->info("Enviando solicitud a OpenAI...");
+                $enhancedContent = $openai->generateJson(
+                    $prompt,
+                    3500,
+                    $temperature,
+                    "Eres un periodista senior especializado en {$categoryName}. Crea artículos de largo aliento, bien estructurados en HTML, que enganchen y profundicen. Responde siempre en formato JSON según se te indique."
+                );
+
+                if (!empty($enhancedContent)) {
+                    $this->info("Respuesta recibida de OpenAI");
+                }
+            }
+
+            if ($enhancedContent === null && $guard->canCall('medium')) {
                 $this->info("Enviando solicitud a Gemini ({$geminiModel})...");
 
                 $geminiResponse = Http::timeout(60)->post(
@@ -779,7 +795,11 @@ PROMPT;
 
                 $expandedContent = '';
 
-                if ($guard->canCall('low')) {
+                if ($openai->isAvailable()) {
+                    $expandedContent = $openai->generateText($expansionPrompt, 3500, 0.7);
+                }
+
+                if (empty($expandedContent) && $guard->canCall('low')) {
                     $expansionResult = Http::timeout(60)->post(
                         "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$apiKey}",
                         [
@@ -1373,6 +1393,24 @@ PROMPT;
             $apiKey      = config('services.gemini.api_key');
             $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
             $guard       = app(GeminiQuotaGuard::class);
+            $openai      = app(OpenAIService::class);
+
+            if ($openai->isAvailable()) {
+                $decoded = $openai->generateJson(
+                    $prompt,
+                    1000,
+                    0.8,
+                    'Eres un generador de comentarios realistas y técnicamente precisos para noticias. Genera respuestas en formato JSON según las instrucciones.'
+                );
+
+                if (isset($decoded['comments']) && is_array($decoded['comments'])) {
+                    return $decoded['comments'];
+                }
+
+                if (is_array($decoded) && isset($decoded[0])) {
+                    return $decoded;
+                }
+            }
 
             if (empty($apiKey)) {
                 $this->warn("GEMINI_API_KEY no configurada en .env");

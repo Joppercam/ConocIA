@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Video;
 use App\Services\GeminiQuotaGuard;
+use App\Services\OpenAIService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -27,7 +28,10 @@ class VideoSummaryService
             return true; // already done
         }
 
-        $result = $this->callGemini($video);
+        $result = $this->callOpenAI($video);
+        if (!$result) {
+            $result = $this->callGemini($video);
+        }
         if (!$result) {
             return false;
         }
@@ -104,5 +108,41 @@ PROMPT;
             Log::error("VideoSummary exception for video {$video->id}: " . $e->getMessage());
             return null;
         }
+    }
+
+    protected function callOpenAI(Video $video): ?array
+    {
+        $prompt = <<<PROMPT
+Analiza el siguiente video sobre inteligencia artificial y tecnología:
+
+TITULO: {$video->title}
+DESCRIPCION: {$video->description}
+
+Responde EXACTAMENTE en este formato JSON (sin markdown, sin explicaciones):
+{
+  "summary": ["punto 1 en español (máx 15 palabras)", "punto 2 en español (máx 15 palabras)", "punto 3 en español (máx 15 palabras)"],
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+}
+
+Los puntos del summary deben ser los 3 temas principales del video, claros y concisos.
+Los keywords deben ser los 5 temas o tecnologias mas relevantes mencionados.
+PROMPT;
+
+        $openai = app(OpenAIService::class);
+
+        if (!$openai->isAvailable()) {
+            return null;
+        }
+
+        $data = $openai->generateJson($prompt, 300, 0.3);
+
+        if (!isset($data['summary'], $data['keywords'])) {
+            return null;
+        }
+
+        return [
+            'summary'  => implode('|||', array_slice((array) $data['summary'], 0, 3)),
+            'keywords' => array_slice((array) $data['keywords'], 0, 5),
+        ];
     }
 }
