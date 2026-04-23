@@ -26,6 +26,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $aiAutomationEnabled = (bool) env('AI_AUTOMATION_ENABLED', true);
+
+        if (!$aiAutomationEnabled) {
+            Log::info('AI_AUTOMATION_ENABLED=false: tareas automáticas de contenido desactivadas.');
+
+            // Mantenemos solo tareas de mantenimiento no editoriales.
+            $schedule->command('comments:auto-approve')
+                ->everyThreeMinutes()
+                ->appendOutputTo(storage_path('logs/comments-auto-approve.log'));
+
+            $schedule->command('news:archive')->dailyAt('02:00');
+
+            return;
+        }
+
         // ══════════════════════════════════════════════════════════════
         // Noticias distribuidas de 07:00 a 20:00 — tandas pequeñas
         // para evitar timeouts. Cada fuente corre 2x/día con cantidad
