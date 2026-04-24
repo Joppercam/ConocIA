@@ -34,69 +34,49 @@
                 @forelse($researches as $research)
                 @if($research->status === 'published' || $research->status === 'active')
                 @php
-                    $hasImage = false;
-                    $imageSrc = null;
-                    if (!empty($research->image) &&
-                        $research->image !== 'default.jpg' &&
-                        !str_contains($research->image, 'default') &&
-                        !str_contains($research->image, 'placeholder')) {
-                        $imageSrc = Str::startsWith($research->image, 'storage/')
-                            ? asset($research->image)
-                            : asset('storage/research/' . $research->image);
-                        $hasImage = true;
-                    }
                     $rColor = is_object($research->category) ? ($research->category->color ?? 'var(--primary-color)') : 'var(--primary-color)';
                     $rIcon  = is_object($research->category) ? ($research->category->icon ?? 'fa-microscope') : 'fa-microscope';
+                    $researchLabel = $research->research_type ?? $research->type ?? 'Investigación';
                 @endphp
                 <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm research-card overflow-hidden">
-
-                        {{-- Image / placeholder header --}}
-                        <div class="position-relative" style="height:170px;overflow:hidden;">
-                            @if($hasImage)
-                            <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="d-block h-100">
-                                <img src="{{ $imageSrc }}"
-                                     class="w-100 h-100 research-thumb"
-                                     style="object-fit:cover;"
-                                     alt="{{ $research->title }}"
-                                     loading="lazy"
-                                     onerror="this.closest('.position-relative').innerHTML='<div class=\'d-flex align-items-center justify-content-center h-100\' style=\'background:{{ $rColor }}18;border-bottom:3px solid {{ $rColor }}\'><i class=\'fas {{ $rIcon }} fa-2x\' style=\'color:{{ $rColor }};opacity:.5;\'></i></div>';">
-                            </a>
-                            @else
-                            <a href="{{ route('research.show', $research->slug ?? $research->id) }}"
-                               class="d-flex align-items-center justify-content-center h-100 text-decoration-none"
-                               style="background:{{ $rColor }}18;border-bottom:3px solid {{ $rColor }};">
-                                <i class="fas {{ $rIcon }} fa-2x" style="color:{{ $rColor }};opacity:.5;"></i>
-                            </a>
-                            @endif
-
-                            {{-- Category badge --}}
-                            @if(is_object($research->category))
-                            <div class="position-absolute bottom-0 end-0 m-2">
-                                <span class="badge" style="background:{{ $rColor }};font-size:.7rem;">
-                                    <i class="fas {{ $rIcon }} me-1"></i>{{ $research->category->name }}
+                    <div class="card h-100 border-0 shadow-sm research-card" style="--research-color:{{ $rColor }};">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                @if(is_object($research->category))
+                                <a href="{{ route('research.category', $research->category->slug) }}"
+                                   class="text-decoration-none rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2 research-cat-badge"
+                                   style="--research-color:{{ $rColor }};">
+                                    <i class="fas {{ $rIcon }}" style="font-size:.7rem;"></i>{{ $research->category->name }}
+                                </a>
+                                @endif
+                                <span class="research-type-badge">
+                                    {{ Str::headline(str_replace(['-', '_'], ' ', $researchLabel)) }}
                                 </span>
                             </div>
-                            @endif
-                        </div>
 
-                        <div class="card-body d-flex flex-column">
                             <h5 class="card-title mb-1 fw-bold" style="font-size:.95rem;line-height:1.35;">
                                 <a href="{{ route('research.show', $research->slug ?? $research->id) }}"
-                                   class="text-decoration-none text-dark stretched-link">
+                                   class="text-decoration-none text-dark stretched-link research-title-link">
                                     {{ $research->title }}
                                 </a>
                             </h5>
                             <p class="text-muted mb-2 flex-grow-1" style="font-size:.82rem;line-height:1.5;">
-                                {{ Str::limit($research->excerpt ?? $research->abstract ?? '', 110) }}
+                                {{ Str::limit($research->excerpt ?? $research->abstract ?? '', 135) }}
                             </p>
-                            <div class="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
-                                <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.75rem;">
-                                    <span><i class="fas fa-user-edit me-1"></i>{{ $research->author ?? 'Staff' }}</span>
-                                    <span><i class="fas fa-eye me-1"></i>{{ number_format($research->views ?? 0) }}</span>
+                            <div class="research-meta-row mt-auto pt-3">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-3 text-muted" style="font-size:.75rem;">
+                                    <span class="research-meta-pill"><i class="fas fa-user-edit me-1"></i>{{ $research->author_name ?? $research->author ?? 'Staff' }}</span>
+                                    <span class="research-meta-pill"><i class="far fa-calendar me-1"></i>{{ ($research->published_at ?? $research->created_at)->locale('es')->isoFormat('D MMM, YY') }}</span>
+                                    <span class="research-meta-pill"><i class="fas fa-eye me-1"></i>{{ number_format($research->views ?? 0) }}</span>
+                                    @if(!empty($research->citations))
+                                    <span class="research-meta-pill"><i class="fas fa-quote-right me-1"></i>{{ number_format($research->citations) }} citas</span>
+                                    @endif
                                 </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <span class="research-editorial-label">Investigación</span>
                                 <span class="text-muted" style="font-size:.72rem;">
-                                    {{ ($research->published_at ?? $research->created_at)->locale('es')->isoFormat('D MMM, YY') }}
+                                    <i class="far fa-bookmark me-1"></i>Ver análisis
                                 </span>
                             </div>
                         </div>
@@ -206,22 +186,71 @@
 <style>
 .research-card {
     transition: transform .2s ease, box-shadow .2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.research-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--research-color, var(--primary-color));
+    opacity: .9;
 }
 .research-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.12) !important;
-}
-.research-thumb {
-    transition: transform .4s ease;
-}
-.research-card:hover .research-thumb {
-    transform: scale(1.04);
 }
 .research-feat-item {
     transition: background .18s ease;
 }
 .research-feat-item:hover {
     background: #f8f9fa;
+}
+.research-card .card-body {
+    --research-color: var(--primary-color);
+}
+.research-cat-badge {
+    color: var(--research-color);
+    border: 1px solid color-mix(in srgb, var(--research-color) 38%, transparent);
+    background: color-mix(in srgb, var(--research-color) 12%, white);
+    font-size: .72rem;
+    letter-spacing: .03em;
+}
+.research-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .33rem .7rem;
+    border-radius: 999px;
+    background: #eef2f7;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+.research-title-link:hover {
+    color: var(--primary-color) !important;
+}
+.research-meta-row {
+    border-top: 1px solid rgba(15,23,42,.06);
+}
+.research-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: .28rem .55rem;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+.research-editorial-label {
+    color: #64748b;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 </style>
 @endpush
