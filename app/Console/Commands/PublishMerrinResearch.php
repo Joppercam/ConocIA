@@ -118,6 +118,7 @@ HTML;
             'content' => $content,
             'research_type' => 'study',
             'type' => 'Paper Analysis',
+            'author' => $author->name,
             'status' => 'published',
             'is_published' => true,
             'published_at' => now(),
