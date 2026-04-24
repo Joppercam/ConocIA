@@ -105,6 +105,10 @@ class NewsController extends Controller
             abort_if(!$article, 404);
         }
 
+        if ($article instanceof News && news_content_looks_incomplete($article->content)) {
+            abort(404);
+        }
+
         if ($article instanceof News && $article->status === 'published') {
             $this->incrementArticleViews($article);
         }

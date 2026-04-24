@@ -6,6 +6,7 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class ImageHelper
 {
@@ -128,6 +129,65 @@ class ImageHelper
         }
 
         return null;
+    }
+
+    /**
+     * Determina si una imagen es usable.
+     * Solo devuelve false cuando se puede confirmar que la imagen no existe.
+     */
+    public static function isValidImage($imageName, $type = 'news'): bool
+    {
+        if (!$imageName || str_contains($imageName, 'default') || str_contains($imageName, 'placeholder')) {
+            return false;
+        }
+
+        if (Str::startsWith($imageName, ['http://', 'https://'])) {
+            return self::remoteImageExists($imageName);
+        }
+
+        return self::getImageUrlOrNull($imageName, $type) !== null;
+    }
+
+    private static function remoteImageExists(string $url): bool
+    {
+        $cacheKey = 'remote_image_exists_' . md5($url);
+
+        return Cache::remember($cacheKey, now()->addHours(6), function () use ($url) {
+            try {
+                $response = Http::timeout(8)
+                    ->withHeaders([
+                        'User-Agent' => 'ConocIA Image Validator/1.0',
+                        'Accept' => 'image/*,*/*;q=0.8',
+                    ])
+                    ->head($url);
+
+                if ($response->successful() || ($response->status() >= 300 && $response->status() < 400)) {
+                    return true;
+                }
+
+                if (in_array($response->status(), [404, 410], true)) {
+                    return false;
+                }
+
+                if (in_array($response->status(), [403, 405], true)) {
+                    $fallback = Http::timeout(8)
+                        ->withHeaders([
+                            'User-Agent' => 'ConocIA Image Validator/1.0',
+                            'Accept' => 'image/*,*/*;q=0.8',
+                            'Range' => 'bytes=0-0',
+                        ])
+                        ->get($url);
+
+                    return $fallback->successful()
+                        || $fallback->status() === 206
+                        || ($fallback->status() >= 300 && $fallback->status() < 400);
+                }
+            } catch (\Throwable) {
+                return true;
+            }
+
+            return true;
+        });
     }
     
     /**

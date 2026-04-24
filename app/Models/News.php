@@ -72,6 +72,10 @@ class News extends Model implements Feedable
         Cache::forget('popular_news');
         Cache::forget('secondary_news');
         Cache::forget('trending_ids');
+        Cache::forget('news_index_list');
+        Cache::forget('most_read_articles');
+        Cache::forget('popular_tags');
+        Cache::forget('all_categories');
     }
 
     // Mutador para las fechas

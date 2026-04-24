@@ -88,6 +88,12 @@ class FetchNewsFromGuardian extends Command
                     continue;
                 }
 
+                $wordCount = str_word_count(strip_tags($enhanced['content']));
+                if ($wordCount < 180) {
+                    $this->warn("  Contenido demasiado corto ({$wordCount} palabras), omitiendo: {$article['webTitle']}");
+                    continue;
+                }
+
                 $slug  = $this->uniqueSlug(Str::slug($enhanced['title']));
 
                 $news = News::create([
@@ -103,7 +109,7 @@ class FetchNewsFromGuardian extends Command
                     'featured'     => false,
                     'status'       => 'published',
                     'is_published' => 1,
-                    'reading_time' => max(1, (int) ceil(str_word_count(strip_tags($enhanced['content'])) / 200)),
+                    'reading_time' => max(1, (int) ceil($wordCount / 200)),
                     'views'        => 0,
                     'published_at' => isset($article['webPublicationDate'])
                         ? now()->parse($article['webPublicationDate'])
