@@ -739,21 +739,6 @@
                                         <strong>Todas las columnas</strong>
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item py-2" href="{{ route('columns.columnists') }}">
-                                        <i class="fas fa-users me-2" style="color:var(--primary-color);"></i>
-                                        <strong>Columnistas</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Expertos que escriben en ConocIA</div>
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider opacity-25"></li>
-                                <li>
-                                    <a class="dropdown-item py-2" href="{{ route('columns.write-for-us') }}">
-                                        <i class="fas fa-pencil-alt me-2" style="color:#00c896;"></i>
-                                        <strong style="color:#00c896;">Escribí para ConocIA</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Convocatoria a expertos</div>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item">
