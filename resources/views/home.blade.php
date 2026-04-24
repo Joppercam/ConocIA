@@ -258,126 +258,8 @@
         </div>{{-- /hero-overlay --}}
     </section>
 
-    <!-- ═══ INVESTIGACIÓN DESTACADA ═══ -->
-    @php
-        $homeResearch = collect($featuredResearch ?? [])->concat(collect($researchArticles ?? []))
-            ->filter(fn($item) => !empty($item))
-            ->unique('id')
-            ->values();
-        $heroResearch = $homeResearch->first();
-        $sideResearch = $homeResearch->slice(1, 3);
-    @endphp
-    @if($heroResearch)
-    <section class="py-4" style="background:linear-gradient(180deg,#f8fbff 0%,#eef6ff 100%);border-top:1px solid #dbeafe;border-bottom:1px solid #dbeafe;">
-        <div class="container">
-            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <div style="width:4px;height:22px;background:#0ea5e9;border-radius:2px;"></div>
-                    <div>
-                        <h3 class="mb-0 fw-bold" style="font-size:1.05rem;color:#0f172a;">Investigación</h3>
-                        <div style="color:#64748b;font-size:.8rem;">Estudios, benchmarks y análisis para entender qué está pasando de verdad en IA</div>
-                    </div>
-                </div>
-                <a href="{{ route('research.index') }}" class="btn btn-sm rounded-pill px-3" style="background:#0ea5e9;color:#fff;">
-                    Ver toda la investigación <i class="fas fa-arrow-right ms-1"></i>
-                </a>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-lg-7">
-                    <a href="{{ route('research.show', $heroResearch->slug ?? $heroResearch->id) }}" class="text-decoration-none d-block h-100">
-                        <div class="card border-0 shadow-sm overflow-hidden h-100 research-home-hero">
-                            <div class="row g-0 h-100">
-                                <div class="col-md-6 position-relative" style="min-height:250px;">
-                                    <img src="{{ $getImageUrl($heroResearch->image ?? null, 'research', 'medium') }}"
-                                         alt="{{ $heroResearch->title }}"
-                                         class="w-100 h-100"
-                                         style="object-fit:cover;"
-                                         loading="lazy"
-                                         onerror="this.src='{{ asset('images/defaults/research-default-medium.jpg') }}'">
-                                    <div class="position-absolute top-0 start-0 m-3">
-                                        <span class="badge rounded-pill px-3 py-2" style="background:rgba(15,23,42,.78);backdrop-filter:blur(8px);">
-                                            <i class="fas fa-flask me-1" style="color:#38b6ff;"></i>Investigación destacada
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card-body p-4 d-flex flex-column h-100">
-                                        @if($heroResearch->category)
-                                        <div class="mb-2">
-                                            <span class="badge rounded-pill" style="{{ $getCategoryStyle($heroResearch->category) }} font-size:.68rem;">
-                                                <i class="fas {{ $getCategoryIcon($heroResearch->category) }} me-1"></i>{{ $heroResearch->category->name }}
-                                            </span>
-                                        </div>
-                                        @endif
-                                        <h4 class="fw-bold mb-2" style="color:#0f172a;line-height:1.25;">
-                                            {{ $heroResearch->title }}
-                                        </h4>
-                                        <p class="text-muted mb-3" style="font-size:.9rem;line-height:1.65;">
-                                            {{ Str::limit($heroResearch->excerpt ?? $heroResearch->abstract ?? $heroResearch->summary ?? '', 180) }}
-                                        </p>
-                                        <div class="d-flex gap-3 flex-wrap mt-auto" style="font-size:.75rem;color:#64748b;">
-                                            <span><i class="fas fa-user-edit me-1"></i>{{ $heroResearch->author ?? 'Staff ConocIA' }}</span>
-                                            <span><i class="far fa-eye me-1"></i>{{ number_format($heroResearch->views ?? 0) }}</span>
-                                            <span><i class="far fa-calendar-alt me-1"></i>{{ ($heroResearch->published_at ?? $heroResearch->created_at)->locale('es')->isoFormat('D MMM') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-lg-5">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white border-0 py-3 px-3">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="fw-bold" style="color:#0f172a;font-size:.92rem;">Más investigaciones</span>
-                                <a href="{{ route('research.index') }}" class="text-decoration-none" style="font-size:.76rem;color:#0ea5e9;">Explorar <i class="fas fa-arrow-right ms-1"></i></a>
-                            </div>
-                        </div>
-                        <div class="card-body pt-0 px-3 pb-3">
-                            @foreach($sideResearch as $item)
-                            <a href="{{ route('research.show', $item->slug ?? $item->id) }}"
-                               class="d-flex gap-3 text-decoration-none py-3 {{ !$loop->last ? 'border-bottom' : '' }}"
-                               style="border-color:#e2e8f0 !important;">
-                                <div class="flex-shrink-0 rounded overflow-hidden" style="width:88px;height:72px;background:#dbeafe;">
-                                    <img src="{{ $getImageUrl($item->image ?? null, 'research', 'small') }}"
-                                         alt="{{ $item->title }}"
-                                         class="w-100 h-100"
-                                         style="object-fit:cover;"
-                                         loading="lazy"
-                                         onerror="this.src='{{ asset('images/defaults/research-default-small.jpg') }}'">
-                                </div>
-                                <div class="min-w-0">
-                                    @if($item->category)
-                                    <div class="mb-1">
-                                        <span class="badge rounded-pill" style="{{ $getCategoryStyle($item->category) }} font-size:.62rem;">
-                                            {{ $item->category->name }}
-                                        </span>
-                                    </div>
-                                    @endif
-                                    <div class="fw-semibold mb-1" style="color:#0f172a;font-size:.84rem;line-height:1.35;">
-                                        {{ Str::limit($item->title, 88) }}
-                                    </div>
-                                    <div style="color:#64748b;font-size:.72rem;">
-                                        <i class="fas fa-user-edit me-1"></i>{{ $item->author ?? 'Staff ConocIA' }}
-                                        <span class="mx-1">·</span>
-                                        {{ ($item->published_at ?? $item->created_at)->locale('es')->diffForHumans() }}
-                                    </div>
-                                </div>
-                            </a>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    @endif
-
-    {{-- ═══ STARTUP DE LA SEMANA ═══ --}}
-    @include('partials.startup-of-week')
+    {{-- ═══ INVESTIGACIÓN SPOTLIGHT ═══ --}}
+    @include('partials.research-spotlight')
 
     <!-- ═══ NOTICIAS ═══ -->
     <section class="py-3 border-top">
@@ -481,6 +363,9 @@
             </div>
         </div>
     </section>
+
+    {{-- ═══ STARTUP DE LA SEMANA ═══ --}}
+    @include('partials.startup-of-week')
 
     <!-- ═══ PROFUNDIZA ═══ -->
     <section class="py-4" style="background:#f0f4f8;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
@@ -858,16 +743,6 @@
 }
 .tv-spot-card:hover .tv-spot-play { opacity:1; }
 .tv-spot-mini:hover { background:rgba(255,255,255,.06) !important; }
-</style>
-
-<style>
-.research-home-hero {
-    transition: transform .22s ease, box-shadow .22s ease;
-}
-.research-home-hero:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 1rem 2rem rgba(14, 165, 233, .12) !important;
-}
 </style>
 
 <!-- Estilos adicionales para la sección de columnas -->
