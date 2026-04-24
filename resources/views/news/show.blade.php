@@ -193,7 +193,8 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                     class="img-fluid rounded w-100"
                     alt="{{ $article->title }}"
                     fetchpriority="high"
-                    loading="eager">
+                    loading="eager"
+                    onerror="this.closest('.mb-4').remove();">
                 @if($article->image_caption)
                     <p class="text-muted small mt-1 fst-italic">{{ $article->image_caption }}</p>
                 @endif
@@ -436,7 +437,8 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                                      alt="{{ $rel->title }}"
                                      class="w-100 h-100"
                                      style="object-fit:cover;"
-                                     loading="lazy">
+                                     loading="lazy"
+                                     onerror="this.closest('a.flex-shrink-0').remove();">
                             </a>
                             @endif
                             <div class="overflow-hidden">
