@@ -258,113 +258,6 @@
         </div>{{-- /hero-overlay --}}
     </section>
 
-    {{-- ═══ STARTUP DE LA SEMANA ═══ --}}
-    @include('partials.startup-of-week')
-
-    <!-- ═══ NOTICIAS ═══ -->
-    <section class="py-3 border-top">
-        <div class="container">
-            <div class="row g-4">
-
-                {{-- Columna izquierda: Noticias generales --}}
-                <div class="col-lg-7">
-                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100">
-                        <div class="card-header bg-white py-2 px-3">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div style="width:4px;height:20px;background:var(--primary-color);border-radius:2px;"></div>
-                                    <h5 class="mb-0 fw-bold" style="font-size:1rem;">Noticias Recientes</h5>
-                                </div>
-                                <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size:.75rem;">
-                                    Ver todas <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body py-3">
-                            @foreach($recentNews->reject(fn($n) => $n->category?->slug === 'ia-en-chile')->take(10) as $recent)
-                            <div class="d-flex gap-2 w-100 {{ !$loop->last ? 'pb-3 mb-3 border-bottom' : '' }}" style="min-height:80px;">
-                                @if(!empty($recent->image) && (str_starts_with($recent->image, 'http://') || str_starts_with($recent->image, 'https://')) && !str_contains($recent->image, '/storage/'))
-                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="flex-shrink-0 rounded overflow-hidden" style="width:80px;height:80px;min-width:80px;">
-                                    <img src="{{ $recent->image }}" alt="{{ $recent->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
-                                </a>
-                                @endif
-                                <div class="d-flex flex-column justify-content-between overflow-hidden flex-grow-1">
-                                    <div>
-                                        <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
-                                            @if(isset($recent->category))
-                                            <span class="badge rounded-pill" style="{{ $getCategoryStyle($recent->category) }}; font-size:.6rem;">{{ $recent->category->name }}</span>
-                                            @endif
-                                            @if($recent->created_at->diffInHours(now()) < 48)
-                                            <span class="badge bg-light text-secondary border" style="font-size:.6rem;">Nuevo</span>
-                                            @endif
-                                        </div>
-                                        <h6 class="fw-bold mb-1 lh-sm" style="font-size:.83rem;">
-                                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">{{ $recent->title }}</a>
-                                        </h6>
-                                    </div>
-                                    <div class="d-flex gap-2 text-muted" style="font-size:.7rem;">
-                                        <span><i class="far fa-calendar-alt me-1"></i>{{ $recent->created_at->locale('es')->isoFormat('D MMM') }}</span>
-                                        <span><i class="far fa-eye me-1"></i>{{ number_format($recent->views ?? 0) }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                            <div class="text-center mt-3">
-                                <a href="{{ route('news.index') }}" class="btn btn-outline-primary btn-sm px-4 rounded-pill">Ver más noticias <i class="fas fa-arrow-right ms-1"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Columna derecha: IA en Chile --}}
-                <div class="col-lg-5">
-                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100" style="border-top:3px solid #e63946 !important;">
-                        <div class="card-header py-2 px-3" style="background:linear-gradient(135deg,#fff 0%,#fff5f5 100%);">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div style="width:4px;height:20px;background:#e63946;border-radius:2px;"></div>
-                                    <h5 class="mb-0 fw-bold" style="font-size:1rem;color:#c1121f;">IA en Chile</h5>
-                                </div>
-                                <a href="{{ route('news.category', 'ia-en-chile') }}" class="btn btn-sm rounded-pill px-3" style="font-size:.75rem;background:#fff0f0;color:#c1121f;border:1px solid #fca5a5;">
-                                    Ver todo <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body py-3">
-                            @if(isset($chileNews) && $chileNews->isNotEmpty())
-                            @foreach($chileNews->take(8) as $item)
-                            <div class="d-flex gap-2 {{ !$loop->last ? 'pb-3 mb-3 border-bottom' : '' }}">
-                                @if(!empty($item->image) && str_starts_with($item->image, 'http'))
-                                <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="flex-shrink-0 rounded overflow-hidden" style="width:68px;height:68px;min-width:68px;">
-                                    <img src="{{ $item->image }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
-                                </a>
-                                @endif
-                                <div class="overflow-hidden flex-grow-1">
-                                    <h6 class="fw-semibold mb-1 lh-sm" style="font-size:.82rem;">
-                                        <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="text-decoration-none text-dark">{{ $item->title }}</a>
-                                    </h6>
-                                    <div class="text-muted" style="font-size:.7rem;">
-                                        <i class="far fa-calendar-alt me-1"></i>{{ $item->published_at?->locale('es')->isoFormat('D MMM') ?? $item->created_at->locale('es')->isoFormat('D MMM') }}
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                            @else
-                            <div class="text-center py-5">
-                                <i class="fas fa-newspaper mb-2 d-block" style="color:#e63946;opacity:.3;font-size:1.8rem;"></i>
-                                <p class="text-muted mt-2 mb-3" style="font-size:.85rem;">Pronto tendremos cobertura<br>especializada sobre IA en Chile.</p>
-                                <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Ver noticias</a>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-
     <!-- ═══ INVESTIGACIÓN DESTACADA ═══ -->
     @php
         $homeResearch = collect($featuredResearch ?? [])->concat(collect($researchArticles ?? []))
@@ -483,6 +376,111 @@
     </section>
     @endif
 
+    {{-- ═══ STARTUP DE LA SEMANA ═══ --}}
+    @include('partials.startup-of-week')
+
+    <!-- ═══ NOTICIAS ═══ -->
+    <section class="py-3 border-top">
+        <div class="container">
+            <div class="row g-4">
+
+                {{-- Columna izquierda: Noticias generales --}}
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100">
+                        <div class="card-header bg-white py-2 px-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:4px;height:20px;background:var(--primary-color);border-radius:2px;"></div>
+                                    <h5 class="mb-0 fw-bold" style="font-size:1rem;">Noticias Recientes</h5>
+                                </div>
+                                <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size:.75rem;">
+                                    Ver todas <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            @foreach($recentNews->reject(fn($n) => $n->category?->slug === 'ia-en-chile')->take(10) as $recent)
+                            <div class="d-flex gap-2 w-100 {{ !$loop->last ? 'pb-3 mb-3 border-bottom' : '' }}" style="min-height:80px;">
+                                @if(!empty($recent->image) && (str_starts_with($recent->image, 'http://') || str_starts_with($recent->image, 'https://')) && !str_contains($recent->image, '/storage/'))
+                                <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="flex-shrink-0 rounded overflow-hidden" style="width:80px;height:80px;min-width:80px;">
+                                    <img src="{{ $recent->image }}" alt="{{ $recent->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
+                                </a>
+                                @endif
+                                <div class="d-flex flex-column justify-content-between overflow-hidden flex-grow-1">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
+                                            @if(isset($recent->category))
+                                            <span class="badge rounded-pill" style="{{ $getCategoryStyle($recent->category) }}; font-size:.6rem;">{{ $recent->category->name }}</span>
+                                            @endif
+                                            @if($recent->created_at->diffInHours(now()) < 48)
+                                            <span class="badge bg-light text-secondary border" style="font-size:.6rem;">Nuevo</span>
+                                            @endif
+                                        </div>
+                                        <h6 class="fw-bold mb-1 lh-sm" style="font-size:.83rem;">
+                                            <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="text-decoration-none text-dark">{{ $recent->title }}</a>
+                                        </h6>
+                                    </div>
+                                    <div class="d-flex gap-2 text-muted" style="font-size:.7rem;">
+                                        <span><i class="far fa-calendar-alt me-1"></i>{{ $recent->created_at->locale('es')->isoFormat('D MMM') }}</span>
+                                        <span><i class="far fa-eye me-1"></i>{{ number_format($recent->views ?? 0) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                            <div class="text-center mt-3">
+                                <a href="{{ route('news.index') }}" class="btn btn-outline-primary btn-sm px-4 rounded-pill">Ver más noticias <i class="fas fa-arrow-right ms-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Columna derecha: IA en Chile --}}
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100" style="border-top:3px solid #e63946 !important;">
+                        <div class="card-header py-2 px-3" style="background:linear-gradient(135deg,#fff 0%,#fff5f5 100%);">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:4px;height:20px;background:#e63946;border-radius:2px;"></div>
+                                    <h5 class="mb-0 fw-bold" style="font-size:1rem;color:#c1121f;">IA en Chile</h5>
+                                </div>
+                                <a href="{{ route('news.category', 'ia-en-chile') }}" class="btn btn-sm rounded-pill px-3" style="font-size:.75rem;background:#fff0f0;color:#c1121f;border:1px solid #fca5a5;">
+                                    Ver todo <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            @if(isset($chileNews) && $chileNews->isNotEmpty())
+                            @foreach($chileNews->take(8) as $item)
+                            <div class="d-flex gap-2 {{ !$loop->last ? 'pb-3 mb-3 border-bottom' : '' }}">
+                                @if(!empty($item->image) && str_starts_with($item->image, 'http'))
+                                <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="flex-shrink-0 rounded overflow-hidden" style="width:68px;height:68px;min-width:68px;">
+                                    <img src="{{ $item->image }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
+                                </a>
+                                @endif
+                                <div class="overflow-hidden flex-grow-1">
+                                    <h6 class="fw-semibold mb-1 lh-sm" style="font-size:.82rem;">
+                                        <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="text-decoration-none text-dark">{{ $item->title }}</a>
+                                    </h6>
+                                    <div class="text-muted" style="font-size:.7rem;">
+                                        <i class="far fa-calendar-alt me-1"></i>{{ $item->published_at?->locale('es')->isoFormat('D MMM') ?? $item->created_at->locale('es')->isoFormat('D MMM') }}
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                            @else
+                            <div class="text-center py-5">
+                                <i class="fas fa-newspaper mb-2 d-block" style="color:#e63946;opacity:.3;font-size:1.8rem;"></i>
+                                <p class="text-muted mt-2 mb-3" style="font-size:.85rem;">Pronto tendremos cobertura<br>especializada sobre IA en Chile.</p>
+                                <a href="{{ route('news.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-4">Ver noticias</a>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
 
     <!-- ═══ PROFUNDIZA ═══ -->
     <section class="py-4" style="background:#f0f4f8;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
