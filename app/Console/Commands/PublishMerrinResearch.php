@@ -8,6 +8,7 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class PublishMerrinResearch extends Command
 {
@@ -159,6 +160,9 @@ HTML;
         if (method_exists($research, 'tags')) {
             $research->tags()->sync($tagIds);
         }
+
+        Research::clearFrontCache();
+        Cache::forget("research_article_{$research->slug}");
 
         $this->line("Slug: {$research->slug}");
         $this->line("Categoría: {$category->name}");

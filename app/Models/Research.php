@@ -5,10 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers\ImageHelper;
+use Illuminate\Support\Facades\Cache;
 
 class Research extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => self::clearFrontCache());
+        static::deleted(fn () => self::clearFrontCache());
+    }
 
     /**
      * Los atributos que son asignables masivamente.
@@ -231,6 +238,10 @@ class Research extends Model
             return $this->relations['author']->name;
         }
 
+        if (!empty($this->attributes['author'])) {
+            return $this->attributes['author'];
+        }
+
         // Si tienes un campo author_name, úsalo
         if (isset($this->attributes['author_name'])) {
             return $this->attributes['author_name'];
@@ -255,6 +266,19 @@ class Research extends Model
     {
         $this->views = $this->views + 1;
         return $this->save();
+    }
+
+    public static function clearFrontCache(): void
+    {
+        foreach ([
+            'home_page_data',
+            'research_articles',
+            'featured_research',
+            'most_commented_research',
+            'research_page_data',
+        ] as $key) {
+            Cache::forget($key);
+        }
     }
 
     /**
