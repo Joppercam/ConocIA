@@ -29,7 +29,7 @@ class ColumnController extends Controller
             ->orderBy('published_at', 'desc')
             ->paginate(12);
 
-        $sideData = Cache::remember('columns_page_side_data', self::CACHE_TIME, function () {
+        $sideData = Cache::remember('columns_page_side_data_v2', self::CACHE_TIME, function () {
             // Columnas destacadas
             $featuredColumns = Column::with(['author', 'category'])
                 ->published()
@@ -42,6 +42,7 @@ class ColumnController extends Controller
             $columnists = User::whereHas('columns', function ($query) {
                     $query->published();
                 })
+                ->whereNotIn('email', ['admin@conocia.com', 'autor@conocia.com'])
                 ->withCount(['columns' => function ($query) {
                     $query->published();
                 }])
