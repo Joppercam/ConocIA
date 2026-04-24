@@ -297,6 +297,36 @@
             text-decoration:none;
         }
         .search-more-link:hover { background:#eef5ff; }
+        .global-search-panel {
+            max-height: 0;
+            overflow: hidden;
+            background: rgba(7, 16, 32, 0.96);
+            border-top: 1px solid rgba(255,255,255,.08);
+            transition: max-height .28s ease;
+        }
+        .global-search-panel.show {
+            max-height: 120px;
+        }
+        .global-search-shell {
+            max-width: 720px;
+        }
+        .search-toggle-desktop {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,.22);
+            background: rgba(255,255,255,.08);
+            color: #fff;
+            transition: var(--hover-transition);
+        }
+        .search-toggle-desktop:hover,
+        .search-toggle-desktop:focus {
+            background: rgba(255,255,255,.16);
+            color: #fff;
+        }
 
         /* ── Saved count badge ── */
         .saved-count-badge {
@@ -690,6 +720,13 @@
                                <i class="fas fa-newspaper me-1 d-lg-none"></i>Noticias
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('research.*') ? 'active' : '' }}"
+                               href="{{ route('research.index') }}"
+                               aria-current="{{ request()->routeIs('research.*') ? 'page' : 'false' }}">
+                               <i class="fas fa-flask me-1 d-lg-none"></i>Investigación
+                            </a>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->routeIs('columns.*') ? 'active' : '' }}"
                                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -784,25 +821,11 @@
                         </li>
                     </ul>
 
-                    {{-- Search bar desktop --}}
-                    <div class="position-relative d-none d-lg-block ms-2" style="width:220px;">
-                        <form action="{{ route('search') }}" method="GET" autocomplete="off">
-                            <input type="text"
-                                   name="query"
-                                   id="nav-search-input"
-                                   class="form-control form-control-sm rounded-pill ps-3 pe-5"
-                                   placeholder="Buscar..."
-                                   style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.82rem;"
-                                   aria-label="Buscar en ConocIA">
-                            <button class="btn btn-link text-white position-absolute end-0 top-50 translate-middle-y pe-2" type="submit">
-                                <i class="fas fa-search" style="font-size:.78rem;"></i>
-                            </button>
-                        </form>
-                        <div id="search-dropdown" class="search-dropdown shadow-lg" style="display:none;"></div>
-                    </div>
-
                     {{-- Auth --}}
                     <div class="d-flex align-items-center ms-2 gap-2">
+                        <button id="search-toggle-desktop" class="search-toggle-desktop d-none d-lg-inline-flex" type="button" aria-label="Buscar" title="Buscar">
+                            <i class="fas fa-search"></i>
+                        </button>
                         @auth
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-light rounded-pill dropdown-toggle d-flex align-items-center gap-1 px-3"
@@ -837,6 +860,25 @@
                 </div>
             </div>
         </nav>
+        <div id="global-search-panel" class="global-search-panel">
+            <div class="container py-3">
+                <div class="position-relative global-search-shell mx-auto">
+                    <form action="{{ route('search') }}" method="GET" autocomplete="off">
+                        <input type="text"
+                               name="query"
+                               id="nav-search-input"
+                               class="form-control rounded-pill ps-4 pe-5"
+                               placeholder="Buscar noticias, investigaciones, papers y conceptos..."
+                               style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.92rem;height:46px;"
+                               aria-label="Buscar en ConocIA">
+                        <button class="btn btn-link text-white position-absolute end-0 top-50 translate-middle-y pe-3" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <div id="search-dropdown" class="search-dropdown shadow-lg" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
         
     </header>
 
@@ -1038,16 +1080,25 @@
             }
             
             // Botón de búsqueda en móvil
-            const searchToggle = document.getElementById('search-toggle-mobile');
-            const mobileSearch = document.getElementById('mobile-search');
-            if (searchToggle && mobileSearch) {
-                searchToggle.addEventListener('click', function() {
-                    mobileSearch.classList.toggle('show');
-                    if (mobileSearch.classList.contains('show')) {
-                        setTimeout(() => {
-                            mobileSearch.querySelector('input').focus();
-                        }, 300);
+            const searchPanel = document.getElementById('global-search-panel');
+            const searchInput = document.getElementById('nav-search-input');
+            const searchToggles = [
+                document.getElementById('search-toggle-mobile'),
+                document.getElementById('search-toggle-desktop')
+            ].filter(Boolean);
+
+            if (searchPanel && searchInput && searchToggles.length) {
+                const toggleSearchPanel = function () {
+                    searchPanel.classList.toggle('show');
+                    if (searchPanel.classList.contains('show')) {
+                        setTimeout(() => searchInput.focus(), 180);
                     }
+                };
+
+                searchToggles.forEach(toggle => {
+                    toggle.addEventListener('click', function () {
+                        toggleSearchPanel();
+                    });
                 });
             }
             
