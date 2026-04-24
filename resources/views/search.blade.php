@@ -74,8 +74,8 @@
                 @foreach($news as $article)
                 <a href="{{ route('news.show', $article->slug) }}" class="text-decoration-none">
                     <div class="search-result-card p-3 d-flex gap-3 align-items-start">
-                        @php $newsImage = \App\Helpers\ImageHelper::getImageUrl($article->image, 'news', 'small'); @endphp
-                        @if(!str_contains($newsImage, 'news-default'))
+                        @php $newsImage = \App\Helpers\ImageHelper::getImageUrlOrNull($article->image, 'news'); @endphp
+                        @if($newsImage)
                         <img src="{{ $newsImage }}"
                              alt="{{ $article->title }}" class="rounded flex-shrink-0"
                              style="width:80px;height:60px;object-fit:cover;"

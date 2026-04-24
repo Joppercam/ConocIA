@@ -38,8 +38,8 @@
         <div class="col-lg-8">
             @forelse($news as $article)
             @php
-                $imageSrc = \App\Helpers\ImageHelper::getImageUrl($article->image, 'news', 'medium');
-                $hasImage = !str_contains($imageSrc, 'news-default');
+                $imageSrc = \App\Helpers\ImageHelper::getImageUrlOrNull($article->image, 'news');
+                $hasImage = !empty($imageSrc);
             @endphp
             <div class="card border-0 shadow-sm mb-3 news-card">
                 <div class="row g-0">

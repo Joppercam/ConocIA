@@ -83,6 +83,52 @@ class ImageHelper
 
         return Storage::url("images/defaults/{$type}-default-{$size}.jpg");
     }
+
+    /**
+     * Obtiene la URL de la imagen solo si existe de verdad; si no, devuelve null.
+     *
+     * @param string|null $imageName
+     * @param string $type
+     * @return string|null
+     */
+    public static function getImageUrlOrNull($imageName, $type = 'news')
+    {
+        if (!$imageName || str_contains($imageName, 'default') || str_contains($imageName, 'placeholder')) {
+            return null;
+        }
+
+        if (Str::startsWith($imageName, ['http://', 'https://'])) {
+            return $imageName;
+        }
+
+        $normalized = ltrim($imageName, '/');
+
+        if (Str::startsWith($normalized, 'storage/')) {
+            $storagePath = Str::after($normalized, 'storage/');
+
+            if (Storage::disk('public')->exists($storagePath)) {
+                return asset($normalized);
+            }
+
+            $normalized = basename($storagePath);
+        }
+
+        foreach ([
+            "images/{$type}/{$normalized}",
+            "{$type}/{$normalized}",
+            $normalized,
+        ] as $candidate) {
+            if (Storage::disk('public')->exists($candidate)) {
+                return Storage::url($candidate);
+            }
+        }
+
+        if (file_exists(public_path($normalized))) {
+            return asset($normalized);
+        }
+
+        return null;
+    }
     
     /**
      * Método optimizado para plantillas Blade que verifican directamente

@@ -77,10 +77,8 @@
 
             @foreach($news as $article)
             @php
-                $imageSrc = isset($getImageUrl) && is_callable($getImageUrl)
-                    ? $getImageUrl($article->image, 'news', 'medium')
-                    : \App\Helpers\ImageHelper::getImageUrl($article->image, 'news', 'medium');
-                $hasImage = !str_contains($imageSrc, 'news-default');
+                $imageSrc = \App\Helpers\ImageHelper::getImageUrlOrNull($article->image, 'news');
+                $hasImage = !empty($imageSrc);
 
                 $catColor = $article->category?->color ?? 'var(--primary-color)';
             @endphp

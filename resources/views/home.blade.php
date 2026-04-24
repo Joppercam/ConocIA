@@ -58,17 +58,16 @@
                 <div class="row g-2">
 
                     {{-- ── Noticia principal (grande) ── --}}
-                    @php $hero = $featuredNews->first(); @endphp
+                    @php $hero = $featuredNews->first(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
                     @if($hero)
                     <div class="col-lg-5 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
                             <div class="editorial-card editorial-card-main position-relative rounded-3 overflow-hidden h-100">
-                                <img src="{{ $getImageUrl($hero->image, 'news', 'large') }}"
+                                <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($hero->image, 'news') }}"
                                      class="editorial-img"
                                      alt="{{ $hero->title }}"
                                      fetchpriority="high"
-                                     loading="eager"
-                                     onerror="this.onerror=null;this.src='{{ asset('images/defaults/news-default-large.jpg') }}';">
+                                     loading="eager">
                                 <div class="editorial-gradient"></div>
                                 @if(in_array($hero->id, $trendingIds ?? []))
                                 <span class="badge-trending" style="top:12px;left:12px;"><i class="fas fa-fire me-1"></i>Trending</span>
@@ -94,18 +93,17 @@
                     @endif
 
                     {{-- ── Grid 2x2 de secundarias ── --}}
-                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id)); @endphp
+                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
                     @if($secNews->count() > 0)
                     <div class="col-lg-4 col-md-5">
                         <div class="d-flex flex-column gap-2 h-100">
                             @foreach($secNews->take(2) as $sec)
                             <a href="{{ route('news.show', $sec->slug ?? $sec->id) }}" class="text-decoration-none flex-fill">
                                 <div class="editorial-card position-relative rounded-3 overflow-hidden h-100" style="min-height:160px;">
-                                    <img src="{{ $getImageUrl($sec->image, 'news', 'medium') }}"
+                                    <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($sec->image, 'news') }}"
                                          class="editorial-img"
                                          alt="{{ $sec->title }}"
-                                         loading="lazy"
-                                         onerror="this.onerror=null;this.src='{{ asset('images/defaults/news-default-medium.jpg') }}';">
+                                         loading="lazy">
                                     <div class="editorial-gradient"></div>
                                     @if(in_array($sec->id, $trendingIds ?? []))
                                     <span class="badge-trending" style="top:6px;left:6px;padding:1px 5px;font-size:.6rem;">
@@ -285,9 +283,12 @@
                         <div class="card-body py-3">
                             @foreach($recentNews->reject(fn($n) => $n->category?->slug === 'ia-en-chile')->take(10) as $recent)
                             <div class="d-flex gap-2 w-100 {{ !$loop->last ? 'pb-3 mb-3 border-bottom' : '' }}" style="min-height:80px;">
+                                @php $recentImage = \App\Helpers\ImageHelper::getImageUrlOrNull($recent->image, 'news'); @endphp
+                                @if($recentImage)
                                 <a href="{{ route('news.show', $recent->slug ?? $recent->id) }}" class="flex-shrink-0 rounded overflow-hidden" style="width:80px;height:80px;min-width:80px;">
-                                    <img src="{{ $getImageUrl($recent->image, 'news', 'small') }}" alt="{{ $recent->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/defaults/news-default-small.jpg') }}';">
+                                    <img src="{{ $recentImage }}" alt="{{ $recent->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
                                 </a>
+                                @endif
                                 <div class="d-flex flex-column justify-content-between overflow-hidden flex-grow-1">
                                     <div>
                                         <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
@@ -334,9 +335,12 @@
                             @if(isset($chileNews) && $chileNews->isNotEmpty())
                             @foreach($chileNews->take(8) as $item)
                             <div class="d-flex gap-2 {{ !$loop->last ? 'pb-3 mb-3 border-bottom' : '' }}">
+                                @php $chileImage = \App\Helpers\ImageHelper::getImageUrlOrNull($item->image, 'news'); @endphp
+                                @if($chileImage)
                                 <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="flex-shrink-0 rounded overflow-hidden" style="width:68px;height:68px;min-width:68px;">
-                                    <img src="{{ $getImageUrl($item->image, 'news', 'small') }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/defaults/news-default-small.jpg') }}';">
+                                    <img src="{{ $chileImage }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
                                 </a>
+                                @endif
                                 <div class="overflow-hidden flex-grow-1">
                                     <h6 class="fw-semibold mb-1 lh-sm" style="font-size:.82rem;">
                                         <a href="{{ route('news.show', $item->slug ?? $item->id) }}" class="text-decoration-none text-dark">{{ $item->title }}</a>
