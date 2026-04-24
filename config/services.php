@@ -101,4 +101,12 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'search_console' => [
+        'site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL'),
+        'client_email' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL'),
+        'private_key' => env('GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY'),
+        'token_uri' => env('GOOGLE_SEARCH_CONSOLE_TOKEN_URI', 'https://oauth2.googleapis.com/token'),
+        'scope' => env('GOOGLE_SEARCH_CONSOLE_SCOPE', 'https://www.googleapis.com/auth/webmasters.readonly'),
+    ],
+
 ];

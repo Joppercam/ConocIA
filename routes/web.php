@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SearchConsoleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\ResearchController as AdminResearchController;
@@ -378,6 +379,7 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('analytics/news', [DashboardController::class, 'analytics'])->name('analytics.news');
         Route::get('analytics/news/export', [DashboardController::class, 'exportAnalytics'])->name('analytics.news.export');
+        Route::get('seo/search-console', [SearchConsoleController::class, 'index'])->name('seo.search-console');
         
         // Cerrar sesión
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');

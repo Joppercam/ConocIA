@@ -150,6 +150,11 @@
                         <i class="fas fa-chart-line"></i> Analítica
                     </a>
                 </li>
+                <li class="{{ request()->routeIs('admin.seo.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.seo.search-console') }}">
+                        <i class="fas fa-magnifying-glass-chart"></i> SEO
+                    </a>
+                </li>
                 <li class="{{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'active' : '' }}">
                     <a href="#newsSubmenu" data-bs-toggle="collapse" 
                        aria-expanded="{{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'true' : 'false' }}" 
