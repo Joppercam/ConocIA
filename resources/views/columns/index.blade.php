@@ -176,26 +176,16 @@
         @if($columns->count())
         <div class="row g-4">
             @foreach($columns as $column)
-            @php $colCat = $column->category ? ($column->category->color ?? '#38b6ff') : '#38b6ff'; @endphp
+            @php
+                $colCat = $column->category ? ($column->category->color ?? '#38b6ff') : '#38b6ff';
+                $colIcon = $column->category?->icon ?? 'fa-pen-fancy';
+            @endphp
             <div class="col-md-6 col-lg-4">
-                <div class="col-card h-100 d-flex flex-column">
-
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <img src="{{ $column->author->photo_url }}"
-                             class="rounded-circle flex-shrink-0"
-                             width="38" height="38"
-                             alt="{{ $column->author->name ?? 'Autor' }}"
-                             onerror="this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
-                        <div>
-                            <div class="text-white fw-semibold" style="font-size:.82rem;line-height:1.2;">{{ $column->author->name ?? 'Redacción' }}</div>
-                            <div style="color:#666;font-size:.72rem;">{{ $column->published_at?->locale('es')->isoFormat('D MMM, YYYY') }}</div>
-                        </div>
-                    </div>
-
+                <div class="col-card h-100 d-flex flex-column" style="--cat-color:{{ $colCat }};">
                     @if($column->category)
                     <a href="{{ route('columns.category', $column->category->slug) }}"
-                       class="badge text-decoration-none mb-2 d-inline-block align-self-start col-cat-badge"
-                       style="--cat-color:{{ $colCat }};">
+                       class="badge text-decoration-none mb-3 d-inline-flex align-items-center gap-2 align-self-start col-cat-badge">
+                        <i class="fas {{ $colIcon }}" style="font-size:.7rem;"></i>
                         {{ $column->category->name }}
                     </a>
                     @endif
@@ -208,14 +198,26 @@
 
                     @if($column->excerpt)
                     <p style="color:#777;font-size:.82rem;line-height:1.6;" class="mb-3">
-                        {{ Str::limit($column->excerpt, 110) }}
+                        {{ Str::limit($column->excerpt, 130) }}
                     </p>
                     @endif
 
-                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 col-card-footer">
-                        <span style="color:#555;font-size:.75rem;">
-                            <i class="far fa-clock me-1"></i>{{ $column->reading_time ?? '?' }} min
-                        </span>
+                    <div class="col-meta-row mt-auto pt-3">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3" style="color:#6b7280;font-size:.75rem;">
+                            <span class="col-meta-pill">
+                                <i class="fas fa-user-edit me-1"></i>{{ $column->author->name ?? 'Redacción' }}
+                            </span>
+                            <span class="col-meta-pill">
+                                <i class="far fa-calendar me-1"></i>{{ $column->published_at?->locale('es')->isoFormat('D MMM, YYYY') }}
+                            </span>
+                            <span class="col-meta-pill">
+                                <i class="far fa-clock me-1"></i>{{ $column->reading_time ?? '?' }} min
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center col-card-footer pt-3">
+                        <span class="col-editorial-label">Columna</span>
                         <a href="{{ route('columns.show', $column->slug) }}"
                            class="btn btn-sm btn-outline-primary rounded-pill px-3"
                            style="font-size:.75rem;">
@@ -257,6 +259,16 @@
     border-radius: 12px;
     padding: 1.25rem;
     transition: border-color .2s, transform .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+}
+.col-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--cat-color, #38b6ff);
+    opacity: .9;
 }
 .col-card:hover {
     border-color: rgba(56,182,255,.25);
@@ -273,6 +285,29 @@
     border: 1px solid color-mix(in srgb, var(--cat-color) 40%, transparent);
     font-size: .68rem;
     letter-spacing: .04em;
+    padding: .45rem .7rem;
+}
+
+.col-meta-row {
+    border-top: 1px solid rgba(255,255,255,.04);
+}
+
+.col-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: .28rem .55rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    color: #7c8798;
+}
+
+.col-editorial-label {
+    color: #556070;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
 .col-pill {
