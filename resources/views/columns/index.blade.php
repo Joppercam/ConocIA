@@ -181,51 +181,47 @@
                 $colIcon = $column->category?->icon ?? 'fa-pen-fancy';
             @endphp
             <div class="col-md-6 col-lg-4">
-                <div class="col-card h-100 d-flex flex-column" style="--cat-color:{{ $colCat }};">
-                    @if($column->category)
-                    <a href="{{ route('columns.category', $column->category->slug) }}"
-                       class="badge text-decoration-none mb-3 d-inline-flex align-items-center gap-2 align-self-start col-cat-badge">
-                        <i class="fas {{ $colIcon }}" style="font-size:.7rem;"></i>
-                        {{ $column->category->name }}
-                    </a>
-                    @endif
+                <article class="col-card h-100 d-flex flex-column" style="--cat-color:{{ $colCat }};">
+                    <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                        @if($column->category)
+                        <a href="{{ route('columns.category', $column->category->slug) }}"
+                           class="text-decoration-none d-inline-flex align-items-center gap-2 col-kicker">
+                            <i class="fas {{ $colIcon }}" style="font-size:.7rem;"></i>
+                            <span>{{ $column->category->name }}</span>
+                        </a>
+                        @else
+                        <span class="col-kicker">
+                            <i class="fas fa-pen-fancy" style="font-size:.7rem;"></i>
+                            <span>Opinión</span>
+                        </span>
+                        @endif
 
-                    <h5 class="text-white fw-bold mb-2 flex-grow-1" style="font-size:.95rem;line-height:1.4;">
+                        <span class="col-date">{{ $column->published_at?->locale('es')->isoFormat('D MMM, YYYY') }}</span>
+                    </div>
+
+                    <h5 class="text-white fw-bold mb-3 flex-grow-1" style="font-size:1.02rem;line-height:1.38;">
                         <a href="{{ route('columns.show', $column->slug) }}" class="text-white text-decoration-none col-title-link">
                             {{ $column->title }}
                         </a>
                     </h5>
 
                     @if($column->excerpt)
-                    <p style="color:#777;font-size:.82rem;line-height:1.6;" class="mb-3">
-                        {{ Str::limit($column->excerpt, 130) }}
+                    <p class="col-excerpt mb-4">
+                        {{ Str::limit($column->excerpt, 145) }}
                     </p>
                     @endif
 
-                    <div class="col-meta-row mt-auto pt-3">
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3" style="color:#6b7280;font-size:.75rem;">
-                            <span class="col-meta-pill">
-                                <i class="fas fa-user-edit me-1"></i>{{ $column->author->name ?? 'Redacción' }}
-                            </span>
-                            <span class="col-meta-pill">
-                                <i class="far fa-calendar me-1"></i>{{ $column->published_at?->locale('es')->isoFormat('D MMM, YYYY') }}
-                            </span>
-                            <span class="col-meta-pill">
-                                <i class="far fa-clock me-1"></i>{{ $column->reading_time ?? '?' }} min
-                            </span>
+                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 col-card-footer">
+                        <div class="col-byline">
+                            <span class="col-author">{{ $column->author->name ?? 'Redacción' }}</span>
+                            <span class="col-reading">{{ $column->reading_time ?? '?' }} min de lectura</span>
                         </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center col-card-footer pt-3">
-                        <span class="col-editorial-label">Columna</span>
                         <a href="{{ route('columns.show', $column->slug) }}"
-                           class="btn btn-sm btn-outline-primary rounded-pill px-3"
-                           style="font-size:.75rem;">
-                            Leer <i class="fas fa-arrow-right ms-1"></i>
+                           class="col-read-link">
+                            Leer
                         </a>
                     </div>
-
-                </div>
+                </article>
             </div>
             @endforeach
         </div>
@@ -244,7 +240,7 @@
 
         @if($columns->hasPages())
         <div class="d-flex justify-content-center mt-5">
-            {{ $columns->links() }}
+            {{ $columns->links('vendor.pagination.bootstrap-5-small') }}
         </div>
         @endif
 
@@ -254,60 +250,100 @@
 @push('styles')
 <style>
 .col-card {
-    background: #111;
-    border: 1px solid #1e1e1e;
-    border-radius: 12px;
-    padding: 1.25rem;
-    transition: border-color .2s, transform .2s, box-shadow .2s;
+    background: linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,.01) 100%);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 1.35rem 1.35rem 1.2rem;
+    transition: border-color .2s, transform .2s, box-shadow .2s, background .2s;
     position: relative;
     overflow: hidden;
 }
 .col-card::before {
     content: "";
     position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
+    inset: 0 0 auto 0;
+    height: 2px;
     background: var(--cat-color, #38b6ff);
     opacity: .9;
 }
 .col-card:hover {
-    border-color: rgba(56,182,255,.25);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(0,0,0,.4);
+    border-color: rgba(56,182,255,.22);
+    background: linear-gradient(180deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.015) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(0,0,0,.22);
 }
-.col-card-footer { border-top: 1px solid #1e1e1e; }
+.col-card-footer { border-top: 1px solid rgba(255,255,255,.08); }
 .col-title-link:hover { color: #38b6ff !important; }
 .col-hero-link:hover  { color: #38b6ff !important; }
 
-.col-cat-badge {
-    background: color-mix(in srgb, var(--cat-color) 15%, transparent) !important;
-    color: var(--cat-color) !important;
-    border: 1px solid color-mix(in srgb, var(--cat-color) 40%, transparent);
-    font-size: .68rem;
-    letter-spacing: .04em;
-    padding: .45rem .7rem;
-}
-
-.col-meta-row {
-    border-top: 1px solid rgba(255,255,255,.04);
-}
-
-.col-meta-pill {
+.col-kicker {
     display: inline-flex;
     align-items: center;
-    padding: .28rem .55rem;
-    border-radius: 999px;
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.06);
-    color: #7c8798;
-}
-
-.col-editorial-label {
-    color: #556070;
-    font-size: .72rem;
+    gap: .45rem;
+    color: var(--cat-color, #38b6ff);
+    font-size: .73rem;
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
+}
+
+.col-date {
+    color: #6b7280;
+    font-size: .72rem;
+    white-space: nowrap;
+}
+
+.col-excerpt {
+    color: #94a3b8;
+    font-size: .85rem;
+    line-height: 1.68;
+}
+
+.col-byline {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.col-author {
+    color: #e5e7eb;
+    font-size: .8rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.col-reading {
+    color: #64748b;
+    font-size: .72rem;
+}
+
+.col-read-link {
+    color: #38b6ff;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.col-read-link:hover {
+    color: #7dd3fc;
+}
+
+.pagination {
+    align-items: center;
+    gap: .15rem;
+}
+
+.pagination .page-link {
+    padding: .38rem .72rem;
+    font-size: .85rem;
+    line-height: 1.1;
+}
+
+.pagination .page-link svg {
+    width: 14px !important;
+    height: 14px !important;
 }
 
 .col-pill {
