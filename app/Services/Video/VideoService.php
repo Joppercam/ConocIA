@@ -10,6 +10,7 @@ use App\Models\VideoPlatform;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class VideoService
 {
@@ -17,15 +18,18 @@ class VideoService
 
     public function __construct()
     {
-        // Obtener plataformas activas
-        $platforms = VideoPlatform::where('is_active', true)->get();
-        
-        foreach ($platforms as $platform) {
-            $serviceClass = "App\\Services\\Video\\" . ucfirst($platform->code) . "Service";
-            
-            if (class_exists($serviceClass)) {
-                $this->services[$platform->code] = new $serviceClass();
+        try {
+            $platforms = VideoPlatform::where('is_active', true)->get();
+
+            foreach ($platforms as $platform) {
+                $serviceClass = "App\\Services\\Video\\" . ucfirst($platform->code) . "Service";
+
+                if (class_exists($serviceClass)) {
+                    $this->services[$platform->code] = new $serviceClass();
+                }
             }
+        } catch (Throwable $e) {
+            Log::warning('VideoService - bootstrap fallback: ' . $e->getMessage());
         }
     }
 
@@ -40,7 +44,8 @@ class VideoService
     public function search(array $keywords, int $limit = 5, ?string $platform = null): array
     {
         $results = [];
-        $perPlatformLimit = $platform ? $limit : ceil($limit / count($this->services));
+        $serviceCount = max(count($this->services), 1);
+        $perPlatformLimit = $platform ? $limit : (int) ceil($limit / $serviceCount);
         
         foreach ($this->services as $code => $service) {
             // Si se especifica una plataforma, solo buscar en esa
@@ -74,7 +79,8 @@ class VideoService
     public function getPopular(int $limit = 5, ?string $platform = null): array
     {
         $results = [];
-        $perPlatformLimit = $platform ? $limit : ceil($limit / count($this->services));
+        $serviceCount = max(count($this->services), 1);
+        $perPlatformLimit = $platform ? $limit : (int) ceil($limit / $serviceCount);
         
         foreach ($this->services as $code => $service) {
             if ($platform && $platform !== $code) {

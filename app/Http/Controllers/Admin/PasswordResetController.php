@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Password;
 
 class PasswordResetController extends Controller
 {
-    use SendsPasswordResetEmails, ResetsPasswords;
+    use ResetsPasswords;
 
     /**
      * Donde redirigir a los usuarios después de restablecer su contraseña.
      *
      * @var string
      */
-    protected $redirectTo = '/admin';
+    protected $redirectTo = '/cp-conocia';
 
     /**
      * Crea una nueva instancia del controlador.
@@ -37,6 +37,28 @@ class PasswordResetController extends Controller
     public function showLinkRequestForm()
     {
         return view('admin.auth.passwords.email');
+    }
+
+    /**
+     * Envía el enlace de restablecimiento al correo indicado.
+     */
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $status = $this->broker()->sendResetLink([
+            'email' => $request->email,
+        ]);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('status', __($status));
+        }
+
+        return back()->withErrors([
+            'email' => Lang::get($status),
+        ]);
     }
 
     /**

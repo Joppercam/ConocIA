@@ -69,7 +69,7 @@
                                         <span class="text-muted ms-2">{{ $comment->created_at->format('d/m/Y H:i') }}</span>
                                     </div>
                                     <div>
-                                        <form action="{{ route('admin.comments.delete', $comment->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.comments.destroy', $comment->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este comentario?')">
@@ -122,7 +122,7 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Vistas:</span>
-                            <span>{{ $news->views_count ?? 0 }}</span>
+                            <span>{{ number_format($news->views) }}</span>
                         </li>
                     </ul>
                 </div>

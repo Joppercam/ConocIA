@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\AdminDashboardCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,12 @@ class SocialMediaQueue extends Model
         'published_at' => 'datetime',
         'media_paths' => 'array'
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(fn() => AdminDashboardCache::clear());
+        static::deleted(fn() => AdminDashboardCache::clear());
+    }
 
     /**
      * Obtiene la noticia asociada a esta publicación

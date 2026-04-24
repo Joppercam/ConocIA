@@ -4,6 +4,14 @@
 
 @section('content')
 <div class="container-fluid">
+    @php
+        $todayViews = $viewComparison['today'] ?? 0;
+        $yesterdayViews = $viewComparison['yesterday'] ?? 0;
+        $last7DaysViews = $viewComparison['last_7_days'] ?? 0;
+        $previous7DaysViews = $viewComparison['previous_7_days'] ?? 0;
+        $todayDelta = $yesterdayViews > 0 ? (($todayViews - $yesterdayViews) / $yesterdayViews) * 100 : null;
+        $weekDelta = $previous7DaysViews > 0 ? (($last7DaysViews - $previous7DaysViews) / $previous7DaysViews) * 100 : null;
+    @endphp
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
         <a href="{{ route('admin.news.create') }}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
@@ -53,11 +61,11 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Categorías</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['categories'] }}</div>
+                                Visitas Totales</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['total_views']) }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-folder fa-2x text-gray-300"></i>
+                            <i class="fas fa-eye fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -82,6 +90,55 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-2">Hoy Vs Ayer</div>
+                    <div class="d-flex justify-content-between align-items-end">
+                        <div>
+                            <div class="small text-muted">Hoy</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($todayViews) }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="small text-muted">Ayer: {{ number_format($yesterdayViews) }}</div>
+                            <div class="font-weight-bold {{ is_null($todayDelta) ? 'text-muted' : ($todayDelta >= 0 ? 'text-success' : 'text-danger') }}">
+                                @if(is_null($todayDelta))
+                                    Sin base comparativa
+                                @else
+                                    {{ $todayDelta >= 0 ? '+' : '' }}{{ number_format($todayDelta, 1) }}%
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-2">7 Días Vs 7 Días Previos</div>
+                    <div class="d-flex justify-content-between align-items-end">
+                        <div>
+                            <div class="small text-muted">Últimos 7 días</div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">{{ number_format($last7DaysViews) }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="small text-muted">Previos: {{ number_format($previous7DaysViews) }}</div>
+                            <div class="font-weight-bold {{ is_null($weekDelta) ? 'text-muted' : ($weekDelta >= 0 ? 'text-success' : 'text-danger') }}">
+                                @if(is_null($weekDelta))
+                                    Sin base comparativa
+                                @else
+                                    {{ $weekDelta >= 0 ? '+' : '' }}{{ number_format($weekDelta, 1) }}%
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Fila de tablas -->
     <div class="row">
         <!-- Noticias Recientes -->
@@ -97,6 +154,7 @@
                                 <tr>
                                     <th>Título</th>
                                     <th>Categoría</th>
+                                    <th>Vistas</th>
                                     <th>Estado</th>
                                     <th>Fecha</th>
                                 </tr>
@@ -110,6 +168,7 @@
                                         </a>
                                     </td>
                                     <td>{{ $news->category->name ?? 'Sin categoría' }}</td>
+                                    <td>{{ number_format($news->views) }}</td>
                                     <td>
                                         @if($news->status == 'published')
                                             <span class="badge bg-success">Publicada</span>
@@ -123,7 +182,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center">No hay noticias recientes</td>
+                                    <td colspan="5" class="text-center">No hay noticias recientes</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -170,6 +229,108 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tendencia de Visitas (7 días)</h6>
+                </div>
+                <div class="card-body">
+                    @if(isset($dailyViews) && $dailyViews->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Visitas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($dailyViews as $day)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($day->view_date)->format('d/m/Y') }}</td>
+                                            <td>{{ number_format($day->total_views) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center mb-0">Aún no hay datos diarios de visitas.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Noticias en Tendencia (7 días)</h6>
+                </div>
+                <div class="card-body">
+                    @if(isset($trendingNews) && $trendingNews->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Título</th>
+                                        <th>Categoría</th>
+                                        <th>Visitas recientes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($trendingNews as $news)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ route('admin.news.edit', $news->id) }}">
+                                                    {{ Str::limit($news->title, 40) }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $news->category_name ?? 'Sin categoría' }}</td>
+                                            <td>{{ number_format($news->recent_views) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center mb-0">Aún no hay noticias en tendencia.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Categorías (7 días)</h6>
+                </div>
+                <div class="card-body">
+                    @if(isset($categoryPerformance) && $categoryPerformance->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Visitas recientes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($categoryPerformance as $category)
+                                        <tr>
+                                            <td>{{ $category->category_name }}</td>
+                                            <td>{{ number_format($category->total_views) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center mb-0">Aún no hay categorías con tendencia.</p>
+                    @endif
                 </div>
             </div>
         </div>

@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\Category;
 use App\Models\Tag;
+use App\Support\AdminDashboardCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -19,6 +22,8 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $query = News::query()->with(['category', 'author']);
+        $sortWindow = (int) $request->input('analytics_window', 7);
+        $sortWindow = in_array($sortWindow, [1, 7, 30], true) ? $sortWindow : 7;
         
         // Añadir relación de tags si existe
         if (method_exists(News::class, 'tags')) {
@@ -44,10 +49,30 @@ class NewsController extends Controller
             $query->where('status', $request->status);
         }
         
-        // Ordenamiento
-        $orderBy = $request->order_by ?? 'created_at';
-        $orderDir = $request->order_dir ?? 'desc';
-        $query->orderBy($orderBy, $orderDir);
+        $orderBy = $request->input('order_by', 'created_at');
+        $orderDir = $request->input('order_dir', 'desc') === 'asc' ? 'asc' : 'desc';
+        $supportedOrderColumns = ['created_at', 'published_at', 'title', 'views'];
+
+        if ($orderBy === 'recent_views' && Schema::hasTable('news_views_stats')) {
+            $recentViewsSubquery = DB::table('news_views_stats')
+                ->selectRaw('news_id, SUM(views) as recent_views')
+                ->where('view_date', '>=', now()->subDays($sortWindow - 1)->toDateString())
+                ->groupBy('news_id');
+
+            $query->leftJoinSub($recentViewsSubquery, 'recent_view_stats', function ($join) {
+                $join->on('news.id', '=', 'recent_view_stats.news_id');
+            })
+                ->select('news.*')
+                ->selectRaw('COALESCE(recent_view_stats.recent_views, 0) as recent_views')
+                ->orderBy('recent_views', $orderDir)
+                ->orderByDesc('news.created_at');
+        } else {
+            if (!in_array($orderBy, $supportedOrderColumns, true)) {
+                $orderBy = 'created_at';
+            }
+
+            $query->orderBy($orderBy, $orderDir);
+        }
         
         $news = $query->paginate(15);
         $categories = Category::all();
@@ -58,7 +83,7 @@ class NewsController extends Controller
             $tags = Tag::orderBy('name')->get();
         }
         
-        return view('admin.news.index', compact('news', 'categories', 'tags'));
+        return view('admin.news.index', compact('news', 'categories', 'tags', 'sortWindow'));
     }
 
     /**
@@ -66,15 +91,7 @@ class NewsController extends Controller
      */
     public function create()
     {
-        $categories = Category::orderBy('name')->get();
-        
-        // Obtener etiquetas si la relación existe
-        $tags = [];
-        if (method_exists(News::class, 'tags')) {
-            $tags = Tag::orderBy('name')->get();
-        }
-        
-        return view('admin.news.create', compact('categories', 'tags'));
+        return view('admin.news.create', $this->getFormData());
     }
 
     /**
@@ -82,53 +99,12 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:news,slug',
-            'summary' => 'required|string',
-            'content' => 'required|string',
-            'featured_image' => 'nullable|image|max:2048',
-            'category_id' => 'required|exists:categories,id',
-            'status' => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'featured' => 'nullable|boolean',
-        ]);
-        
-        // Establecer featured a false si no está presente en la solicitud
-        $validated['featured'] = $request->has('featured');
-
-        // Generar slug si no se proporcionó
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['title']);
-        }
-
-        // Compatibilidad con el esquema real de noticias:
-        // el admin trabaja con "summary", pero la tabla exige "excerpt".
-        $validated['excerpt'] = Str::limit(strip_tags($validated['summary']), 500);
-        
-        // Manejar la imagen destacada
-        if ($request->hasFile('featured_image')) {
-            $path = $request->file('featured_image')->store('news', 'public');
-            $validated['image'] = 'storage/' . $path;
-        }
-        
-        // Configurar fecha de publicación
-        if ($validated['status'] == 'published' && empty($validated['published_at'])) {
-            $validated['published_at'] = now();
-        }
-        
-        // Añadir autor
+        $validated = $this->validateNews($request);
+        $validated = $this->prepareNewsPayload($validated, $request);
         $validated['user_id'] = Auth::id();
-        
-        // Crear noticia
+
         $news = News::create($validated);
-        
-        // Asociar etiquetas si existe la relación
-        if (method_exists(News::class, 'tags') && isset($validated['tags'])) {
-            $news->tags()->sync($validated['tags']);
-        }
+        $this->syncTags($news, $validated);
         
         return redirect()->route('admin.news.index')
             ->with('success', 'Noticia creada exitosamente.');
@@ -160,16 +136,11 @@ class NewsController extends Controller
      */
     public function edit(News $news)
     {
-        $categories = Category::orderBy('name')->get();
-        
-        // Obtener etiquetas si la relación existe
-        $tags = [];
         if (method_exists(News::class, 'tags')) {
-            $tags = Tag::orderBy('name')->get();
             $news->load('tags');
         }
-        
-        return view('admin.news.edit', compact('news', 'categories', 'tags'));
+
+        return view('admin.news.edit', array_merge(['news' => $news], $this->getFormData()));
     }
 
     /**
@@ -177,53 +148,11 @@ class NewsController extends Controller
      */
     public function update(Request $request, News $news)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:news,slug,' . $news->id,
-            'summary' => 'required|string',
-            'content' => 'required|string',
-            'featured_image' => 'nullable|image|max:2048',
-            'category_id' => 'required|exists:categories,id',
-            'status' => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'featured' => 'nullable|boolean',
-        ]);
-        
-        // Establecer featured a false si no está presente en la solicitud
-        $validated['featured'] = $request->has('featured');
+        $validated = $this->validateNews($request, $news);
+        $validated = $this->prepareNewsPayload($validated, $request, $news);
 
-        // Generar slug si no se proporcionó
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['title']);
-        }
-
-        $validated['excerpt'] = Str::limit(strip_tags($validated['summary']), 500);
-        
-        // Manejar la imagen destacada
-        if ($request->hasFile('featured_image')) {
-            // Eliminar imagen anterior si existe
-            if ($news->image && str_starts_with($news->image, 'storage/')) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
-            }
-            
-            $path = $request->file('featured_image')->store('news', 'public');
-            $validated['image'] = 'storage/' . $path;
-        }
-        
-        // Configurar fecha de publicación
-        if ($validated['status'] == 'published' && empty($validated['published_at']) && !$news->published_at) {
-            $validated['published_at'] = now();
-        }
-        
-        // Actualizar noticia
         $news->update($validated);
-        
-        // Asociar etiquetas si existe la relación
-        if (method_exists($news, 'tags') && isset($validated['tags'])) {
-            $news->tags()->sync($validated['tags']);
-        }
+        $this->syncTags($news, $validated);
         
         return redirect()->route('admin.news.index')
             ->with('success', 'Noticia actualizada exitosamente.');
@@ -298,6 +227,9 @@ class NewsController extends Controller
                 $message = "{$count} noticias quitadas de destacados.";
                 break;
         }
+
+        News::clearHomeCache();
+        AdminDashboardCache::clear();
         
         return redirect()->route('admin.news.index')
             ->with('success', $message);
@@ -375,5 +307,119 @@ class NewsController extends Controller
     public function preview(News $news)
     {
         return view('news.show', compact('news'));
+    }
+
+    private function validateNews(Request $request, ?News $news = null): array
+    {
+        $this->normalizeLegacyFields($request);
+
+        $slugRule = 'nullable|string|unique:news,slug';
+
+        if ($news) {
+            $slugRule .= ',' . $news->id;
+        }
+
+        return $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => $slugRule,
+            'summary' => 'required|string',
+            'excerpt' => 'nullable|string|max:500',
+            'content' => 'required|string',
+            'featured_image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:2048',
+            'category_id' => 'required|exists:categories,id',
+            'status' => 'required|in:draft,published',
+            'published_at' => 'nullable|date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'featured' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
+            'is_published' => 'nullable|boolean',
+            'remove_image' => 'nullable|boolean',
+        ]);
+    }
+
+    private function prepareNewsPayload(array $validated, Request $request, ?News $news = null): array
+    {
+        $validated['featured'] = $request->boolean('featured');
+        $validated['slug'] = $validated['slug'] ?: Str::slug($validated['title']);
+        $validated['summary'] = trim($validated['summary']);
+        $validated['excerpt'] = trim($validated['excerpt'] ?? '') !== ''
+            ? trim($validated['excerpt'])
+            : Str::limit(strip_tags($validated['summary']), 500);
+
+        if ($request->boolean('remove_image') && $news && $news->image && str_starts_with($news->image, 'storage/')) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
+            $validated['image'] = null;
+        }
+
+        $imageField = $request->hasFile('featured_image') ? 'featured_image' : ($request->hasFile('image') ? 'image' : null);
+
+        if ($imageField !== null) {
+            if ($news && $news->image && str_starts_with($news->image, 'storage/')) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
+            }
+
+            $path = $request->file($imageField)->store('news', 'public');
+            $validated['image'] = 'storage/' . $path;
+        }
+
+        if (
+            $validated['status'] === 'published'
+            && empty($validated['published_at'])
+            && (!$news || !$news->published_at)
+        ) {
+            $validated['published_at'] = now();
+        }
+
+        return $validated;
+    }
+
+    private function normalizeLegacyFields(Request $request): void
+    {
+        $summary = $request->input('summary');
+        $excerpt = $request->input('excerpt');
+
+        if (blank($summary) && filled($excerpt)) {
+            $summary = $excerpt;
+        }
+
+        if (blank($excerpt) && filled($summary)) {
+            $excerpt = Str::limit(strip_tags($summary), 500);
+        }
+
+        $status = $request->input('status');
+        if (blank($status)) {
+            $status = $request->boolean('is_published') ? 'published' : 'draft';
+        }
+
+        $featured = $request->has('featured')
+            ? $request->boolean('featured')
+            : $request->boolean('is_featured');
+
+        $request->merge([
+            'summary' => $summary,
+            'excerpt' => $excerpt,
+            'status' => $status,
+            'featured' => $featured,
+            'remove_image' => $request->boolean('remove_image'),
+        ]);
+    }
+
+    private function syncTags(News $news, array $validated): void
+    {
+        if (method_exists($news, 'tags') && array_key_exists('tags', $validated)) {
+            $news->tags()->sync($validated['tags'] ?? []);
+        }
+    }
+
+    private function getFormData(): array
+    {
+        return [
+            'categories' => Category::orderBy('name')->get(),
+            'tags' => method_exists(News::class, 'tags')
+                ? Tag::orderBy('name')->get()
+                : [],
+        ];
     }
 }

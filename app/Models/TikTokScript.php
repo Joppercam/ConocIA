@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TikTokCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,6 +33,17 @@ class TikTokScript extends Model
         'kit_generated_at' => 'datetime',
         'tiktok_score'     => 'float',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            TikTokCache::clearAll();
+        });
+
+        static::deleted(function () {
+            TikTokCache::clearAll();
+        });
+    }
 
     public function hasKit(): bool
     {

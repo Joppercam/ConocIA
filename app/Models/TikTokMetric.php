@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TikTokCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,6 +27,17 @@ class TikTokMetric extends Model
         'shares' => 'integer',
         'clicks_to_portal' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            TikTokCache::clearAll();
+        });
+
+        static::deleted(function () {
+            TikTokCache::clearAll();
+        });
+    }
     
     /**
      * Relación con el script de TikTok

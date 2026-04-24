@@ -11,8 +11,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (!Auth::check()) {
-            // El usuario no está autenticado
-            return redirect()->route('login')->with('error', 'Por favor inicia sesión primero.');
+            return redirect()->route('admin.login')->with('error', 'Por favor inicia sesión primero.');
         }
         
         $user = Auth::user();

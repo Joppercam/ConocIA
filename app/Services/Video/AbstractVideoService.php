@@ -6,6 +6,7 @@ use App\Models\VideoPlatform;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 abstract class AbstractVideoService implements VideoServiceInterface
 {
@@ -17,12 +18,19 @@ abstract class AbstractVideoService implements VideoServiceInterface
      */
     protected function resolvePlatform(string $code, string $configKey): void
     {
-        if (Schema::hasTable('video_platforms')) {
-            $this->platform = VideoPlatform::where('code', $code)->first();
-            $this->apiKey   = $this->platform?->api_key ?? config($configKey) ?? '';
-        } else {
-            $this->apiKey = config($configKey) ?? '';
+        try {
+            if (Schema::hasTable('video_platforms')) {
+                $this->platform = VideoPlatform::where('code', $code)->first();
+                $this->apiKey   = $this->platform?->api_key ?? config($configKey) ?? '';
+                return;
+            }
+        } catch (Throwable $e) {
+            // Durante bootstrap, tests o entornos sin BD disponible,
+            // degradamos a config para no bloquear toda la aplicación.
+            Log::warning(static::class . ' - platform resolution fallback: ' . $e->getMessage());
         }
+
+        $this->apiKey = config($configKey) ?? '';
     }
 
     /**

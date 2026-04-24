@@ -7,7 +7,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Crear Guión TikTok</h1>
         <div>
-            <a href="{{ route('admin.tiktok.generate', $article->id) }}" class="btn btn-success btn-sm">
+            <a href="{{ route('admin.tiktok.generate', $news->id) }}" class="btn btn-success btn-sm">
                 <i class="fas fa-magic"></i> Generar Automáticamente
             </a>
             <a href="{{ route('admin.tiktok.index') }}" class="btn btn-secondary btn-sm">
@@ -118,7 +118,7 @@
                 <div class="card-body">
                     <form action="{{ route('admin.tiktok.store') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="article_id" value="{{ $article->id }}">
+                        <input type="hidden" name="news_id" value="{{ $news->id }}">
                         
                         <!-- Contenido del guión -->
                         <div class="form-group">

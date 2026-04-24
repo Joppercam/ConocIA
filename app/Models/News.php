@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\AdminDashboardCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -51,8 +52,15 @@ class News extends Model implements Feedable
     
     protected static function booted(): void
     {
-        static::saved(fn() => static::clearHomeCache());
-        static::deleted(fn() => static::clearHomeCache());
+        static::saved(function () {
+            static::clearHomeCache();
+            AdminDashboardCache::clear();
+        });
+
+        static::deleted(function () {
+            static::clearHomeCache();
+            AdminDashboardCache::clear();
+        });
     }
 
     public static function clearHomeCache(): void

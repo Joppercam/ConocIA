@@ -29,13 +29,20 @@ php artisan schedule:work
 
 | Comando | Frecuencia | Hora | Descripción |
 |---|---|---|---|
-| `news:fetch-all --count=2` | 2× al día | 08:00 y 20:00 | Busca 2 noticias por categoría usando Gemini + NewsAPI |
-| `briefing:generate` | 1× al día | 07:30 | Genera el AI Briefing diario (requiere Gemini) |
+| `news:fetch-gemini --all --count=1 --days=1` | Cada hora | — | Busca 1 noticia usando Gemini Search Grounding |
+| `news:fetch-all --count=1` | 1× al día | 08:00 | Busca noticias por categoría usando Gemini + NewsAPI |
+| `news:fetch-rss --limit=1` | Cada 30 min | — | Ingesta RSS curada con bajo volumen para evitar timeouts |
+| `news:fetch-guardian --limit=5` | 1× al día | 10:00 | Busca noticias desde The Guardian API |
+| `news:fetch-missing-images --limit=30` | 2× al día | 07:30 y 17:30 | Completa imágenes faltantes |
+| `briefing:generate` | 1× al día | 08:30 | Genera el AI Briefing diario (requiere Gemini) |
 | `newsletter:send` | Semanal | Lunes 08:00 | Envía newsletter a suscriptores verificados |
 | `comments:auto-approve` | Cada 3 min | — | Aprueba comentarios que pasan el filtro automático |
-| `news:archive --days=4` | 1× al día | 02:00 | Mueve noticias +4 días a la tabla histórica |
-| `tiktok:generate-scripts --count=5` | 2× al día | 09:00 y 16:00 | Genera guiones de TikTok para noticias relevantes |
-| `tiktok:notify-pending-scripts` | 1× al día (días hábiles) | 10:00 | Notifica admins si hay guiones pendientes de revisión |
+| `news:archive` | 1× al día | 02:00 | Mueve noticias antiguas a la tabla histórica |
+| `conceptos:generate --count=1` | Semanal | Lunes 06:00 | Genera un concepto IA nuevo |
+| `analisis:generate` | Semanal | Miércoles 14:00 | Genera un análisis de fondo |
+| `papers:fetch-arxiv --max-results=2` | 2× por semana | Lunes y jueves 23:00 | Importa papers desde arXiv |
+| `digest:generate --all` | Semanal | Domingo 20:00 | Genera el digest de Estado del Arte |
+| `videos:fetch-youtube --per-query=3` | 2× por semana | Martes y viernes 10:00 | Importa videos desde YouTube |
 | `videos:generate-summaries --limit=5` | 1× al día | 08:00 | Genera resúmenes IA y keywords para videos nuevos |
 | `news:publish-twitter` | Desactivado | — | Publica noticias en Twitter (ver sección 5) |
 
@@ -128,7 +135,7 @@ php artisan news:archive --batch=50   # ajustar tamaño de lote
 
 ---
 
-### 3.6 Guiones TikTok — `tiktok:generate-scripts`
+### 3.6 Guiones TikTok — `tiktok:generate-scripts` (manual, sin schedule activo)
 
 **Variables `.env` requeridas:**
 ```env
@@ -142,7 +149,7 @@ php artisan tiktok:generate-scripts --count=5
 ```
 
 **Notas:**
-- Los guiones quedan en estado `pending_review` hasta que un admin los aprueba en `/admin/tiktok`.
+- Los guiones quedan en estado `pending_review` hasta que un admin los aprueba en `/cp-conocia/tiktok`.
 - Comparte cuota de API con `news:fetch-all` y `briefing:generate`.
 
 ---
@@ -220,7 +227,7 @@ php artisan videos:seed 10
 
 ## 5. Twitter / X — activar publicación automática
 
-Actualmente **desactivado** en `Kernel.php`. Para activar:
+Actualmente **desactivado** en `bootstrap/app.php`. Para activar:
 
 **Paso 1** — Obtener credenciales en https://developer.twitter.com
 
@@ -233,7 +240,7 @@ TWITTER_ACCESS_TOKEN_SECRET=
 TWITTER_BEARER_TOKEN=
 ```
 
-**Paso 3** — Descomentar en `app/Console/Kernel.php`:
+**Paso 3** — Agregar el schedule en `bootstrap/app.php`:
 ```php
 $schedule->command('news:publish-twitter --limit=1')->weekdays()->at('09:00');
 $schedule->command('news:publish-twitter --limit=1')->weekdays()->at('13:00');

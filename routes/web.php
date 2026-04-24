@@ -10,6 +10,7 @@ use App\Http\Controllers\ResearchSubmitController;
 use App\Http\Controllers\GuestPostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\TikTokController;
 use App\Http\Controllers\Admin\PaperController as AdminPaperController;
 use App\Http\Controllers\Admin\EstadoArteAdminController;
+use App\Http\Controllers\Admin\PasswordResetController as AdminPasswordResetController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ConceptoIaController;
 use App\Http\Controllers\AnalisisFondoController;
@@ -235,10 +237,6 @@ Route::get('/archivo/{year}/{month?}', [NewsController::class, 'archive'])->name
 Route::get('/investigacion', [ResearchController::class, 'index'])->name('research.index');
 Route::get('/investigacion/{id}', [ResearchController::class, 'show'])->name('research.show');
 Route::get('/research/type/{type}', [ResearchController::class, 'byType'])->name('research.type');
-Route::get('/submit-research', [ResearchController::class, 'create'])->name('submit-research');
-
-
-// Modificar las rutas de envío de investigación para eliminar el middleware 'auth'
 Route::get('/submit-research', [ResearchSubmitController::class, 'create'])->name('submit-research');
 Route::post('/submit-research', [ResearchSubmitController::class, 'store'])->name('research.store');
 
@@ -291,8 +289,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Para el frontend
-Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::get('/newsletter/confirm/{token}', [NewsletterController::class, 'confirm'])->name('newsletter.confirm');
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 
@@ -359,21 +355,32 @@ Route::prefix('cp-conocia/tiktok')->name('admin.tiktok.')->middleware(['auth', \
 });
 
 
+// Alias de compatibilidad para el panel admin legado.
+Route::redirect('/admin', '/cp-conocia', 301);
+Route::redirect('/admin/login', '/cp-conocia/login', 301);
+
 // Rutas de administración
 Route::prefix('cp-conocia')->name('admin.')->group(function () {
     // Rutas para usuarios no autenticados
     Route::middleware('guest')->group(function () {
-        Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-        Route::post('login', [AuthController::class, 'login']);
+        Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('login', [AdminAuthController::class, 'login'])->name('login.submit');
+
+        Route::get('password/reset', [AdminPasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+        Route::post('password/email', [AdminPasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+        Route::get('password/reset/{token}', [AdminPasswordResetController::class, 'showResetForm'])->name('password.reset');
+        Route::post('password/reset', [AdminPasswordResetController::class, 'reset'])->name('password.update');
     });
 
     // Rutas protegidas por autenticación y middleware admin
     Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('analytics/news', [DashboardController::class, 'analytics'])->name('analytics.news');
+        Route::get('analytics/news/export', [DashboardController::class, 'exportAnalytics'])->name('analytics.news.export');
         
         // Cerrar sesión
-        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
         // Gestión básica de noticias (CRUD)
         Route::resource('news', AdminNewsController::class);
@@ -383,9 +390,6 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::get('news/export', [AdminNewsController::class, 'export'])->name('news.export');
         Route::post('news/upload-image', [AdminNewsController::class, 'uploadImage'])->name('news.upload-image');
         Route::get('news/preview/{news}', [AdminNewsController::class, 'preview'])->name('news.preview');
-        Route::post('news/restore/{id}', [AdminNewsController::class, 'restore'])->name('news.restore');
-        Route::get('news/trashed', [AdminNewsController::class, 'trashed'])->name('news.trashed');
-        Route::delete('news/force-delete/{id}', [AdminNewsController::class, 'forceDelete'])->name('news.force-delete');
         
         // Gestión de investigaciones
         Route::resource('research', AdminResearchController::class);
@@ -412,8 +416,6 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::patch('/comments/{comment}/approve', [App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('comments.approve');
         Route::patch('/comments/{comment}/reject', [App\Http\Controllers\Admin\CommentController::class, 'reject'])->name('comments.reject');
         Route::delete('/comments/{comment}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('comments.destroy');
-        Route::delete('comments/{comment}', 'App\Http\Controllers\Admin\CommentController@destroy')->name('comments.delete');
-        Route::delete('comments/{comment}', 'App\Http\Controllers\Admin\CommentController@destroy')->name('comments.destroy');
         
         // Respuesta a comentarios desde el panel de administración
         Route::post('/comments/{comment}/reply', [App\Http\Controllers\Admin\CommentController::class, 'reply'])->name('comments.reply');

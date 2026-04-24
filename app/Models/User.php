@@ -154,7 +154,16 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role_id == 1;
+        if ($this->relationLoaded('role') && $this->role) {
+            return $this->role->slug === 'admin';
+        }
+
+        if ($this->role()->exists()) {
+            return $this->role()->value('slug') === 'admin';
+        }
+
+        // Compatibilidad con datos legacy donde el administrador estaba fijo en role_id=1.
+        return (int) $this->role_id === 1;
     }
 
     public function getPhotoUrlAttribute(): string

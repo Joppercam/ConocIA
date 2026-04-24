@@ -86,6 +86,12 @@
                         </button>
                     </div>
                 </form>
+
+                <div class="text-center mt-3">
+                    <a href="{{ route('admin.password.request') }}" class="text-muted small">
+                        Olvidé mi contraseña
+                    </a>
+                </div>
             </div>
         </div>
     </div>

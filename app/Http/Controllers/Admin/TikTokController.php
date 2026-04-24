@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\ViewComposers\AdminLayoutComposer;
 use App\Models\News;
 use App\Models\TikTokScript;
+use App\Support\TikTokCache;
 use App\Services\TikTokKitGenerator;
 use App\Services\TikTokNewsSelector;
 use App\Services\TikTokScriptGenerator;
@@ -30,7 +32,7 @@ class TikTokController extends Controller
     public function index()
     {
         // Obtener estadísticas generales (caché por 1 hora)
-        $stats = Cache::remember('tiktok_dashboard_stats', 3600, function () {
+        $stats = Cache::remember(TikTokCache::DASHBOARD_KEY, 3600, function () {
             return [
                 'total_scripts' => TikTokScript::count(),
                 'pending_review' => TikTokScript::where('status', 'pending_review')->count(),
@@ -60,11 +62,8 @@ class TikTokController extends Controller
             
         // Obtener recomendaciones de noticias
         $recommendedNews = $this->newsSelector->getRecommendedNews(5);
-        
-        // Contador para el sidebar
-        $pendingTikTokScriptsCount = TikTokScript::where('status', 'pending_review')->count();
-        
-        return view('admin.tiktok.index', compact('stats', 'pendingScripts', 'approvedScripts', 'recommendedNews', 'pendingTikTokScriptsCount'));
+
+        return view('admin.tiktok.index', compact('stats', 'pendingScripts', 'approvedScripts', 'recommendedNews'));
     }
     
     /**
@@ -73,8 +72,11 @@ class TikTokController extends Controller
     public function create($newsId)
     {
         $news = News::findOrFail($newsId);
-        
-        return view('admin.tiktok.create', compact('news'));
+
+        return view('admin.tiktok.create', [
+            'news' => $news,
+            'article' => $news,
+        ]);
     }
     
     /**
@@ -101,6 +103,9 @@ class TikTokController extends Controller
             return redirect()->back()
                 ->with('error', 'No se pudo generar el guión. Por favor, intenta nuevamente.');
         }
+
+        TikTokCache::clearDashboard();
+        Cache::forget(AdminLayoutComposer::CACHE_KEY);
         
         return redirect()->route('admin.tiktok.edit', $script->id)
             ->with('success', 'Guión generado correctamente. Por favor, revísalo antes de aprobarlo.');
@@ -131,6 +136,8 @@ class TikTokController extends Controller
         ]);
         
         $script->update($validated);
+        TikTokCache::clearDashboard();
+        Cache::forget(AdminLayoutComposer::CACHE_KEY);
         
         return redirect()->route('admin.tiktok.edit', $script->id)
             ->with('success', 'Guión actualizado correctamente.');
@@ -153,6 +160,8 @@ class TikTokController extends Controller
         }
         
         $script->update($validated);
+        TikTokCache::clearAll();
+        Cache::forget(AdminLayoutComposer::CACHE_KEY);
         
         return redirect()->back()
             ->with('success', 'Estado del guión actualizado correctamente.');
@@ -196,6 +205,7 @@ class TikTokController extends Controller
         } else {
             $script->metrics()->create($validated);
         }
+        TikTokCache::clearAll();
         
         return redirect()->back()
             ->with('success', 'Métricas actualizadas correctamente.');
@@ -207,7 +217,7 @@ class TikTokController extends Controller
     public function stats()
     {
         // Obtener métricas agrupadas por día (últimos 30 días)
-        $dailyStats = Cache::remember('tiktok_daily_stats', 3600, function () {
+        $dailyStats = Cache::remember(TikTokCache::DAILY_STATS_KEY, 3600, function () {
             return TikTokScript::join('tiktok_metrics', 'tiktok_scripts.id', '=', 'tiktok_metrics.tiktok_script_id')
                 ->where('tiktok_scripts.published_at', '>=', now()->subDays(30))
                 ->selectRaw('DATE(tiktok_scripts.published_at) as date, SUM(views) as total_views, SUM(likes) as total_likes, 
@@ -218,7 +228,7 @@ class TikTokController extends Controller
         });
         
         // Obtener métricas por categoría
-        $categoryStats = Cache::remember('tiktok_category_stats', 3600, function () {
+        $categoryStats = Cache::remember(TikTokCache::CATEGORY_STATS_KEY, 3600, function () {
             return TikTokScript::join('tiktok_metrics', 'tiktok_scripts.id', '=', 'tiktok_metrics.tiktok_script_id')
                 ->join('news', 'tiktok_scripts.news_id', '=', 'news.id')
                 ->join('categories', 'news.category_id', '=', 'categories.id')
@@ -230,7 +240,7 @@ class TikTokController extends Controller
         });
         
         // Top 10 videos por engagement
-        $topVideos = Cache::remember('tiktok_top_videos', 3600, function () {
+        $topVideos = Cache::remember(TikTokCache::TOP_VIDEOS_KEY, 3600, function () {
             return TikTokScript::join('tiktok_metrics', 'tiktok_scripts.id', '=', 'tiktok_metrics.tiktok_script_id')
                 ->join('news', 'tiktok_scripts.news_id', '=', 'news.id')
                 ->selectRaw('tiktok_scripts.id, news.title, tiktok_metrics.views, tiktok_metrics.likes, 
@@ -250,6 +260,8 @@ class TikTokController extends Controller
      */
     public function store(Request $request)
     {
+        $this->normalizeLegacyNewsInput($request);
+
         $validated = $request->validate([
             'news_id' => 'required|exists:news,id',
             'script_content' => 'required|string',
@@ -290,7 +302,8 @@ class TikTokController extends Controller
         ]);
         
         // Eliminar caché del dashboard
-        Cache::forget('tiktok_dashboard_stats');
+        TikTokCache::clearDashboard();
+        Cache::forget(AdminLayoutComposer::CACHE_KEY);
         
         // Redireccionar según el estado
         if ($script->status === 'pending_review') {
@@ -321,7 +334,8 @@ class TikTokController extends Controller
             return back()->with('error', $result);
         }
 
-        Cache::forget('tiktok_dashboard_stats');
+        TikTokCache::clearDashboard();
+        Cache::forget(AdminLayoutComposer::CACHE_KEY);
 
         return back()->with('success', '¡Kit generado! Ya podés descargar el audio, caption y frases.');
     }
@@ -349,5 +363,14 @@ class TikTokController extends Controller
         return response()->download($zipPath, $filename, [
             'Content-Type' => 'application/zip',
         ])->deleteFileAfterSend(false);
+    }
+
+    private function normalizeLegacyNewsInput(Request $request): void
+    {
+        if (!$request->filled('news_id') && $request->filled('article_id')) {
+            $request->merge([
+                'news_id' => $request->input('article_id'),
+            ]);
+        }
     }
 }

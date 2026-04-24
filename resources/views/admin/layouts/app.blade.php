@@ -140,18 +140,23 @@
             </div>
 
             <ul class="list-unstyled components">
-                <li class="{{ request()->is('admin') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <a href="{{ route('admin.dashboard') }}">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                 </li>
-                <li class="{{ request()->is('admin/news*') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.analytics.news') }}">
+                        <i class="fas fa-chart-line"></i> Analítica
+                    </a>
+                </li>
+                <li class="{{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'active' : '' }}">
                     <a href="#newsSubmenu" data-bs-toggle="collapse" 
-                       aria-expanded="{{ request()->is('admin/news*') ? 'true' : 'false' }}" 
+                       aria-expanded="{{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'true' : 'false' }}" 
                        class="dropdown-toggle">
                         <i class="fas fa-newspaper"></i> Noticias
                     </a>
-                    <ul class="collapse list-unstyled {{ request()->is('admin/news*') ? 'show' : '' }}" id="newsSubmenu">
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'show' : '' }}" id="newsSubmenu">
                         <li><a href="{{ route('admin.news.index') }}">Todas las noticias</a></li>
                         <li><a href="{{ route('admin.news.create') }}">Añadir nueva</a></li>
                         <li><a href="{{ route('admin.api.index') }}"><i class="fas fa-sync-alt"></i> Ejecutar API</a></li>
@@ -170,7 +175,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="{{ request()->is('admin/columns*') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.columns.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.columns.index') }}">
                         <i class="fas fa-pen-fancy"></i> Columnas
                     </a>
@@ -254,19 +259,19 @@
                         @endif
                     </a>
                 </li>
-                <li class="{{ request()->is('admin/tags*') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.news.index') }}">
                         <i class="fas fa-tags"></i> Etiquetas
                     </a>
                 </li>
 
-                <li class="{{ request()->is('admin/newsletter*') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
                     <a href="#newsletterSubmenu" data-bs-toggle="collapse" 
-                    aria-expanded="{{ request()->is('admin/newsletter*') ? 'true' : 'false' }}" 
+                    aria-expanded="{{ request()->routeIs('admin.newsletter.*') ? 'true' : 'false' }}" 
                     class="dropdown-toggle">
                         <i class="fas fa-envelope"></i> Newsletter
                     </a>
-                    <ul class="collapse list-unstyled {{ request()->is('admin/newsletter*') ? 'show' : '' }}" id="newsletterSubmenu">
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.newsletter.*') ? 'show' : '' }}" id="newsletterSubmenu">
                         <li><a href="{{ route('admin.newsletter.index') }}">Suscriptores</a></li>
                         <li><a href="{{ route('admin.newsletter.send') }}">Enviar Newsletter</a></li>
                     </ul>
@@ -289,16 +294,16 @@
                 
                 
 
-                <li class="{{ request()->is('admin/tiktok*') ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('admin.tiktok.*') ? 'active' : '' }}">
                     <a href="#tiktokSubmenu" data-bs-toggle="collapse" 
-                    aria-expanded="{{ request()->is('admin/tiktok*') ? 'true' : 'false' }}" 
+                    aria-expanded="{{ request()->routeIs('admin.tiktok.*') ? 'true' : 'false' }}" 
                     class="dropdown-toggle">
                         <i class="fab fa-tiktok"></i> TikTok
                         @if(isset($pendingTikTokScriptsCount) && $pendingTikTokScriptsCount > 0)
                             <span class="badge bg-danger float-end">{{ $pendingTikTokScriptsCount }}</span>
                         @endif
                     </a>
-                    <ul class="collapse list-unstyled {{ request()->is('admin/tiktok*') ? 'show' : '' }}" id="tiktokSubmenu">
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.tiktok.*') ? 'show' : '' }}" id="tiktokSubmenu">
                         <li>
                             <a href="{{ route('admin.tiktok.index') }}">
                                 <i class="fas fa-tachometer-alt fa-sm fa-fw mr-2"></i> Dashboard

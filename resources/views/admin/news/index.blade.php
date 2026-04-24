@@ -17,7 +17,7 @@
                     <label for="search" class="form-label">Buscar</label>
                     <input type="text" class="form-control" id="search" name="search" value="{{ request('search') }}" placeholder="Título, contenido...">
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-2 mb-3">
                     <label for="category" class="form-label">Categoría</label>
                     <select class="form-control" id="category" name="category">
                         <option value="">Todas las categorías</option>
@@ -28,7 +28,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-2 mb-3">
                     <label for="status" class="form-label">Estado</label>
                     <select class="form-control" id="status" name="status">
                         <option value="">Todos los estados</option>
@@ -36,8 +36,25 @@
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Borrador</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end mb-3">
-                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <div class="col-md-2 mb-3">
+                    <label for="order_by" class="form-label">Ordenar por</label>
+                    <select class="form-control" id="order_by" name="order_by">
+                        <option value="created_at" {{ request('order_by', 'created_at') == 'created_at' ? 'selected' : '' }}>Más recientes</option>
+                        <option value="published_at" {{ request('order_by') == 'published_at' ? 'selected' : '' }}>Fecha publicación</option>
+                        <option value="views" {{ request('order_by') == 'views' ? 'selected' : '' }}>Más vistas</option>
+                        <option value="recent_views" {{ request('order_by') == 'recent_views' ? 'selected' : '' }}>Tendencia reciente</option>
+                    </select>
+                </div>
+                <div class="col-md-1 mb-3">
+                    <label for="analytics_window" class="form-label">Ventana</label>
+                    <select class="form-control" id="analytics_window" name="analytics_window">
+                        <option value="1" {{ (string) request('analytics_window', $sortWindow ?? 7) === '1' ? 'selected' : '' }}>1d</option>
+                        <option value="7" {{ (string) request('analytics_window', $sortWindow ?? 7) === '7' ? 'selected' : '' }}>7d</option>
+                        <option value="30" {{ (string) request('analytics_window', $sortWindow ?? 7) === '30' ? 'selected' : '' }}>30d</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end mb-3">
+                    <button type="submit" class="btn btn-primary w-100">Ir</button>
                 </div>
             </form>
         </div>
@@ -68,6 +85,8 @@
                                 <th>Título</th>
                                 <th>Categoría</th>
                                 <th>Autor</th>
+                                <th width="100">Vistas</th>
+                                <th width="120">Tendencia</th>
                                 <th width="80">Destacado</th>  <!-- Nueva columna -->
                                 <th>Estado</th>
                                 <th>Fecha</th>
@@ -90,6 +109,10 @@
                                     </td>
                                     <td>{{ $article->category->name ?? 'Sin categoría' }}</td>
                                     <td>{{ $article->author->name ?? 'Sin autor' }}</td>
+                                    <td class="text-center">{{ number_format($article->views) }}</td>
+                                    <td class="text-center">
+                                        {{ number_format($article->recent_views ?? 0) }}
+                                    </td>
                                     <td class="text-center">  <!-- Nueva celda -->
                                         @if($article->featured)
                                             <span class="badge bg-warning">Destacado</span>
@@ -124,7 +147,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">No hay noticias disponibles</td>
+                                    <td colspan="11" class="text-center">No hay noticias disponibles</td>
                                 </tr>
                             @endforelse
                         </tbody>

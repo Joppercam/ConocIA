@@ -7,12 +7,10 @@ use Illuminate\Support\Facades\Blade;
 use App\Models\NewsHistoric;
 use App\Observers\NewsHistoricObserver;
 use Carbon\Carbon;
-use App\ImageHelper;
-use App\Models\SocialMediaQueue;
 use Illuminate\Support\Facades\View;
 use App\Observers\NewsObserver;
 use App\Models\News;
-use App\Http\ViewComposers\TikTokComposer;
+use App\Http\ViewComposers\AdminLayoutComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,25 +44,6 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('newsImage', function ($expression) {
             return "<?php echo App\ImageHelper::getNewsImage($expression); ?>";
         });
-
-
-        // Compartir datos de publicaciones pendientes con todas las vistas de admin
-        View::composer('admin.*', function ($view) {
-            // Solo calcula estos valores si el usuario está autenticado
-            if (auth()->check() && auth()->user()->isAdmin()) {
-                $pendingSocialCount = SocialMediaQueue::where('status', 'pending')->count();
-                $pendingSocialPosts = SocialMediaQueue::where('status', 'pending')
-                    ->with('news')
-                    ->orderBy('created_at', 'desc')
-                    ->take(3)
-                    ->get();
-                
-                $view->with(compact('pendingSocialCount', 'pendingSocialPosts'));
-            }
-        });
-
-         // Registrar el ViewComposer para TikTok
-         View::composer('admin.layouts.app', TikTokComposer::class);
-         View::composer('admin.partials.sidebar', TikTokComposer::class);
+        View::composer('admin.layouts.app', AdminLayoutComposer::class);
     }
 }

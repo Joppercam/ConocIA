@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 
 @section('content')
 <div class="container-fluid">
@@ -68,7 +68,7 @@
                                         <span class="text-muted ms-2">{{ $comment->created_at->format('d/m/Y H:i') }}</span>
                                     </div>
                                     <div>
-                                        <form action="{{ route('admin.comments.delete', $comment->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.comments.destroy', $comment->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este comentario?')">

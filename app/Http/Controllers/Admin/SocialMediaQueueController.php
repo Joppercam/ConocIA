@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\ViewComposers\AdminLayoutComposer;
 use App\Models\SocialMediaQueue;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class SocialMediaQueueController extends Controller
@@ -59,6 +61,8 @@ class SocialMediaQueueController extends Controller
                 $request->post_id, 
                 $request->post_url
             );
+
+            Cache::forget(AdminLayoutComposer::CACHE_KEY);
             
             return redirect()->route('admin.social-media.queue')
                 ->with('success', 'La publicación ha sido marcada como publicada.');
@@ -79,6 +83,8 @@ class SocialMediaQueueController extends Controller
         
         try {
             $item->delete();
+
+            Cache::forget(AdminLayoutComposer::CACHE_KEY);
             
             return redirect()->route('admin.social-media.queue')
                 ->with('success', 'La publicación ha sido eliminada de la cola.');
@@ -161,6 +167,8 @@ class SocialMediaQueueController extends Controller
             }
             
             $item->save();
+
+            Cache::forget(AdminLayoutComposer::CACHE_KEY);
             
             return redirect()->route('admin.social-media.queue')
                 ->with('success', 'Publicación añadida a la cola correctamente');

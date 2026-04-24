@@ -6,6 +6,7 @@ use App\Models\News;
 use App\Models\TikTokScript;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class TikTokNewsSelector
 {
@@ -199,11 +200,14 @@ class TikTokNewsSelector
     protected function calculateEngagementScore($news): float
     {
         // Obtener conteo de comentarios
-        $commentCount = $news->comments()->count() ?? 0;
+        $commentCount = 0;
+        if (method_exists($news, 'comments') && Schema::hasTable('comments')) {
+            $commentCount = $news->comments()->count() ?? 0;
+        }
         
         // Usar compartidos en redes sociales si existe
         $shareCount = 0;
-        if (method_exists($news, 'socialPosts')) {
+        if (method_exists($news, 'socialPosts') && Schema::hasTable('social_media_posts')) {
             $shareCount = $news->socialPosts()->count() ?? 0;
         }
         
