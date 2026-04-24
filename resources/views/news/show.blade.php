@@ -36,6 +36,8 @@ $metaUrl = route('news.show', $article->slug ?? $article->id);
 $metaAuthor = is_object($article->author) ? $article->author->name : ($article->author ?? 'ConocIA');
 $metaPublished = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
 $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() : null;
+$contentLooksIncomplete = news_content_looks_incomplete($article->content ?? null);
+$articleSummary = $article->summary ?: $article->excerpt;
 @endphp
 
 @section('meta')
@@ -188,13 +190,14 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
             @endphp
 
             @if($showImage)
-            <div class="mb-4">
+            <div class="mb-4 article-hero-media" style="display:none;">
                 <img src="{{ $imageSrc }}"
                     class="img-fluid rounded w-100"
                     alt="{{ $article->title }}"
                     fetchpriority="high"
                     loading="eager"
-                    onerror="this.closest('.mb-4').remove();">
+                    onload="this.closest('.article-hero-media').style.display='block';"
+                    onerror="this.closest('.article-hero-media').remove();">
                 @if($article->image_caption)
                     <p class="text-muted small mt-1 fst-italic">{{ $article->image_caption }}</p>
                 @endif
@@ -218,10 +221,10 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
             @endif
 
             <!-- Resumen -->
-            @if($article->summary)
+            @if($articleSummary)
             <div class="mb-4 rounded-3 p-4" style="background:rgba(56,182,255,.08);border-left:4px solid var(--primary-color);">
                 <h6 class="fw-semibold mb-2" style="color:var(--primary-color);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;">Resumen</h6>
-                <p class="mb-0 news-summary-text" style="font-size:.97rem;line-height:1.7;">{{ $article->summary }}</p>
+                <p class="mb-0 news-summary-text" style="font-size:.97rem;line-height:1.7;">{{ $articleSummary }}</p>
             </div>
             @endif
 
@@ -229,7 +232,29 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
             <div class="news-content mb-4">
                 {!! format_news_content($article->content) !!}
             </div>
+
+            @if($contentLooksIncomplete)
+            <div class="mb-5 rounded-3 p-4" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-left:4px solid #f59e0b;">
+                <div class="d-flex align-items-start gap-3">
+                    <div style="width:38px;height:38px;border-radius:10px;background:rgba(245,158,11,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#b45309;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold mb-2" style="color:#92400e;">Esta nota llegó incompleta desde la fuente</h6>
+                        <p class="mb-2" style="color:#78350f;line-height:1.65;">
+                            Dejamos visible el contexto disponible para no mostrar una página rota. Mientras completamos esta entrada, puedes revisar la publicación original desde la fuente.
+                        </p>
+                        @if($article->source_url)
+                            <a href="{{ $article->source_url }}" class="btn btn-sm btn-outline-warning fw-semibold" target="_blank" rel="noopener">
+                                <i class="fas fa-external-link-alt me-1"></i> Ver fuente original
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
            
+            @unless($contentLooksIncomplete)
             {{-- Newsletter inline post-artículo --}}
             <div class="my-5 rounded-3 p-4" style="background:linear-gradient(135deg,#0a1020 0%,#0f1b2d 100%);border:1px solid rgba(56,182,255,.2);">
                 <div class="row align-items-center g-3">
@@ -261,6 +286,7 @@ $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() :
                     </div>
                 </div>
             </div>
+            @endunless
 
             <!-- Comentarios -->
             <div class="comments-section mt-5 mb-4">

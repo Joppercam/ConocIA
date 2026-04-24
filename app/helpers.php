@@ -237,6 +237,40 @@ if (!function_exists('news_content_has_usable_structure')) {
     }
 }
 
+if (!function_exists('news_content_looks_incomplete')) {
+    /**
+     * Detecta noticias importadas con cuerpo demasiado corto o truncado.
+     */
+    function news_content_looks_incomplete(?string $content): bool
+    {
+        if (blank($content)) {
+            return true;
+        }
+
+        $text = trim(html_entity_decode(strip_tags($content), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+        if ($text === '') {
+            return true;
+        }
+
+        $wordCount = str_word_count($text);
+
+        if ($wordCount < 80) {
+            return true;
+        }
+
+        if (preg_match('/(?:\.\.\.|…)\s*$/u', $text)) {
+            return true;
+        }
+
+        if (preg_match('/\b(?:así lo|lee también|más información|para seguir leyendo)\s*(?:\.\.\.|…)?\s*$/iu', $text)) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
 if (!function_exists('news_chunk_looks_like_heading')) {
     function news_chunk_looks_like_heading(string $chunk): bool
     {

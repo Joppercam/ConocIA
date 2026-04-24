@@ -268,6 +268,13 @@ class FetchNewsWithAI extends Command
                     'excerpt' => Str::limit(strip_tags($newsItem['content']), 150)
                 ];
             }
+
+            $wordCount = str_word_count(strip_tags($enhancedContent['content'] ?? ''));
+            if ($wordCount < 180) {
+                $this->warn("Contenido demasiado corto ({$wordCount} palabras), omitiendo: {$newsItem['title']}");
+                $bar->advance();
+                continue;
+            }
             
             // Guardamos en la base de datos
             $slug = Str::slug($enhancedContent['title']);
@@ -287,7 +294,7 @@ class FetchNewsWithAI extends Command
                 }
                 
                 // Adaptar los campos según la estructura real de la tabla news
-                $readingTime = max(1, ceil(str_word_count(strip_tags($enhancedContent['content'])) / 200));
+                $readingTime = max(1, ceil($wordCount / 200));
                 
                 $news = new News([
                     'title' => $enhancedContent['title'],
@@ -330,7 +337,7 @@ class FetchNewsWithAI extends Command
                 try {
                     $this->info("Intentando método alternativo (inserción directa en DB)...");
                     
-                    $readingTime = max(1, ceil(str_word_count(strip_tags($enhancedContent['content'])) / 200));
+                    $readingTime = max(1, ceil($wordCount / 200));
                     
                     DB::table('news')->insert([
                         'title' => $enhancedContent['title'],

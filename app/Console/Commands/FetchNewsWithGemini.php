@@ -166,7 +166,13 @@ class FetchNewsWithGemini extends Command
                 continue;
             }
 
-            $readingTime = max(1, (int) ceil(str_word_count(strip_tags($article['content'])) / 200));
+            $wordCount = str_word_count(strip_tags($article['content']));
+            if ($wordCount < 180) {
+                $this->warn("  · Omitida por contenido corto ({$wordCount} palabras): {$article['title']}");
+                continue;
+            }
+
+            $readingTime = max(1, (int) ceil($wordCount / 200));
 
             $news = News::create([
                 'title'       => $article['title'],
