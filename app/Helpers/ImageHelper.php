@@ -47,13 +47,40 @@ class ImageHelper
      */
     public static function getImageUrl($imageName, $type = 'news', $size = 'medium')
     {
-        // Verificar si la imagen existe
-        if ($imageName && !str_contains($imageName, 'default') && 
-            Storage::disk('public')->exists("images/{$type}/{$imageName}")) {
-            return Storage::url("images/{$type}/{$imageName}");
+        if (!$imageName || str_contains($imageName, 'default') || str_contains($imageName, 'placeholder')) {
+            return Storage::url("images/defaults/{$type}-default-{$size}.jpg");
         }
-        
-        // Imagen predeterminada
+
+        if (Str::startsWith($imageName, ['http://', 'https://'])) {
+            return $imageName;
+        }
+
+        $normalized = ltrim($imageName, '/');
+
+        if (Str::startsWith($normalized, 'storage/')) {
+            $storagePath = Str::after($normalized, 'storage/');
+
+            if (Storage::disk('public')->exists($storagePath)) {
+                return asset($normalized);
+            }
+
+            $normalized = basename($storagePath);
+        }
+
+        foreach ([
+            "images/{$type}/{$normalized}",
+            "{$type}/{$normalized}",
+            $normalized,
+        ] as $candidate) {
+            if (Storage::disk('public')->exists($candidate)) {
+                return Storage::url($candidate);
+            }
+        }
+
+        if (file_exists(public_path($normalized))) {
+            return asset($normalized);
+        }
+
         return Storage::url("images/defaults/{$type}-default-{$size}.jpg");
     }
     

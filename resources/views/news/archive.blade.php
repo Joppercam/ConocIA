@@ -38,12 +38,8 @@
         <div class="col-lg-8">
             @forelse($news as $article)
             @php
-                $imageSrc = null;
-                $hasImage = false;
-                if (!empty($article->image) && !str_contains($article->image, 'default') && !str_contains($article->image, 'placeholder')) {
-                    $imageSrc = Str::startsWith($article->image, 'storage/') ? asset($article->image) : asset('storage/news/' . $article->image);
-                    $hasImage = true;
-                }
+                $imageSrc = \App\Helpers\ImageHelper::getImageUrl($article->image, 'news', 'medium');
+                $hasImage = !str_contains($imageSrc, 'news-default');
             @endphp
             <div class="card border-0 shadow-sm mb-3 news-card">
                 <div class="row g-0">

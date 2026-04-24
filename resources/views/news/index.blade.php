@@ -77,24 +77,10 @@
 
             @foreach($news as $article)
             @php
-                $imageSrc = null;
-                $hasImage = false;
-
-                if (!empty($article->image) &&
-                    $article->image !== 'default.jpg' &&
-                    !str_contains($article->image, 'default') &&
-                    !str_contains($article->image, 'placeholder')) {
-
-                    if (Str::startsWith($article->image, ['http://', 'https://'])) {
-                        $imageSrc = $article->image; // URL completa (R2, CDN, externa)
-                    } elseif (Str::startsWith($article->image, 'storage/')) {
-                        $imageSrc = asset($article->image);
-                    } else {
-                        $imageSrc = asset('storage/news/' . $article->image);
-                    }
-
-                    $hasImage = true;
-                }
+                $imageSrc = isset($getImageUrl) && is_callable($getImageUrl)
+                    ? $getImageUrl($article->image, 'news', 'medium')
+                    : \App\Helpers\ImageHelper::getImageUrl($article->image, 'news', 'medium');
+                $hasImage = !str_contains($imageSrc, 'news-default');
 
                 $catColor = $article->category?->color ?? 'var(--primary-color)';
             @endphp

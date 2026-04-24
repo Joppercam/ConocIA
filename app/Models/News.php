@@ -66,7 +66,9 @@ class News extends Model implements Feedable
     public static function clearHomeCache(): void
     {
         Cache::forget('home_page_data');
+        Cache::forget('home_page_data_v2');
         Cache::forget('all_published_news');
+        Cache::forget('all_published_news_v2');
         Cache::forget('popular_news');
         Cache::forget('secondary_news');
         Cache::forget('trending_ids');

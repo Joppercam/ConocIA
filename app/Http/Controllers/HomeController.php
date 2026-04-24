@@ -27,7 +27,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $viewData = Cache::remember('home_page_data', 600, function () {
+        $viewData = Cache::remember('home_page_data_v2', 600, function () {
             $featuredNews  = $this->fetchFeaturedNews();
             $featuredIds   = $featuredNews->pluck('id')->toArray();
 
@@ -154,7 +154,7 @@ class HomeController extends Controller
 
     private function fetchFeaturedNews()
     {
-        return Cache::remember('all_published_news', 600, function () {
+        return Cache::remember('all_published_news_v2', 600, function () {
             return News::with('category')
                 ->where('status', 'published')
                 ->whereNotNull('image')
@@ -163,8 +163,7 @@ class HomeController extends Controller
                       ->where('image', '!=', 'null')
                       ->where('image', '!=', 'default.jpg')
                       ->whereRaw("image NOT LIKE '%default%'")
-                      ->whereRaw("image NOT LIKE '%placeholder%'")
-                      ->whereRaw("image LIKE 'http%'");
+                      ->whereRaw("image NOT LIKE '%placeholder%'");
                 })
                 ->latest('published_at')
                 ->take(5)
