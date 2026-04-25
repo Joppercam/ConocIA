@@ -397,8 +397,14 @@
                                 <i class="fas fa-book-open" style="color:var(--primary-color);font-size:.65rem;"></i>
                             </div>
                             <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Conceptos IA</span>
+                            @if(isset($profundizaMeta['conceptos']['count']))
+                                <span class="badge rounded-pill text-dark" style="background:#e2e8f0;font-size:.62rem;">{{ $profundizaMeta['conceptos']['count'] }}</span>
+                            @endif
                             <a href="{{ route('conceptos.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;" class="text-decoration-none"><i class="fas fa-arrow-right"></i></a>
                         </div>
+                        @if(!empty($profundizaMeta['conceptos']['latest_label']))
+                            <div class="px-3 pt-2" style="color:#94a3b8;font-size:.68rem;">Actualizado: {{ $profundizaMeta['conceptos']['latest_label'] }}</div>
+                        @endif
                         @forelse($latestConceptos->take(2) as $item)
                         <a href="{{ route('conceptos.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
                             <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
@@ -418,8 +424,14 @@
                                 <i class="fas fa-microscope" style="color:var(--primary-color);font-size:.65rem;"></i>
                             </div>
                             <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Análisis de Fondo</span>
+                            @if(isset($profundizaMeta['analisis']['count']))
+                                <span class="badge rounded-pill text-dark" style="background:#e2e8f0;font-size:.62rem;">{{ $profundizaMeta['analisis']['count'] }}</span>
+                            @endif
                             <a href="{{ route('analisis.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
                         </div>
+                        @if(!empty($profundizaMeta['analisis']['latest_label']))
+                            <div class="px-3 pt-2" style="color:#94a3b8;font-size:.68rem;">Actualizado: {{ $profundizaMeta['analisis']['latest_label'] }}</div>
+                        @endif
                         @forelse($latestAnalises->take(2) as $item)
                         <a href="{{ route('analisis.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
                             <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
@@ -439,8 +451,14 @@
                                 <i class="fas fa-file-alt" style="color:var(--primary-color);font-size:.65rem;"></i>
                             </div>
                             <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">ConocIA Papers</span>
+                            @if(isset($profundizaMeta['papers']['count']))
+                                <span class="badge rounded-pill text-dark" style="background:#e2e8f0;font-size:.62rem;">{{ $profundizaMeta['papers']['count'] }}</span>
+                            @endif
                             <a href="{{ route('papers.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
                         </div>
+                        @if(!empty($profundizaMeta['papers']['latest_label']))
+                            <div class="px-3 pt-2" style="color:#94a3b8;font-size:.68rem;">Último paper: {{ $profundizaMeta['papers']['latest_label'] }}</div>
+                        @endif
                         @forelse($latestPapers->take(2) as $item)
                         <a href="{{ route('papers.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
                             <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
@@ -460,8 +478,14 @@
                                 <i class="fas fa-chart-line" style="color:var(--primary-color);font-size:.65rem;"></i>
                             </div>
                             <span class="fw-bold" style="color:#0f172a;font-size:.82rem;">Estado del Arte</span>
+                            @if(isset($profundizaMeta['digests']['count']))
+                                <span class="badge rounded-pill text-dark" style="background:#e2e8f0;font-size:.62rem;">{{ $profundizaMeta['digests']['count'] }}</span>
+                            @endif
                             <a href="{{ route('estado-arte.index') }}" class="ms-auto" style="color:var(--primary-color);font-size:.7rem;"><i class="fas fa-arrow-right"></i></a>
                         </div>
+                        @if(!empty($profundizaMeta['digests']['latest_label']))
+                            <div class="px-3 pt-2" style="color:#94a3b8;font-size:.68rem;">Última edición: {{ $profundizaMeta['digests']['latest_label'] }}</div>
+                        @endif
                         @forelse($latestDigests->take(2) as $item)
                         <a href="{{ route('estado-arte.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
                             <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>

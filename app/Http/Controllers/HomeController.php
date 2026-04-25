@@ -302,7 +302,26 @@ class HomeController extends Controller
             fn() => EstadoArte::published()->orderByDesc('week_start')->take(3)->get()
         );
 
-        return compact('latestConceptos', 'latestAnalises', 'latestPapers', 'latestDigests');
+        $profundizaMeta = [
+            'conceptos' => $this->profundizaSectionMeta(ConceptoIa::published(), $latestConceptos, 'published_at'),
+            'analisis' => $this->profundizaSectionMeta(AnalisisFondo::published(), $latestAnalises, 'published_at'),
+            'papers' => $this->profundizaSectionMeta(ConocIaPaper::published(), $latestPapers, 'arxiv_published_date'),
+            'digests' => $this->profundizaSectionMeta(EstadoArte::published(), $latestDigests, 'week_start'),
+        ];
+
+        return compact('latestConceptos', 'latestAnalises', 'latestPapers', 'latestDigests', 'profundizaMeta');
+    }
+
+    private function profundizaSectionMeta($query, $items, string $dateField): array
+    {
+        $count = (clone $query)->count();
+        $latestItem = $items->first();
+        $latestDate = $latestItem?->{$dateField};
+
+        return [
+            'count' => $count,
+            'latest_label' => $latestDate ? $latestDate->locale('es')->isoFormat('D MMM YYYY') : null,
+        ];
     }
 
     private function fetchFeaturedVideos()
