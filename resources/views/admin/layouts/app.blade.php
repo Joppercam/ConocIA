@@ -49,6 +49,16 @@
         .sidebar ul li {
             border-bottom: 1px solid #4b545c;
         }
+
+        .sidebar ul li.sidebar-section {
+            border-bottom: none;
+            padding: 18px 20px 8px;
+            color: #8d99a6;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
         
         .sidebar ul li a {
             padding: 10px 20px;
@@ -140,6 +150,7 @@
             </div>
 
             <ul class="list-unstyled components">
+                <li class="sidebar-section">Rendimiento</li>
                 <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <a href="{{ route('admin.dashboard') }}">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -147,55 +158,35 @@
                 </li>
                 <li class="{{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.analytics.news') }}">
-                        <i class="fas fa-chart-line"></i> Analítica
+                        <i class="fas fa-chart-line"></i> Analítica Editorial
                     </a>
                 </li>
                 <li class="{{ request()->routeIs('admin.seo.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.seo.search-console') }}">
-                        <i class="fas fa-magnifying-glass-chart"></i> SEO
+                        <i class="fas fa-magnifying-glass-chart"></i> SEO Orgánico
                     </a>
                 </li>
-                <li class="{{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'active' : '' }}">
-                    <a href="#newsSubmenu" data-bs-toggle="collapse" 
-                       aria-expanded="{{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'true' : 'false' }}" 
+
+                <li class="sidebar-section">Editorial</li>
+                <li class="{{ request()->routeIs('admin.news.*', 'admin.api.*', 'admin.research.*', 'admin.columns.*', 'admin.papers.*', 'admin.estado-arte.*') ? 'active' : '' }}">
+                    <a href="#editorialSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.news.*', 'admin.api.*', 'admin.research.*', 'admin.columns.*', 'admin.papers.*', 'admin.estado-arte.*') ? 'true' : 'false' }}"
                        class="dropdown-toggle">
-                        <i class="fas fa-newspaper"></i> Noticias
+                        <i class="fas fa-newspaper"></i> Contenido Editorial
                     </a>
-                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.news.*', 'admin.api.*') ? 'show' : '' }}" id="newsSubmenu">
-                        <li><a href="{{ route('admin.news.index') }}">Todas las noticias</a></li>
-                        <li><a href="{{ route('admin.news.create') }}">Añadir nueva</a></li>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.news.*', 'admin.api.*', 'admin.research.*', 'admin.columns.*', 'admin.papers.*', 'admin.estado-arte.*') ? 'show' : '' }}" id="editorialSubmenu">
+                        <li><a href="{{ route('admin.news.index') }}">Noticias</a></li>
+                        <li><a href="{{ route('admin.news.create') }}">Nueva noticia</a></li>
                         <li><a href="{{ route('admin.api.index') }}"><i class="fas fa-sync-alt"></i> Ejecutar API</a></li>
+                        <li><a href="{{ route('admin.research.index') }}">Investigaciones</a></li>
+                        <li><a href="{{ route('admin.research.create') }}">Nueva investigación</a></li>
+                        <li><a href="{{ route('admin.columns.index') }}">Columnas</a></li>
+                        <li><a href="{{ route('admin.papers.index') }}">Papers</a></li>
+                        <li><a href="{{ route('admin.estado-arte.index') }}">Estado del Arte</a></li>
                     </ul>
                 </li>
-                <li class="{{ request()->routeIs('admin.research.*') ? 'active' : '' }}">
-                    <a href="#investigacionesSubmenu" data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.investigaciones.*') ? 'true' : 'false' }}" class="dropdown-toggle">
-                        <i class="fas fa-flask me-2"></i> Investigaciones
-                    </a>
-                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.research.*') ? 'show' : '' }}" id="investigacionesSubmenu">
-                        <li>
-                            <a href="{{ route('admin.research.index') }}">Ver todas</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.research.create') }}">Crear nueva</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="{{ request()->routeIs('admin.columns.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.columns.index') }}">
-                        <i class="fas fa-pen-fancy"></i> Columnas
-                    </a>
-                </li>
-                <li class="{{ request()->routeIs('admin.papers.*') ? 'active' : '' }}">
-                    <a href="#papersSubmenu" data-bs-toggle="collapse"
-                       aria-expanded="{{ request()->routeIs('admin.papers.*') ? 'true' : 'false' }}"
-                       class="dropdown-toggle">
-                        <i class="fas fa-file-alt me-2"></i> Papers
-                    </a>
-                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.papers.*') ? 'show' : '' }}" id="papersSubmenu">
-                        <li><a href="{{ route('admin.papers.index') }}">Ver todos</a></li>
-                        <li><a href="{{ route('papers.index') }}" target="_blank">Ver portal</a></li>
-                    </ul>
-                </li>
+
+                <li class="sidebar-section">Canales</li>
                 <li class="{{ request()->routeIs('admin.modelos.*') ? 'active' : '' }}">
                     <a href="#modelosSubmenu" data-bs-toggle="collapse"
                        aria-expanded="{{ request()->routeIs('admin.modelos.*') ? 'true' : 'false' }}"
@@ -218,18 +209,6 @@
                         <li><a href="{{ route('admin.agenda.create') }}">Nuevo evento</a></li>
                     </ul>
                 </li>
-                <li class="{{ request()->routeIs('admin.estado-arte.*') ? 'active' : '' }}">
-                    <a href="#estadoArteSubmenu" data-bs-toggle="collapse"
-                       aria-expanded="{{ request()->routeIs('admin.estado-arte.*') ? 'true' : 'false' }}"
-                       class="dropdown-toggle">
-                        <i class="fas fa-brain me-2"></i> Estado del Arte
-                    </a>
-                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.estado-arte.*') ? 'show' : '' }}" id="estadoArteSubmenu">
-                        <li><a href="{{ route('admin.estado-arte.index') }}">Ver todos</a></li>
-                        <li><a href="{{ route('estado-arte.index') }}" target="_blank">Ver portal</a></li>
-                    </ul>
-                </li>
-                <!-- Agrega este código después de la sección de TikTok en el sidebar -->
                 <li class="{{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
                     <a href="#videosSubmenu" data-bs-toggle="collapse" 
                     aria-expanded="{{ request()->routeIs('admin.videos.*') ? 'true' : 'false' }}" 
@@ -243,33 +222,6 @@
                         <li><a href="{{ route('admin.videos.platforms.index') }}">Plataformas</a></li>
                     </ul>
                 </li>
-                <li class="{{ request()->routeIs('admin.invitados.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.invitados.pending') }}">
-                        <i class="fas fa-user-edit me-2"></i> Colaboraciones 
-                        @if(isset($pendingGuestPostCount) && $pendingGuestPostCount > 0)
-                            <span class="badge bg-danger float-end">{{ $pendingGuestPostCount }}</span>
-                        @endif
-                    </a>
-                </li>
-                <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.categories.index') }}">
-                        <i class="fas fa-tag me-2"></i> Categorías
-                    </a>
-                </li>
-                <li class="{{ request()->routeIs('admin.comments.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.comments.pending') }}">
-                        <i class="fas fa-comments me-2"></i> Comentarios 
-                        @if(isset($pendingCommentsCount) && $pendingCommentsCount > 0)
-                            <span class="badge bg-danger float-end">{{ $pendingCommentsCount }}</span>
-                        @endif
-                    </a>
-                </li>
-                <li class="{{ request()->routeIs('admin.tags.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.news.index') }}">
-                        <i class="fas fa-tags"></i> Etiquetas
-                    </a>
-                </li>
-
                 <li class="{{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
                     <a href="#newsletterSubmenu" data-bs-toggle="collapse" 
                     aria-expanded="{{ request()->routeIs('admin.newsletter.*') ? 'true' : 'false' }}" 
@@ -294,11 +246,6 @@
                         <li><a href="{{ route('admin.social-media.queue') }}">Cola de Publicación</a></li>
                     </ul>
                 </li>
-
-                
-                
-                
-
                 <li class="{{ request()->routeIs('admin.tiktok.*') ? 'active' : '' }}">
                     <a href="#tiktokSubmenu" data-bs-toggle="collapse" 
                     aria-expanded="{{ request()->routeIs('admin.tiktok.*') ? 'true' : 'false' }}" 
@@ -332,37 +279,32 @@
                     </ul>
                 </li>
 
-
-
-
-
-                <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <a href="#usuariosSubmenu" data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.usuarios.*') ? 'true' : 'false' }}" class="dropdown-toggle">
-                        <i class="fas fa-users me-2"></i> Usuarios
+                <li class="sidebar-section">Comunidad y Sistema</li>
+                <li class="{{ request()->routeIs('admin.invitados.*', 'admin.comments.*', 'admin.categories.*', 'admin.tags.*', 'admin.users.*') ? 'active' : '' }}">
+                    <a href="#communitySubmenu" data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.invitados.*', 'admin.comments.*', 'admin.categories.*', 'admin.tags.*', 'admin.users.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                        <i class="fas fa-users me-2"></i> Gestión General
                     </a>
-                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.users.*') ? 'show' : '' }}" id="usuariosSubmenu">
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.invitados.*', 'admin.comments.*', 'admin.categories.*', 'admin.tags.*', 'admin.users.*') ? 'show' : '' }}" id="communitySubmenu">
                         <li>
-                            <a href="{{ route('admin.users.index') }}">Ver todos</a>
+                            <a href="{{ route('admin.invitados.pending') }}">
+                                Colaboraciones
+                                @if(isset($pendingGuestPostCount) && $pendingGuestPostCount > 0)
+                                    <span class="badge bg-danger float-end">{{ $pendingGuestPostCount }}</span>
+                                @endif
+                            </a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.users.create') }}">Crear nuevo</a>
+                            <a href="{{ route('admin.comments.pending') }}">
+                                Comentarios
+                                @if(isset($pendingCommentsCount) && $pendingCommentsCount > 0)
+                                    <span class="badge bg-danger float-end">{{ $pendingCommentsCount }}</span>
+                                @endif
+                            </a>
                         </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#settingsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-cog me-2"></i> Configuración
-                    </a>
-                    <ul class="collapse list-unstyled" id="settingsSubmenu">
-                        <li>
-                            <a href="#">General</a>
-                        </li>
-                        <li>
-                            <a href="#">SEO</a>
-                        </li>
-                        <li>
-                            <a href="#">Email</a>
-                        </li>
+                        <li><a href="{{ route('admin.categories.index') }}">Categorías</a></li>
+                        <li><a href="{{ route('admin.news.index') }}">Etiquetas</a></li>
+                        <li><a href="{{ route('admin.users.index') }}">Usuarios</a></li>
+                        <li><a href="{{ route('admin.users.create') }}">Nuevo usuario</a></li>
                     </ul>
                 </li>
             </ul>
