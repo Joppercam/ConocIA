@@ -2,9 +2,23 @@
 
 @php
     use Illuminate\Support\Str;
+    $archiveMetaUrl = route('news.archive', array_filter([
+        'year' => $year,
+        'month' => $month,
+    ]));
+    $archiveMetaRobots = request()->integer('page', 1) > 1 ? 'noindex, follow' : 'index, follow';
 @endphp
 
 @section('title', 'Archivo — ' . $archiveTitle . ' | ConocIA')
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle' => 'Archivo — ' . $archiveTitle . ' | ConocIA',
+        'metaDescription' => 'Archivo editorial de noticias de ConocIA para ' . $archiveTitle . '.',
+        'metaUrl' => $archiveMetaUrl,
+        'metaRobots' => $archiveMetaRobots,
+    ])
+@endsection
 
 @section('content')
 {{-- Page header --}}

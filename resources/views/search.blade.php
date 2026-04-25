@@ -2,6 +2,15 @@
 
 @section('title', 'Búsqueda: ' . $query . ' — ConocIA')
 
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle' => 'Búsqueda interna en ConocIA',
+        'metaDescription' => 'Resultados internos de búsqueda en ConocIA.',
+        'metaUrl' => route('search', ['query' => $query]),
+        'metaRobots' => 'noindex, follow',
+    ])
+@endsection
+
 @push('styles')
 <style>
 .search-hero {

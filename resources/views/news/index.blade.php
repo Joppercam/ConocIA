@@ -12,6 +12,7 @@
         ? Str::limit($category->description, 155)
         : 'Las últimas noticias sobre inteligencia artificial, machine learning y tecnología en español. Actualización diaria.';
     $metaUrl         = $isCategory ? route('news.category', $category->slug) : route('news.index');
+    $metaRobots      = request()->integer('page', 1) > 1 ? 'noindex, follow' : 'index, follow';
 @endphp
 
 @section('title', $metaTitle)
@@ -25,6 +26,7 @@
             : 'noticias inteligencia artificial, IA, machine learning, tecnología, noticias IA español',
         'metaType'        => 'website',
         'metaUrl'         => $metaUrl,
+        'metaRobots'      => $metaRobots,
     ])
     @if($isCategory)
     @include('partials.schema-breadcrumb', ['crumbs' => [

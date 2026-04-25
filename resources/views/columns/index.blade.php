@@ -3,7 +3,19 @@
 
 @section('title', 'Columnas de Opinión - ConocIA')
 
-@php use Illuminate\Support\Str; @endphp
+@php
+    use Illuminate\Support\Str;
+    $metaRobots = request()->integer('page', 1) > 1 ? 'noindex, follow' : 'index, follow';
+@endphp
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle' => 'Columnas de Opinión - ConocIA',
+        'metaDescription' => 'Columnas, opiniones y análisis editoriales sobre inteligencia artificial y tecnología en ConocIA.',
+        'metaUrl' => route('columns.index'),
+        'metaRobots' => $metaRobots,
+    ])
+@endsection
 
 @section('content')
 

@@ -2,7 +2,19 @@
 
 @section('title', 'Investigación y Análisis - ConocIA')
 
-@php use Illuminate\Support\Str; @endphp
+@php
+    use Illuminate\Support\Str;
+    $metaRobots = request()->integer('page', 1) > 1 ? 'noindex, follow' : 'index, follow';
+@endphp
+
+@section('meta')
+    @include('partials.seo-meta', [
+        'metaTitle' => 'Investigación y Análisis - ConocIA',
+        'metaDescription' => 'Investigaciones, estudios y análisis sobre inteligencia artificial y tecnología en ConocIA.',
+        'metaUrl' => route('research.index'),
+        'metaRobots' => $metaRobots,
+    ])
+@endsection
 
 @section('content')
 
