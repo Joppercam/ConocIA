@@ -42,7 +42,7 @@
 
         {{-- ── Main content ── --}}
         <div class="col-lg-8">
-            <div class="row g-3">
+            <div class="d-flex flex-column gap-3">
                 @forelse($researches as $research)
                 @if($research->status === 'published' || $research->status === 'active')
                 @php
@@ -50,51 +50,47 @@
                     $rIcon  = is_object($research->category) ? ($research->category->icon ?? 'fa-microscope') : 'fa-microscope';
                     $researchLabel = $research->research_type ?? $research->type ?? 'Investigación';
                 @endphp
-                <div class="col-md-6">
-                    <div class="card h-100 border-0 shadow-sm research-card" style="--research-color:{{ $rColor }};">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="{{ route('research.show', $research->slug ?? $research->id) }}" class="text-decoration-none d-block">
+                    <article class="card border-0 shadow-sm research-list-card" style="--research-color:{{ $rColor }};">
+                        <div class="card-body p-4 p-lg-5">
+                            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
                                 @if(is_object($research->category))
-                                <a href="{{ route('research.category', $research->category->slug) }}"
-                                   class="text-decoration-none rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2 research-cat-badge"
-                                   style="--research-color:{{ $rColor }};">
+                                <span class="rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2 research-cat-badge"
+                                      style="--research-color:{{ $rColor }};">
                                     <i class="fas {{ $rIcon }}" style="font-size:.7rem;"></i>{{ $research->category->name }}
-                                </a>
+                                </span>
                                 @endif
                                 <span class="research-type-badge">
                                     {{ Str::headline(str_replace(['-', '_'], ' ', $researchLabel)) }}
                                 </span>
+                                <span class="research-meta-pill"><i class="far fa-calendar me-1"></i>{{ ($research->published_at ?? $research->created_at)->locale('es')->isoFormat('D MMM, YYYY') }}</span>
                             </div>
 
-                            <h5 class="card-title mb-1 fw-bold" style="font-size:.95rem;line-height:1.35;">
-                                <a href="{{ route('research.show', $research->slug ?? $research->id) }}"
-                                   class="text-decoration-none text-dark stretched-link research-title-link">
-                                    {{ $research->title }}
-                                </a>
-                            </h5>
-                            <p class="text-muted mb-2 flex-grow-1" style="font-size:.82rem;line-height:1.5;">
-                                {{ Str::limit($research->excerpt ?? $research->abstract ?? '', 135) }}
-                            </p>
-                            <div class="research-meta-row mt-auto pt-3">
-                                <div class="d-flex flex-wrap align-items-center gap-2 mb-3 text-muted" style="font-size:.75rem;">
-                                    <span class="research-meta-pill"><i class="fas fa-user-edit me-1"></i>{{ $research->author_name ?? $research->author ?? 'Staff' }}</span>
-                                    <span class="research-meta-pill"><i class="far fa-calendar me-1"></i>{{ ($research->published_at ?? $research->created_at)->locale('es')->isoFormat('D MMM, YY') }}</span>
-                                    <span class="research-meta-pill"><i class="fas fa-eye me-1"></i>{{ number_format($research->views ?? 0) }}</span>
-                                    @if(!empty($research->citations))
-                                    <span class="research-meta-pill"><i class="fas fa-quote-right me-1"></i>{{ number_format($research->citations) }} citas</span>
-                                    @endif
+                            <div class="row g-3 align-items-start">
+                                <div class="col-lg-8">
+                                    <h2 class="mb-3 fw-bold research-list-title">{{ $research->title }}</h2>
+                                    <p class="mb-0 research-list-excerpt">{{ Str::limit($research->excerpt ?? $research->abstract ?? '', 260) }}</p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="research-list-side">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 text-muted" style="font-size:.75rem;">
+                                            <span class="research-meta-pill"><i class="fas fa-user-edit me-1"></i>{{ $research->author_name ?? $research->author ?? 'Staff' }}</span>
+                                            <span class="research-meta-pill"><i class="fas fa-eye me-1"></i>{{ number_format($research->views ?? 0) }}</span>
+                                            @if(!empty($research->citations))
+                                            <span class="research-meta-pill"><i class="fas fa-quote-right me-1"></i>{{ number_format($research->citations) }} citas</span>
+                                            @endif
+                                        </div>
+                                        <div class="small text-uppercase fw-bold mb-2" style="letter-spacing:.08em;color:#94a3b8;">Por qué importa</div>
+                                        <p class="mb-3" style="color:#475569;font-size:.82rem;line-height:1.55;">
+                                            {{ Str::limit($research->summary ?? $research->excerpt ?? $research->abstract ?? '', 105) }}
+                                        </p>
+                                        <span class="research-read-link">Leer investigación <i class="fas fa-arrow-right ms-2"></i></span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                                <span class="research-editorial-label">Investigación</span>
-                                <span class="text-muted" style="font-size:.72rem;">
-                                    <i class="far fa-bookmark me-1"></i>Ver análisis
-                                </span>
-                            </div>
                         </div>
-
-                    </div>
-                </div>
+                    </article>
+                </a>
                 @endif
                 @empty
                 <div class="col-12">
@@ -263,6 +259,62 @@
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
+}
+
+.research-list-card {
+    transition: transform .2s ease, box-shadow .2s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.research-list-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--research-color, var(--primary-color));
+}
+
+.research-list-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1rem 2.25rem rgba(15, 23, 42, .08) !important;
+}
+
+.research-list-title {
+    color: #0f172a;
+    font-size: 1.3rem;
+    line-height: 1.3;
+}
+
+.research-list-excerpt {
+    color: #475569;
+    font-size: .95rem;
+    line-height: 1.72;
+    max-width: 92%;
+}
+
+.research-list-side {
+    border-left: 1px solid rgba(15,23,42,.08);
+    padding-left: 1rem;
+}
+
+.research-read-link {
+    color: var(--research-color, var(--primary-color));
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+    .research-list-excerpt {
+        max-width: 100%;
+    }
+
+    .research-list-side {
+        border-left: 0;
+        border-top: 1px solid rgba(15,23,42,.08);
+        padding-left: 0;
+        padding-top: 1rem;
+    }
 }
 </style>
 @endpush
