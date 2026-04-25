@@ -88,6 +88,45 @@
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>Rendimiento por Sección</strong>
+                    <span class="badge bg-info text-dark">{{ $sectionPerformance->count() }} secciones</span>
+                </div>
+                <div class="card-body p-0">
+                    @if($sectionPerformance->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Sección</th>
+                                        <th class="text-end">Pág.</th>
+                                        <th class="text-end">Imp.</th>
+                                        <th class="text-end">Clicks</th>
+                                        <th class="text-end">CTR</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($sectionPerformance as $row)
+                                        <tr>
+                                            <td class="fw-semibold">{{ $row->section }}</td>
+                                            <td class="text-end">{{ number_format($row->pages) }}</td>
+                                            <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                            <td class="text-end">{{ number_format($row->clicks) }}</td>
+                                            <td class="text-end">{{ number_format($row->ctr * 100, 2) }}%</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="p-3 text-muted">Todavía no hay datos agrupados por sección.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <strong>Prioridades SEO</strong>
                     <span class="badge bg-warning-subtle text-dark">{{ $opportunityPages->count() }} oportunidades</span>
                 </div>
@@ -168,6 +207,37 @@
             </div>
         </div>
     </div>
+
+    @if($sectionOpportunities->isNotEmpty())
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>Oportunidades por Sección</strong>
+            <span class="badge bg-warning-subtle text-dark">Priorizar donde ya hay señal</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Sección</th>
+                            <th class="text-end">URLs con oportunidad</th>
+                            <th class="text-end">Impresiones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($sectionOpportunities as $row)
+                            <tr>
+                                <td class="fw-semibold">{{ $row->section }}</td>
+                                <td class="text-end">{{ number_format($row->opportunities) }}</td>
+                                <td class="text-end">{{ number_format($row->impressions) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
 
     @if($actionableNews->isNotEmpty())
     <div class="card border-0 shadow-sm mb-4">

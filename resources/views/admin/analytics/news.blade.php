@@ -79,6 +79,52 @@
         </div>
     </div>
 
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Frentes Estratégicos</h6>
+            <span class="badge bg-primary">{{ $strategicSections->count() }} líneas</span>
+        </div>
+        <div class="card-body">
+            @if($strategicSections->count() > 0)
+                <p class="text-muted small mb-3">Lectura editorial para ver qué líneas están aportando más al posicionamiento y cuáles conviene reforzar.</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>Línea</th>
+                                <th>Noticias</th>
+                                <th>Visitas</th>
+                                <th>Período anterior</th>
+                                <th>Variación</th>
+                                <th>Participación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($strategicSections as $section)
+                                <tr>
+                                    <td class="fw-semibold">{{ $section->section }}</td>
+                                    <td>{{ number_format($section->news_count) }}</td>
+                                    <td>{{ number_format($section->period_views) }}</td>
+                                    <td>{{ number_format($section->previous_period_views) }}</td>
+                                    <td class="{{ is_null($section->delta_percentage) ? 'text-muted' : ($section->delta_percentage >= 0 ? 'text-success' : 'text-danger') }}">
+                                        @if(!is_null($section->delta_percentage))
+                                            {{ $section->delta_percentage >= 0 ? '+' : '' }}{{ number_format($section->delta_percentage, 1) }}%
+                                        @else
+                                            Sin base
+                                        @endif
+                                    </td>
+                                    <td>{{ number_format($section->share * 100, 1) }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="text-center mb-0">No hay suficiente información para agrupar líneas estratégicas todavía.</p>
+            @endif
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-6 mb-4">
             <div class="card shadow mb-4">

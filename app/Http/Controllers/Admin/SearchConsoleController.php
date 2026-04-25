@@ -12,6 +12,19 @@ use Illuminate\Support\Str;
 
 class SearchConsoleController extends Controller
 {
+    private const SECTION_ORDER = [
+        'Home',
+        'Noticias',
+        'IA en Chile',
+        'Investigación',
+        'Columnas',
+        'Profundiza',
+        'ConocIA TV',
+        'ConocIA Radio',
+        'Agenda IA',
+        'Otros',
+    ];
+
     public function index(Request $request, SearchConsoleService $searchConsole)
     {
         $days = max((int) $request->integer('days', 28), 1);
@@ -115,6 +128,9 @@ class SearchConsoleController extends Controller
             ->sortByDesc('impressions')
             ->values();
 
+        $sectionPerformance = $this->buildSectionPerformance((clone $pageMetrics));
+        $sectionOpportunities = $this->buildSectionOpportunitySummary($opportunityPages);
+
         $canonicalHost = parse_url(config('app.url'), PHP_URL_HOST);
         $mixedHosts = $hostBreakdown->pluck('host')
             ->filter()
@@ -143,6 +159,8 @@ class SearchConsoleController extends Controller
             'zeroClickPages',
             'weirdQueries',
             'hostBreakdown',
+            'sectionPerformance',
+            'sectionOpportunities',
             'canonicalHost',
             'mixedHosts',
             'actionableNews',
@@ -286,5 +304,120 @@ class SearchConsoleController extends Controller
             ->values();
 
         return [$fallingPages, $risingPages, $newOpportunityPages];
+    }
+
+    private function buildSectionPerformance($pageMetrics): Collection
+    {
+        $sectionRows = (clone $pageMetrics)
+            ->selectRaw('page, SUM(clicks) as clicks, SUM(impressions) as impressions, AVG(ctr) as ctr, AVG(position) as position')
+            ->whereNotNull('page')
+            ->groupBy('page')
+            ->get()
+            ->map(function ($row) {
+                $section = $this->resolveSectionName((string) $row->page);
+
+                return (object) [
+                    'section' => $section,
+                    'page' => $row->page,
+                    'clicks' => (int) $row->clicks,
+                    'impressions' => (int) $row->impressions,
+                    'ctr' => (float) $row->ctr,
+                    'position' => (float) $row->position,
+                ];
+            });
+
+        if ($sectionRows->isEmpty()) {
+            return collect();
+        }
+
+        return $sectionRows
+            ->groupBy('section')
+            ->map(function (Collection $rows, string $section) {
+                $impressions = (int) $rows->sum('impressions');
+                $clicks = (int) $rows->sum('clicks');
+
+                return (object) [
+                    'section' => $section,
+                    'pages' => $rows->count(),
+                    'clicks' => $clicks,
+                    'impressions' => $impressions,
+                    'ctr' => $impressions > 0 ? $clicks / $impressions : 0.0,
+                    'position' => round((float) $rows->avg('position'), 2),
+                ];
+            })
+            ->sortBy(function ($row) {
+                $index = array_search($row->section, self::SECTION_ORDER, true);
+
+                return $index === false ? 999 : $index;
+            })
+            ->values();
+    }
+
+    private function buildSectionOpportunitySummary(Collection $opportunityPages): Collection
+    {
+        if ($opportunityPages->isEmpty()) {
+            return collect();
+        }
+
+        return $opportunityPages
+            ->groupBy(fn ($row) => $this->resolveSectionName((string) $row->page))
+            ->map(function (Collection $rows, string $section) {
+                return (object) [
+                    'section' => $section,
+                    'opportunities' => $rows->count(),
+                    'impressions' => (int) $rows->sum('impressions'),
+                ];
+            })
+            ->sortByDesc('impressions')
+            ->values();
+    }
+
+    private function resolveSectionName(string $page): string
+    {
+        $path = trim((string) parse_url($page, PHP_URL_PATH), '/');
+
+        if ($path === '') {
+            return 'Home';
+        }
+
+        if ($path === 'ia-en-chile' || str_starts_with($path, 'ia-en-chile/')) {
+            return 'IA en Chile';
+        }
+
+        if (str_starts_with($path, 'news/')) {
+            return 'Noticias';
+        }
+
+        if ($path === 'investigacion' || str_starts_with($path, 'investigacion/')) {
+            return 'Investigación';
+        }
+
+        if ($path === 'columnas' || str_starts_with($path, 'columnas/')) {
+            return 'Columnas';
+        }
+
+        if (
+            in_array($path, ['conceptos-ia', 'analisis', 'papers', 'estado-del-arte'], true)
+            || str_starts_with($path, 'conceptos-ia/')
+            || str_starts_with($path, 'analisis/')
+            || str_starts_with($path, 'papers/')
+            || str_starts_with($path, 'estado-del-arte/')
+        ) {
+            return 'Profundiza';
+        }
+
+        if ($path === 'videos' || str_starts_with($path, 'videos/')) {
+            return 'ConocIA TV';
+        }
+
+        if ($path === 'radio' || str_starts_with($path, 'radio/')) {
+            return 'ConocIA Radio';
+        }
+
+        if ($path === 'agenda' || str_starts_with($path, 'agenda/')) {
+            return 'Agenda IA';
+        }
+
+        return 'Otros';
     }
 }

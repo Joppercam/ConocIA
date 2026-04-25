@@ -341,7 +341,9 @@ class AdminNewsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Analítica de Noticias');
+        $response->assertSee('Frentes Estratégicos');
         $response->assertSee('Noticia analitica');
+        $response->assertSee('Noticias Generales');
         $response->assertSee('Top Categorías');
         $response->assertSee('Top Autores');
         $response->assertSee('Participación');

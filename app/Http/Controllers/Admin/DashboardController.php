@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -148,6 +149,7 @@ class DashboardController extends Controller
         $summary = $this->buildAnalyticsSummary($startDate, $endDate);
         $dailyViews = $this->buildDailyViews($startDate, $endDate);
         $comparisonSummary = $this->buildComparisonSummary($summary['period_views'], $previousStartDate, $previousEndDate);
+        $strategicSections = $this->buildStrategicSections($startDate, $endDate, $previousStartDate, $previousEndDate);
         $topNews = $this->buildTopNews($startDate, $endDate, $previousStartDate, $previousEndDate, 15);
         $topCategories = $this->buildTopCategories($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
         $topAuthors = $this->buildTopAuthors($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
@@ -161,6 +163,7 @@ class DashboardController extends Controller
             'summary',
             'comparisonSummary',
             'dailyViews',
+            'strategicSections',
             'topNews',
             'topCategories',
             'topAuthors'
@@ -401,5 +404,94 @@ class DashboardController extends Controller
             ->orderByDesc('current_period_stats.period_views')
             ->limit($limit)
             ->get();
+    }
+
+    private function buildStrategicSections(string $startDate, string $endDate, string $previousStartDate, string $previousEndDate)
+    {
+        if (!Schema::hasTable('news_views_stats')) {
+            return collect();
+        }
+
+        $rows = DB::table('news_views_stats')
+            ->join('news', 'news.id', '=', 'news_views_stats.news_id')
+            ->leftJoin('categories', 'news.category_id', '=', 'categories.id')
+            ->selectRaw("
+                news.id,
+                news.title,
+                news.slug,
+                COALESCE(categories.slug, '') as category_slug,
+                COALESCE(categories.name, 'Sin categoría') as category_name,
+                SUM(CASE WHEN news_views_stats.view_date BETWEEN ? AND ? THEN news_views_stats.views ELSE 0 END) as period_views,
+                SUM(CASE WHEN news_views_stats.view_date BETWEEN ? AND ? THEN news_views_stats.views ELSE 0 END) as previous_period_views
+            ", [$startDate, $endDate, $previousStartDate, $previousEndDate])
+            ->whereBetween('news_views_stats.view_date', [$previousStartDate, $endDate])
+            ->groupBy('news.id', 'news.title', 'news.slug', 'categories.slug', 'categories.name')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return collect();
+        }
+
+        $classified = $rows
+            ->map(function ($row) {
+                $section = $this->resolveStrategicSection((string) $row->title, (string) $row->slug, (string) $row->category_slug);
+
+                return (object) [
+                    'section' => $section,
+                    'news_id' => $row->id,
+                    'period_views' => (int) $row->period_views,
+                    'previous_period_views' => (int) $row->previous_period_views,
+                ];
+            });
+
+        $totalViews = max(1, (int) $classified->sum('period_views'));
+
+        return $classified
+            ->groupBy('section')
+            ->map(function ($rows, $section) use ($totalViews) {
+                $periodViews = (int) $rows->sum('period_views');
+                $previousPeriodViews = (int) $rows->sum('previous_period_views');
+
+                return (object) [
+                    'section' => $section,
+                    'period_views' => $periodViews,
+                    'previous_period_views' => $previousPeriodViews,
+                    'news_count' => $rows->pluck('news_id')->unique()->count(),
+                    'share' => $periodViews / $totalViews,
+                    'delta_percentage' => $previousPeriodViews > 0
+                        ? (($periodViews - $previousPeriodViews) / $previousPeriodViews) * 100
+                        : null,
+                ];
+            })
+            ->sortByDesc('period_views')
+            ->values();
+    }
+
+    private function resolveStrategicSection(string $title, string $slug, string $categorySlug): string
+    {
+        $title = mb_strtolower($title);
+        $slug = Str::lower($slug);
+        $categorySlug = Str::lower($categorySlug);
+
+        if ($categorySlug === 'ia-en-chile') {
+            return 'IA en Chile';
+        }
+
+        if (
+            Str::contains($title, ['guia', 'comparativa', 'qué es', 'que es', 'para qué sirve', 'para que sirve', 'mejores', 'ideal para'])
+            || Str::contains($slug, ['guia-', 'comparativa-', '-vs-', 'que-es-', 'para-que-sirve', 'mejores-', 'ideal-'])
+        ) {
+            return 'Guías y Comparativas';
+        }
+
+        if (in_array($categorySlug, ['openai', 'google-ai', 'anthropic', 'meta-ai'], true)) {
+            return 'Modelos y Empresas';
+        }
+
+        if (in_array($categorySlug, ['regulacion-de-ia', 'etica-de-la-ia', 'privacidad-y-seguridad', 'impacto-laboral'], true)) {
+            return 'Regulación y Ética';
+        }
+
+        return 'Noticias Generales';
     }
 }
