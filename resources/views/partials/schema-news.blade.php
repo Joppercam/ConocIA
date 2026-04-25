@@ -11,6 +11,9 @@ if ($article) {
     $articleUrl = route('news.show', $article->slug ?? $article->id);
     $publishedTime = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
     $modifiedTime = $article->updated_at ? $article->updated_at->toIso8601String() : $article->created_at->toIso8601String();
+    $articleDescription = method_exists($article, 'seoDescription')
+        ? $article->seoDescription()
+        : ($article->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($article->content), 155));
 }
 @endphp
 
@@ -20,7 +23,7 @@ if ($article) {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     "headline": "{{ $article->title }}",
-    "description": "{{ $article->excerpt }}",
+    "description": "{{ $articleDescription }}",
     "image": "{{ $imageUrl }}",
     "datePublished": "{{ $publishedTime }}",
     "dateModified": "{{ $modifiedTime }}",

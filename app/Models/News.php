@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
+use Illuminate\Support\Str;
 
 class News extends Model implements Feedable
 {
@@ -166,7 +167,61 @@ class News extends Model implements Feedable
      */
     public function getShortTitleAttribute()
     {
-        return \Illuminate\Support\Str::limit($this->title, 60);
+        return Str::limit($this->title, 60);
+    }
+
+    public function seoTitle(): string
+    {
+        $title = trim((string) $this->title);
+        $brandSuffix = ' | ConocIA';
+
+        if ($title === '') {
+            return 'ConocIA';
+        }
+
+        if (Str::contains(Str::lower($title), 'conocia')) {
+            return $title;
+        }
+
+        if (Str::length($title) <= 52) {
+            return $title . $brandSuffix;
+        }
+
+        return Str::limit($title, 57, '...');
+    }
+
+    public function seoDescription(): string
+    {
+        $candidates = [
+            $this->summary,
+            $this->excerpt,
+            strip_tags((string) $this->content),
+        ];
+
+        foreach ($candidates as $candidate) {
+            $clean = $this->cleanSeoText($candidate);
+
+            if (Str::length($clean) >= 80) {
+                return Str::limit($clean, 155, '...');
+            }
+        }
+
+        foreach ($candidates as $candidate) {
+            $clean = $this->cleanSeoText($candidate);
+
+            if ($clean !== '') {
+                return Str::limit($clean, 155, '...');
+            }
+        }
+
+        return 'Noticias y análisis sobre inteligencia artificial y tecnología en ConocIA.';
+    }
+
+    private function cleanSeoText(?string $value): string
+    {
+        $clean = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?? '');
+
+        return preg_replace('/[[:cntrl:]]/u', '', $clean) ?? '';
     }
 
 

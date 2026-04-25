@@ -6,11 +6,13 @@
     use Illuminate\Support\Str;
 @endphp
 
-@section('title', $article->title . ' - ConocIA')
+@section('title', method_exists($article, 'seoTitle') ? $article->seoTitle() : ($article->title . ' - ConocIA'))
 @php
 // Preparar metadatos SEO para esta noticia
-$metaTitle = $article->title . ' - ConocIA';
-$metaDescription = $article->summary ?? $article->excerpt ?? substr(strip_tags($article->content), 0, 160);
+$metaTitle = method_exists($article, 'seoTitle') ? $article->seoTitle() : $article->title . ' - ConocIA';
+$metaDescription = method_exists($article, 'seoDescription')
+    ? $article->seoDescription()
+    : ($article->summary ?? $article->excerpt ?? substr(strip_tags($article->content), 0, 160));
 $metaKeywords = is_object($article->category) ? $article->category->name : 'noticias, tecnología, IA';
 
 // Agregar tags si existen
@@ -102,6 +104,9 @@ $articleSummary = $article->summary ?: $article->excerpt;
                 <span class="badge mb-2" style="background:var(--primary-color);font-size:.78rem;">{{ $article->category }}</span>
                 @endif
                 <h1 class="mb-2">{{ $article->title }}</h1>
+                @if($articleSummary)
+                <p class="mb-3 news-summary-text" style="font-size:1rem;line-height:1.7;">{{ \Illuminate\Support\Str::limit($articleSummary, 220) }}</p>
+                @endif
                 
                 <!-- Autor y fecha -->
                 <div class="d-flex align-items-center text-muted small mb-3">
