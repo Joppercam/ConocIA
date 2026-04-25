@@ -57,6 +57,48 @@ class AdminSearchConsoleControllerTest extends TestCase
 
         SearchConsoleMetric::create([
             'site_url' => 'https://conocia.cl/',
+            'metric_date' => '2026-03-30',
+            'search_type' => 'web',
+            'dimension_type' => 'page',
+            'page' => 'https://conocia.cl/investigacion/test',
+            'dimension_key_hash' => hash('sha256', 'page-previous'),
+            'clicks' => 40,
+            'impressions' => 500,
+            'ctr' => 0.08,
+            'position' => 5.1,
+            'synced_at' => now(),
+        ]);
+
+        SearchConsoleMetric::create([
+            'site_url' => 'https://conocia.cl/',
+            'metric_date' => '2026-03-30',
+            'search_type' => 'web',
+            'dimension_type' => 'page',
+            'page' => 'https://conocia.cl/news/subida-fuerte',
+            'dimension_key_hash' => hash('sha256', 'page-rising-previous'),
+            'clicks' => 0,
+            'impressions' => 10,
+            'ctr' => 0,
+            'position' => 14,
+            'synced_at' => now(),
+        ]);
+
+        SearchConsoleMetric::create([
+            'site_url' => 'https://conocia.cl/',
+            'metric_date' => '2026-04-24',
+            'search_type' => 'web',
+            'dimension_type' => 'page',
+            'page' => 'https://conocia.cl/news/subida-fuerte',
+            'dimension_key_hash' => hash('sha256', 'page-rising-current'),
+            'clicks' => 1,
+            'impressions' => 60,
+            'ctr' => 0.016,
+            'position' => 8.7,
+            'synced_at' => now(),
+        ]);
+
+        SearchConsoleMetric::create([
+            'site_url' => 'https://conocia.cl/',
             'metric_date' => '2026-04-24',
             'search_type' => 'web',
             'dimension_type' => 'query',
@@ -83,7 +125,7 @@ class AdminSearchConsoleControllerTest extends TestCase
             'synced_at' => now(),
         ]);
 
-        $this->assertSame(4, SearchConsoleMetric::count());
+        $this->assertSame(7, SearchConsoleMetric::count());
 
         $this->actingAs($admin)
             ->get(route('admin.seo.search-console', [
@@ -98,6 +140,10 @@ class AdminSearchConsoleControllerTest extends TestCase
             ->assertSee('Prioridades SEO')
             ->assertSee('Salud Técnica')
             ->assertSee('Queries Ruidosas')
-            ->assertSee('www.conocia.cl');
+            ->assertSee('www.conocia.cl')
+            ->assertSee('Páginas Cayendo')
+            ->assertSee('Páginas Subiendo')
+            ->assertSee('Nuevas Oportunidades')
+            ->assertSee('https://conocia.cl/news/subida-fuerte');
     }
 }
