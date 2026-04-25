@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\News;
 use App\Models\SearchConsoleMetric;
 use App\Services\SearchConsoleService;
 use Illuminate\Http\Request;
@@ -111,6 +112,8 @@ class SearchConsoleController extends Controller
             ->unique()
             ->count() > 1;
 
+        $actionableNews = $this->buildActionableNews($opportunityPages);
+
         return view('admin.seo.search-console', compact(
             'days',
             'siteUrl',
@@ -126,7 +129,8 @@ class SearchConsoleController extends Controller
             'weirdQueries',
             'hostBreakdown',
             'canonicalHost',
-            'mixedHosts'
+            'mixedHosts',
+            'actionableNews'
         ))->with([
             'isConfigured' => $searchConsole->isConfigured(),
         ]);
@@ -143,5 +147,60 @@ class SearchConsoleController extends Controller
         return Str::startsWith($normalized, 'youtube')
             || preg_match('/\d{4,}/', $normalized) === 1
             || preg_match('/^[a-z0-9_-]{10,}$/i', $normalized) === 1;
+    }
+
+    private function buildActionableNews(Collection $opportunityPages): Collection
+    {
+        $slugs = $opportunityPages
+            ->map(function ($row) {
+                $path = trim((string) parse_url((string) $row->page, PHP_URL_PATH), '/');
+
+                if (!Str::startsWith($path, 'news/')) {
+                    return null;
+                }
+
+                return Str::after($path, 'news/');
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($slugs->isEmpty()) {
+            return collect();
+        }
+
+        $newsBySlug = News::query()
+            ->whereIn('slug', $slugs)
+            ->get()
+            ->keyBy('slug');
+
+        return $opportunityPages
+            ->map(function ($row) use ($newsBySlug) {
+                $path = trim((string) parse_url((string) $row->page, PHP_URL_PATH), '/');
+                $slug = Str::startsWith($path, 'news/') ? Str::after($path, 'news/') : null;
+                $news = $slug ? $newsBySlug->get($slug) : null;
+
+                if (!$news) {
+                    return null;
+                }
+
+                $seoTitle = $news->seoTitle();
+                $seoDescription = $news->seoDescription();
+
+                return [
+                    'news' => $news,
+                    'page' => $row->page,
+                    'clicks' => (int) $row->clicks,
+                    'impressions' => (int) $row->impressions,
+                    'ctr' => (float) $row->ctr,
+                    'position' => (float) $row->position,
+                    'seo_title_length' => Str::length($seoTitle),
+                    'seo_description_length' => Str::length($seoDescription),
+                    'has_summary' => filled($news->summary),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->take(10);
     }
 }

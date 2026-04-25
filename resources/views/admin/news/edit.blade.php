@@ -56,6 +56,7 @@
                         <div class="mb-3">
                             <label for="summary" class="form-label">Resumen <span class="text-danger">*</span></label>
                             <textarea class="form-control @error('summary') is-invalid @enderror" id="summary" name="summary" rows="3" required>{{ old('summary', $news->summary) }}</textarea>
+                            <div class="form-text"><span id="summary-count">{{ strlen(old('summary', $news->summary ?? '')) }}</span>/155 caracteres sugeridos para snippet.</div>
                             @error('summary')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -74,6 +75,25 @@
                     
                     <div class="col-md-4">
                         <!-- Estado -->
+                        <div class="card mb-3">
+                            <div class="card-header">Salud SEO</div>
+                            <div class="card-body">
+                                <div class="small text-muted mb-3">Guía rápida para mejorar CTR en Google desde esta noticia.</div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Título SEO</span>
+                                    <span class="badge bg-secondary" id="seo-title-status">0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Slug</span>
+                                    <span class="badge bg-secondary" id="seo-slug-status">0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Resumen / description</span>
+                                    <span class="badge bg-secondary" id="seo-summary-status">0</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card mb-3">
                             <div class="card-header">Estado</div>
                             <div class="card-body">
@@ -207,7 +227,30 @@
                              .replace(/ +/g, '-');
             slugInput.value = slug;
         }
+        updateSeoIndicators();
     });
+
+    slugInput.addEventListener('input', updateSeoIndicators);
+    document.getElementById('summary').addEventListener('input', updateSeoIndicators);
+
+    function updateSeoIndicators() {
+        const titleLength = titleInput.value.trim().length;
+        const slugLength = slugInput.value.trim().length;
+        const summaryLength = document.getElementById('summary').value.trim().length;
+
+        document.getElementById('summary-count').textContent = summaryLength;
+        setIndicator('seo-title-status', titleLength, titleLength >= 30 && titleLength <= 60);
+        setIndicator('seo-slug-status', slugLength, slugLength >= 12 && slugLength <= 80);
+        setIndicator('seo-summary-status', summaryLength, summaryLength >= 110 && summaryLength <= 155);
+    }
+
+    function setIndicator(id, value, isGood) {
+        const el = document.getElementById(id);
+        el.textContent = value;
+        el.className = 'badge ' + (isGood ? 'bg-success' : 'bg-warning text-dark');
+    }
+
+    updateSeoIndicators();
     
     // Vista previa de imagen
     document.getElementById('featured_image').addEventListener('change', function() {

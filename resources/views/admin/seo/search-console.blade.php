@@ -168,6 +168,64 @@
         </div>
     </div>
 
+    @if($actionableNews->isNotEmpty())
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>Noticias Para Optimizar Ahora</strong>
+            <span class="badge bg-primary">{{ $actionableNews->count() }} detectadas</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Noticia</th>
+                            <th class="text-end">Imp.</th>
+                            <th class="text-end">Pos.</th>
+                            <th class="text-end">Title</th>
+                            <th class="text-end">Desc.</th>
+                            <th class="text-center">Resumen</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($actionableNews as $item)
+                            <tr>
+                                <td style="max-width:360px;">
+                                    <div class="fw-semibold">{{ \Illuminate\Support\Str::limit($item['news']->title, 72) }}</div>
+                                    <div class="small text-muted">{{ $item['news']->slug }}</div>
+                                </td>
+                                <td class="text-end">{{ number_format($item['impressions']) }}</td>
+                                <td class="text-end">{{ number_format($item['position'], 1) }}</td>
+                                <td class="text-end">
+                                    <span class="badge {{ $item['seo_title_length'] <= 60 ? 'bg-success' : 'bg-warning text-dark' }}">
+                                        {{ $item['seo_title_length'] }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge {{ $item['seo_description_length'] >= 110 && $item['seo_description_length'] <= 155 ? 'bg-success' : 'bg-warning text-dark' }}">
+                                        {{ $item['seo_description_length'] }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {{ $item['has_summary'] ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $item['has_summary'] ? 'Sí' : 'No' }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ route('admin.news.edit', $item['news']) }}" class="btn btn-sm btn-outline-primary">
+                                        Optimizar
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
