@@ -68,7 +68,7 @@ function platformIcon(string $code): string {
                 <div class="row align-items-center g-4">
                     {{-- Thumbnail + play --}}
                     <div class="col-lg-7">
-                        <a href="{{ route('videos.show', $featuredVideo->id) }}"
+                        <a href="{{ route('videos.show', $featuredVideo->routeParameters()) }}"
                            class="d-block position-relative rounded-3 overflow-hidden tv-hero-thumb">
                             <img src="{{ $featuredVideo->thumbnail_url }}"
                                  alt="{{ $featuredVideo->title }}"
@@ -135,7 +135,7 @@ function platformIcon(string $code): string {
                             <span><i class="far fa-calendar me-1"></i>{{ $featuredVideo->published_at->locale('es')->diffForHumans() }}</span>
                         </div>
 
-                        <a href="{{ route('videos.show', $featuredVideo->id) }}"
+                        <a href="{{ route('videos.show', $featuredVideo->routeParameters()) }}"
                            class="btn btn-primary rounded-pill px-4">
                             <i class="fas fa-play me-2"></i>Ver ahora
                         </a>

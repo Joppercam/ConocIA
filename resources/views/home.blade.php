@@ -573,7 +573,7 @@
 
                         {{-- Hero card --}}
                         <div class="col-md-7">
-                            <a href="{{ route('videos.show', $tvHero->id) }}"
+                            <a href="{{ route('videos.show', $tvHero->routeParameters()) }}"
                                class="d-block position-relative rounded-3 overflow-hidden tv-spot-card"
                                style="aspect-ratio:16/9;">
                                 <img src="{{ $tvHero->thumbnail_url }}"
@@ -607,7 +607,7 @@
                         {{-- Side cards --}}
                         <div class="col-md-5 d-flex flex-column gap-3">
                             @forelse($tvSide as $tvv)
-                            <a href="{{ route('videos.show', $tvv->id) }}"
+                            <a href="{{ route('videos.show', $tvv->routeParameters()) }}"
                                class="d-flex gap-3 align-items-center text-decoration-none tv-spot-mini rounded-2 p-2"
                                style="background:rgba(255,255,255,.03);border:1px solid #1e2540;transition:background .15s;">
                                 <div class="position-relative flex-shrink-0 rounded overflow-hidden"

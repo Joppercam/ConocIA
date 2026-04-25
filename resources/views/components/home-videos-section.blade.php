@@ -41,7 +41,7 @@
                                 <i class="far fa-calendar-alt me-1"></i> {{ $mainVideo->published_at->format('d M Y') }}
                                 <span class="ms-3"><i class="far fa-eye me-1"></i> {{ number_format($mainVideo->view_count) }}</span>
                             </span>
-                            <a href="{{ route('videos.show', $mainVideo->id) }}" class="btn btn-sm btn-outline-primary py-0">
+                            <a href="{{ route('videos.show', $mainVideo->routeParameters()) }}" class="btn btn-sm btn-outline-primary py-0">
                                 Ver página <i class="fas fa-external-link-alt ms-1"></i>
                             </a>
                         </div>

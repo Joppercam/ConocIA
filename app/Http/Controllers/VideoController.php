@@ -127,10 +127,13 @@ class VideoController extends Controller
     /**
      * Mostrar detalle de un video específico
      */
-    public function show($id)
+    public function show(Video $video, ?string $slug = null)
     {
-        $video = Video::with(['platform', 'categories', 'tags'])
-            ->findOrFail($id);
+        $video->loadMissing(['platform', 'categories', 'tags', 'keywords']);
+
+        if ($slug !== $video->seo_slug) {
+            return redirect()->route('videos.show', $video->routeParameters(), 301);
+        }
             
         // Incrementar contador de vistas
         $video->view_count += 1;
@@ -138,20 +141,19 @@ class VideoController extends Controller
         
         // Obtener videos relacionados
         $relatedVideos = $this->getRelatedVideos($video);
-        
-        return view('videos.show', compact('video', 'relatedVideos'));
+        $shouldIndex = $video->shouldIndexForSeo();
+
+        return view('videos.show', compact('video', 'relatedVideos', 'shouldIndex'));
     }
 
     /**
      * Guardar un comentario en un video
      */
-    public function storeComment(Request $request, $id)
+    public function storeComment(Request $request, Video $video)
     {
         $request->validate([
             'content' => 'required|string|max:1000'
         ]);
-
-        $video = Video::findOrFail($id);
         
         // Si tienes un modelo Comment, puedes usarlo así:
         // $comment = new Comment([

@@ -9,7 +9,7 @@
     $keywords = $video->ai_keywords ?? [];
 @endphp
 
-<a href="{{ route('videos.show', $video->id) }}" class="tv-card" title="{{ $video->title }}">
+<a href="{{ route('videos.show', $video->routeParameters()) }}" class="tv-card" title="{{ $video->title }}">
 
     {{-- Thumbnail --}}
     <div class="tv-card-thumb">

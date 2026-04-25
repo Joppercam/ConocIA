@@ -7,7 +7,7 @@
 @php
     $vidMetaDesc  = $video->description ? Str::limit($video->description, 160) : 'Video sobre inteligencia artificial en ConocIA';
     $vidMetaImage = $video->thumbnail_url ?? asset('images/defaults/social-share.jpg');
-    $vidMetaUrl   = route('videos.show', $video->id);
+    $vidMetaUrl   = route('videos.show', $video->routeParameters());
     $vidMetaPublished = $video->published_at?->toIso8601String() ?? now()->toIso8601String();
     $vidMetaKeywords  = 'video, inteligencia artificial, tecnología'
         . ($video->categories->isNotEmpty() ? ', ' . $video->categories->pluck('name')->implode(', ') : '')
@@ -34,6 +34,7 @@
         'metaAuthor'      => 'ConocIA',
         'metaPublished'   => $vidMetaPublished,
         'metaModified'    => null,
+        'metaRobots'      => $shouldIndex ? 'index, follow' : 'noindex, follow',
     ])
     <script type="application/ld+json">
     {
@@ -92,6 +93,12 @@
                     <iframe src="{{ $video->embed_url }}" allowfullscreen class="rounded-top"></iframe>
                 </div>
                 <div class="card-body">
+                    @unless($shouldIndex)
+                    <div class="alert alert-secondary border-0 mb-3" style="background:#f4f6f8;color:#495057;">
+                        Esta página de video sigue visible para usuarios, pero no se está enviando a indexación mientras no tenga suficiente contexto editorial.
+                    </div>
+                    @endunless
+
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             @foreach($video->categories as $category)
@@ -239,7 +246,7 @@
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         @forelse($relatedVideos as $relatedVideo)
-                        <a href="{{ route('videos.show', $relatedVideo->id) }}" class="list-group-item list-group-item-action py-3">
+                        <a href="{{ route('videos.show', $relatedVideo->routeParameters()) }}" class="list-group-item list-group-item-action py-3">
                             <div class="row g-0">
                                 <div class="col-4 position-relative">
                                     <img src="{{ $relatedVideo->thumbnail_url }}" alt="{{ $relatedVideo->title }}" class="img-fluid rounded">
@@ -324,7 +331,7 @@
                         @endphp
                         
                         @forelse($popularVideos as $popularVideo)
-                        <a href="{{ route('videos.show', $popularVideo->id) }}" class="list-group-item list-group-item-action py-3">
+                        <a href="{{ route('videos.show', $popularVideo->routeParameters()) }}" class="list-group-item list-group-item-action py-3">
                             <div class="row g-0">
                                 <div class="col-4 position-relative">
                                     <img src="{{ $popularVideo->thumbnail_url }}" alt="{{ $popularVideo->title }}" class="img-fluid rounded">

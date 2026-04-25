@@ -212,7 +212,8 @@ class SitemapController extends Controller
 
     public function videos()
     {
-        $videos = Video::whereNotNull('original_url')
+        $videos = Video::with('categories')
+            ->whereNotNull('original_url')
             ->orderBy('published_at', 'desc')
             ->get();
 
@@ -227,8 +228,12 @@ class SitemapController extends Controller
               . '</url>';
 
         foreach ($videos as $video) {
+            if (!$video->shouldIndexForSeo()) {
+                continue;
+            }
+
             $xml .= '<url>';
-            $xml .= '<loc>' . route('videos.show', $video->id) . '</loc>';
+            $xml .= '<loc>' . route('videos.show', $video->routeParameters()) . '</loc>';
             $xml .= '<lastmod>' . $video->updated_at->toIso8601String() . '</lastmod>';
             $xml .= '<changefreq>monthly</changefreq>';
             $xml .= '<priority>0.6</priority>';

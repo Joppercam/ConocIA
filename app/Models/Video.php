@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Video extends Model
 {
@@ -108,5 +109,45 @@ class Video extends Model
     public function incrementViewCount()
     {
         $this->increment('view_count');
+    }
+
+    public function getSeoSlugAttribute(): string
+    {
+        return Str::slug($this->title ?: 'video-' . $this->id);
+    }
+
+    public function routeParameters(): array
+    {
+        return [
+            'video' => $this->id,
+            'slug' => $this->seo_slug,
+        ];
+    }
+
+    public function shouldIndexForSeo(): bool
+    {
+        $descriptionLength = Str::length(trim(strip_tags((string) $this->description)));
+
+        return filled($this->title)
+            && Str::length($this->title) >= 24
+            && !$this->hasSeoNoiseSignals()
+            && filled($this->thumbnail_url)
+            && filled($this->embed_url)
+            && (
+                $this->hasAiSummary()
+                || $descriptionLength >= 140
+                || ($descriptionLength >= 80 && $this->categories->isNotEmpty())
+            );
+    }
+
+    public function hasSeoNoiseSignals(): bool
+    {
+        $normalizedTitle = Str::lower(trim((string) $this->title));
+        $descriptionLength = Str::length(trim(strip_tags((string) $this->description)));
+
+        return $normalizedTitle === ''
+            || preg_match('/youtube\d{3,}/i', $normalizedTitle) === 1
+            || preg_match('/^[a-z0-9_-]{10,}$/i', $normalizedTitle) === 1
+            || ($descriptionLength < 40 && !$this->hasAiSummary());
     }
 }

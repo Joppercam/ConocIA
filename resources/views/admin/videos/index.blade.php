@@ -101,7 +101,7 @@
                         @forelse($videos as $video)
                         <tr>
                             <td width="120">
-                                <a href="{{ route('videos.show', $video->id) }}" target="_blank">
+                                <a href="{{ route('videos.show', $video->routeParameters()) }}" target="_blank">
                                     <img src="{{ $video->thumbnail_url }}" alt="{{ $video->title }}" class="img-thumbnail" style="max-width: 100px;">
                                 </a>
                             </td>

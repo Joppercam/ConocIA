@@ -67,7 +67,7 @@
                 <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden hover-scale transition-300">
                     <div class="position-relative video-card-thumb">
                         <img src="{{ $video->thumbnail_url }}" class="card-img-top" alt="{{ $video->title }}">
-                        <a href="{{ route('videos.show', $video->id) }}" class="stretched-link video-play-overlay">
+                        <a href="{{ route('videos.show', $video->routeParameters()) }}" class="stretched-link video-play-overlay">
                             <div class="video-play-button-sm">
                                 <i class="fas fa-play"></i>
                             </div>

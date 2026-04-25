@@ -7,7 +7,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Editar Video</h1>
         <div>
-            <a href="{{ route('videos.show', $video->id) }}" class="btn btn-sm btn-info" target="_blank">
+            <a href="{{ route('videos.show', $video->routeParameters()) }}" class="btn btn-sm btn-info" target="_blank">
                 <i class="fas fa-eye"></i> Ver en sitio
             </a>
             <a href="{{ route('admin.videos.index') }}" class="btn btn-sm btn-secondary">

@@ -84,10 +84,10 @@ Route::prefix('videos')->name('videos.')->group(function () {
     Route::get('/popular', [\App\Http\Controllers\VideoController::class, 'popular'])->name('popular');
     Route::get('/category/{category}', [\App\Http\Controllers\VideoController::class, 'byCategory'])->name('category');
     Route::get('/tag/{tag}', [\App\Http\Controllers\VideoController::class, 'byTag'])->name('tag');
-    Route::get('/{id}', [\App\Http\Controllers\VideoController::class, 'show'])->name('show');
     
     // Ruta para comentarios (requiere autenticación)
-    Route::post('/{id}/comment', [\App\Http\Controllers\VideoController::class, 'storeComment'])->name('comment')->middleware('auth');
+    Route::post('/{video}/comment', [\App\Http\Controllers\VideoController::class, 'storeComment'])->name('comment')->middleware('auth');
+    Route::get('/{video}/{slug?}', [\App\Http\Controllers\VideoController::class, 'show'])->name('show');
 });
 
 // Rutas API para videos
