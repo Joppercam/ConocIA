@@ -11,8 +11,7 @@ class SearchConsoleService
     public function isConfigured(): bool
     {
         return filled(config('services.search_console.site_url'))
-            && filled(config('services.search_console.client_email'))
-            && filled(config('services.search_console.private_key'));
+            && ($this->hasOAuthCredentials() || $this->hasServiceAccountCredentials());
     }
 
     public function defaultSiteUrl(): ?string
@@ -60,28 +59,54 @@ class SearchConsoleService
             throw new RuntimeException('Search Console no está configurado.');
         }
 
-        return Cache::remember('search_console_access_token', now()->addMinutes(55), function () {
+        $mode = $this->hasOAuthCredentials() ? 'oauth' : 'service-account';
+
+        return Cache::remember('search_console_access_token_' . $mode, now()->addMinutes(55), function () use ($mode) {
             $response = Http::asForm()
                 ->timeout(20)
-                ->post(config('services.search_console.token_uri'), [
-                    'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                    'assertion' => $this->jwtAssertion(),
-                ]);
-
-            if ($response->failed()) {
-                throw new RuntimeException(
-                    'No se pudo obtener token de Search Console: ' . $response->status() . ' ' . $response->body()
-                );
-            }
+                ->post(config('services.search_console.token_uri'), $this->tokenPayload($mode));
 
             $token = $response->json('access_token');
 
-            if (!$token) {
-                throw new RuntimeException('Google no devolvió access_token para Search Console.');
+            if ($response->failed() || !$token) {
+                throw new RuntimeException(
+                    'No se pudo obtener token de Search Console vía ' . $mode . ': '
+                    . $response->status() . ' ' . $response->body()
+                );
             }
 
             return $token;
         });
+    }
+
+    private function tokenPayload(string $mode): array
+    {
+        if ($mode === 'oauth') {
+            return [
+                'grant_type' => 'refresh_token',
+                'client_id' => config('services.search_console.oauth_client_id'),
+                'client_secret' => config('services.search_console.oauth_client_secret'),
+                'refresh_token' => config('services.search_console.oauth_refresh_token'),
+            ];
+        }
+
+        return [
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion' => $this->jwtAssertion(),
+        ];
+    }
+
+    private function hasOAuthCredentials(): bool
+    {
+        return filled(config('services.search_console.oauth_client_id'))
+            && filled(config('services.search_console.oauth_client_secret'))
+            && filled(config('services.search_console.oauth_refresh_token'));
+    }
+
+    private function hasServiceAccountCredentials(): bool
+    {
+        return filled(config('services.search_console.client_email'))
+            && filled(config('services.search_console.private_key'));
     }
 
     private function jwtAssertion(): string

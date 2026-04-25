@@ -103,6 +103,9 @@ return [
 
     'search_console' => [
         'site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL'),
+        'oauth_client_id' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_ID'),
+        'oauth_client_secret' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET'),
+        'oauth_refresh_token' => env('GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN'),
         'client_email' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL'),
         'private_key' => env('GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY'),
         'token_uri' => env('GOOGLE_SEARCH_CONSOLE_TOKEN_URI', 'https://oauth2.googleapis.com/token'),

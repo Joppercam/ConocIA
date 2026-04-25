@@ -14,7 +14,7 @@
     @if(!$isConfigured)
         <div class="alert alert-warning">
             <strong>Search Console aún no está configurado.</strong>
-            <div class="mt-2">Define `GOOGLE_SEARCH_CONSOLE_SITE_URL`, `GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL` y `GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY` en el entorno, agrega la service account como usuario de la propiedad y luego ejecuta <code>php artisan seo:sync-search-console</code>.</div>
+            <div class="mt-2">Define <code>GOOGLE_SEARCH_CONSOLE_SITE_URL</code> y preferentemente las credenciales OAuth <code>GOOGLE_SEARCH_CONSOLE_CLIENT_ID</code>, <code>GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET</code> y <code>GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN</code>. Luego ejecuta <code>php artisan seo:sync-search-console</code>.</div>
         </div>
     @endif
 
