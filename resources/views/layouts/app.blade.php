@@ -167,6 +167,7 @@
             font-weight: 500;
             transition: var(--hover-transition);
             padding: 0.5rem 0.8rem !important;
+            white-space: nowrap;
         }
         
         .nav-link::after {
@@ -186,6 +187,17 @@
         .nav-link.active::after {
             width: 70%;
             opacity: 1;
+        }
+
+        @media (min-width: 992px) {
+            .nav-item {
+                margin: 0 0.08rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 0.65rem !important;
+                font-size: 0.96rem;
+            }
         }
         
         /* Estilo del logo */
@@ -724,7 +736,9 @@
                             <a class="nav-link {{ request()->routeIs('chile.*') ? 'active' : '' }}"
                                href="{{ route('chile.index') }}"
                                aria-current="{{ request()->routeIs('chile.*') ? 'page' : 'false' }}">
-                               <i class="fas fa-flag me-1 d-lg-none"></i>IA en Chile
+                               <i class="fas fa-flag me-1 d-lg-none"></i>
+                               <span class="d-lg-none">IA en Chile</span>
+                               <span class="d-none d-lg-inline">Chile IA</span>
                             </a>
                         </li>
                         <li class="nav-item">
