@@ -11,6 +11,18 @@ $metaAuthor = $metaAuthor ?? ($author ?? 'ConocIA');
 $metaTwitterCard = $metaTwitterCard ?? ($twitterCard ?? 'summary_large_image');
 $metaPublished = $metaPublished ?? ($published ?? null);
 $metaModified = $metaModified ?? ($modified ?? null);
+$metaRobots = $metaRobots ?? ($robots ?? 'index, follow');
+
+$canonicalBase = rtrim(config('app.url'), '/');
+$canonicalPath = '/' . ltrim(parse_url($metaUrl, PHP_URL_PATH) ?? request()->path(), '/');
+$canonicalQuery = collect(request()->query())
+    ->reject(fn ($value, $key) => in_array($key, ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid']))
+    ->all();
+
+$metaUrl = $canonicalBase . ($canonicalPath === '//' ? '/' : $canonicalPath);
+if (!empty($canonicalQuery)) {
+    $metaUrl .= '?' . http_build_query($canonicalQuery);
+}
 @endphp
 
 <!-- SEO Meta Tags Básicos -->
@@ -41,5 +53,5 @@ $metaModified = $metaModified ?? ($modified ?? null);
 
 <!-- Meta Tags para estructuración de datos -->
 <meta name="author" content="{{ $metaAuthor }}">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="{{ $metaRobots }}">
 <meta name="revisit-after" content="7 days">

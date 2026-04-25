@@ -83,6 +83,91 @@
         </div>
     </div>
 
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>Prioridades SEO</strong>
+                    <span class="badge bg-warning-subtle text-dark">{{ $opportunityPages->count() }} oportunidades</span>
+                </div>
+                <div class="card-body">
+                    @if($opportunityPages->isNotEmpty())
+                        <div class="small text-muted mb-3">URLs con impresiones, posición aprovechable y CTR bajo. Son las mejores candidatas para reescribir títulos, mejorar snippet y reforzar enlazado interno.</div>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Página</th>
+                                        <th class="text-end">Imp.</th>
+                                        <th class="text-end">Pos.</th>
+                                        <th class="text-end">CTR</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($opportunityPages as $row)
+                                        <tr>
+                                            <td style="max-width:360px;">
+                                                <a href="{{ $row->page }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Str::limit($row->page, 72) }}</a>
+                                            </td>
+                                            <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                            <td class="text-end">{{ number_format($row->position, 1) }}</td>
+                                            <td class="text-end">{{ number_format($row->ctr * 100, 2) }}%</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-muted">Todavía no hay suficientes datos para detectar oportunidades claras.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>Salud Técnica</strong>
+                    <span class="badge {{ $mixedHosts ? 'bg-danger' : 'bg-success' }}">
+                        {{ $mixedHosts ? 'Hosts mezclados' : 'Host consistente' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="small text-muted mb-3">
+                        Host canónico esperado: <strong>{{ $canonicalHost ?: 'sin definir en APP_URL' }}</strong>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Host</th>
+                                    <th class="text-end">URLs</th>
+                                    <th class="text-end">Imp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($hostBreakdown as $host)
+                                    <tr>
+                                        <td>{{ $host['host'] }}</td>
+                                        <td class="text-end">{{ number_format($host['pages']) }}</td>
+                                        <td class="text-end">{{ number_format($host['impressions']) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-3">Sin hosts detectados todavía.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @if($mixedHosts)
+                        <div class="alert alert-danger mt-3 mb-0 py-2">
+                            Google está viendo más de un host para el sitio. Conviene unificar `www` vs sin `www`, revisar `canonical` y forzar una sola versión en sitemap.
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
@@ -140,6 +225,71 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white"><strong>Páginas Sin Clicks</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Página</th>
+                                    <th class="text-end">Imp.</th>
+                                    <th class="text-end">Pos.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($zeroClickPages as $row)
+                                    <tr>
+                                        <td style="max-width:360px;">
+                                            <a href="{{ $row->page }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Str::limit($row->page, 72) }}</a>
+                                        </td>
+                                        <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                        <td class="text-end">{{ number_format($row->position, 1) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-4">Sin datos todavía.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white"><strong>Queries Ruidosas</strong></div>
+                <div class="card-body">
+                    <div class="small text-muted mb-3">Términos que suelen indicar indexación de bajo valor, ruido técnico o páginas débiles.</div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Query</th>
+                                    <th class="text-end">Imp.</th>
+                                    <th class="text-end">Pos.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($weirdQueries as $row)
+                                    <tr>
+                                        <td>{{ \Illuminate\Support\Str::limit($row->query, 70) }}</td>
+                                        <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                        <td class="text-end">{{ number_format($row->position, 1) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-4">No se detectó ruido claro en este rango.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -45,6 +45,20 @@ class AdminSearchConsoleControllerTest extends TestCase
             'site_url' => 'https://conocia.cl/',
             'metric_date' => '2026-04-24',
             'search_type' => 'web',
+            'dimension_type' => 'page',
+            'page' => 'https://www.conocia.cl/news/test-www',
+            'dimension_key_hash' => hash('sha256', 'page-www'),
+            'clicks' => 0,
+            'impressions' => 45,
+            'ctr' => 0,
+            'position' => 9.5,
+            'synced_at' => now(),
+        ]);
+
+        SearchConsoleMetric::create([
+            'site_url' => 'https://conocia.cl/',
+            'metric_date' => '2026-04-24',
+            'search_type' => 'web',
             'dimension_type' => 'query',
             'query' => 'ia chile',
             'dimension_key_hash' => hash('sha256', 'query'),
@@ -55,7 +69,21 @@ class AdminSearchConsoleControllerTest extends TestCase
             'synced_at' => now(),
         ]);
 
-        $this->assertSame(2, SearchConsoleMetric::count());
+        SearchConsoleMetric::create([
+            'site_url' => 'https://conocia.cl/',
+            'metric_date' => '2026-04-24',
+            'search_type' => 'web',
+            'dimension_type' => 'query',
+            'query' => 'youtube54156',
+            'dimension_key_hash' => hash('sha256', 'query-youtube'),
+            'clicks' => 0,
+            'impressions' => 150,
+            'ctr' => 0,
+            'position' => 11.3,
+            'synced_at' => now(),
+        ]);
+
+        $this->assertSame(4, SearchConsoleMetric::count());
 
         $this->actingAs($admin)
             ->get(route('admin.seo.search-console', [
@@ -66,6 +94,10 @@ class AdminSearchConsoleControllerTest extends TestCase
             ->assertOk()
             ->assertSee('Search Console')
             ->assertSee('ia chile')
-            ->assertSee('https://conocia.cl/investigacion/test');
+            ->assertSee('https://conocia.cl/investigacion/test')
+            ->assertSee('Prioridades SEO')
+            ->assertSee('Salud Técnica')
+            ->assertSee('Queries Ruidosas')
+            ->assertSee('www.conocia.cl');
     }
 }

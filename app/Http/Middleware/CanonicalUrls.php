@@ -60,6 +60,11 @@ class CanonicalUrls
      */
     protected function shouldRedirect(Request $request): bool
     {
+        $canonicalHost = parse_url(config('app.url'), PHP_URL_HOST);
+        if ($canonicalHost && !Str::is($canonicalHost, $request->getHost())) {
+            return true;
+        }
+
         // Redirigir URLs con mayúsculas a minúsculas
         if (strtolower($request->path()) !== $request->path()) {
             return true;
@@ -92,6 +97,8 @@ class CanonicalUrls
      */
     protected function getCanonicalUrl(Request $request): string
     {
+        $canonicalBase = rtrim(config('app.url'), '/');
+
         // Convertir la ruta a minúsculas
         $path = strtolower($request->path());
         
@@ -114,7 +121,7 @@ class CanonicalUrls
             ->all();
         
         // Construir la URL canónica
-        $url = url($path);
+        $url = $canonicalBase . '/' . ltrim($path, '/');
         if (!empty($query)) {
             $url .= '?' . http_build_query($query);
         }
