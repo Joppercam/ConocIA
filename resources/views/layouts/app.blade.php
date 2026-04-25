@@ -167,6 +167,7 @@
             font-weight: 500;
             transition: var(--hover-transition);
             padding: 0.5rem 0.8rem !important;
+            font-size: 0.98rem;
             white-space: nowrap;
         }
         
@@ -196,7 +197,7 @@
 
             .nav-link {
                 padding: 0.5rem 0.65rem !important;
-                font-size: 0.96rem;
+                font-size: 0.9rem;
             }
         }
         
