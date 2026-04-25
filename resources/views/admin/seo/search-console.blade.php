@@ -77,6 +77,7 @@
                 <div class="text-muted small">{{ $startDate }} a {{ $endDate }}</div>
             </div>
             <div class="text-end">
+                <div class="text-muted small mb-1">Comparada contra {{ $previousStartDate }} a {{ $previousEndDate }}</div>
                 <div class="fw-semibold">Última sincronización</div>
                 <div class="text-muted small">{{ $summary['last_synced_at'] ? \Illuminate\Support\Carbon::parse($summary['last_synced_at'])->diffForHumans() : 'Aún sin datos sincronizados' }}</div>
             </div>
@@ -225,6 +226,104 @@
         </div>
     </div>
     @endif
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white"><strong>Páginas Cayendo</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Página</th>
+                                    <th class="text-end">Imp.</th>
+                                    <th class="text-end">Delta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($fallingPages as $row)
+                                    <tr>
+                                        <td style="max-width:220px;">
+                                            <a href="{{ $row->page }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Str::limit($row->page, 52) }}</a>
+                                        </td>
+                                        <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                        <td class="text-end text-danger">{{ number_format($row->delta_impressions) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-4">Sin caídas fuertes en este rango.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white"><strong>Páginas Subiendo</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Página</th>
+                                    <th class="text-end">Imp.</th>
+                                    <th class="text-end">Delta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($risingPages as $row)
+                                    <tr>
+                                        <td style="max-width:220px;">
+                                            <a href="{{ $row->page }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Str::limit($row->page, 52) }}</a>
+                                        </td>
+                                        <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                        <td class="text-end text-success">+{{ number_format($row->delta_impressions) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-4">Sin subidas fuertes todavía.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white"><strong>Nuevas Oportunidades</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Página</th>
+                                    <th class="text-end">Imp.</th>
+                                    <th class="text-end">Pos.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($newOpportunityPages as $row)
+                                    <tr>
+                                        <td style="max-width:220px;">
+                                            <a href="{{ $row->page }}" target="_blank" rel="noopener">{{ \Illuminate\Support\Str::limit($row->page, 52) }}</a>
+                                        </td>
+                                        <td class="text-end">{{ number_format($row->impressions) }}</td>
+                                        <td class="text-end">{{ number_format($row->position, 1) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-4">Sin nuevas oportunidades claras.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row g-4">
         <div class="col-lg-6">

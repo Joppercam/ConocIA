@@ -19,6 +19,8 @@ class SearchConsoleController extends Controller
         $type = $request->string('type')->toString() ?: 'web';
         $startDate = now()->subDays($days - 1)->toDateString();
         $endDate = now()->toDateString();
+        $previousEndDate = now()->subDays($days)->toDateString();
+        $previousStartDate = now()->subDays(($days * 2) - 1)->toDateString();
 
         $baseQuery = SearchConsoleMetric::query()
             ->when($siteUrl, fn ($query) => $query->where('site_url', $siteUrl))
@@ -26,8 +28,15 @@ class SearchConsoleController extends Controller
             ->whereDate('metric_date', '>=', $startDate)
             ->whereDate('metric_date', '<=', $endDate);
 
+        $previousBaseQuery = SearchConsoleMetric::query()
+            ->when($siteUrl, fn ($query) => $query->where('site_url', $siteUrl))
+            ->where('search_type', $type)
+            ->whereDate('metric_date', '>=', $previousStartDate)
+            ->whereDate('metric_date', '<=', $previousEndDate);
+
         $pageMetrics = (clone $baseQuery)->where('dimension_type', 'page');
         $queryMetrics = (clone $baseQuery)->where('dimension_type', 'query');
+        $previousPageMetrics = (clone $previousBaseQuery)->where('dimension_type', 'page');
 
         $summary = [
             'clicks' => (int) $pageMetrics->sum('clicks'),
@@ -113,6 +122,10 @@ class SearchConsoleController extends Controller
             ->count() > 1;
 
         $actionableNews = $this->buildActionableNews($opportunityPages);
+        [$fallingPages, $risingPages, $newOpportunityPages] = $this->buildComparativePageInsights(
+            $pageMetrics,
+            $previousPageMetrics
+        );
 
         return view('admin.seo.search-console', compact(
             'days',
@@ -120,6 +133,8 @@ class SearchConsoleController extends Controller
             'type',
             'startDate',
             'endDate',
+            'previousStartDate',
+            'previousEndDate',
             'summary',
             'dailyPerformance',
             'topPages',
@@ -130,7 +145,10 @@ class SearchConsoleController extends Controller
             'hostBreakdown',
             'canonicalHost',
             'mixedHosts',
-            'actionableNews'
+            'actionableNews',
+            'fallingPages',
+            'risingPages',
+            'newOpportunityPages'
         ))->with([
             'isConfigured' => $searchConsole->isConfigured(),
         ]);
@@ -202,5 +220,71 @@ class SearchConsoleController extends Controller
             ->filter()
             ->values()
             ->take(10);
+    }
+
+    private function buildComparativePageInsights($currentPageMetrics, $previousPageMetrics): array
+    {
+        $current = (clone $currentPageMetrics)
+            ->selectRaw('page, SUM(clicks) as clicks, SUM(impressions) as impressions, AVG(ctr) as ctr, AVG(position) as position')
+            ->whereNotNull('page')
+            ->groupBy('page')
+            ->get()
+            ->keyBy('page');
+
+        $previous = (clone $previousPageMetrics)
+            ->selectRaw('page, SUM(clicks) as clicks, SUM(impressions) as impressions, AVG(ctr) as ctr, AVG(position) as position')
+            ->whereNotNull('page')
+            ->groupBy('page')
+            ->get()
+            ->keyBy('page');
+
+        $comparison = $current
+            ->map(function ($row, $page) use ($previous) {
+                $prev = $previous->get($page);
+                $previousImpressions = (int) ($prev->impressions ?? 0);
+                $currentImpressions = (int) ($row->impressions ?? 0);
+                $deltaImpressions = $currentImpressions - $previousImpressions;
+                $previousPosition = (float) ($prev->position ?? 0);
+                $currentPosition = (float) ($row->position ?? 0);
+
+                return (object) [
+                    'page' => $page,
+                    'clicks' => (int) $row->clicks,
+                    'impressions' => $currentImpressions,
+                    'ctr' => (float) $row->ctr,
+                    'position' => $currentPosition,
+                    'previous_impressions' => $previousImpressions,
+                    'previous_position' => $previousPosition,
+                    'delta_impressions' => $deltaImpressions,
+                    'delta_position' => $previousPosition > 0 ? $currentPosition - $previousPosition : null,
+                ];
+            })
+            ->values();
+
+        $fallingPages = $comparison
+            ->filter(fn ($row) => $row->previous_impressions >= 10 && $row->delta_impressions <= -10)
+            ->sortBy('delta_impressions')
+            ->take(10)
+            ->values();
+
+        $risingPages = $comparison
+            ->filter(fn ($row) => $row->delta_impressions >= 10)
+            ->sortByDesc('delta_impressions')
+            ->take(10)
+            ->values();
+
+        $newOpportunityPages = $comparison
+            ->filter(function ($row) {
+                return $row->previous_impressions === 0
+                    && $row->impressions >= 10
+                    && ($row->clicks === 0 || $row->ctr < 0.03)
+                    && $row->position >= 4
+                    && $row->position <= 15;
+            })
+            ->sortByDesc('impressions')
+            ->take(10)
+            ->values();
+
+        return [$fallingPages, $risingPages, $newOpportunityPages];
     }
 }

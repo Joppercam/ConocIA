@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
+        $searchConsoleConfigured = fn () => filled(config('services.search_console.site_url'))
+            && (
+                filled(config('services.search_console.oauth_refresh_token'))
+                || filled(config('services.search_console.private_key'))
+            );
+
         // Gemini Search Grounding — 1 noticia por hora (evita timeout)
         $schedule->command('news:fetch-gemini --all --count=1 --days=1')
             ->hourly()
@@ -114,5 +120,18 @@ return Application::configure(basePath: dirname(__DIR__))
             ->dailyAt('08:30')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/briefing.log'));
+
+        // Search Console — sync y auditoría diaria
+        $schedule->command('seo:sync-search-console --days=28')
+            ->dailyAt('06:35')
+            ->withoutOverlapping()
+            ->when($searchConsoleConfigured)
+            ->appendOutputTo(storage_path('logs/search-console-sync.log'));
+
+        $schedule->command('seo:audit-search-console --days=28')
+            ->dailyAt('06:45')
+            ->withoutOverlapping()
+            ->when($searchConsoleConfigured)
+            ->appendOutputTo(storage_path('logs/search-console-audit.log'));
     })
     ->create();
