@@ -721,6 +721,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('chile.*') ? 'active' : '' }}"
+                               href="{{ route('chile.index') }}"
+                               aria-current="{{ request()->routeIs('chile.*') ? 'page' : 'false' }}">
+                               <i class="fas fa-flag me-1 d-lg-none"></i>IA en Chile
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('research.*') ? 'active' : '' }}"
                                href="{{ route('research.index') }}"
                                aria-current="{{ request()->routeIs('research.*') ? 'page' : 'false' }}">
@@ -926,6 +933,7 @@
                     <ul class="list-unstyled mb-0" style="font-size:.82rem;">
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Inicio</a></li>
                         <li class="mb-2"><a href="{{ route('news.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Noticias</a></li>
+                        <li class="mb-2"><a href="{{ route('chile.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>IA en Chile</a></li>
                         <li class="mb-2"><a href="{{ route('columns.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Columnas</a></li>
                         <li class="mb-2"><a href="{{ route('startups.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Startups IA</a></li>
                         <li class="mb-2"><a href="{{ route('news.archive', date('Y')) }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Archivo</a></li>

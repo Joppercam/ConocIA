@@ -6,6 +6,9 @@ use App\Models\News;
 use App\Models\NewsHistoric;
 use App\Models\Tag;
 use App\Models\Category;
+use App\Models\Event;
+use App\Models\Research;
+use App\Models\Startup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
@@ -59,6 +62,71 @@ class NewsController extends Controller
             'mostReadArticles' => $this->sidebarMostRead(),
             'popularTags'      => $this->sidebarPopularTags(),
             'trendingIds'      => $this->trendingIds(),
+        ]);
+    }
+
+    public function chile()
+    {
+        $category = Cache::remember('category_ia_en_chile', 3600, function () {
+            return Category::firstOrCreate(
+                ['slug' => 'ia-en-chile'],
+                [
+                    'name' => 'IA en Chile',
+                    'description' => 'Investigación, startups, universidades, regulación y ecosistema de inteligencia artificial en Chile.',
+                    'is_active' => true,
+                ]
+            );
+        });
+
+        $news = News::query()
+            ->where('category_id', $category->id)
+            ->where('status', 'published')
+            ->with(['category', 'author'])
+            ->latest('published_at')
+            ->paginate(10);
+
+        $featuredArticle = $news->getCollection()->first();
+        $latestResearch = Research::published()
+            ->where(function ($query) {
+                $query->where('title', 'like', '%Chile%')
+                    ->orWhere('summary', 'like', '%Chile%')
+                    ->orWhere('excerpt', 'like', '%Chile%')
+                    ->orWhere('institution', 'like', '%Chile%');
+            })
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        $chileStartups = Startup::active()
+            ->where(function ($query) {
+                $query->where('country', 'Chile')
+                    ->orWhere('country', 'CL');
+            })
+            ->latest('created_at')
+            ->take(3)
+            ->get();
+
+        $upcomingEvents = Event::active()
+            ->where(function ($query) {
+                $query->where('location', 'like', '%Chile%')
+                    ->orWhere('location', 'like', '%Santiago%');
+            })
+            ->upcoming()
+            ->orderBy('start_date')
+            ->take(3)
+            ->get();
+
+        return view('news.chile', [
+            'category' => $category,
+            'news' => $news,
+            'featuredArticle' => $featuredArticle,
+            'latestResearch' => $latestResearch,
+            'chileStartups' => $chileStartups,
+            'upcomingEvents' => $upcomingEvents,
+            'categories' => $this->sidebarCategories(),
+            'mostReadArticles' => $this->sidebarMostRead(),
+            'popularTags' => $this->sidebarPopularTags(),
+            'trendingIds' => $this->trendingIds(),
         ]);
     }
 

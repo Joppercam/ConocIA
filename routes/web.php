@@ -228,6 +228,7 @@ Route::get('/startups/{startup:slug}', [\App\Http\Controllers\StartupController:
 
 // Rutas para noticias
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+Route::get('/ia-en-chile', [NewsController::class, 'chile'])->name('chile.index');
 Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/news/category/{slug}', [NewsController::class, 'category'])->name('news.category');
 Route::get('/category/{slug}', [NewsController::class, 'byCategory'])->name('news.by.category');
