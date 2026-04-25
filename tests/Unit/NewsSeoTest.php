@@ -40,4 +40,17 @@ class NewsSeoTest extends TestCase
         $this->assertStringStartsWith('Una guia practica para entender diferencias', $description);
         $this->assertLessThanOrEqual(155, mb_strlen($description));
     }
+
+    public function test_seo_slug_suggestion_builds_clean_slug(): void
+    {
+        $this->assertSame(
+            'guia-completa-para-integrar-chatgpt-con-apple',
+            News::seoSlugSuggestion('Guía completa para integrar ChatGPT con Apple')
+        );
+    }
+
+    public function test_seo_title_suggestion_handles_blank_values(): void
+    {
+        $this->assertSame('ConocIA', News::seoTitleSuggestion(''));
+    }
 }

@@ -172,7 +172,12 @@ class News extends Model implements Feedable
 
     public function seoTitle(): string
     {
-        $title = trim((string) $this->title);
+        return static::seoTitleSuggestion($this->title);
+    }
+
+    public static function seoTitleSuggestion(?string $title): string
+    {
+        $title = trim((string) $title);
         $brandSuffix = ' | ConocIA';
 
         if ($title === '') {
@@ -192,14 +197,19 @@ class News extends Model implements Feedable
 
     public function seoDescription(): string
     {
+        return static::seoDescriptionSuggestion($this->summary, $this->excerpt, $this->content);
+    }
+
+    public static function seoDescriptionSuggestion(?string $summary, ?string $excerpt = null, ?string $content = null): string
+    {
         $candidates = [
-            $this->summary,
-            $this->excerpt,
-            strip_tags((string) $this->content),
+            $summary,
+            $excerpt,
+            strip_tags((string) $content),
         ];
 
         foreach ($candidates as $candidate) {
-            $clean = $this->cleanSeoText($candidate);
+            $clean = static::cleanSeoText($candidate);
 
             if (Str::length($clean) >= 80) {
                 return Str::limit($clean, 155, '...');
@@ -207,7 +217,7 @@ class News extends Model implements Feedable
         }
 
         foreach ($candidates as $candidate) {
-            $clean = $this->cleanSeoText($candidate);
+            $clean = static::cleanSeoText($candidate);
 
             if ($clean !== '') {
                 return Str::limit($clean, 155, '...');
@@ -217,7 +227,12 @@ class News extends Model implements Feedable
         return 'Noticias y análisis sobre inteligencia artificial y tecnología en ConocIA.';
     }
 
-    private function cleanSeoText(?string $value): string
+    public static function seoSlugSuggestion(?string $title): string
+    {
+        return Str::limit(Str::slug((string) $title), 80, '');
+    }
+
+    private static function cleanSeoText(?string $value): string
     {
         $clean = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)) ?? '');
 

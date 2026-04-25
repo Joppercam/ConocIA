@@ -74,25 +74,7 @@
                     </div>
                     
                     <div class="col-md-4">
-                        <!-- Estado -->
-                        <div class="card mb-3">
-                            <div class="card-header">Salud SEO</div>
-                            <div class="card-body">
-                                <div class="small text-muted mb-3">Guía rápida para mejorar CTR en Google desde esta noticia.</div>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span>Título SEO</span>
-                                    <span class="badge bg-secondary" id="seo-title-status">0</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span>Slug</span>
-                                    <span class="badge bg-secondary" id="seo-slug-status">0</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>Resumen / description</span>
-                                    <span class="badge bg-secondary" id="seo-summary-status">0</span>
-                                </div>
-                            </div>
-                        </div>
+                        @include('admin.news.partials.seo-assistant', ['news' => $news])
 
                         <div class="card mb-3">
                             <div class="card-header">Estado</div>
@@ -207,50 +189,6 @@
             tokenSeparators: [',', ' ']
         });
     });
-    
-    // Generar slug automáticamente si el campo está vacío
-    const titleInput = document.getElementById('title');
-    const slugInput = document.getElementById('slug');
-    
-    // Solo actualizar el slug si está vacío o si no se ha tocado aún
-    let slugEdited = false;
-    
-    slugInput.addEventListener('input', function() {
-        slugEdited = true;
-    });
-    
-    titleInput.addEventListener('keyup', function() {
-        if (!slugEdited) {
-            const title = this.value;
-            const slug = title.toLowerCase()
-                             .replace(/[^\w ]+/g, '')
-                             .replace(/ +/g, '-');
-            slugInput.value = slug;
-        }
-        updateSeoIndicators();
-    });
-
-    slugInput.addEventListener('input', updateSeoIndicators);
-    document.getElementById('summary').addEventListener('input', updateSeoIndicators);
-
-    function updateSeoIndicators() {
-        const titleLength = titleInput.value.trim().length;
-        const slugLength = slugInput.value.trim().length;
-        const summaryLength = document.getElementById('summary').value.trim().length;
-
-        document.getElementById('summary-count').textContent = summaryLength;
-        setIndicator('seo-title-status', titleLength, titleLength >= 30 && titleLength <= 60);
-        setIndicator('seo-slug-status', slugLength, slugLength >= 12 && slugLength <= 80);
-        setIndicator('seo-summary-status', summaryLength, summaryLength >= 110 && summaryLength <= 155);
-    }
-
-    function setIndicator(id, value, isGood) {
-        const el = document.getElementById(id);
-        el.textContent = value;
-        el.className = 'badge ' + (isGood ? 'bg-success' : 'bg-warning text-dark');
-    }
-
-    updateSeoIndicators();
     
     // Vista previa de imagen
     document.getElementById('featured_image').addEventListener('change', function() {
