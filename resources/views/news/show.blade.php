@@ -15,6 +15,10 @@ $metaDescription = method_exists($article, 'seoDescription')
     : ($article->summary ?? $article->excerpt ?? substr(strip_tags($article->content), 0, 160));
 $metaKeywords = is_object($article->category) ? $article->category->name : 'noticias, tecnología, IA';
 
+if (!empty($article->keywords)) {
+    $metaKeywords .= ', ' . $article->keywords;
+}
+
 // Agregar tags si existen
 if(isset($article->tags) && is_countable($article->tags) && count($article->tags) > 0) {
     $tagNames = is_string($article->tags)
