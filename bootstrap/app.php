@@ -142,5 +142,11 @@ return Application::configure(basePath: dirname(__DIR__))
             ->everyFourHours()
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/editorial-agent.log'));
+
+        // Agente editorial creador — deja borradores pendientes, no publica
+        $schedule->command('editorial-agent:auto-create-content')
+            ->everyThirtyMinutes()
+            ->withoutOverlapping(25)
+            ->appendOutputTo(storage_path('logs/editorial-agent-auto-content.log'));
     })
     ->create();

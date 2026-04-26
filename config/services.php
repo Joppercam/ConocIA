@@ -112,4 +112,19 @@ return [
         'scope' => env('GOOGLE_SEARCH_CONSOLE_SCOPE', 'https://www.googleapis.com/auth/webmasters.readonly'),
     ],
 
+    'editorial_agent' => [
+        'auto_news_enabled' => env('EDITORIAL_AGENT_AUTO_NEWS_ENABLED', true),
+        'auto_news_daily_limit' => env('EDITORIAL_AGENT_AUTO_NEWS_DAILY_LIMIT', 3),
+        'auto_news_max_pending' => env('EDITORIAL_AGENT_AUTO_NEWS_MAX_PENDING', 6),
+        'auto_news_days' => env('EDITORIAL_AGENT_AUTO_NEWS_DAYS', 2),
+        'auto_news_topics' => [
+            ['topic' => 'noticias recientes de inteligencia artificial con impacto empresarial', 'category' => 'inteligencia-artificial', 'priority' => 'high'],
+            ['topic' => 'inteligencia artificial en Chile, regulación, educación, empresas o sector público', 'category' => 'regulacion-de-ia', 'priority' => 'high'],
+            ['topic' => 'nuevos modelos de IA, agentes, asistentes o avances en IA generativa', 'category' => 'ia-generativa', 'priority' => 'high'],
+            ['topic' => 'papers o investigaciones universitarias recientes sobre inteligencia artificial aplicada', 'category' => 'investigacion', 'priority' => 'medium'],
+            ['topic' => 'startups de inteligencia artificial con financiamiento, producto o adopción relevante', 'category' => 'startups-de-ia', 'priority' => 'medium'],
+            ['topic' => 'inteligencia artificial en salud, medicina, hospitales o descubrimiento de fármacos', 'category' => 'ia-en-salud', 'priority' => 'medium'],
+        ],
+    ],
+
 ];
