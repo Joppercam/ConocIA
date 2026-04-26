@@ -88,6 +88,76 @@
             <span class="badge bg-primary">{{ $latestVisits->count() }} eventos</span>
         </div>
         <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded p-3 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Eventos</div>
+                        <div class="h5 mb-0">{{ number_format($visitSummary['total'] ?? 0) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded p-3 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Humanos</div>
+                        <div class="h5 mb-0 text-success">{{ number_format($visitSummary['humans'] ?? 0) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded p-3 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Bots</div>
+                        <div class="h5 mb-0 text-secondary">{{ number_format($visitSummary['bots'] ?? 0) }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="border rounded p-3 h-100">
+                        <div class="text-muted small text-uppercase fw-bold">Páginas únicas</div>
+                        <div class="h5 mb-0">{{ number_format($visitSummary['unique_pages'] ?? 0) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <form action="{{ route('admin.analytics.news') }}" method="GET" class="row g-2 align-items-end mb-3">
+                <input type="hidden" name="start_date" value="{{ $startDate }}">
+                <input type="hidden" name="end_date" value="{{ $endDate }}">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Audiencia</label>
+                    <select name="visit_audience" class="form-select form-select-sm">
+                        <option value="all" {{ $visitAudience === 'all' ? 'selected' : '' }}>Todos</option>
+                        <option value="humans" {{ $visitAudience === 'humans' ? 'selected' : '' }}>Solo humanos</option>
+                        <option value="bots" {{ $visitAudience === 'bots' ? 'selected' : '' }}>Solo bots</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Sección</label>
+                    <select name="visit_type" class="form-select form-select-sm">
+                        <option value="all" {{ $visitType === 'all' ? 'selected' : '' }}>Todo el portal</option>
+                        <option value="noticia" {{ $visitType === 'noticia' ? 'selected' : '' }}>Noticias</option>
+                        <option value="columna" {{ $visitType === 'columna' ? 'selected' : '' }}>Columnas</option>
+                        <option value="paper" {{ $visitType === 'paper' ? 'selected' : '' }}>Papers</option>
+                        <option value="concepto" {{ $visitType === 'concepto' ? 'selected' : '' }}>Conceptos IA</option>
+                        <option value="analisis" {{ $visitType === 'analisis' ? 'selected' : '' }}>Análisis</option>
+                        <option value="estado_del_arte" {{ $visitType === 'estado_del_arte' ? 'selected' : '' }}>Estado del Arte</option>
+                        <option value="startup" {{ $visitType === 'startup' ? 'selected' : '' }}>Startups</option>
+                        <option value="investigacion" {{ $visitType === 'investigacion' ? 'selected' : '' }}>Investigación</option>
+                        <option value="video" {{ $visitType === 'video' ? 'selected' : '' }}>Videos</option>
+                        <option value="pagina" {{ $visitType === 'pagina' ? 'selected' : '' }}>Páginas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-sm btn-primary">Filtrar lecturas</button>
+                    <a href="{{ route('admin.analytics.news', ['start_date' => $startDate, 'end_date' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+                </div>
+                <div class="col-md-3">
+                    @if(($visitSummary['top_channels'] ?? collect())->count() > 0)
+                        <div class="small text-muted mb-1">Canales principales</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach(($visitSummary['top_channels'] ?? collect())->take(3) as $channel)
+                                <span class="badge bg-light text-dark border">{{ $channel->channel }}: {{ number_format($channel->count) }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </form>
+
             @if($latestVisits->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle mb-0">
@@ -96,6 +166,7 @@
                                 <th style="width:120px;">Hora</th>
                                 <th style="width:130px;">Sección</th>
                                 <th>Lectura / Página</th>
+                                <th style="width:120px;">Canal</th>
                                 <th style="width:150px;">Origen</th>
                                 <th style="width:110px;">Visitante</th>
                             </tr>
@@ -120,6 +191,9 @@
                                             {{ \Illuminate\Support\Str::limit($visit->title ?? $visit->url, 95) }}
                                         </a>
                                         <div class="text-muted small">{{ \Illuminate\Support\Str::limit(parse_url($visit->url, PHP_URL_PATH) ?: $visit->url, 100) }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">{{ $visit->channel_label }}</span>
                                     </td>
                                     <td>
                                         <span class="text-muted">{{ $visit->referrer_label }}</span>

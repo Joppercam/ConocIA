@@ -145,6 +145,8 @@ class DashboardController extends Controller
         [$startDate, $endDate] = $this->resolveAnalyticsRange($request);
         [$previousStartDate, $previousEndDate] = $this->resolvePreviousAnalyticsRange($startDate, $endDate);
         $selectedPreset = $this->resolveAnalyticsPreset($request);
+        $visitAudience = $this->resolveVisitAudience($request);
+        $visitType = $this->resolveVisitType($request);
 
         $summary = $this->buildAnalyticsSummary($startDate, $endDate);
         $dailyViews = $this->buildDailyViews($startDate, $endDate);
@@ -153,7 +155,8 @@ class DashboardController extends Controller
         $topNews = $this->buildTopNews($startDate, $endDate, $previousStartDate, $previousEndDate, 15);
         $topCategories = $this->buildTopCategories($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
         $topAuthors = $this->buildTopAuthors($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
-        $latestVisits = $this->buildLatestSiteVisits($startDate, $endDate, 40);
+        $visitSummary = $this->buildSiteVisitSummary($startDate, $endDate);
+        $latestVisits = $this->buildLatestSiteVisits($startDate, $endDate, 40, $visitAudience, $visitType);
 
         return view('admin.analytics.news', compact(
             'startDate',
@@ -168,6 +171,9 @@ class DashboardController extends Controller
             'topNews',
             'topCategories',
             'topAuthors',
+            'visitAudience',
+            'visitType',
+            'visitSummary',
             'latestVisits'
         ));
     }
@@ -225,6 +231,33 @@ class DashboardController extends Controller
         $allowedPresets = ['today', 'last_7_days', 'last_30_days', 'current_month', 'previous_month'];
 
         return in_array($preset, $allowedPresets, true) ? $preset : null;
+    }
+
+    private function resolveVisitAudience(Request $request): string
+    {
+        $audience = $request->string('visit_audience')->toString();
+
+        return in_array($audience, ['all', 'humans', 'bots'], true) ? $audience : 'all';
+    }
+
+    private function resolveVisitType(Request $request): string
+    {
+        $type = $request->string('visit_type')->toString();
+        $allowed = [
+            'all',
+            'noticia',
+            'columna',
+            'paper',
+            'concepto',
+            'analisis',
+            'estado_del_arte',
+            'startup',
+            'investigacion',
+            'video',
+            'pagina',
+        ];
+
+        return in_array($type, $allowed, true) ? $type : 'all';
     }
 
     private function resolvePresetDates(string $preset): array
@@ -469,13 +502,13 @@ class DashboardController extends Controller
             ->values();
     }
 
-    private function buildLatestSiteVisits(string $startDate, string $endDate, int $limit)
+    private function buildLatestSiteVisits(string $startDate, string $endDate, int $limit, string $audience = 'all', string $type = 'all')
     {
         if (!Schema::hasTable('site_visit_events')) {
             return collect();
         }
 
-        return DB::table('site_visit_events')
+        return $this->siteVisitBaseQuery($startDate, $endDate)
             ->select([
                 'id',
                 'content_type',
@@ -489,20 +522,64 @@ class DashboardController extends Controller
                 'is_bot',
                 'viewed_at',
             ])
-            ->whereBetween('viewed_at', [
-                Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay(),
-            ])
+            ->when($audience === 'humans', fn($query) => $query->where('is_bot', false))
+            ->when($audience === 'bots', fn($query) => $query->where('is_bot', true))
+            ->when($type !== 'all', fn($query) => $query->where('content_type', $type))
             ->orderByDesc('viewed_at')
             ->limit($limit)
             ->get()
             ->map(function ($visit) {
                 $visit->section_label = $this->visitSectionLabel((string) $visit->content_type);
                 $visit->referrer_label = $this->referrerLabel($visit->referrer);
+                $visit->channel_label = $this->channelLabel($visit->referrer, (bool) $visit->is_bot);
                 $visit->visitor_label = $visit->ip_hash ? Str::substr($visit->ip_hash, 0, 8) : 'sin-ip';
 
                 return $visit;
             });
+    }
+
+    private function buildSiteVisitSummary(string $startDate, string $endDate): array
+    {
+        if (!Schema::hasTable('site_visit_events')) {
+            return [
+                'total' => 0,
+                'humans' => 0,
+                'bots' => 0,
+                'unique_pages' => 0,
+                'top_channels' => collect(),
+            ];
+        }
+
+        $base = $this->siteVisitBaseQuery($startDate, $endDate);
+
+        $rows = (clone $base)
+            ->select(['referrer', 'is_bot'])
+            ->get();
+
+        $topChannels = $rows
+            ->map(fn($row) => $this->channelLabel($row->referrer, (bool) $row->is_bot))
+            ->countBy()
+            ->sortDesc()
+            ->take(5)
+            ->map(fn($count, $channel) => (object) ['channel' => $channel, 'count' => $count])
+            ->values();
+
+        return [
+            'total' => (int) (clone $base)->count(),
+            'humans' => (int) (clone $base)->where('is_bot', false)->count(),
+            'bots' => (int) (clone $base)->where('is_bot', true)->count(),
+            'unique_pages' => (int) (clone $base)->distinct('url')->count('url'),
+            'top_channels' => $topChannels,
+        ];
+    }
+
+    private function siteVisitBaseQuery(string $startDate, string $endDate)
+    {
+        return DB::table('site_visit_events')
+            ->whereBetween('viewed_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay(),
+            ]);
     }
 
     private function visitSectionLabel(string $type): string
@@ -538,6 +615,45 @@ class DashboardController extends Controller
             ->replace('www.', '')
             ->limit(32)
             ->toString();
+    }
+
+    private function channelLabel(?string $referrer, bool $isBot): string
+    {
+        if ($isBot) {
+            return 'Bot / crawler';
+        }
+
+        if (!$referrer) {
+            return 'Directo';
+        }
+
+        $host = Str::lower((string) parse_url($referrer, PHP_URL_HOST));
+
+        if ($host === '') {
+            return 'Referido';
+        }
+
+        if (Str::contains($host, ['conocia.cl'])) {
+            return 'Interno';
+        }
+
+        if (Str::contains($host, ['google.', 'bing.', 'duckduckgo.', 'yahoo.', 'ecosia.'])) {
+            return 'Buscador';
+        }
+
+        if (Str::contains($host, ['linkedin.', 'lnkd.in'])) {
+            return 'LinkedIn';
+        }
+
+        if (Str::contains($host, ['twitter.', 'x.com', 't.co'])) {
+            return 'X';
+        }
+
+        if (Str::contains($host, ['facebook.', 'instagram.', 'threads.'])) {
+            return 'Meta';
+        }
+
+        return 'Referido';
     }
 
     private function resolveStrategicSection(string $title, string $slug, string $categorySlug): string
