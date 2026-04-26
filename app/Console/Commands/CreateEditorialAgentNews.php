@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Category;
 use App\Models\EditorialAgentTask;
+use App\Models\News;
 use App\Services\GeminiQuotaGuard;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -51,6 +53,13 @@ class CreateEditorialAgentNews extends Command
 
         $categorySlug = (string) $this->option('category');
         $days = max(1, (int) $this->option('days'));
+        $dedupeKey = 'create_news:' . sha1(Str::lower($topic) . '|' . now()->format('Y-m-d'));
+
+        if (EditorialAgentTask::where('dedupe_key', $dedupeKey)->exists()) {
+            $this->warn('Ya existe una tarea para este tema hoy. No se consumen tokens.');
+
+            return self::SUCCESS;
+        }
 
         $this->info("Buscando fuentes para: {$topic}");
         $draft = $this->createDraftWithGemini($topic, $categorySlug, $days, $apiKey, $guard);
@@ -62,7 +71,41 @@ class CreateEditorialAgentNews extends Command
         }
 
         $category = Category::where('slug', $categorySlug)->first();
-        $dedupeKey = 'create_news:' . sha1(Str::lower($topic) . '|' . now()->format('Y-m-d'));
+        $autoPublish = $this->shouldAutoPublish($topic, $categorySlug);
+
+        if ($autoPublish) {
+            $news = $this->publishNews($draft, $categorySlug);
+
+            $task = EditorialAgentTask::create([
+                'dedupe_key' => $dedupeKey,
+                'task_type' => 'published_review',
+                'priority' => (string) $this->option('priority'),
+                'status' => 'pending',
+                'title' => 'Revisar publicación automática: ' . $news->title,
+                'summary' => $draft['excerpt'] ?? $draft['summary'] ?? null,
+                'suggested_action' => 'Revisar enfoque, fuentes, SEO, imagen y copy social. Si algo no calza, editar o despublicar.',
+                'content_type' => 'noticia',
+                'content_id' => $news->id,
+                'content_url' => route('admin.news.edit', $news),
+                'source_urls' => collect($draft['sources'] ?? [])->pluck('url')->filter()->values()->all(),
+                'payload' => [
+                    'topic' => $topic,
+                    'category_slug' => $categorySlug,
+                    'category_id' => $news->category_id,
+                    'news_id' => $news->id,
+                    'public_url' => route('news.show', $news),
+                    'news_draft' => $draft,
+                    'auto_published' => true,
+                    'generated_at' => now()->toDateTimeString(),
+                ],
+            ]);
+
+            $this->info("Noticia publicada por agente: #{$news->id}");
+            $this->line(route('news.show', $news));
+            $this->info("Tarea de revisión creada: #{$task->id}");
+
+            return self::SUCCESS;
+        }
 
         $task = EditorialAgentTask::firstOrCreate(
             ['dedupe_key' => $dedupeKey],
@@ -92,6 +135,140 @@ class CreateEditorialAgentNews extends Command
         $this->line(route('admin.editorial-agent.show', $task));
 
         return self::SUCCESS;
+    }
+
+    private function shouldAutoPublish(string $topic, string $categorySlug): bool
+    {
+        if (!config('services.editorial_agent.auto_publish', false)) {
+            return false;
+        }
+
+        if ($this->isSensitiveTopic($topic, $categorySlug)
+            && !config('services.editorial_agent.auto_publish_sensitive', false)) {
+            $this->info('Tema sensible detectado. Se deja como borrador pendiente.');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isSensitiveTopic(string $topic, string $categorySlug): bool
+    {
+        $haystack = Str::lower($topic . ' ' . $categorySlug);
+
+        foreach (config('services.editorial_agent.sensitive_terms', []) as $term) {
+            if (Str::contains($haystack, Str::lower($term))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function publishNews(array $draft, string $categorySlug): News
+    {
+        $category = Category::firstOrCreate(
+            ['slug' => $categorySlug],
+            [
+                'name' => Str::headline(str_replace('-', ' ', $categorySlug)),
+                'description' => 'Contenido generado por el agente editorial de ConocIA',
+                'color' => '4285F4',
+                'icon' => 'fa-brain',
+            ]
+        );
+
+        $content = (string) $draft['content'];
+
+        $payload = [
+            'title' => $draft['title'],
+            'slug' => $this->uniqueNewsSlug($draft['slug'] ?? $draft['title']),
+            'excerpt' => $draft['excerpt'] ?? Str::limit(strip_tags($content), 220),
+            'content' => $content,
+            'category_id' => $category->id,
+            'views' => 0,
+            'featured' => false,
+        ];
+
+        $optionalColumns = [
+            'summary' => $draft['summary'] ?? null,
+            'keywords' => $draft['keywords'] ?? null,
+            'user_id' => $this->editorId(),
+            'author_id' => $this->editorId(),
+            'status' => 'published',
+            'source' => $draft['source'] ?? 'ConocIA',
+            'source_url' => $draft['source_url'] ?? collect($draft['sources'] ?? [])->pluck('url')->filter()->first(),
+            'reading_time' => max(1, (int) ceil(str_word_count(strip_tags($content)) / 200)),
+            'published_at' => now(),
+        ];
+
+        foreach ($optionalColumns as $column => $value) {
+            if (Schema::hasColumn('news', $column)) {
+                $payload[$column] = $value;
+            }
+        }
+
+        $news = News::create($payload);
+
+        $forceFill = [];
+
+        if (Schema::hasColumn('news', 'is_published')) {
+            $forceFill['is_published'] = true;
+        }
+
+        if (Schema::hasColumn('news', 'author')) {
+            $forceFill['author'] = 'Editor';
+        }
+
+        if (!empty($forceFill)) {
+            $news->forceFill($forceFill)->save();
+        }
+
+        return $news;
+    }
+
+    private function editorId(): ?int
+    {
+        if (!Schema::hasTable('users')) {
+            return null;
+        }
+
+        $roleIds = Schema::hasTable('roles')
+            ? DB::table('roles')->whereIn('slug', ['editor', 'admin'])->pluck('id')
+            : collect();
+
+        $query = DB::table('users');
+
+        if ($roleIds->isNotEmpty() && Schema::hasColumn('users', 'role_id')) {
+            $query->whereIn('role_id', $roleIds);
+        }
+
+        $editorId = (clone $query)
+            ->where(function ($query) {
+                $query->where('email', 'editor@conocia.com')
+                    ->orWhere('username', 'editor')
+                    ->orWhere('name', 'Editor');
+            })
+            ->orderByRaw("CASE WHEN email = 'editor@conocia.com' THEN 0 ELSE 1 END")
+            ->value('id');
+
+        $fallbackId = (clone $query)->orderBy('id')->value('id');
+
+        return $editorId ? (int) $editorId : ($fallbackId ? (int) $fallbackId : null);
+    }
+
+    private function uniqueNewsSlug(string $value): string
+    {
+        $base = Str::slug($value) ?: 'noticia-agente-editorial';
+        $slug = $base;
+        $counter = 2;
+
+        while (News::where('slug', $slug)->exists()) {
+            $slug = "{$base}-{$counter}";
+            $counter++;
+        }
+
+        return $slug;
     }
 
     private function createDraftWithGemini(

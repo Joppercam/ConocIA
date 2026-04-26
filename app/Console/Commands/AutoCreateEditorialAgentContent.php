@@ -37,7 +37,7 @@ class AutoCreateEditorialAgentContent extends Command
         $maxPending = (int) config('services.editorial_agent.auto_news_max_pending', 6);
 
         $createdToday = EditorialAgentTask::query()
-            ->where('task_type', 'news_draft')
+            ->whereIn('task_type', ['news_draft', 'published_review'])
             ->whereDate('created_at', now()->toDateString())
             ->count();
 
@@ -48,7 +48,7 @@ class AutoCreateEditorialAgentContent extends Command
         }
 
         $pendingDrafts = EditorialAgentTask::query()
-            ->where('task_type', 'news_draft')
+            ->whereIn('task_type', ['news_draft', 'published_review'])
             ->where('status', 'pending')
             ->count();
 

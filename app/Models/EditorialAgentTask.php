@@ -57,6 +57,7 @@ class EditorialAgentTask extends Model
             'content_push' => 'Impulsar contenido',
             'news_draft' => 'Borrador de noticia',
             'news_request' => 'Solicitud de noticia',
+            'published_review' => 'Revisión post-publicación',
             'content_idea' => 'Idea editorial',
             'seo_opportunity' => 'Oportunidad SEO',
             'social_copy' => 'Copy redes',
