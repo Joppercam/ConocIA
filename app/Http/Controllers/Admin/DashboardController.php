@@ -156,6 +156,8 @@ class DashboardController extends Controller
         $topCategories = $this->buildTopCategories($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
         $topAuthors = $this->buildTopAuthors($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
         $visitSummary = $this->buildSiteVisitSummary($startDate, $endDate);
+        $humanTopPages = $this->buildHumanTopPages($startDate, $endDate, 10);
+        $humanTopChannels = $this->buildHumanTopChannels($startDate, $endDate, 8);
         $latestVisits = $this->buildLatestSiteVisits($startDate, $endDate, 40, $visitAudience, $visitType);
 
         return view('admin.analytics.news', compact(
@@ -174,6 +176,8 @@ class DashboardController extends Controller
             'visitAudience',
             'visitType',
             'visitSummary',
+            'humanTopPages',
+            'humanTopChannels',
             'latestVisits'
         ));
     }
@@ -571,6 +575,52 @@ class DashboardController extends Controller
             'unique_pages' => (int) (clone $base)->distinct('url')->count('url'),
             'top_channels' => $topChannels,
         ];
+    }
+
+    private function buildHumanTopPages(string $startDate, string $endDate, int $limit)
+    {
+        if (!Schema::hasTable('site_visit_events')) {
+            return collect();
+        }
+
+        return $this->siteVisitBaseQuery($startDate, $endDate)
+            ->where('is_bot', false)
+            ->selectRaw('
+                COALESCE(content_type, ?) as content_type,
+                COALESCE(title, url) as title,
+                url,
+                COUNT(*) as human_views,
+                COUNT(DISTINCT ip_hash) as unique_visitors,
+                MAX(viewed_at) as last_viewed_at
+            ', ['pagina'])
+            ->groupBy('content_type', 'title', 'url')
+            ->orderByDesc('human_views')
+            ->orderByDesc('last_viewed_at')
+            ->limit($limit)
+            ->get()
+            ->map(function ($page) {
+                $page->section_label = $this->visitSectionLabel((string) $page->content_type);
+
+                return $page;
+            });
+    }
+
+    private function buildHumanTopChannels(string $startDate, string $endDate, int $limit)
+    {
+        if (!Schema::hasTable('site_visit_events')) {
+            return collect();
+        }
+
+        return $this->siteVisitBaseQuery($startDate, $endDate)
+            ->where('is_bot', false)
+            ->select(['referrer'])
+            ->get()
+            ->map(fn($row) => $this->channelLabel($row->referrer, false))
+            ->countBy()
+            ->sortDesc()
+            ->take($limit)
+            ->map(fn($count, $channel) => (object) ['channel' => $channel, 'count' => $count])
+            ->values();
     }
 
     private function siteVisitBaseQuery(string $startDate, string $endDate)

@@ -158,6 +158,71 @@
                 </div>
             </form>
 
+            <div class="row g-3 mb-4">
+                <div class="col-lg-8">
+                    <div class="border rounded h-100">
+                        <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-primary">Top páginas humanas</div>
+                                <div class="text-muted small">Qué contenido sí está recibiendo lectura real en el período.</div>
+                            </div>
+                            <span class="badge bg-success">{{ $humanTopPages->count() }}</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Contenido</th>
+                                        <th style="width:90px;">Sección</th>
+                                        <th style="width:90px;">Lecturas</th>
+                                        <th style="width:95px;">Visitantes</th>
+                                        <th style="width:110px;">Última</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($humanTopPages as $page)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ $page->url }}" target="_blank" rel="noopener" class="fw-semibold">
+                                                    {{ \Illuminate\Support\Str::limit($page->title, 72) }}
+                                                </a>
+                                                <div class="text-muted small">{{ \Illuminate\Support\Str::limit(parse_url($page->url, PHP_URL_PATH) ?: $page->url, 78) }}</div>
+                                            </td>
+                                            <td><span class="badge bg-light text-dark border">{{ $page->section_label }}</span></td>
+                                            <td>{{ number_format($page->human_views) }}</td>
+                                            <td>{{ number_format($page->unique_visitors) }}</td>
+                                            <td class="text-muted small">{{ \Carbon\Carbon::parse($page->last_viewed_at)->diffForHumans() }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">Aún no hay lecturas humanas en este rango.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="border rounded h-100">
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-primary">Canales humanos</div>
+                            <div class="text-muted small">De dónde llegan las visitas no bot.</div>
+                        </div>
+                        <div class="p-3">
+                            @forelse($humanTopChannels as $channel)
+                                <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
+                                    <span>{{ $channel->channel }}</span>
+                                    <span class="badge bg-light text-dark border">{{ number_format($channel->count) }}</span>
+                                </div>
+                            @empty
+                                <p class="text-muted text-center mb-0">Sin canales humanos todavía.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @if($latestVisits->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle mb-0">
