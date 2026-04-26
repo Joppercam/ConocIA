@@ -102,7 +102,9 @@ class HomeController extends Controller
             'latestConceptos',
             'latestAnalises',
             'latestPapers',
+            'featuredPaper',
             'latestDigests',
+            'profundizaMeta',
             'startupOfWeek',
             'recentStartups',
             'chileNews'
@@ -303,6 +305,14 @@ class HomeController extends Controller
                 ->get()
         );
 
+        $featuredPaper = Cache::remember('home_featured_paper', 300,
+            fn() => ConocIaPaper::published()
+                ->featured()
+                ->orderByDesc('published_at')
+                ->orderByDesc('arxiv_published_date')
+                ->first()
+        );
+
         $latestDigests = Cache::remember('home_latest_digests', 300,
             fn() => EstadoArte::published()->orderByDesc('week_start')->take(3)->get()
         );
@@ -314,7 +324,7 @@ class HomeController extends Controller
             'digests' => $this->profundizaSectionMeta(EstadoArte::published(), $latestDigests, 'week_start'),
         ];
 
-        return compact('latestConceptos', 'latestAnalises', 'latestPapers', 'latestDigests', 'profundizaMeta');
+        return compact('latestConceptos', 'latestAnalises', 'latestPapers', 'featuredPaper', 'latestDigests', 'profundizaMeta');
     }
 
     private function profundizaSectionMeta($query, $items, string $dateField): array

@@ -261,6 +261,9 @@
     {{-- ═══ INVESTIGACIÓN SPOTLIGHT ═══ --}}
     @include('partials.research-spotlight')
 
+    {{-- ═══ PAPER DESTACADO ═══ --}}
+    @include('partials.featured-paper-strip')
+
     <!-- ═══ NOTICIAS ═══ -->
     <section class="py-3 border-top">
         <div class="container">
