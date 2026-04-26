@@ -384,6 +384,8 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
 
         Route::prefix('agente-editorial')->name('editorial-agent.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'index'])->name('index');
+            Route::get('/solicitar-noticia', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'createNews'])->name('create-news');
+            Route::post('/solicitar-noticia', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'storeNewsRequest'])->name('store-news-request');
             Route::get('/{task}', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'show'])->name('show');
             Route::patch('/{task}/aprobar', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'approve'])->name('approve');
             Route::patch('/{task}/ejecutar', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'complete'])->name('complete');

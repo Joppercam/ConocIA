@@ -55,6 +55,8 @@ class EditorialAgentTask extends Model
     {
         return match ($this->task_type) {
             'content_push' => 'Impulsar contenido',
+            'news_draft' => 'Borrador de noticia',
+            'news_request' => 'Solicitud de noticia',
             'content_idea' => 'Idea editorial',
             'seo_opportunity' => 'Oportunidad SEO',
             'social_copy' => 'Copy redes',

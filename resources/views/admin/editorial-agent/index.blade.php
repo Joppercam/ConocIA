@@ -8,21 +8,24 @@
             <h1 class="h3 mb-1">Agente Editorial</h1>
             <p class="text-muted mb-0">Propuestas generadas para revisar, aprobar y ejecutar con control editorial.</p>
         </div>
-        <form action="{{ route('admin.editorial-agent.index') }}" method="GET" class="d-flex gap-2">
-            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="pending" @selected($status === 'pending')>Pendientes</option>
-                <option value="approved" @selected($status === 'approved')>Aprobadas</option>
-                <option value="completed" @selected($status === 'completed')>Ejecutadas</option>
-                <option value="rejected" @selected($status === 'rejected')>Descartadas</option>
-                <option value="all" @selected($status === 'all')>Todas</option>
-            </select>
-            <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="">Todos los tipos</option>
-                @foreach($types as $type)
-                    <option value="{{ $type }}" @selected(request('type') === $type)>{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
-                @endforeach
-            </select>
-        </form>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('admin.editorial-agent.create-news') }}" class="btn btn-primary btn-sm">Solicitar noticia</a>
+            <form action="{{ route('admin.editorial-agent.index') }}" method="GET" class="d-flex gap-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="pending" @selected($status === 'pending')>Pendientes</option>
+                    <option value="approved" @selected($status === 'approved')>Aprobadas</option>
+                    <option value="completed" @selected($status === 'completed')>Ejecutadas</option>
+                    <option value="rejected" @selected($status === 'rejected')>Descartadas</option>
+                    <option value="all" @selected($status === 'all')>Todas</option>
+                </select>
+                <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Todos los tipos</option>
+                    @foreach($types as $type)
+                        <option value="{{ $type }}" @selected(request('type') === $type)>{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
     </div>
 
     @if(isset($tableReady) && !$tableReady)

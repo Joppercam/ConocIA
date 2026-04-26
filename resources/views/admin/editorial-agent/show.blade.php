@@ -31,6 +31,49 @@
                 </div>
             </div>
 
+            @if(($task->payload['news_draft'] ?? null) && is_array($task->payload['news_draft']))
+                @php($draft = $task->payload['news_draft'])
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="h5">Borrador propuesto</h2>
+                        <div class="mb-3">
+                            <div class="text-muted small text-uppercase fw-bold">Título</div>
+                            <div class="fw-semibold">{{ $draft['title'] ?? 'Sin título' }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="text-muted small text-uppercase fw-bold">Bajada SEO</div>
+                            <p class="mb-0">{{ $draft['excerpt'] ?? 'Sin bajada' }}</p>
+                        </div>
+                        @if(!empty($draft['sources']))
+                            <div class="mb-3">
+                                <div class="text-muted small text-uppercase fw-bold">Fuentes</div>
+                                @foreach($draft['sources'] as $source)
+                                    @if(!empty($source['url']))
+                                        <div><a href="{{ $source['url'] }}" target="_blank" rel="noopener">{{ $source['title'] ?? $source['url'] }}</a></div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                        @if(!empty($draft['linkedin']) || !empty($draft['x']))
+                            <div class="row g-3">
+                                @if(!empty($draft['linkedin']))
+                                    <div class="col-md-6">
+                                        <div class="text-muted small text-uppercase fw-bold">LinkedIn</div>
+                                        <div class="border rounded p-3 bg-light small">{{ $draft['linkedin'] }}</div>
+                                    </div>
+                                @endif
+                                @if(!empty($draft['x']))
+                                    <div class="col-md-6">
+                                        <div class="text-muted small text-uppercase fw-bold">X</div>
+                                        <div class="border rounded p-3 bg-light small">{{ $draft['x'] }}</div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             @if($task->payload || $task->source_urls)
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
@@ -72,7 +115,9 @@
                             @csrf
                             @method('PATCH')
                             <textarea name="review_notes" class="form-control form-control-sm mb-2" rows="2" placeholder="Nota opcional"></textarea>
-                            <button class="btn btn-success w-100">Aprobar</button>
+                            <button class="btn btn-success w-100">
+                                {{ $task->task_type === 'news_draft' ? 'Aprobar y crear borrador' : 'Aprobar' }}
+                            </button>
                         </form>
                         <form action="{{ route('admin.editorial-agent.reject', $task) }}" method="POST">
                             @csrf
