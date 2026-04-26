@@ -108,7 +108,9 @@
                                         </a>
                                     </td>
                                     <td>{{ $article->category->name ?? 'Sin categoría' }}</td>
-                                    <td>{{ $article->author->name ?? 'Sin autor' }}</td>
+                                    <td>
+                                        {{ is_object($article->author) ? ($article->author->name ?? 'Sin autor') : ($article->author ?: 'Sin autor') }}
+                                    </td>
                                     <td class="text-center">{{ number_format($article->views) }}</td>
                                     <td class="text-center">
                                         {{ number_format($article->recent_views ?? 0) }}

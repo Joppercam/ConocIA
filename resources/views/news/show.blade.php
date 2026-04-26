@@ -39,7 +39,13 @@ if (!empty($article->image) && !str_contains($article->image, 'default') && !str
 
 $metaType = 'article';
 $metaUrl = route('news.show', $article->slug ?? $article->id);
-$metaAuthor = is_object($article->author) ? $article->author->name : ($article->author ?? 'ConocIA');
+$articleAuthorName = is_object($article->author)
+    ? ($article->author->name ?? 'ConocIA')
+    : ($article->author ?: 'ConocIA');
+$articleAuthorAvatar = is_object($article->author)
+    ? ($article->author->avatar ?? null)
+    : null;
+$metaAuthor = $articleAuthorName;
 $metaPublished = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
 $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() : null;
 $contentLooksIncomplete = news_content_looks_incomplete($article->content ?? null);
@@ -114,9 +120,9 @@ $articleSummary = $article->summary ?: $article->excerpt;
                 
                 <!-- Autor y fecha -->
                 <div class="d-flex align-items-center text-muted small mb-3">
-                    <img src="{{ $article->author->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($article->author) . '&background=random' }}" 
-                        class="rounded-circle me-2" width="24" height="24" alt="{{ $article->author }}">
-                    <span>Por {{ $article->author }}</span>
+                    <img src="{{ $articleAuthorAvatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($articleAuthorName) . '&background=random' }}" 
+                        class="rounded-circle me-2" width="24" height="24" alt="{{ $articleAuthorName }}">
+                    <span>Por {{ $articleAuthorName }}</span>
                     <span class="mx-2">•</span>
                     <span><i class="far fa-calendar-alt me-1"></i> {{ $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}</span>
                     <span class="mx-2">•</span>

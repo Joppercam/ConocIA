@@ -1,6 +1,12 @@
 @extends('admin.layouts.app')
 @section('title', 'Noticias')
 
+@php
+    $authorName = is_object($news->author)
+        ? ($news->author->name ?? 'Sin autor')
+        : ($news->author ?: 'Sin autor');
+@endphp
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">
@@ -110,7 +116,7 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Autor:</span>
-                            <span>{{ $news->author->name ?? 'Sin autor' }}</span>
+                            <span>{{ $authorName }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Creado:</span>

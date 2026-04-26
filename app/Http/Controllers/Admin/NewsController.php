@@ -270,7 +270,9 @@ class NewsController extends Controller
                     $article->slug,
                     $article->summary,
                     $article->category->name ?? 'Sin categoría',
-                    $article->author->name ?? 'Sin autor',
+                    is_object($article->author)
+                        ? ($article->author->name ?? 'Sin autor')
+                        : ($article->author ?: 'Sin autor'),
                     $article->status,
                     $article->published_at,
                     $article->created_at,
