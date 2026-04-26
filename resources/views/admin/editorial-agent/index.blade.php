@@ -10,6 +10,7 @@
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('admin.editorial-agent.create-news') }}" class="btn btn-primary btn-sm">Solicitar noticia</a>
+            <a href="{{ route('admin.editorial-agent.logs') }}" class="btn btn-outline-secondary btn-sm">Ver bitácora</a>
             <form action="{{ route('admin.editorial-agent.index') }}" method="GET" class="d-flex gap-2">
                 <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="pending" @selected($status === 'pending')>Pendientes</option>

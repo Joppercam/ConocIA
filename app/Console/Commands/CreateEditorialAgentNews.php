@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\EditorialAgentTask;
 use App\Models\News;
 use App\Services\GeminiQuotaGuard;
+use App\Support\EditorialAgentLogger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -26,6 +27,7 @@ class CreateEditorialAgentNews extends Command
     {
         if (!Schema::hasTable('editorial_agent_tasks')) {
             $this->error('La tabla editorial_agent_tasks no existe. Ejecuta migraciones primero.');
+            EditorialAgentLogger::error('missing_tasks_table', 'La tabla editorial_agent_tasks no existe.');
 
             return self::FAILURE;
         }
@@ -33,6 +35,7 @@ class CreateEditorialAgentNews extends Command
         $apiKey = config('services.gemini.api_key');
         if (blank($apiKey)) {
             $this->error('GEMINI_API_KEY no está configurada.');
+            EditorialAgentLogger::error('missing_gemini_key', 'GEMINI_API_KEY no está configurada.');
 
             return self::FAILURE;
         }
@@ -40,6 +43,7 @@ class CreateEditorialAgentNews extends Command
         $topic = trim((string) $this->option('topic'));
         if ($topic === '') {
             $this->error('Debes indicar --topic="tema de la noticia".');
+            EditorialAgentLogger::warning('missing_topic', 'Se intentó crear noticia sin topic.');
 
             return self::FAILURE;
         }
@@ -47,6 +51,10 @@ class CreateEditorialAgentNews extends Command
         $guard = app(GeminiQuotaGuard::class);
         if (!$guard->canCall('high')) {
             $this->warn('Gemini sin cuota suficiente. ' . $guard->summary());
+            EditorialAgentLogger::warning('quota_blocked', 'Gemini sin cuota suficiente.', [
+                'topic' => $topic,
+                'quota' => $guard->summary(),
+            ]);
 
             return self::SUCCESS;
         }
@@ -57,15 +65,28 @@ class CreateEditorialAgentNews extends Command
 
         if (EditorialAgentTask::where('dedupe_key', $dedupeKey)->exists()) {
             $this->warn('Ya existe una tarea para este tema hoy. No se consumen tokens.');
+            EditorialAgentLogger::info('duplicate_skipped', 'Ya existe una tarea para este tema hoy. No se consumen tokens.', [
+                'topic' => $topic,
+                'category' => $categorySlug,
+            ]);
 
             return self::SUCCESS;
         }
 
         $this->info("Buscando fuentes para: {$topic}");
+        EditorialAgentLogger::info('create_news_started', 'Buscando fuentes para crear noticia.', [
+            'topic' => $topic,
+            'category' => $categorySlug,
+            'days' => $days,
+        ]);
         $draft = $this->createDraftWithGemini($topic, $categorySlug, $days, $apiKey, $guard);
 
         if (!$draft) {
             $this->error('No se pudo generar una propuesta confiable.');
+            EditorialAgentLogger::error('draft_failed', 'No se pudo generar una propuesta confiable.', [
+                'topic' => $topic,
+                'category' => $categorySlug,
+            ]);
 
             return self::FAILURE;
         }
@@ -103,6 +124,14 @@ class CreateEditorialAgentNews extends Command
             $this->info("Noticia publicada por agente: #{$news->id}");
             $this->line(route('news.show', $news));
             $this->info("Tarea de revisión creada: #{$task->id}");
+            EditorialAgentLogger::info('news_auto_published', 'Noticia publicada automáticamente por el agente.', [
+                'task_id' => $task->id,
+                'content_id' => $news->id,
+                'content_type' => 'noticia',
+                'title' => $news->title,
+                'public_url' => route('news.show', $news),
+                'topic' => $topic,
+            ]);
 
             return self::SUCCESS;
         }
@@ -133,6 +162,12 @@ class CreateEditorialAgentNews extends Command
 
         $this->info("Propuesta creada: #{$task->id}");
         $this->line(route('admin.editorial-agent.show', $task));
+        EditorialAgentLogger::info('news_draft_created', 'Borrador de noticia creado para revisión.', [
+            'task_id' => $task->id,
+            'topic' => $topic,
+            'category' => $categorySlug,
+            'title' => $draft['title'],
+        ]);
 
         return self::SUCCESS;
     }
@@ -146,6 +181,10 @@ class CreateEditorialAgentNews extends Command
         if ($this->isSensitiveTopic($topic, $categorySlug)
             && !config('services.editorial_agent.auto_publish_sensitive', false)) {
             $this->info('Tema sensible detectado. Se deja como borrador pendiente.');
+            EditorialAgentLogger::info('sensitive_topic_blocked', 'Tema sensible detectado. Se deja como borrador pendiente.', [
+                'topic' => $topic,
+                'category' => $categorySlug,
+            ]);
 
             return false;
         }

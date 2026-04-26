@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\EditorialAgentTask;
+use App\Models\EditorialAgentLog;
 use App\Models\News;
+use App\Support\EditorialAgentLogger;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -56,6 +58,40 @@ class EditorialAgentController extends Controller
         return view('admin.editorial-agent.show', compact('task'));
     }
 
+    public function logs(Request $request)
+    {
+        if (!Schema::hasTable('editorial_agent_logs')) {
+            return view('admin.editorial-agent.logs', [
+                'logs' => new LengthAwarePaginator([], 0, 30),
+                'levels' => collect(),
+                'events' => collect(),
+                'tableReady' => false,
+            ]);
+        }
+
+        if (!Schema::hasTable('editorial_agent_tasks')) {
+            return view('admin.editorial-agent.logs', [
+                'logs' => EditorialAgentLog::query()->latest('occurred_at')->paginate(30)->withQueryString(),
+                'levels' => EditorialAgentLog::query()->select('level')->distinct()->orderBy('level')->pluck('level'),
+                'events' => EditorialAgentLog::query()->select('event')->distinct()->orderBy('event')->pluck('event'),
+                'tableReady' => true,
+            ]);
+        }
+
+        $logs = EditorialAgentLog::query()
+            ->with('task')
+            ->when($request->filled('level'), fn($query) => $query->where('level', $request->input('level')))
+            ->when($request->filled('event'), fn($query) => $query->where('event', $request->input('event')))
+            ->latest('occurred_at')
+            ->paginate(30)
+            ->withQueryString();
+
+        $levels = EditorialAgentLog::query()->select('level')->distinct()->orderBy('level')->pluck('level');
+        $events = EditorialAgentLog::query()->select('event')->distinct()->orderBy('event')->pluck('event');
+
+        return view('admin.editorial-agent.logs', compact('logs', 'levels', 'events') + ['tableReady' => true]);
+    }
+
     public function approve(Request $request, EditorialAgentTask $task)
     {
         $createdNews = null;
@@ -78,8 +114,20 @@ class EditorialAgentController extends Controller
         ]);
 
         if ($createdNews) {
+            EditorialAgentLogger::info('news_draft_approved', 'Propuesta aprobada y convertida en noticia borrador.', [
+                'task_id' => $task->id,
+                'content_id' => $createdNews->id,
+                'content_type' => 'noticia',
+                'title' => $createdNews->title,
+            ]);
+
             return redirect()->route('admin.news.edit', $createdNews)->with('success', 'Propuesta aprobada y convertida en noticia borrador.');
         }
+
+        EditorialAgentLogger::info('task_approved', 'Propuesta aprobada por editor.', [
+            'task_id' => $task->id,
+            'task_type' => $task->task_type,
+        ]);
 
         return redirect()->route('admin.editorial-agent.index')->with('success', 'Propuesta aprobada. Quedó lista para ejecutar.');
     }
@@ -93,6 +141,11 @@ class EditorialAgentController extends Controller
             'review_notes' => $request->input('review_notes', $task->review_notes),
         ]);
 
+        EditorialAgentLogger::info('task_completed', 'Tarea marcada como ejecutada.', [
+            'task_id' => $task->id,
+            'task_type' => $task->task_type,
+        ]);
+
         return redirect()->route('admin.editorial-agent.index', ['status' => 'approved'])->with('success', 'Tarea marcada como ejecutada.');
     }
 
@@ -103,6 +156,11 @@ class EditorialAgentController extends Controller
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
             'review_notes' => $request->input('review_notes'),
+        ]);
+
+        EditorialAgentLogger::info('task_rejected', 'Propuesta descartada por editor.', [
+            'task_id' => $task->id,
+            'task_type' => $task->task_type,
         ]);
 
         return redirect()->route('admin.editorial-agent.index')->with('success', 'Propuesta descartada.');
@@ -126,7 +184,7 @@ class EditorialAgentController extends Controller
 
         $dedupeKey = 'news_request:' . sha1(Str::lower($data['topic']) . '|' . now()->format('Y-m-d-H'));
 
-        EditorialAgentTask::firstOrCreate(
+        $task = EditorialAgentTask::firstOrCreate(
             ['dedupe_key' => $dedupeKey],
             [
                 'task_type' => 'news_request',
@@ -147,6 +205,12 @@ class EditorialAgentController extends Controller
                 ],
             ]
         );
+
+        EditorialAgentLogger::info('news_request_created', 'Solicitud manual de noticia creada.', [
+            'task_id' => $task->id,
+            'topic' => $data['topic'],
+            'category' => $data['category_slug'] ?: 'inteligencia-artificial',
+        ]);
 
         return redirect()->route('admin.editorial-agent.index')->with('success', 'Solicitud creada. El agente ya la muestra como pendiente.');
     }

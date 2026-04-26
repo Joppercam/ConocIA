@@ -222,7 +222,9 @@
                     </a>
                 </li>
                 <li class="{{ request()->routeIs('admin.editorial-agent.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.editorial-agent.index') }}">
+                    <a href="#agentSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.editorial-agent.*') ? 'true' : 'false' }}"
+                       class="dropdown-toggle">
                         <i class="fas fa-wand-magic-sparkles"></i> Agente Editorial
                         @if(isset($pendingAutoPublishedCount) && $pendingAutoPublishedCount > 0)
                             <span class="badge bg-warning text-dark float-end">{{ $pendingAutoPublishedCount }}</span>
@@ -230,6 +232,11 @@
                             <span class="badge bg-danger float-end">{{ $pendingEditorialAgentCount }}</span>
                         @endif
                     </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.editorial-agent.*') ? 'show' : '' }}" id="agentSubmenu">
+                        <li><a href="{{ route('admin.editorial-agent.index') }}">Pendientes</a></li>
+                        <li><a href="{{ route('admin.editorial-agent.create-news') }}">Solicitar noticia</a></li>
+                        <li><a href="{{ route('admin.editorial-agent.logs') }}">Bitácora</a></li>
+                    </ul>
                 </li>
                 <li class="{{ request()->routeIs('admin.seo.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.seo.search-console') }}">
