@@ -32,6 +32,10 @@
             transition: all 0.3s;
             min-height: 100vh;
         }
+
+        .admin-mobile-overlay {
+            display: none;
+        }
         
         .sidebar.minimized {
             width: 80px;
@@ -115,15 +119,50 @@
         
         /* Mobile */
         @media (max-width: 768px) {
+            body.admin-menu-open {
+                overflow: hidden;
+            }
+
+            .admin-container {
+                display: block;
+            }
+
             .sidebar {
                 margin-left: -250px;
                 position: fixed;
-                z-index: 1000;
-                height: 100%;
+                z-index: 1050;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                box-shadow: 0 0 28px rgba(0,0,0,.35);
             }
             
             .sidebar.active {
                 margin-left: 0;
+            }
+
+            .sidebar .sidebar-header {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .sidebar .sidebar-header h3 {
+                font-size: 1.05rem;
+                margin: 0;
+            }
+
+            .sidebar ul.components {
+                padding: 8px 0 20px;
+            }
+
+            .sidebar ul li.sidebar-section {
+                padding: 14px 20px 6px;
             }
             
             .content {
@@ -133,6 +172,25 @@
             .content.expanded {
                 margin-left: 0;
             }
+
+            .main-content {
+                padding: 16px 12px !important;
+            }
+
+            .navbar .dropdown-toggle {
+                max-width: 190px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .admin-mobile-overlay.active {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, .55);
+                z-index: 1040;
+            }
         }
     </style>
     
@@ -140,12 +198,14 @@
 </head>
 <body>
     <div class="admin-container">
+        <div id="adminMobileOverlay" class="admin-mobile-overlay"></div>
+
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <h3>Admin Panel</h3>
                 <button type="button" id="sidebarCollapse" class="btn btn-sm d-md-none">
-                    <i class="fas fa-bars"></i>
+                    <i class="fas fa-times text-white"></i>
                 </button>
             </div>
 
@@ -322,6 +382,10 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
                 
                 <div class="container-fluid">
+                    <button type="button" id="sidebarCollapseMobile" class="btn d-md-none me-2" aria-label="Abrir menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
                     <button type="button" id="sidebarCollapseDesktop" class="btn d-none d-md-block">
                         <i class="fas fa-bars"></i>
                     </button>
@@ -469,12 +533,34 @@
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarToggle = document.getElementById('sidebarCollapse');
             const desktopToggle = document.getElementById('sidebarCollapseDesktop');
+            const mobileToggle = document.getElementById('sidebarCollapseMobile');
+            const mobileOverlay = document.getElementById('adminMobileOverlay');
             const sidebar = document.getElementById('sidebar');
             const content = document.getElementById('content');
 
+            function setMobileMenu(open) {
+                sidebar.classList.toggle('active', open);
+                if (mobileOverlay) {
+                    mobileOverlay.classList.toggle('active', open);
+                }
+                document.body.classList.toggle('admin-menu-open', open);
+            }
+
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
+                    setMobileMenu(false);
+                });
+            }
+
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    setMobileMenu(true);
+                });
+            }
+
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', function() {
+                    setMobileMenu(false);
                 });
             }
 
@@ -484,6 +570,14 @@
                     content.classList.toggle('expanded');
                 });
             }
+
+            sidebar.querySelectorAll('a[href]:not([data-bs-toggle="collapse"])').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        setMobileMenu(false);
+                    }
+                });
+            });
         });
     </script>
     
