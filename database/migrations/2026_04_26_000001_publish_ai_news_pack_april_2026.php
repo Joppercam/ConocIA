@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 return new class extends Migration
@@ -35,32 +36,43 @@ return new class extends Migration
     {
         $now = Carbon::now();
 
+        $editorId = $this->editorId();
+
         foreach ($this->newsItems() as $item) {
             $categoryId = $this->categoryId($item['category'], $now);
+            $payload = [
+                'title' => $item['title'],
+                'excerpt' => $item['excerpt'],
+                'summary' => $item['summary'],
+                'keywords' => $item['keywords'],
+                'content' => $item['content'],
+                'image' => null,
+                'category_id' => $categoryId,
+                'author' => 'Editor',
+                'views' => 0,
+                'tags' => $item['tags'],
+                'featured' => false,
+                'is_published' => true,
+                'status' => 'published',
+                'source' => $item['source'],
+                'source_url' => $item['source_url'],
+                'published_at' => $now,
+                'reading_time' => $this->readingTime($item['content']),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            if ($editorId !== null && Schema::hasColumn('news', 'author_id')) {
+                $payload['author_id'] = $editorId;
+            }
+
+            if ($editorId !== null && Schema::hasColumn('news', 'user_id')) {
+                $payload['user_id'] = $editorId;
+            }
 
             DB::table('news')->updateOrInsert(
                 ['slug' => $item['slug']],
-                [
-                    'title' => $item['title'],
-                    'excerpt' => $item['excerpt'],
-                    'summary' => $item['summary'],
-                    'keywords' => $item['keywords'],
-                    'content' => $item['content'],
-                    'image' => null,
-                    'category_id' => $categoryId,
-                    'author' => 'Equipo ConocIA',
-                    'views' => 0,
-                    'tags' => $item['tags'],
-                    'featured' => false,
-                    'is_published' => true,
-                    'status' => 'published',
-                    'source' => $item['source'],
-                    'source_url' => $item['source_url'],
-                    'published_at' => $now,
-                    'reading_time' => $this->readingTime($item['content']),
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
+                $payload
             );
         }
 
@@ -110,6 +122,34 @@ return new class extends Migration
             'created_at' => $now,
             'updated_at' => $now,
         ]);
+    }
+
+    private function editorId(): ?int
+    {
+        $roleIds = DB::table('roles')
+            ->whereIn('slug', ['editor', 'admin'])
+            ->pluck('id');
+
+        $editorId = DB::table('users')
+            ->whereIn('role_id', $roleIds)
+            ->where(function ($query) {
+                $query->where('email', 'editor@conocia.com')
+                    ->orWhere('username', 'editor')
+                    ->orWhere('name', 'Editor');
+            })
+            ->orderByRaw("CASE WHEN email = 'editor@conocia.com' THEN 0 ELSE 1 END")
+            ->value('id');
+
+        if ($editorId) {
+            return (int) $editorId;
+        }
+
+        $fallbackId = DB::table('users')
+            ->whereIn('role_id', $roleIds)
+            ->orderBy('id')
+            ->value('id');
+
+        return $fallbackId ? (int) $fallbackId : null;
     }
 
     private function readingTime(string $content): int
