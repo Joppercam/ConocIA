@@ -11,7 +11,7 @@
                         <i class="fas fa-file-alt" style="color:var(--primary-color);font-size:1rem;"></i>
                     </div>
                     <div>
-                        <div class="text-uppercase fw-bold" style="color:var(--primary-color);font-size:.68rem;letter-spacing:.08em;">Investigación</div>
+                        <div class="text-uppercase fw-bold" style="color:var(--primary-color);font-size:.68rem;letter-spacing:.08em;">Papers</div>
                         <div class="fw-semibold text-white" style="font-size:.9rem;line-height:1.15;">Paper destacado</div>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                     <a href="{{ $paperUrl }}"
                        class="btn btn-sm rounded-pill fw-semibold px-3"
                        style="background:var(--primary-color);color:#fff;font-size:.78rem;white-space:nowrap;">
-                        Leer investigación <i class="fas fa-arrow-right ms-1"></i>
+                        Leer paper <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
