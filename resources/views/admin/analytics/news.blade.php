@@ -223,6 +223,51 @@
                 </div>
             </div>
 
+            <div class="border rounded mb-4">
+                <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-primary">Para empujar u optimizar</div>
+                        <div class="text-muted small">Contenido publicado sin lecturas humanas registradas en este período.</div>
+                    </div>
+                    <span class="badge bg-warning text-dark">{{ $contentWithoutHumanViews->count() }}</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Contenido</th>
+                                <th style="width:120px;">Sección</th>
+                                <th style="width:130px;">Publicado</th>
+                                <th style="width:120px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($contentWithoutHumanViews as $item)
+                                <tr>
+                                    <td>
+                                        <a href="{{ $item->url }}" target="_blank" rel="noopener" class="fw-semibold">
+                                            {{ \Illuminate\Support\Str::limit($item->title, 95) }}
+                                        </a>
+                                        <div class="text-muted small">{{ \Illuminate\Support\Str::limit(parse_url($item->url, PHP_URL_PATH) ?: $item->url, 100) }}</div>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">{{ $item->section_label }}</span></td>
+                                    <td class="text-muted small">
+                                        {{ $item->published_at ? \Carbon\Carbon::parse($item->published_at)->diffForHumans() : 'Sin fecha' }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">Republicar</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">Todo el contenido revisado tiene al menos una lectura humana en este rango.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             @if($latestVisits->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle mb-0">

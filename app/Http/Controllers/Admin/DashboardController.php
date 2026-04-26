@@ -158,6 +158,7 @@ class DashboardController extends Controller
         $visitSummary = $this->buildSiteVisitSummary($startDate, $endDate);
         $humanTopPages = $this->buildHumanTopPages($startDate, $endDate, 10);
         $humanTopChannels = $this->buildHumanTopChannels($startDate, $endDate, 8);
+        $contentWithoutHumanViews = $this->buildContentWithoutHumanViews($startDate, $endDate, 12);
         $latestVisits = $this->buildLatestSiteVisits($startDate, $endDate, 40, $visitAudience, $visitType);
 
         return view('admin.analytics.news', compact(
@@ -178,6 +179,7 @@ class DashboardController extends Controller
             'visitSummary',
             'humanTopPages',
             'humanTopChannels',
+            'contentWithoutHumanViews',
             'latestVisits'
         ));
     }
@@ -621,6 +623,80 @@ class DashboardController extends Controller
             ->take($limit)
             ->map(fn($count, $channel) => (object) ['channel' => $channel, 'count' => $count])
             ->values();
+    }
+
+    private function buildContentWithoutHumanViews(string $startDate, string $endDate, int $limit)
+    {
+        if (!Schema::hasTable('site_visit_events')) {
+            return collect();
+        }
+
+        $visited = DB::table('site_visit_events')
+            ->where('is_bot', false)
+            ->whereNotNull('content_type')
+            ->whereNotNull('content_id')
+            ->whereBetween('viewed_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay(),
+            ])
+            ->selectRaw('content_type, content_id')
+            ->distinct();
+
+        $items = collect()
+            ->concat($this->unreadContentQuery('news', 'noticia', 'title', 'slug', 'published_at', 'status', 'published', 'news.show', $visited))
+            ->concat($this->unreadContentQuery('columns', 'columna', 'title', 'slug', 'published_at', null, null, 'columns.show', $visited))
+            ->concat($this->unreadContentQuery('conocia_papers', 'paper', 'title', 'slug', 'published_at', 'status', 'published', 'papers.show', $visited))
+            ->concat($this->unreadContentQuery('conceptos_ia', 'concepto', 'title', 'slug', 'published_at', 'status', 'published', 'conceptos.show', $visited))
+            ->concat($this->unreadContentQuery('analisis_fondo', 'analisis', 'title', 'slug', 'published_at', 'status', 'published', 'analisis.show', $visited))
+            ->concat($this->unreadContentQuery('startups', 'startup', 'name', 'slug', 'updated_at', 'active', 1, 'startups.show', $visited));
+
+        return $items
+            ->sortByDesc('published_at')
+            ->take($limit)
+            ->values();
+    }
+
+    private function unreadContentQuery(
+        string $table,
+        string $type,
+        string $titleColumn,
+        string $slugColumn,
+        string $dateColumn,
+        ?string $statusColumn,
+        mixed $statusValue,
+        string $routeName,
+        $visitedSubquery
+    ) {
+        if (!Schema::hasTable($table)) {
+            return collect();
+        }
+
+        $query = DB::table($table)
+            ->leftJoinSub(clone $visitedSubquery, 'human_visits', function ($join) use ($table, $type) {
+                $join->on("{$table}.id", '=', 'human_visits.content_id')
+                    ->where('human_visits.content_type', '=', $type);
+            })
+            ->whereNull('human_visits.content_id')
+            ->select([
+                "{$table}.id",
+                "{$table}.{$titleColumn} as title",
+                "{$table}.{$slugColumn} as slug",
+                "{$table}.{$dateColumn} as published_at",
+            ])
+            ->selectRaw('? as content_type', [$type])
+            ->orderByDesc("{$table}.{$dateColumn}")
+            ->limit(8);
+
+        if ($statusColumn !== null) {
+            $query->where("{$table}.{$statusColumn}", $statusValue);
+        }
+
+        return $query->get()->map(function ($item) use ($routeName, $type) {
+            $item->section_label = $this->visitSectionLabel($type);
+            $item->url = route($routeName, $item->slug);
+
+            return $item;
+        });
     }
 
     private function siteVisitBaseQuery(string $startDate, string $endDate)
