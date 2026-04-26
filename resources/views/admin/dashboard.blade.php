@@ -19,6 +19,18 @@
         </a>
     </div>
 
+    @if(isset($pendingAutoPublishedCount) && $pendingAutoPublishedCount > 0)
+        <div class="alert alert-warning shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <div>
+                <strong>{{ $pendingAutoPublishedCount }} publicación automática pendiente de revisión.</strong>
+                <span class="d-block d-md-inline">El agente ya publicó contenido; conviene revisar fuentes, SEO, imagen y enfoque.</span>
+            </div>
+            <a href="{{ route('admin.editorial-agent.index', ['type' => 'published_review']) }}" class="btn btn-sm btn-dark">
+                Revisar ahora
+            </a>
+        </div>
+    @endif
+
     <!-- Tarjetas de estadísticas -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">

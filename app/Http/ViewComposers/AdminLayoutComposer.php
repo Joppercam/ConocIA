@@ -40,6 +40,16 @@ class AdminLayoutComposer
                     'pendingEditorialAgentTasks' => $hasEditorialAgentTable
                         ? EditorialAgentTask::where('status', 'pending')->latest()->take(3)->get()
                         : collect(),
+                    'pendingAutoPublishedCount' => $hasEditorialAgentTable
+                        ? EditorialAgentTask::where('status', 'pending')->where('task_type', 'published_review')->count()
+                        : 0,
+                    'pendingAutoPublishedTasks' => $hasEditorialAgentTable
+                        ? EditorialAgentTask::where('status', 'pending')
+                            ->where('task_type', 'published_review')
+                            ->latest()
+                            ->take(5)
+                            ->get()
+                        : collect(),
                     'pendingGuestPostCount' => GuestPost::pending()->count(),
                     'pendingCommentsCount' => Comment::pending()->count(),
                 ];
@@ -50,6 +60,8 @@ class AdminLayoutComposer
                     'pendingTikTokScriptsCount' => 0,
                     'pendingEditorialAgentCount' => 0,
                     'pendingEditorialAgentTasks' => collect(),
+                    'pendingAutoPublishedCount' => 0,
+                    'pendingAutoPublishedTasks' => collect(),
                     'pendingGuestPostCount' => 0,
                     'pendingCommentsCount' => 0,
                 ];
