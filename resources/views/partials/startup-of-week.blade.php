@@ -4,6 +4,8 @@
     $sectorLabels = \App\Models\Startup::sectorLabels();
     $startupUrl = route('startups.show', $s);
     $shareTitle = $s->name . ': ' . ($s->tagline ?: 'startup de IA destacada en ConocIA');
+    $weekStart = now()->startOfWeek()->locale('es');
+    $weekEnd = now()->endOfWeek()->locale('es');
 @endphp
 <div style="background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:3px solid #00c896;">
     <div class="container py-4">
@@ -17,7 +19,7 @@
                     Startup<br>de la semana
                 </span>
                 <span style="color:#94a3b8;font-size:.65rem;text-align:center;">
-                    {{ now()->startOfWeek()->format('d M') }}<br>– {{ now()->endOfWeek()->format('d M') }}
+                    {{ $weekStart->isoFormat('D MMM') }}<br>- {{ $weekEnd->isoFormat('D MMM') }}
                 </span>
             </div>
 

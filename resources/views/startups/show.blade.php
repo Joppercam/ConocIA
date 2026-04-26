@@ -102,7 +102,7 @@
                         @endif
                         @if($startup->last_funding_date)
                         <dt class="text-muted" style="font-size:.8rem;">Última ronda</dt>
-                        <dd class="mb-2">{{ $startup->last_funding_date->format('M Y') }}</dd>
+                        <dd class="mb-2">{{ $startup->last_funding_date->locale('es')->isoFormat('MMM YYYY') }}</dd>
                         @endif
                         @if($startup->founded_year)
                         <dt class="text-muted" style="font-size:.8rem;">Fundada en</dt>
