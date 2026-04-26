@@ -295,7 +295,12 @@ class HomeController extends Controller
         );
 
         $latestPapers = Cache::remember('home_latest_papers', 300,
-            fn() => ConocIaPaper::published()->orderByDesc('arxiv_published_date')->take(3)->get()
+            fn() => ConocIaPaper::published()
+                ->orderByDesc('featured')
+                ->orderByDesc('published_at')
+                ->orderByDesc('arxiv_published_date')
+                ->take(3)
+                ->get()
         );
 
         $latestDigests = Cache::remember('home_latest_digests', 300,
