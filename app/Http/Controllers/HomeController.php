@@ -47,6 +47,15 @@ class HomeController extends Controller
 
         extract($viewData);
 
+        $featuredPaper = $featuredPaper ?? Cache::remember('home_featured_paper', 300,
+            fn() => ConocIaPaper::published()
+                ->featured()
+                ->orderByDesc('published_at')
+                ->orderByDesc('arxiv_published_date')
+                ->first()
+        );
+        $profundizaMeta = $profundizaMeta ?? [];
+
         $recentNews     = $recentNews->shuffle();
         $featuredVideos  = $this->fetchFeaturedVideos();
         $startupOfWeek = Cache::remember('startup_of_week', 3600, fn() =>
