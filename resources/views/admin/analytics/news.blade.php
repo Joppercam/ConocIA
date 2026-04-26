@@ -81,6 +81,65 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="m-0 font-weight-bold text-primary">Últimas Lecturas del Portal</h6>
+                <div class="text-muted small mt-1">Incluye visitas públicas a noticias, columnas, papers, conceptos, análisis, startups, videos y páginas generales.</div>
+            </div>
+            <span class="badge bg-primary">{{ $latestVisits->count() }} eventos</span>
+        </div>
+        <div class="card-body">
+            @if($latestVisits->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:120px;">Hora</th>
+                                <th style="width:130px;">Sección</th>
+                                <th>Lectura / Página</th>
+                                <th style="width:150px;">Origen</th>
+                                <th style="width:110px;">Visitante</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($latestVisits as $visit)
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ \Carbon\Carbon::parse($visit->viewed_at)->locale('es')->diffForHumans() }}</div>
+                                        <div class="text-muted small">{{ \Carbon\Carbon::parse($visit->viewed_at)->format('d/m H:i') }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ $visit->is_bot ? 'bg-secondary' : 'bg-info' }}">
+                                            {{ $visit->section_label }}
+                                        </span>
+                                        @if($visit->is_bot)
+                                            <div class="text-muted small mt-1">bot</div>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ $visit->url }}" target="_blank" rel="noopener" class="fw-semibold">
+                                            {{ \Illuminate\Support\Str::limit($visit->title ?? $visit->url, 95) }}
+                                        </a>
+                                        <div class="text-muted small">{{ \Illuminate\Support\Str::limit(parse_url($visit->url, PHP_URL_PATH) ?: $visit->url, 100) }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ $visit->referrer_label }}</span>
+                                    </td>
+                                    <td>
+                                        <code>{{ $visit->visitor_label }}</code>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="text-center text-muted mb-0">Aún no hay eventos de lectura registrados para este rango. El registro empieza a poblarse desde este despliegue.</p>
+            @endif
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Frentes Estratégicos</h6>
             <span class="badge bg-primary">{{ $strategicSections->count() }} líneas</span>
         </div>

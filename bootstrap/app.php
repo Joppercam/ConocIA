@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->prepend(\App\Http\Middleware\RedirectWww::class);
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackSiteVisit::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -153,6 +153,7 @@ class DashboardController extends Controller
         $topNews = $this->buildTopNews($startDate, $endDate, $previousStartDate, $previousEndDate, 15);
         $topCategories = $this->buildTopCategories($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
         $topAuthors = $this->buildTopAuthors($startDate, $endDate, $previousStartDate, $previousEndDate, 10);
+        $latestVisits = $this->buildLatestSiteVisits($startDate, $endDate, 40);
 
         return view('admin.analytics.news', compact(
             'startDate',
@@ -166,7 +167,8 @@ class DashboardController extends Controller
             'strategicSections',
             'topNews',
             'topCategories',
-            'topAuthors'
+            'topAuthors',
+            'latestVisits'
         ));
     }
 
@@ -465,6 +467,77 @@ class DashboardController extends Controller
             })
             ->sortByDesc('period_views')
             ->values();
+    }
+
+    private function buildLatestSiteVisits(string $startDate, string $endDate, int $limit)
+    {
+        if (!Schema::hasTable('site_visit_events')) {
+            return collect();
+        }
+
+        return DB::table('site_visit_events')
+            ->select([
+                'id',
+                'content_type',
+                'content_id',
+                'title',
+                'url',
+                'route_name',
+                'referrer',
+                'ip_hash',
+                'user_agent',
+                'is_bot',
+                'viewed_at',
+            ])
+            ->whereBetween('viewed_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay(),
+            ])
+            ->orderByDesc('viewed_at')
+            ->limit($limit)
+            ->get()
+            ->map(function ($visit) {
+                $visit->section_label = $this->visitSectionLabel((string) $visit->content_type);
+                $visit->referrer_label = $this->referrerLabel($visit->referrer);
+                $visit->visitor_label = $visit->ip_hash ? Str::substr($visit->ip_hash, 0, 8) : 'sin-ip';
+
+                return $visit;
+            });
+    }
+
+    private function visitSectionLabel(string $type): string
+    {
+        return match ($type) {
+            'noticia', 'news' => 'Noticia',
+            'columna', 'columns' => 'Columna',
+            'paper', 'papers' => 'Paper',
+            'concepto', 'conceptos' => 'Concepto IA',
+            'analisis' => 'Análisis',
+            'estado_del_arte', 'estado_arte' => 'Estado del Arte',
+            'startup', 'startups' => 'Startup',
+            'investigacion', 'research' => 'Investigación',
+            'video', 'videos' => 'Video',
+            'pagina' => 'Página',
+            default => Str::headline(str_replace('_', ' ', $type ?: 'pagina')),
+        };
+    }
+
+    private function referrerLabel(?string $referrer): string
+    {
+        if (!$referrer) {
+            return 'Directo';
+        }
+
+        $host = parse_url($referrer, PHP_URL_HOST);
+
+        if (!$host) {
+            return 'Referido';
+        }
+
+        return Str::of($host)
+            ->replace('www.', '')
+            ->limit(32)
+            ->toString();
     }
 
     private function resolveStrategicSection(string $title, string $slug, string $categorySlug): string
