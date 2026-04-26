@@ -221,6 +221,14 @@
                         <i class="fas fa-chart-line"></i> Analítica Editorial
                     </a>
                 </li>
+                <li class="{{ request()->routeIs('admin.editorial-agent.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.editorial-agent.index') }}">
+                        <i class="fas fa-wand-magic-sparkles"></i> Agente Editorial
+                        @if(isset($pendingEditorialAgentCount) && $pendingEditorialAgentCount > 0)
+                            <span class="badge bg-danger float-end">{{ $pendingEditorialAgentCount }}</span>
+                        @endif
+                    </a>
+                </li>
                 <li class="{{ request()->routeIs('admin.seo.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.seo.search-console') }}">
                         <i class="fas fa-magnifying-glass-chart"></i> SEO Orgánico
@@ -462,6 +470,43 @@
                                                 </div>
                                             </a>
                                         </li>
+                                    @endif
+                                </ul>
+                            </div>
+
+                            <div class="dropdown mx-2">
+                                <a class="nav-link position-relative" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-wand-magic-sparkles"></i>
+                                    @if(isset($pendingEditorialAgentCount) && $pendingEditorialAgentCount > 0)
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {{ $pendingEditorialAgentCount }}
+                                            <span class="visually-hidden">propuestas editoriales pendientes</span>
+                                        </span>
+                                    @endif
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <h6 class="dropdown-header">Agente Editorial</h6>
+                                    </li>
+
+                                    @if(isset($pendingEditorialAgentTasks) && $pendingEditorialAgentTasks->count() > 0)
+                                        @foreach($pendingEditorialAgentTasks as $item)
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('admin.editorial-agent.show', $item) }}">
+                                                    <div class="small text-muted">{{ $item->created_at->diffForHumans() }}</div>
+                                                    <span>{{ Str::limit($item->title, 48) }}</span>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-center" href="{{ route('admin.editorial-agent.index') }}">
+                                                Ver pendientes
+                                            </a>
+                                        </li>
+                                    @else
+                                        <li><span class="dropdown-item text-muted">Sin propuestas pendientes</span></li>
                                     @endif
                                 </ul>
                             </div>

@@ -136,5 +136,11 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping()
             ->when($searchConsoleConfigured)
             ->appendOutputTo(storage_path('logs/search-console-audit.log'));
+
+        // Agente editorial asistido — oportunidades internas para aprobar
+        $schedule->command('editorial-agent:scan --days=7')
+            ->everyFourHours()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/editorial-agent.log'));
     })
     ->create();

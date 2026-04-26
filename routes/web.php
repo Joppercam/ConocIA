@@ -381,6 +381,14 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::get('analytics/news', [DashboardController::class, 'analytics'])->name('analytics.news');
         Route::get('analytics/news/export', [DashboardController::class, 'exportAnalytics'])->name('analytics.news.export');
         Route::get('seo/search-console', [SearchConsoleController::class, 'index'])->name('seo.search-console');
+
+        Route::prefix('agente-editorial')->name('editorial-agent.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'index'])->name('index');
+            Route::get('/{task}', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'show'])->name('show');
+            Route::patch('/{task}/aprobar', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'approve'])->name('approve');
+            Route::patch('/{task}/ejecutar', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'complete'])->name('complete');
+            Route::patch('/{task}/descartar', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'reject'])->name('reject');
+        });
         
         // Cerrar sesión
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
