@@ -7,6 +7,7 @@
     $metaDescription = \Illuminate\Support\Str::limit(strip_tags($paper->excerpt ?? $paper->original_abstract ?? $paper->content ?? ''), 155);
     $metaUrl         = route('papers.show', $paper->slug);
     $metaImage       = !empty($paper->image) ? asset($paper->image) : asset('images/defaults/social-share.jpg');
+    $shareText       = 'Investigacion destacada: ' . $paper->title;
 @endphp
 
 @section('title', $metaTitle)
@@ -68,6 +69,33 @@
                 @if($paper->arxiv_published_date)<span><i class="fas fa-calendar me-1"></i>{{ $paper->arxiv_published_date->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</span>@endif
                 <span><i class="fas fa-clock me-1"></i>{{ $paper->reading_time ?? 5 }} min</span>
                 <a href="{{ $paper->arxiv_url }}" target="_blank" rel="noopener" style="color:var(--primary-color);"><i class="fas fa-external-link-alt me-1"></i>Paper original</a>
+                <span class="d-none d-md-inline-flex align-items-center gap-2 ms-md-auto">
+                    <span style="color:#94a3b8;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Compartir</span>
+                    <a href="https://twitter.com/intent/tweet?url={{ urlencode($metaUrl) }}&text={{ urlencode($shareText) }}"
+                       target="_blank" rel="noopener"
+                       title="Compartir en X"
+                       style="color:#64748b;">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode($metaUrl) }}&title={{ urlencode($shareText) }}"
+                       target="_blank" rel="noopener"
+                       title="Compartir en LinkedIn"
+                       style="color:#64748b;">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://api.whatsapp.com/send?text={{ urlencode($shareText . ' ' . $metaUrl) }}"
+                       target="_blank" rel="noopener"
+                       title="Compartir en WhatsApp"
+                       style="color:#64748b;">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <button type="button"
+                            onclick='copyPaperLink(@json($metaUrl), this)'
+                            title="Copiar enlace"
+                            style="border:0;background:transparent;color:#64748b;padding:0;">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </span>
             </div>
 
             <div class="article-content mb-5">
@@ -133,6 +161,41 @@
                         <i class="fas fa-external-link-alt me-1"></i>Leer paper completo en arXiv
                     </a>
                 </div>
+                <div class="profundiza-card p-4 mb-4">
+                    <p class="profundiza-section-label"><i class="fas fa-share-alt me-2" style="color:var(--primary-color);"></i>Compartir investigacion</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode($metaUrl) }}&text={{ urlencode($shareText) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en X">
+                            <i class="fab fa-twitter me-1"></i>X
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode($metaUrl) }}&title={{ urlencode($shareText) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en LinkedIn">
+                            <i class="fab fa-linkedin-in me-1"></i>LinkedIn
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($shareText . ' ' . $metaUrl) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en WhatsApp">
+                            <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($metaUrl) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en Facebook">
+                            <i class="fab fa-facebook-f me-1"></i>Facebook
+                        </a>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                                onclick='copyPaperLink(@json($metaUrl), this)'
+                                title="Copiar enlace">
+                            <i class="fas fa-link me-1"></i><span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
                 <a href="{{ route('papers.index') }}" class="btn w-100 btn-outline-secondary btn-sm mb-2">
                     <i class="fas fa-arrow-left me-2"></i>Ver todos los papers
                 </a>
@@ -153,3 +216,40 @@ $breadcrumbs = [
 @include('partials.schema-breadcrumb', ['crumbs' => $breadcrumbs])
 @include('partials.schema-article', ['item' => $paper, 'routeName' => 'papers.show', 'type' => 'ScholarlyArticle', 'section' => 'ConocIA Papers'])
 @endsection
+
+@push('scripts')
+<script>
+function copyPaperLink(url, button) {
+    const done = function () {
+        const icon = button.querySelector('i');
+        const label = button.querySelector('span');
+        const originalIcon = icon ? icon.className : '';
+        const originalLabel = label ? label.textContent : '';
+
+        if (icon) icon.className = 'fas fa-check' + (label ? ' me-1' : '');
+        if (label) label.textContent = 'Copiado';
+
+        window.setTimeout(function () {
+            if (icon) icon.className = originalIcon;
+            if (label) label.textContent = originalLabel;
+        }, 1600);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(done);
+        return;
+    }
+
+    const input = document.createElement('textarea');
+    input.value = url;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    done();
+}
+</script>
+@endpush
