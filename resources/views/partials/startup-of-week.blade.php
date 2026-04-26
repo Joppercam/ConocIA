@@ -2,6 +2,8 @@
 @php
     $s = $startupOfWeek;
     $sectorLabels = \App\Models\Startup::sectorLabels();
+    $startupUrl = route('startups.show', $s);
+    $shareTitle = $s->name . ': ' . ($s->tagline ?: 'startup de IA destacada en ConocIA');
 @endphp
 <div style="background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:3px solid #00c896;">
     <div class="container py-4">
@@ -79,13 +81,38 @@
                 </div>
             </div>
 
-            {{-- CTA --}}
+            {{-- CTA + share --}}
             <div class="col-auto">
-                <a href="{{ route('startups.show', $s) }}"
-                   class="btn btn-sm rounded-pill fw-semibold px-3 px-sm-4"
-                   style="background:#00c896;color:#fff;font-size:.8rem;white-space:nowrap;">
-                    <span class="d-none d-sm-inline">Leer perfil </span><i class="fas fa-arrow-right"></i>
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="d-none d-md-flex align-items-center gap-1">
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode($startupUrl) }}&text={{ urlencode($shareTitle) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-sm rounded-circle"
+                           style="width:32px;height:32px;border:1px solid #cbd5e1;color:#475569;display:inline-flex;align-items:center;justify-content:center;"
+                           title="Compartir en X">
+                            <i class="fab fa-twitter" style="font-size:.78rem;"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode($startupUrl) }}&title={{ urlencode($shareTitle) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-sm rounded-circle"
+                           style="width:32px;height:32px;border:1px solid #cbd5e1;color:#475569;display:inline-flex;align-items:center;justify-content:center;"
+                           title="Compartir en LinkedIn">
+                            <i class="fab fa-linkedin-in" style="font-size:.78rem;"></i>
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($shareTitle . ' ' . $startupUrl) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-sm rounded-circle"
+                           style="width:32px;height:32px;border:1px solid #cbd5e1;color:#475569;display:inline-flex;align-items:center;justify-content:center;"
+                           title="Compartir en WhatsApp">
+                            <i class="fab fa-whatsapp" style="font-size:.78rem;"></i>
+                        </a>
+                    </div>
+                    <a href="{{ route('startups.show', $s) }}"
+                       class="btn btn-sm rounded-pill fw-semibold px-3 px-sm-4"
+                       style="background:#00c896;color:#fff;font-size:.8rem;white-space:nowrap;">
+                        <span class="d-none d-sm-inline">Leer perfil </span><i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
 
         </div>

@@ -3,6 +3,11 @@
 @section('title', $startup->name . ' — Startups IA · ConocIA')
 @section('meta_description', $startup->tagline ?? 'Perfil de startup de IA en ConocIA')
 
+@php
+    $startupUrl = route('startups.show', $startup);
+    $shareTitle = $startup->name . ': ' . ($startup->tagline ?: 'startup de IA destacada en ConocIA');
+@endphp
+
 @section('content')
 <div class="container py-5">
     <div class="row">
@@ -111,6 +116,46 @@
                 </div>
             </div>
 
+            <div class="card border-0 shadow-sm mb-4" style="border-radius:12px;">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:.05em;">
+                        <i class="fas fa-share-alt me-2"></i>Compartir startup
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode($startupUrl) }}&text={{ urlencode($shareTitle) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en X">
+                            <i class="fab fa-twitter me-1"></i>X
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode($startupUrl) }}&title={{ urlencode($shareTitle) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en LinkedIn">
+                            <i class="fab fa-linkedin-in me-1"></i>LinkedIn
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($shareTitle . ' ' . $startupUrl) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en WhatsApp">
+                            <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($startupUrl) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                           title="Compartir en Facebook">
+                            <i class="fab fa-facebook-f me-1"></i>Facebook
+                        </a>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                                onclick='copyStartupLink(@json($startupUrl), this)'
+                                title="Copiar enlace">
+                            <i class="fas fa-link me-1"></i><span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             @if($startup->website_url)
             <a href="{{ $startup->website_url }}" target="_blank" rel="noopener noreferrer"
                class="btn btn-primary w-100 mb-3">
@@ -158,3 +203,40 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function copyStartupLink(url, button) {
+    const done = function () {
+        const icon = button.querySelector('i');
+        const label = button.querySelector('span');
+        const originalIcon = icon ? icon.className : '';
+        const originalLabel = label ? label.textContent : '';
+
+        if (icon) icon.className = 'fas fa-check me-1';
+        if (label) label.textContent = 'Copiado';
+
+        window.setTimeout(function () {
+            if (icon) icon.className = originalIcon;
+            if (label) label.textContent = originalLabel;
+        }, 1600);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(done);
+        return;
+    }
+
+    const input = document.createElement('textarea');
+    input.value = url;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    done();
+}
+</script>
+@endpush
