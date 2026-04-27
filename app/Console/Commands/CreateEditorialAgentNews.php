@@ -331,7 +331,10 @@ Condiciones:
 - Redacta para ConocIA, en español de Chile, con enfoque claro para lectores de inteligencia artificial.
 - La noticia debe quedar como borrador editorial, no como copia de una fuente.
 
-Devuelve SOLO JSON válido con esta estructura:
+Devuelve SOLO JSON válido. No uses markdown. No envuelvas la respuesta en bloque de código.
+El campo content debe ser un string JSON válido con HTML escapado correctamente.
+
+Estructura exacta:
 {
   "title": "Título SEO en español, máximo 95 caracteres",
   "slug": "slug-sugerido",
@@ -354,24 +357,44 @@ PROMPT;
             [
                 'tools' => [['google_search' => (object) []]],
                 'contents' => [['parts' => [['text' => $prompt]]]],
-                'generationConfig' => ['temperature' => 0.35, 'maxOutputTokens' => 8192],
+                'generationConfig' => [
+                    'temperature' => 0.25,
+                    'maxOutputTokens' => 8192,
+                    'responseMimeType' => 'application/json',
+                ],
             ]
         );
 
-        $guard->record();
-
         if ($response->failed()) {
             $this->error('Gemini error: ' . $response->status() . ' — ' . $response->body());
+            EditorialAgentLogger::error('gemini_http_error', 'Gemini devolvió error HTTP.', [
+                'topic' => $topic,
+                'category' => $categorySlug,
+                'status' => $response->status(),
+                'body_sample' => Str::limit($response->body(), 900),
+            ]);
 
             return null;
         }
 
+        $guard->record();
+
         $parts = $response->json()['candidates'][0]['content']['parts'] ?? [];
+        $finishReason = $response->json()['candidates'][0]['finishReason'] ?? null;
         $raw = implode('', array_column($parts, 'text'));
         $draft = $this->extractJson($raw);
 
         if (!is_array($draft) || empty($draft['title']) || empty($draft['content'])) {
             $this->warn('Gemini no devolvió un JSON completo.');
+            EditorialAgentLogger::error('gemini_invalid_draft', 'Gemini no devolvió un borrador JSON completo.', [
+                'topic' => $topic,
+                'category' => $categorySlug,
+                'finish_reason' => $finishReason,
+                'has_title' => is_array($draft) && !empty($draft['title']),
+                'has_content' => is_array($draft) && !empty($draft['content']),
+                'raw_sample' => Str::limit($raw, 1200),
+                'response_keys' => array_keys($response->json() ?? []),
+            ]);
 
             return null;
         }
