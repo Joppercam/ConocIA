@@ -18,6 +18,7 @@ use App\Helpers\ImageHelper;
 use App\Services\KeywordExtractorService;
 use App\Services\InsightEngineService;
 use App\Support\MetricsTracker;
+use Illuminate\Support\Facades\Schema;
 
 class NewsController extends Controller
 {
@@ -193,7 +194,7 @@ class NewsController extends Controller
         $canAccessPremiumContent = !$isPremiumContent
             || (auth()->check() && auth()->user()->canAccessFeature('premium-content'));
 
-        if ($article instanceof News) {
+        if ($article instanceof News && Schema::hasTable('insights')) {
             $insightEngine->generarInsight($article);
             $insights = $article->insights()->latest()->get();
 
@@ -210,13 +211,14 @@ class NewsController extends Controller
                 ]);
             }
 
-            if ($isPremiumContent && !$canAccessPremiumContent) {
-                MetricsTracker::track('intento_acceso_premium', [
-                    'feature' => 'premium-content',
-                    'news_id' => $article->id,
-                    'plan' => auth()->user()?->plan() ?? 'guest',
-                ]);
-            }
+        }
+
+        if ($article instanceof News && $isPremiumContent && !$canAccessPremiumContent) {
+            MetricsTracker::track('intento_acceso_premium', [
+                'feature' => 'premium-content',
+                'news_id' => $article->id,
+                'plan' => auth()->user()?->plan() ?? 'guest',
+            ]);
         }
 
         return view('news.show', [

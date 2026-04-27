@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Subscription;
 use App\Support\MetricsTracker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class BillingController extends Controller
 {
@@ -34,18 +35,25 @@ class BillingController extends Controller
             'current_plan' => $user->plan(),
         ]);
 
+        if (!Schema::hasColumn('users', 'plan_actual')) {
+            return redirect()->route('billing.plans')
+                ->with('error', 'La base de datos aún no tiene las migraciones SaaS aplicadas.');
+        }
+
         $user->update([
             'plan_actual' => $plan,
             'is_trial' => false,
             'trial_ends_at' => null,
         ]);
 
-        Subscription::create([
-            'user_id' => $user->id,
-            'plan' => $plan,
-            'status' => 'active',
-            'start_date' => now(),
-        ]);
+        if (Schema::hasTable('subscriptions')) {
+            Subscription::create([
+                'user_id' => $user->id,
+                'plan' => $plan,
+                'status' => 'active',
+                'start_date' => now(),
+            ]);
+        }
 
         MetricsTracker::track('conversion', [
             'plan' => $plan,
