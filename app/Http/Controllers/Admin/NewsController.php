@@ -335,6 +335,8 @@ class NewsController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'featured' => 'nullable|boolean',
+            'access_level' => 'nullable|in:free,premium',
+            'is_premium' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'is_published' => 'nullable|boolean',
             'remove_image' => 'nullable|boolean',
@@ -344,6 +346,8 @@ class NewsController extends Controller
     private function prepareNewsPayload(array $validated, Request $request, ?News $news = null): array
     {
         $validated['featured'] = $request->boolean('featured');
+        $validated['access_level'] = $validated['access_level'] ?? 'free';
+        $validated['is_premium'] = $request->boolean('is_premium') || $validated['access_level'] === 'premium';
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['title']);
         $validated['summary'] = trim($validated['summary']);
         $validated['excerpt'] = trim($validated['excerpt'] ?? '') !== ''

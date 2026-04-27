@@ -33,6 +33,9 @@ class User extends Authenticatable
         'github',
         'role_id',
         'is_active',
+        'plan_actual',
+        'is_trial',
+        'trial_ends_at',
         'academic_title',
         'institution',
         'expertise_area',
@@ -59,6 +62,8 @@ class User extends Authenticatable
         'email_verified_at'      => 'datetime',
         'password'               => 'hashed',
         'is_active'              => 'boolean',
+        'is_trial'               => 'boolean',
+        'trial_ends_at'          => 'datetime',
         'is_featured_columnist'  => 'boolean',
     ];
 
@@ -86,6 +91,68 @@ class User extends Authenticatable
     public function news()
     {
         return $this->hasMany(News::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->whereIn('status', ['active', 'trial'])
+            ->where(function ($query) {
+                $query->whereNull('end_date')->orWhere('end_date', '>', now());
+            })
+            ->latestOfMany();
+    }
+
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
+    }
+
+    public function plan(): string
+    {
+        return $this->plan_actual ?: 'free';
+    }
+
+    public function isPro(): bool
+    {
+        return in_array($this->plan(), ['pro', 'business'], true);
+    }
+
+    public function isBusiness(): bool
+    {
+        return $this->plan() === 'business';
+    }
+
+    public function hasActiveTrial(): bool
+    {
+        return $this->is_trial && $this->trial_ends_at && $this->trial_ends_at->isFuture();
+    }
+
+    public function canAccessFeature(string $feature): bool
+    {
+        if ($this->isAdmin() || $this->isBusiness() || $this->hasActiveTrial()) {
+            return true;
+        }
+
+        return match ($feature) {
+            'insights', 'premium-content', 'alerts' => $this->isPro(),
+            'business-insights', 'reports', 'trend-intelligence', 'priority-ai' => $this->isBusiness(),
+            default => false,
+        };
+    }
+
+    public function planLabel(): string
+    {
+        return match ($this->plan()) {
+            'business' => 'BUSINESS',
+            'pro' => 'PRO',
+            default => 'FREE',
+        };
     }
 
     /**

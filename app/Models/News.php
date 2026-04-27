@@ -29,6 +29,8 @@ class News extends Model implements Feedable
         'author_id',
         'views', 
         'status',
+        'access_level',
+        'is_premium',
         'tags', 
         'featured',
         'source',
@@ -45,6 +47,7 @@ class News extends Model implements Feedable
     protected $casts = [
         'published_at' => 'datetime',
         'featured' => 'boolean',
+        'is_premium' => 'boolean',
         'views' => 'integer',
         'reading_time' => 'integer',
         'created_at' => 'datetime',
@@ -173,6 +176,21 @@ class News extends Model implements Feedable
     public function seoTitle(): string
     {
         return static::seoTitleSuggestion($this->title);
+    }
+
+    public function insights()
+    {
+        return $this->hasMany(Insight::class, 'noticia_id');
+    }
+
+    public function premiumInsights()
+    {
+        return $this->hasMany(Insight::class, 'noticia_id')->where('is_premium', true);
+    }
+
+    public function isPremiumContent(): bool
+    {
+        return (bool) $this->is_premium || $this->access_level === 'premium';
     }
 
     public static function seoTitleSuggestion(?string $title): string

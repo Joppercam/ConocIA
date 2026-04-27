@@ -16,6 +16,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\ImageHelper;
 use App\Services\KeywordExtractorService;
+use App\Services\InsightEngineService;
+use App\Support\MetricsTracker;
 
 class NewsController extends Controller
 {
@@ -135,7 +137,7 @@ class NewsController extends Controller
         return redirect()->route('news.category', $slug);
     }
 
-    public function show($slug)
+    public function show($slug, InsightEngineService $insightEngine)
     {
         // Si la URL tiene sufijo -archive-XXXXX, redirigir al slug base (301 para SEO)
         if (preg_match('/^(.+)-archive-[a-f0-9]+$/i', $slug, $matches)) {
@@ -185,11 +187,47 @@ class NewsController extends Controller
             $this->maybeExtractKeywords($article);
         }
 
+        $insights = collect();
+        $canAccessPremiumInsights = auth()->check() && auth()->user()->canAccessFeature('insights');
+        $isPremiumContent = $article instanceof News && $article->isPremiumContent();
+        $canAccessPremiumContent = !$isPremiumContent
+            || (auth()->check() && auth()->user()->canAccessFeature('premium-content'));
+
+        if ($article instanceof News) {
+            $insightEngine->generarInsight($article);
+            $insights = $article->insights()->latest()->get();
+
+            if ($canAccessPremiumInsights) {
+                MetricsTracker::track('vista_insight', [
+                    'news_id' => $article->id,
+                    'plan' => auth()->user()->plan(),
+                ]);
+            } elseif ($insights->where('is_premium', true)->isNotEmpty()) {
+                MetricsTracker::track('intento_acceso_premium', [
+                    'feature' => 'insights',
+                    'news_id' => $article->id,
+                    'plan' => auth()->user()?->plan() ?? 'guest',
+                ]);
+            }
+
+            if ($isPremiumContent && !$canAccessPremiumContent) {
+                MetricsTracker::track('intento_acceso_premium', [
+                    'feature' => 'premium-content',
+                    'news_id' => $article->id,
+                    'plan' => auth()->user()?->plan() ?? 'guest',
+                ]);
+            }
+        }
+
         return view('news.show', [
             'article'         => $article,
             'relatedArticles' => $this->fetchRelatedArticles($article),
             'mostReadArticles' => $this->sidebarMostRead(),
             'popularTags'     => $this->sidebarPopularTags(),
+            'insights' => $insights,
+            'canAccessPremiumInsights' => $canAccessPremiumInsights,
+            'isPremiumContent' => $isPremiumContent,
+            'canAccessPremiumContent' => $canAccessPremiumContent,
         ])->with([
             'getImageUrl'      => $this->imageUrlHelper(),
             'getCategoryStyle' => fn($cat) => $cat && isset($cat->color) ? 'background-color: ' . $cat->color . ';' : 'background-color: var(--primary-color);',

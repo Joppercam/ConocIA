@@ -96,6 +96,26 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header">Monetización</div>
+                            <div class="card-body">
+                                <label for="access_level" class="form-label">Acceso</label>
+                                <select class="form-control @error('access_level') is-invalid @enderror" id="access_level" name="access_level">
+                                    <option value="free" {{ old('access_level', $news->access_level ?? 'free') === 'free' ? 'selected' : '' }}>FREE</option>
+                                    <option value="premium" {{ old('access_level', $news->access_level ?? 'free') === 'premium' ? 'selected' : '' }}>PREMIUM</option>
+                                </select>
+                                @error('access_level')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+
+                                <div class="form-check form-switch mt-3">
+                                    <input class="form-check-input" type="checkbox" id="is_premium" name="is_premium" value="1" {{ old('is_premium', $news->is_premium) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_premium">Bloquear como contenido premium</label>
+                                    <div class="form-text">El contenido premium queda disponible para usuarios PRO y BUSINESS.</div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- Categoría -->
                         <div class="card mb-3">

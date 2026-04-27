@@ -811,6 +811,13 @@
                             </ul>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('billing.*') ? 'active' : '' }}"
+                               href="{{ route('billing.plans') }}"
+                               aria-current="{{ request()->routeIs('billing.*') ? 'page' : 'false' }}">
+                                <i class="fas fa-gem me-1 d-lg-none"></i>Planes
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link position-relative {{ request()->routeIs('saved') ? 'active' : '' }}"
                                href="{{ route('saved') }}" title="Artículos guardados">
                                 <i class="fas fa-bookmark me-1 d-lg-none"></i>
@@ -835,6 +842,12 @@
                                 <span class="d-none d-lg-inline">{{ Str::limit(auth()->user()->name, 14) }}</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                <li>
+                                    <span class="dropdown-item-text small text-muted">
+                                        Plan <span class="badge bg-primary">{{ auth()->user()->planLabel() }}</span>
+                                    </span>
+                                </li>
+                                <li><a class="dropdown-item" href="{{ route('saas.dashboard') }}"><i class="fas fa-chart-line me-2"></i>Mi dashboard</a></li>
                                 <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-user me-2"></i>Mi perfil</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
