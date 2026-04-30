@@ -220,25 +220,11 @@ class News extends Model implements Feedable
 
     public static function seoDescriptionSuggestion(?string $summary, ?string $excerpt = null, ?string $content = null): string
     {
-        $candidates = [
-            $summary,
-            $excerpt,
-            strip_tags((string) $content),
-        ];
+        if (function_exists('news_editorial_teaser')) {
+            $teaser = news_editorial_teaser($summary, $excerpt, $content, 155);
 
-        foreach ($candidates as $candidate) {
-            $clean = static::cleanSeoText($candidate);
-
-            if (Str::length($clean) >= 80) {
-                return Str::limit($clean, 155, '...');
-            }
-        }
-
-        foreach ($candidates as $candidate) {
-            $clean = static::cleanSeoText($candidate);
-
-            if ($clean !== '') {
-                return Str::limit($clean, 155, '...');
+            if ($teaser !== '') {
+                return $teaser;
             }
         }
 
