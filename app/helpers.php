@@ -288,14 +288,27 @@ if (!function_exists('news_text_looks_truncated')) {
             return true;
         }
 
-        return preg_match('/\b(?:así lo|lee también|más información|para seguir leyendo|continúa leyendo|ver más)\s*(?:\.\.\.|…)?\s*$/iu', $text) === 1;
+        if (preg_match('/\b(?:así lo|lee también|más información|para seguir leyendo|continúa leyendo|ver más)\s*(?:\.\.\.|…)?\s*$/iu', $text)) {
+            return true;
+        }
+
+        if (mb_strlen($text) >= 90 && !preg_match('/[\.!?]["”’)\]]?$/u', $text)) {
+            return true;
+        }
+
+        $words = preg_split('/\s+/u', $text) ?: [];
+        $lastWord = end($words) ?: '';
+
+        return count($words) >= 8 && mb_strlen($lastWord) <= 4 && !preg_match('/[\.!?]["”’)\]]?$/u', $text);
     }
 }
 
 if (!function_exists('news_clean_editorial_text')) {
     function news_clean_editorial_text(?string $text): string
     {
-        $clean = html_entity_decode(strip_tags((string) $text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $raw = preg_replace('/<\/(p|div|h[1-6]|li|blockquote)>/iu', '$0 ', (string) $text) ?? (string) $text;
+        $raw = preg_replace('/<br\s*\/?>/iu', ' ', $raw) ?? $raw;
+        $clean = html_entity_decode(strip_tags($raw), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $clean = preg_replace('/\s+/u', ' ', $clean) ?? '';
         $clean = preg_replace('/[[:cntrl:]]/u', '', $clean) ?? '';
 
@@ -326,17 +339,11 @@ if (!function_exists('news_sentence_teaser')) {
             $position = $last[1] + strlen($last[0]);
 
             if ($position >= min(80, $limit)) {
-                return rtrim(mb_substr($slice, 0, $position));
+                return rtrim(substr($slice, 0, $position));
             }
         }
 
-        $lastSpace = mb_strrpos($slice, ' ');
-
-        if ($lastSpace !== false && $lastSpace >= min(80, $limit - 20)) {
-            return rtrim(mb_substr($slice, 0, $lastSpace), " \t\n\r\0\x0B,;:");
-        }
-
-        return rtrim($slice, " \t\n\r\0\x0B,;:");
+        return '';
     }
 }
 

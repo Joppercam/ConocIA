@@ -87,4 +87,20 @@ class ValidateNewsQualityCommandTest extends TestCase
         $this->assertStringNotContainsString('...', $teaser);
         $this->assertStringStartsWith('La compañía confirmó nuevos planes para integrar inteligencia artificial', $teaser);
     }
+
+    public function test_news_editorial_teaser_rejects_unfinished_summary_fragments(): void
+    {
+        $teaser = news_editorial_teaser(
+            'Anthropic, la empresa detrás de Claude, está sondeando una nueva ronda de financiación que la valoraría en más de 900.000 millones de dólares. Si se cierra, superaría a OpenAI como la startup de IA más valiosa del mundo. La empr',
+            null,
+            '<p>Anthropic está sondeando una nueva ronda de financiación que la valoraría en más de 900.000 millones de dólares. Si se cierra, superaría a OpenAI como la startup de IA más valiosa del mundo.</p><p>La empresa busca reforzar su posición en infraestructura y modelos de frontera.</p>',
+            260
+        );
+
+        $this->assertStringNotContainsString('La empr', $teaser);
+        $this->assertSame(
+            'Anthropic está sondeando una nueva ronda de financiación que la valoraría en más de 900.000 millones de dólares. Si se cierra, superaría a OpenAI como la startup de IA más valiosa del mundo.',
+            $teaser
+        );
+    }
 }
