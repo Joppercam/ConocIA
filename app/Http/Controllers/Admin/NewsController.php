@@ -349,10 +349,17 @@ class NewsController extends Controller
         $validated['access_level'] = $validated['access_level'] ?? 'free';
         $validated['is_premium'] = $request->boolean('is_premium') || $validated['access_level'] === 'premium';
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['title']);
-        $validated['summary'] = trim($validated['summary']);
-        $validated['excerpt'] = trim($validated['excerpt'] ?? '') !== ''
-            ? trim($validated['excerpt'])
-            : Str::limit(strip_tags($validated['summary']), 500);
+        $validated['summary'] = news_editorial_teaser(
+            $validated['summary'],
+            null,
+            $validated['content'] ?? null,
+            500
+        ) ?: trim($validated['summary']);
+
+        $excerptInput = trim($validated['excerpt'] ?? '');
+        $validated['excerpt'] = $excerptInput !== ''
+            ? news_editorial_teaser($excerptInput, null, $validated['content'] ?? $validated['summary'], 500)
+            : news_sentence_teaser($validated['summary'], 500);
 
         if ($request->boolean('remove_image') && $news && $news->image && str_starts_with($news->image, 'storage/')) {
             Storage::disk('public')->delete(str_replace('storage/', '', $news->image));
@@ -391,7 +398,15 @@ class NewsController extends Controller
         }
 
         if (blank($excerpt) && filled($summary)) {
-            $excerpt = Str::limit(strip_tags($summary), 500);
+            $excerpt = news_sentence_teaser($summary, 500);
+        }
+
+        if (filled($summary) && news_text_looks_truncated($summary)) {
+            $summary = news_editorial_teaser($summary, null, $request->input('content'), 500) ?: $summary;
+        }
+
+        if (filled($excerpt) && news_text_looks_truncated($excerpt)) {
+            $excerpt = news_editorial_teaser($excerpt, null, $request->input('content'), 500) ?: $excerpt;
         }
 
         $status = $request->input('status');

@@ -72,7 +72,7 @@
                     </div>
                     <h2 class="fw-bold mb-3" style="color:#0f172a;font-size:1.55rem;line-height:1.25;">{{ $featuredArticle->title }}</h2>
                     <p class="mb-0" style="color:#475569;font-size:.98rem;line-height:1.75;max-width:860px;">
-                        {{ Str::limit($featuredArticle->summary ?? $featuredArticle->excerpt ?? '', 240) }}
+                        {{ news_editorial_teaser($featuredArticle->summary, $featuredArticle->excerpt, $featuredArticle->content, 240) }}
                     </p>
                 </div>
             </div>
@@ -108,7 +108,7 @@
                                         <a href="{{ route('news.show', $article->slug) }}" class="text-decoration-none text-dark">{{ $article->title }}</a>
                                     </h2>
                                     <p class="mb-3" style="color:#475569;font-size:.9rem;line-height:1.7;">
-                                        {{ Str::limit($article->summary ?? $article->excerpt ?? '', 180) }}
+                                        {{ news_editorial_teaser($article->summary, $article->excerpt, $article->content, 180) }}
                                     </p>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span style="color:#94a3b8;font-size:.8rem;"><i class="fas fa-user-edit me-1"></i>{{ $article->author ?? 'Staff' }}</span>

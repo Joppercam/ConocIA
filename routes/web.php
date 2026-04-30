@@ -195,6 +195,8 @@ Route::feeds();
 
 // Rutas públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::redirect('/noticias', '/news', 301);
+Route::redirect('/profundiza', '/conceptos-ia', 301);
 Route::get('/acerca-de', [HomeController::class, 'about'])->name('about');
 Route::get('/contacto', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contacto', [HomeController::class, 'sendContact'])->name('contact.send');

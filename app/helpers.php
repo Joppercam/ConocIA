@@ -271,6 +271,100 @@ if (!function_exists('news_content_looks_incomplete')) {
     }
 }
 
+if (!function_exists('news_text_looks_truncated')) {
+    /**
+     * Detecta textos editoriales que ya vienen cortados desde la fuente o desde
+     * una generación previa. No se usa para castigar recortes visuales locales.
+     */
+    function news_text_looks_truncated(?string $text): bool
+    {
+        $text = trim(html_entity_decode(strip_tags((string) $text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+        if ($text === '') {
+            return false;
+        }
+
+        if (preg_match('/(?:\.\.\.|…)\s*$/u', $text)) {
+            return true;
+        }
+
+        return preg_match('/\b(?:así lo|lee también|más información|para seguir leyendo|continúa leyendo|ver más)\s*(?:\.\.\.|…)?\s*$/iu', $text) === 1;
+    }
+}
+
+if (!function_exists('news_clean_editorial_text')) {
+    function news_clean_editorial_text(?string $text): string
+    {
+        $clean = html_entity_decode(strip_tags((string) $text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $clean = preg_replace('/\s+/u', ' ', $clean) ?? '';
+        $clean = preg_replace('/[[:cntrl:]]/u', '', $clean) ?? '';
+
+        return trim($clean);
+    }
+}
+
+if (!function_exists('news_sentence_teaser')) {
+    /**
+     * Recorta en borde de oración siempre que se pueda y nunca agrega "...".
+     */
+    function news_sentence_teaser(?string $text, int $limit = 220): string
+    {
+        $clean = news_clean_editorial_text($text);
+
+        if ($clean === '') {
+            return '';
+        }
+
+        if (mb_strlen($clean) <= $limit) {
+            return rtrim($clean);
+        }
+
+        $slice = mb_substr($clean, 0, $limit);
+
+        if (preg_match_all('/[\.!?](?=\s|$)/u', $slice, $matches, PREG_OFFSET_CAPTURE) && !empty($matches[0])) {
+            $last = end($matches[0]);
+            $position = $last[1] + strlen($last[0]);
+
+            if ($position >= min(80, $limit)) {
+                return rtrim(mb_substr($slice, 0, $position));
+            }
+        }
+
+        $lastSpace = mb_strrpos($slice, ' ');
+
+        if ($lastSpace !== false && $lastSpace >= min(80, $limit - 20)) {
+            return rtrim(mb_substr($slice, 0, $lastSpace), " \t\n\r\0\x0B,;:");
+        }
+
+        return rtrim($slice, " \t\n\r\0\x0B,;:");
+    }
+}
+
+if (!function_exists('news_editorial_teaser')) {
+    /**
+     * Elige una bajada pública sin elipsis artificiales. Si summary/excerpt ya
+     * vienen truncados, usa contenido como respaldo.
+     */
+    function news_editorial_teaser(?string $summary, ?string $excerpt = null, ?string $content = null, int $limit = 220): string
+    {
+        foreach ([$summary, $excerpt] as $candidate) {
+            $clean = news_clean_editorial_text($candidate);
+
+            if ($clean !== '' && !news_text_looks_truncated($clean)) {
+                return news_sentence_teaser($clean, $limit);
+            }
+        }
+
+        $contentText = news_clean_editorial_text($content);
+
+        if ($contentText !== '' && !news_text_looks_truncated($contentText)) {
+            return news_sentence_teaser($contentText, $limit);
+        }
+
+        return '';
+    }
+}
+
 if (!function_exists('news_chunk_looks_like_heading')) {
     function news_chunk_looks_like_heading(string $chunk): bool
     {

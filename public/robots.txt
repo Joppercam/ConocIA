@@ -4,9 +4,12 @@ Allow: /
 # Proteger rutas administrativas
 Disallow: /admin/
 Disallow: /admin
+Disallow: /cp-conocia/
+Disallow: /cp-conocia
 Disallow: /login
 Disallow: /registro
 Disallow: /admin/login
+Disallow: /cp-conocia/login
 
 # Sitemap
 Sitemap: https://conocia.cl/sitemap.xml

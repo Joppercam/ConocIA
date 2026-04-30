@@ -54,4 +54,37 @@ class ValidateNewsQualityCommandTest extends TestCase
 
         $this->get('/news/nota-incompleta')->assertNotFound();
     }
+
+    public function test_quality_command_repairs_truncated_summary_from_complete_content(): void
+    {
+        $news = News::factory()->create([
+            'summary' => 'La nueva inversión en inteligencia artificial dejó al mercado...',
+            'excerpt' => 'La nueva inversión en inteligencia artificial dejó al mercado...',
+            'content' => '<p>La nueva inversión en inteligencia artificial dejó al mercado con una señal clara sobre infraestructura, energía y talento. La decisión refuerza una tendencia de largo plazo para la industria tecnológica y confirma que la competencia ya no se juega solamente en modelos, sino también en capacidad de cómputo, acuerdos energéticos y disponibilidad de equipos especializados.</p><p>El movimiento también abre preguntas sobre concentración y acceso para empresas medianas. Si el costo de entrenar y operar sistemas avanzados sigue creciendo, muchas organizaciones dependerán de proveedores externos para construir productos con IA. Esa dependencia puede acelerar adopción, pero también limitar soberanía técnica y capacidad de negociación.</p>',
+            'status' => 'published',
+        ]);
+
+        $this->artisan('news:validate-quality --published --apply')
+            ->assertExitCode(0);
+
+        $news->refresh();
+
+        $this->assertSame('published', $news->status);
+        $this->assertStringNotContainsString('...', $news->summary);
+        $this->assertStringStartsWith('La nueva inversión en inteligencia artificial dejó al mercado con una señal clara', $news->summary);
+        $this->assertSame($news->summary, $news->excerpt);
+    }
+
+    public function test_news_editorial_teaser_falls_back_when_summary_is_truncated(): void
+    {
+        $teaser = news_editorial_teaser(
+            'La compañía confirmó nuevos planes...',
+            null,
+            '<p>La compañía confirmó nuevos planes para integrar inteligencia artificial en sus operaciones regionales. La medida busca reducir tiempos de respuesta y mejorar la trazabilidad de procesos internos.</p>',
+            180
+        );
+
+        $this->assertStringNotContainsString('...', $teaser);
+        $this->assertStringStartsWith('La compañía confirmó nuevos planes para integrar inteligencia artificial', $teaser);
+    }
 }

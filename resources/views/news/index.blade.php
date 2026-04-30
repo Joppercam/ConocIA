@@ -83,6 +83,7 @@
                 $hasImage = !empty($imageSrc);
 
                 $catColor = $article->category?->color ?? 'var(--primary-color)';
+                $teaser = news_editorial_teaser($article->summary, $article->excerpt, $article->content, $hasImage ? 120 : 200);
             @endphp
 
             <article class="news-card card border-0 shadow-sm mb-3 overflow-hidden">
@@ -133,9 +134,11 @@
                             </h2>
 
                             {{-- Excerpt --}}
+                            @if($teaser)
                             <p class="text-muted mb-3 flex-grow-1" style="font-size:.875rem;line-height:1.55;">
-                                {{ Str::limit($article->summary ?? $article->excerpt ?? '', $hasImage ? 120 : 200) }}
+                                {{ $teaser }}
                             </p>
+                            @endif
 
                             {{-- Meta row --}}
                             <div class="d-flex align-items-center justify-content-between mt-auto">

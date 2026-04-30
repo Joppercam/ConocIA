@@ -15,6 +15,8 @@ class PublishProfundizaRetrievalPackCommandTest extends TestCase
 
     public function test_it_publishes_profundiza_retrieval_pack(): void
     {
+        $initialPaperCount = ConocIaPaper::count();
+
         $this->artisan('content:publish-profundiza-retrieval-pack')
             ->assertSuccessful();
 
@@ -30,7 +32,7 @@ class PublishProfundizaRetrievalPackCommandTest extends TestCase
             'featured' => 1,
         ]);
 
-        $this->assertSame(3, ConocIaPaper::count());
+        $this->assertSame($initialPaperCount + 3, ConocIaPaper::count());
 
         $this->assertDatabaseHas('estado_arte', [
             'slug' => 'estado-arte-retrieval-multimodal-agentes-abril-2026',

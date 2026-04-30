@@ -124,7 +124,7 @@ class ReprocessShortNews extends Command
             $item->update([
                 'title'        => $enhanced['title'] ?? $item->title,
                 'content'      => $enhanced['content'],
-                'excerpt'      => $enhanced['excerpt'] ?? Str::limit(strip_tags($enhanced['content']), 220),
+                'excerpt'      => news_editorial_teaser($enhanced['excerpt'] ?? null, null, $enhanced['content'] ?? null, 220),
                 'reading_time' => $readingTime,
             ]);
 

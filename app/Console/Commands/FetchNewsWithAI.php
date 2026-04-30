@@ -265,7 +265,7 @@ class FetchNewsWithAI extends Command
                 $enhancedContent = [
                     'title' => $newsItem['title'],
                     'content' => $newsItem['content'],
-                    'excerpt' => Str::limit(strip_tags($newsItem['content']), 150)
+                    'excerpt' => news_sentence_teaser($newsItem['content'], 150)
                 ];
             }
 
@@ -790,7 +790,7 @@ PROMPT;
             // Verificar y garantizar que tenemos un excerpt
             if (empty($enhancedContent['excerpt'])) {
                 $this->warn("Excerpt vacío en la respuesta de IA, generando uno a partir del contenido...");
-                $enhancedContent['excerpt'] = Str::limit(strip_tags($enhancedContent['content']), 200);
+                $enhancedContent['excerpt'] = news_sentence_teaser($enhancedContent['content'], 200);
             }
             
             // Verificar longitud mínima del contenido
@@ -1012,11 +1012,11 @@ PROMPT;
                 $hashtagString = implode(' ', $allHashtags);
                 $content = "📰 {$title}\n\n{$newsUrl}\n\n{$hashtagString}";
                 // Asegurar que no exceda el límite de Twitter
-                return Str::limit($content, 280);
+                return news_sentence_teaser($content, 280);
                 
             case 'facebook':
                 // Facebook permite contenido más extenso
-                $excerpt = Str::limit($news->excerpt, 150);
+                $excerpt = news_sentence_teaser($news->excerpt, 150);
                 $hashtagString = implode(' ', $allHashtags);
                 return "📰 {$news->title}\n\n{$excerpt}\n\n👉 Lee más en: {$newsUrl}\n\n{$hashtagString}";
                 

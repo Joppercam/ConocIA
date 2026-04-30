@@ -42,6 +42,8 @@ class ValidateNewsQuality extends Command
             'status',
             'is_published',
             'featured',
+            'summary',
+            'excerpt',
             'content',
             'image',
         ]);
@@ -63,6 +65,7 @@ class ValidateNewsQuality extends Command
         $rows = [];
         $deactivated = 0;
         $imagesCleared = 0;
+        $summariesRepaired = 0;
 
         foreach ($news as $item) {
             $signals = $this->detectSignals($item);
@@ -98,6 +101,17 @@ class ValidateNewsQuality extends Command
                 $imagesCleared++;
             }
 
+            if ($signals->contains('bajada truncada') && !$signals->contains('contenido incompleto')) {
+                $teaser = news_editorial_teaser(null, null, $item->content, 260);
+
+                if ($teaser !== '') {
+                    $item->summary = $teaser;
+                    $item->excerpt = $teaser;
+                    $dirty = true;
+                    $summariesRepaired++;
+                }
+            }
+
             if ($dirty) {
                 $item->save();
                 $this->line("  ✓ #{$item->id}: {$item->title}");
@@ -122,7 +136,7 @@ class ValidateNewsQuality extends Command
         News::clearHomeCache();
 
         $this->newLine();
-        $this->info("Listo. {$deactivated} noticias desactivadas y {$imagesCleared} imágenes limpiadas.");
+        $this->info("Listo. {$deactivated} noticias desactivadas, {$imagesCleared} imágenes limpiadas y {$summariesRepaired} bajadas reparadas.");
 
         return Command::SUCCESS;
     }
@@ -133,6 +147,10 @@ class ValidateNewsQuality extends Command
 
         if (news_content_looks_incomplete($item->content)) {
             $signals->push('contenido incompleto');
+        }
+
+        if (news_text_looks_truncated($item->summary) || news_text_looks_truncated($item->excerpt)) {
+            $signals->push('bajada truncada');
         }
 
         if (!empty($item->image) && !ImageHelper::isValidImage($item->image, 'news')) {

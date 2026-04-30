@@ -100,7 +100,7 @@ class FetchNewsFromGuardian extends Command
                     'title'        => $enhanced['title'],
                     'slug'         => $slug,
                     'content'      => $enhanced['content'],
-                    'excerpt'      => $enhanced['excerpt'] ?? Str::limit(strip_tags($enhanced['content']), 220),
+                    'excerpt'      => news_editorial_teaser($enhanced['excerpt'] ?? null, null, $enhanced['content'] ?? null, 220),
                     'image'        => null,
                     'author'       => $article['fields']['byline'] ?? 'The Guardian',
                     'source'       => 'The Guardian',

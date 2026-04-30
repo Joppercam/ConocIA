@@ -222,7 +222,7 @@ class CreateEditorialAgentNews extends Command
         $payload = [
             'title' => $draft['title'],
             'slug' => $this->uniqueNewsSlug($draft['slug'] ?? $draft['title']),
-            'excerpt' => $draft['excerpt'] ?? Str::limit(strip_tags($content), 220),
+            'excerpt' => news_editorial_teaser($draft['excerpt'] ?? null, null, $content, 220),
             'content' => $content,
             'category_id' => $category->id,
             'views' => 0,

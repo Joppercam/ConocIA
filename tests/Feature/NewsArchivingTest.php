@@ -14,6 +14,9 @@ class NewsArchivingTest extends TestCase
 
     public function test_move_old_news_to_historic()
     {
+        $initialNewsCount = News::count();
+        $initialHistoricCount = NewsHistoric::count();
+
         // Crear noticias antiguas
         $oldNews = News::factory()->count(5)->create([
             'created_at' => Carbon::now()->subDays(5)
@@ -30,8 +33,8 @@ class NewsArchivingTest extends TestCase
         
         // Verificar que solo las noticias antiguas se movieron
         $this->assertEquals(0, News::whereIn('id', $oldNews->pluck('id'))->count());
-        $this->assertEquals(5, NewsHistoric::count());
-        $this->assertEquals(3, News::count());
+        $this->assertEquals($initialHistoricCount + 5, NewsHistoric::count());
+        $this->assertEquals($initialNewsCount + 3, News::count());
     }
 
     public function test_can_access_historic_news()

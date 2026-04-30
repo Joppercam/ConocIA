@@ -80,7 +80,7 @@
                                     @endif
                                     <h1 class="fw-bold lh-sm mb-2" style="font-size:1.2rem;">{{ $hero->title }}</h1>
                                     <p class="mb-2 d-none d-md-block" style="font-size:.85rem;opacity:.85;">
-                                        {{ Str::limit($hero->excerpt, 110) }}
+                                        {{ news_editorial_teaser($hero->summary ?? null, $hero->excerpt ?? null, $hero->content ?? null, 110) }}
                                     </p>
                                     <div class="d-flex gap-3" style="font-size:.72rem;opacity:.7;">
                                         <span><i class="far fa-clock me-1"></i>{{ $hero->created_at->locale('es')->diffForHumans() }}</span>
@@ -438,7 +438,10 @@
                         @forelse($latestAnalises->take(2) as $item)
                         <a href="{{ route('analisis.show', $item->slug) }}" class="text-decoration-none d-block px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}" style="border-color:#f1f5f9 !important;">
                             <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.8rem;">{{ Str::limit($item->title, 60) }}</div>
-                            @if($item->excerpt)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ Str::limit($item->excerpt, 60) }}</div>@endif
+                            @php
+                                $itemTeaser = news_editorial_teaser($item->summary ?? null, $item->excerpt ?? null, $item->content ?? null, 60);
+                            @endphp
+                            @if($itemTeaser)<div style="color:#94a3b8;font-size:.72rem;margin-top:2px;">{{ $itemTeaser }}</div>@endif
                         </a>
                         @empty
                         <div class="px-3 py-3 text-center" style="color:#94a3b8;font-size:.78rem;">Próximamente</div>

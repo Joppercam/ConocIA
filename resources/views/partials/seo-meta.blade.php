@@ -1,9 +1,13 @@
 <!-- resources/views/partials/seo-meta.blade.php -->
 @php
 // Variables por defecto que se pueden sobreescribir en cada vista
-$metaTitle = $metaTitle ?? ($title ?? config('app.name', 'ConocIA'));
-$metaDescription = $metaDescription ?? ($description ?? 'Noticias de tecnología e inteligencia artificial - ConocIA');
-$metaKeywords = $metaKeywords ?? ($keywords ?? 'inteligencia artificial, tecnología, noticias tecnología, IA');
+$sectionTitle = trim($__env->yieldContent('title'));
+$sectionDescription = trim($__env->yieldContent('meta_description'));
+$sectionKeywords = trim($__env->yieldContent('meta_keywords'));
+
+$metaTitle = $metaTitle ?? ($title ?? ($sectionTitle !== '' ? $sectionTitle : config('app.name', 'ConocIA')));
+$metaDescription = $metaDescription ?? ($description ?? ($sectionDescription !== '' ? $sectionDescription : 'Noticias de tecnología e inteligencia artificial - ConocIA'));
+$metaKeywords = $metaKeywords ?? ($keywords ?? ($sectionKeywords !== '' ? $sectionKeywords : 'inteligencia artificial, tecnología, noticias tecnología, IA'));
 $metaImage = $metaImage ?? ($image ?? asset('images/defaults/social-share.jpg'));
 $metaType = $metaType ?? ($type ?? 'website');
 $metaUrl = $metaUrl ?? ($url ?? url()->current());

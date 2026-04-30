@@ -49,7 +49,7 @@ $metaAuthor = $articleAuthorName;
 $metaPublished = $article->published_at ? $article->published_at->toIso8601String() : $article->created_at->toIso8601String();
 $metaModified = $article->updated_at ? $article->updated_at->toIso8601String() : null;
 $contentLooksIncomplete = news_content_looks_incomplete($article->content ?? null);
-$articleSummary = $article->summary ?: $article->excerpt;
+$articleSummary = news_editorial_teaser($article->summary ?? null, $article->excerpt ?? null, $article->content ?? null, 260);
 @endphp
 
 @section('meta')
@@ -118,7 +118,7 @@ $articleSummary = $article->summary ?: $article->excerpt;
                 @endif
                 <h1 class="mb-2">{{ $article->title }}</h1>
                 @if($articleSummary)
-                <p class="mb-3 news-summary-text" style="font-size:1rem;line-height:1.7;">{{ \Illuminate\Support\Str::limit($articleSummary, 220) }}</p>
+                <p class="mb-3 news-summary-text" style="font-size:1rem;line-height:1.7;">{{ $articleSummary }}</p>
                 @endif
                 
                 <!-- Autor y fecha -->
@@ -258,7 +258,9 @@ $articleSummary = $article->summary ?: $article->excerpt;
                 </div>
 
                 @foreach($insights as $insight)
-                    @php($locked = $insight->is_premium && !$canAccessPremiumInsights)
+                    @php
+                        $locked = $insight->is_premium && !$canAccessPremiumInsights;
+                    @endphp
                     <div class="rounded-3 p-3 mb-3" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);{{ $locked ? 'filter:blur(2px);user-select:none;' : '' }}">
                         <div class="d-flex flex-wrap gap-2 mb-2">
                             <span class="badge bg-info">{{ ucfirst($insight->tipo) }}</span>
@@ -606,7 +608,7 @@ $articleSummary = $article->summary ?: $article->excerpt;
                 <div class="card-body pt-1 pb-3 px-3">
                     <div class="d-flex flex-wrap gap-2">
                         @foreach($popularTags as $tag)
-                        <a href="{{ route('news.tag', $tag->slug) }}"
+                        <a href="{{ route('news.by.tag', $tag->slug) }}"
                            class="badge bg-light text-dark text-decoration-none border"
                            style="font-size:.75rem;font-weight:500;">
                             #{{ $tag->name }}

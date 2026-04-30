@@ -178,7 +178,7 @@ class FetchNewsWithGemini extends Command
                 'title'       => $article['title'],
                 'slug'        => $articleSlug,
                 'content'     => $article['content'],
-                'excerpt'     => $article['excerpt'] ?? Str::limit(strip_tags($article['content']), 200),
+                'excerpt'     => news_editorial_teaser($article['excerpt'] ?? null, null, $article['content'] ?? null, 200),
                 'image'       => null, // se actualiza después si hay imagen
                 'author'      => $article['source'] ?? 'ConocIA',
                 'source'      => $article['source'] ?? 'ConocIA',

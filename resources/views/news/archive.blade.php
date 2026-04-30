@@ -85,7 +85,7 @@
                                 <span><i class="fas fa-eye me-1"></i>{{ number_format($article->views) }} lecturas</span>
                             </div>
                             <p class="card-text small mb-2">
-                                {{ Str::limit($article->excerpt, 150) }}
+                                {{ news_editorial_teaser($article->summary ?? null, $article->excerpt ?? null, $article->content ?? null, 150) }}
                             </p>
                         </div>
                     </div>

@@ -17,5 +17,8 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+        $response->assertSee('<html lang="es">', false);
+        $this->assertSame(1, substr_count($response->getContent(), '<title>'));
+        $this->assertSame(1, substr_count($response->getContent(), '<meta name="description"'));
     }
 }

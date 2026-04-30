@@ -253,7 +253,7 @@ class EditorialAgentController extends Controller
         $news = News::create([
             'title' => $draft['title'],
             'slug' => $slug,
-            'excerpt' => $draft['excerpt'] ?? Str::limit(strip_tags($content), 220),
+            'excerpt' => news_editorial_teaser($draft['excerpt'] ?? null, null, $content, 220),
             'summary' => $draft['summary'] ?? null,
             'content' => $content,
             'keywords' => $draft['keywords'] ?? null,
