@@ -112,6 +112,12 @@ return [
         'scope' => env('GOOGLE_SEARCH_CONSOLE_SCOPE', 'https://www.googleapis.com/auth/webmasters.readonly'),
     ],
 
+    'analytics' => [
+        'enabled' => env('ANALYTICS_ENABLED', true),
+        'ga4_measurement_id' => env('GOOGLE_ANALYTICS_MEASUREMENT_ID'),
+        'gtm_container_id' => env('GOOGLE_TAG_MANAGER_ID'),
+    ],
+
     'editorial_agent' => [
         'auto_news_enabled' => env('EDITORIAL_AGENT_AUTO_NEWS_ENABLED', true),
         'auto_news_daily_limit' => env('EDITORIAL_AGENT_AUTO_NEWS_DAILY_LIMIT', 3),

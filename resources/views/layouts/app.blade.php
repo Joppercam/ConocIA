@@ -42,6 +42,8 @@
     
     @stack('styles')
 
+    @include('partials.analytics-head')
+
     {{-- JSON-LD global: Organization + WebSite + SearchAction --}}
     @include('partials.schema-organization')
 
@@ -689,6 +691,8 @@
     </style>
 </head>
 <body class="theme-light" data-bs-theme="light">
+    @include('partials.analytics-body')
+
     <!-- Barra de progreso de lectura -->
     <div class="reading-progress-container">
         <div class="reading-progress-bar" id="readingProgressBar"></div>

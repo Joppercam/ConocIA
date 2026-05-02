@@ -44,6 +44,12 @@ use App\Http\Controllers\BillingController;
 |--------------------------------------------------------------------------
 */
 
+$crawlerEndpointMiddleware = [
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    \App\Http\Middleware\TrackSiteVisit::class,
+];
 
 
 // ── Conceptos IA ─────────────────────────────────────────────────────────────
@@ -99,7 +105,8 @@ Route::prefix('api/videos')->name('api.videos.')->group(function () {
 });
 
 // Rutas para sitemaps
-Route::get('sitemap.xml', [SitemapController::class, 'index']);
+Route::get('sitemap.xml', [SitemapController::class, 'index'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
 
 // Sitemap principal generado programáticamente
 Route::get('sitemap-main.xml', function() {
@@ -181,14 +188,20 @@ Route::get('sitemap-main.xml', function() {
     $xml .= '</urlset>';
     
     return response($xml)->header('Content-Type', 'text/xml');
-});
+})->withoutMiddleware($crawlerEndpointMiddleware);
 
-Route::get('sitemap-news.xml', [SitemapController::class, 'news']);
-Route::get('sitemap-categories.xml', [SitemapController::class, 'categories']);
-Route::get('sitemap-research.xml', [SitemapController::class, 'research']);
-Route::get('sitemap-columns.xml', [SitemapController::class, 'columns']);
-Route::get('sitemap-profundiza.xml', [SitemapController::class, 'profundiza']);
-Route::get('sitemap-videos.xml', [SitemapController::class, 'videos']);
+Route::get('sitemap-news.xml', [SitemapController::class, 'news'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
+Route::get('sitemap-categories.xml', [SitemapController::class, 'categories'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
+Route::get('sitemap-research.xml', [SitemapController::class, 'research'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
+Route::get('sitemap-columns.xml', [SitemapController::class, 'columns'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
+Route::get('sitemap-profundiza.xml', [SitemapController::class, 'profundiza'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
+Route::get('sitemap-videos.xml', [SitemapController::class, 'videos'])
+    ->withoutMiddleware($crawlerEndpointMiddleware);
 
 // RSS Feed
 Route::feeds();
