@@ -34,8 +34,8 @@
                         <span class="badge rounded-pill" style="background:rgba(255,255,255,.08);color:#dbeafe;border:1px solid rgba(255,255,255,.14);font-size:.7rem;">{{ $featuredPaper->arxiv_category }}</span>
                     @endif
                     @if($isNewPaper)
-                        <span class="badge rounded-pill" style="background:#38b6ff;color:#fff;border:1px solid rgba(255,255,255,.18);font-size:.7rem;">
-                            Nuevo
+                        <span class="badge rounded-pill text-uppercase fw-bold" style="background:#facc15;color:#111827;border:2px solid #fff;box-shadow:0 0 0 3px rgba(250,204,21,.22),0 8px 18px rgba(0,0,0,.28);font-size:.72rem;letter-spacing:.04em;">
+                            <i class="fas fa-bolt me-1"></i>Nuevo
                         </span>
                     @endif
                     @if($featuredPaper->arxiv_published_date)

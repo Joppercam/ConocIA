@@ -57,8 +57,8 @@
                     </span>
                     @endif
                     @if($isNewHeroResearch)
-                    <span class="badge rounded-pill" style="background:#38b6ff;color:#fff;font-size:.68rem;">
-                        Nuevo
+                    <span class="badge rounded-pill text-uppercase fw-bold" style="background:#facc15;color:#111827;border:2px solid #fff;box-shadow:0 0 0 3px rgba(250,204,21,.22),0 8px 18px rgba(0,0,0,.28);font-size:.72rem;letter-spacing:.04em;">
+                        <i class="fas fa-bolt me-1"></i>Nuevo
                     </span>
                     @endif
                     <span class="badge rounded-pill" style="background:rgba(255,255,255,.08);color:#cbd5e1;font-size:.68rem;">
