@@ -176,7 +176,8 @@ class HomeController extends Controller
                       ->whereRaw("image NOT LIKE '%default%'")
                       ->whereRaw("image NOT LIKE '%placeholder%'");
                 })
-                ->latest('published_at')
+                ->orderByDesc('featured')
+                ->orderByDesc('published_at')
                 ->take(5)
                 ->get();
         });
