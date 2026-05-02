@@ -194,7 +194,7 @@ class NewsController extends Controller
         $canAccessPremiumContent = !$isPremiumContent
             || (auth()->check() && auth()->user()->canAccessFeature('premium-content'));
 
-        if ($article instanceof News && Schema::hasTable('insights')) {
+        if ($article instanceof News && Schema::hasTable('insights') && ($isPremiumContent || $canAccessPremiumInsights)) {
             $insightEngine->generarInsight($article);
             $insights = $article->insights()->latest()->get();
 

@@ -59,6 +59,14 @@ return new class extends Migration
             $payload['user_id'] = $editorId;
         }
 
+        if (Schema::hasColumn('news', 'access_level')) {
+            $payload['access_level'] = 'free';
+        }
+
+        if (Schema::hasColumn('news', 'is_premium')) {
+            $payload['is_premium'] = false;
+        }
+
         DB::table('news')->updateOrInsert(
             ['slug' => $this->slug],
             $payload
