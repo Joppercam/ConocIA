@@ -5,6 +5,8 @@
         ->values();
     $heroResearch = $homeResearch->first();
     $sideResearch = $homeResearch->slice(1, 2);
+    $heroResearchPublishedAt = $heroResearch ? ($heroResearch->published_at ?? $heroResearch->created_at) : null;
+    $isNewHeroResearch = $heroResearchPublishedAt && $heroResearchPublishedAt->diffInHours(now()) < 48;
 @endphp
 
 @if($heroResearch)
@@ -52,6 +54,11 @@
                     @if($heroResearch->category)
                     <span class="badge rounded-pill" style="{{ $getCategoryStyle($heroResearch->category) }} font-size:.68rem;">
                         <i class="fas {{ $getCategoryIcon($heroResearch->category) }} me-1"></i>{{ $heroResearch->category->name }}
+                    </span>
+                    @endif
+                    @if($isNewHeroResearch)
+                    <span class="badge rounded-pill" style="background:#38b6ff;color:#fff;font-size:.68rem;">
+                        Nuevo
                     </span>
                     @endif
                     <span class="badge rounded-pill" style="background:rgba(255,255,255,.08);color:#cbd5e1;font-size:.68rem;">

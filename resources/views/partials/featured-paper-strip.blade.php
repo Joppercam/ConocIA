@@ -1,6 +1,8 @@
 @if(isset($featuredPaper) && $featuredPaper)
 @php
     $paperUrl = route('papers.show', $featuredPaper->slug);
+    $paperPublishedAt = $featuredPaper->published_at ?? $featuredPaper->created_at;
+    $isNewPaper = $paperPublishedAt && $paperPublishedAt->diffInHours(now()) < 48;
 @endphp
 <section style="background:#06111f;border-top:1px solid rgba(56,182,255,.28);border-bottom:1px solid rgba(56,182,255,.2);">
     <div class="container py-4">
@@ -30,6 +32,11 @@
                 <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-2">
                     @if($featuredPaper->arxiv_category)
                         <span class="badge rounded-pill" style="background:rgba(255,255,255,.08);color:#dbeafe;border:1px solid rgba(255,255,255,.14);font-size:.7rem;">{{ $featuredPaper->arxiv_category }}</span>
+                    @endif
+                    @if($isNewPaper)
+                        <span class="badge rounded-pill" style="background:#38b6ff;color:#fff;border:1px solid rgba(255,255,255,.18);font-size:.7rem;">
+                            Nuevo
+                        </span>
                     @endif
                     @if($featuredPaper->arxiv_published_date)
                         <span style="color:#94a3b8;font-size:.74rem;">
