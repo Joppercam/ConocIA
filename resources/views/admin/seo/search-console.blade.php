@@ -85,6 +85,90 @@
     </div>
 
     <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>Crecimiento editorial</strong>
+                    <span class="badge bg-primary">{{ $editorialOpportunities->count() }} acciones</span>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info py-2 small mb-3">
+                        Criterio ConocIA: optimizar para claridad, autoridad y profundidad. No perseguir clicks con exageracion; mejorar el encuadre de contenidos que ya tienen senal en Google.
+                    </div>
+                    @forelse($editorialOpportunities as $opportunity)
+                        <div class="border rounded-3 p-3 mb-3">
+                            <div class="d-flex justify-content-between gap-3 mb-2">
+                                <div>
+                                    <span class="badge {{ $opportunity->priority === 'Alta' ? 'bg-danger' : ($opportunity->priority === 'Media' ? 'bg-warning text-dark' : 'bg-secondary') }} me-2">
+                                        {{ $opportunity->priority }}
+                                    </span>
+                                    <strong>{{ $opportunity->title }}</strong>
+                                </div>
+                            </div>
+                            <div class="small text-muted mb-2">{{ $opportunity->signal }}</div>
+                            <div class="small mb-2">{{ $opportunity->action }}</div>
+                            @if($opportunity->examples->isNotEmpty())
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach($opportunity->examples as $example)
+                                        <span class="badge bg-light text-dark border" style="max-width:100%;white-space:normal;text-align:left;">
+                                            {{ \Illuminate\Support\Str::limit($example, 86) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-muted">Todavia no hay datos suficientes para recomendar acciones editoriales con confianza.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong>Clusters a reforzar</strong>
+                    <span class="badge bg-info text-dark">{{ $topicClusters->count() }} temas</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tema</th>
+                                    <th class="text-end">Queries</th>
+                                    <th class="text-end">Imp.</th>
+                                    <th class="text-end">CTR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($topicClusters as $cluster)
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">{{ $cluster->cluster }}</div>
+                                            <div class="small text-muted">
+                                                {{ \Illuminate\Support\Str::limit(implode(' · ', $cluster->sample_queries), 90) }}
+                                            </div>
+                                        </td>
+                                        <td class="text-end">{{ number_format($cluster->queries) }}</td>
+                                        <td class="text-end">{{ number_format($cluster->impressions) }}</td>
+                                        <td class="text-end">{{ number_format($cluster->ctr * 100, 2) }}%</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="4" class="text-center text-muted py-4">Sin clusters detectados todavia.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 small text-muted border-top">
+                        Uso sugerido: crear o reforzar paginas puente por tema, y enlazar noticias, papers, conceptos e investigaciones relacionadas.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">

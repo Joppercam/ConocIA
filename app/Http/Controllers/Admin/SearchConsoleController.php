@@ -142,6 +142,15 @@ class SearchConsoleController extends Controller
             $pageMetrics,
             $previousPageMetrics
         );
+        $topicClusters = $this->buildTopicClusters($queryCandidates);
+        $editorialOpportunities = $this->buildEditorialOpportunities(
+            $opportunityPages,
+            $zeroClickPages,
+            $queryCandidates,
+            $fallingPages,
+            $risingPages,
+            $topicClusters
+        );
 
         return view('admin.seo.search-console', compact(
             'days',
@@ -166,7 +175,9 @@ class SearchConsoleController extends Controller
             'actionableNews',
             'fallingPages',
             'risingPages',
-            'newOpportunityPages'
+            'newOpportunityPages',
+            'topicClusters',
+            'editorialOpportunities'
         ))->with([
             'isConfigured' => $searchConsole->isConfigured(),
         ]);
@@ -304,6 +315,159 @@ class SearchConsoleController extends Controller
             ->values();
 
         return [$fallingPages, $risingPages, $newOpportunityPages];
+    }
+
+    private function buildEditorialOpportunities(
+        Collection $opportunityPages,
+        Collection $zeroClickPages,
+        Collection $queryCandidates,
+        Collection $fallingPages,
+        Collection $risingPages,
+        Collection $topicClusters
+    ): Collection {
+        $items = collect();
+
+        if ($opportunityPages->isNotEmpty()) {
+            $items->push((object) [
+                'priority' => 'Alta',
+                'title' => 'Mejorar CTR sin cambiar la linea editorial',
+                'signal' => $opportunityPages->count() . ' paginas con posicion aprovechable y CTR bajo.',
+                'action' => 'Reescribir title y meta description con sujeto claro, dato concreto y contexto. Evitar promesas grandilocuentes: explicar por que importa.',
+                'examples' => $opportunityPages->take(3)->pluck('page')->values(),
+            ]);
+        }
+
+        $gapQueries = $queryCandidates
+            ->filter(fn ($row) => (int) $row->impressions >= 10 && ((int) $row->clicks === 0 || (float) $row->ctr < 0.02))
+            ->sortByDesc('impressions')
+            ->take(5)
+            ->values();
+
+        if ($gapQueries->isNotEmpty()) {
+            $items->push((object) [
+                'priority' => 'Alta',
+                'title' => 'Crear piezas evergreen donde Google ya muestra demanda',
+                'signal' => $gapQueries->count() . ' queries con impresiones y pocos clicks.',
+                'action' => 'Convertir busquedas repetidas en conceptos, papers explicados o guias sobrias. Priorizar contenido que sirva como referencia, no como noticia pasajera.',
+                'examples' => $gapQueries->pluck('query')->values(),
+            ]);
+        }
+
+        if ($topicClusters->isNotEmpty()) {
+            $topCluster = $topicClusters->first();
+            $items->push((object) [
+                'priority' => 'Media',
+                'title' => 'Reforzar cluster tematico con enlaces internos',
+                'signal' => "{$topCluster->cluster} concentra " . number_format($topCluster->impressions) . ' impresiones.',
+                'action' => 'Enlazar noticias, papers e investigaciones del mismo tema. Agregar al cierre de cada pieza una lectura relacionada que profundice sin sacar al usuario del hilo.',
+                'examples' => collect($topCluster->sample_queries),
+            ]);
+        }
+
+        if ($fallingPages->isNotEmpty()) {
+            $items->push((object) [
+                'priority' => 'Media',
+                'title' => 'Recuperar paginas que perdieron impresiones',
+                'signal' => $fallingPages->count() . ' paginas cayeron contra el periodo anterior.',
+                'action' => 'Actualizar fecha editorial solo si hay cambios reales, sumar contexto reciente y reforzar enlaces desde home, secciones o contenidos relacionados.',
+                'examples' => $fallingPages->take(3)->pluck('page')->values(),
+            ]);
+        }
+
+        if ($risingPages->isNotEmpty()) {
+            $items->push((object) [
+                'priority' => 'Media',
+                'title' => 'Escalar contenidos que ya estan traccionando',
+                'signal' => $risingPages->count() . ' paginas suben en impresiones.',
+                'action' => 'Crear una segunda pieza complementaria o sumar enlaces hacia ellas desde contenidos recientes. No duplicar: ampliar el angulo.',
+                'examples' => $risingPages->take(3)->pluck('page')->values(),
+            ]);
+        }
+
+        if ($zeroClickPages->isNotEmpty()) {
+            $items->push((object) [
+                'priority' => 'Baja',
+                'title' => 'Resolver paginas visibles pero sin clicks',
+                'signal' => $zeroClickPages->count() . ' paginas aparecen en Google pero no capturan visitas.',
+                'action' => 'Revisar si la intencion de busqueda coincide con el contenido. Si no coincide, ajustar bajada, subtitulos y enlaces internos antes de tocar el enfoque.',
+                'examples' => $zeroClickPages->take(3)->pluck('page')->values(),
+            ]);
+        }
+
+        return $items->take(5)->values();
+    }
+
+    private function buildTopicClusters(Collection $queryCandidates): Collection
+    {
+        if ($queryCandidates->isEmpty()) {
+            return collect();
+        }
+
+        return $queryCandidates
+            ->map(function ($row) {
+                return (object) [
+                    'cluster' => $this->resolveQueryCluster((string) $row->query),
+                    'query' => (string) $row->query,
+                    'clicks' => (int) $row->clicks,
+                    'impressions' => (int) $row->impressions,
+                    'ctr' => (float) $row->ctr,
+                    'position' => (float) $row->position,
+                ];
+            })
+            ->groupBy('cluster')
+            ->map(function (Collection $rows, string $cluster) {
+                $impressions = (int) $rows->sum('impressions');
+                $clicks = (int) $rows->sum('clicks');
+
+                return (object) [
+                    'cluster' => $cluster,
+                    'queries' => $rows->count(),
+                    'clicks' => $clicks,
+                    'impressions' => $impressions,
+                    'ctr' => $impressions > 0 ? $clicks / $impressions : 0.0,
+                    'position' => round((float) $rows->avg('position'), 1),
+                    'sample_queries' => $rows
+                        ->sortByDesc('impressions')
+                        ->take(4)
+                        ->pluck('query')
+                        ->values()
+                        ->all(),
+                ];
+            })
+            ->sortByDesc('impressions')
+            ->values()
+            ->take(8);
+    }
+
+    private function resolveQueryCluster(string $query): string
+    {
+        $normalized = Str::of($query)->lower()->ascii()->toString();
+
+        if (Str::contains($normalized, ['chile', 'anci', 'rut', 'gobierno', 'ley marco'])) {
+            return 'IA en Chile';
+        }
+
+        if (Str::contains($normalized, ['ciber', 'seguridad', 'prompt injection', 'ransomware', 'datos', 'filtracion'])) {
+            return 'Ciberseguridad e IA';
+        }
+
+        if (Str::contains($normalized, ['agente', 'agent', 'multiagente', 'autonomo'])) {
+            return 'Agentes de IA';
+        }
+
+        if (Str::contains($normalized, ['paper', 'arxiv', 'investigacion', 'benchmark', 'stanford', 'mit'])) {
+            return 'Papers explicados';
+        }
+
+        if (Str::contains($normalized, ['chatgpt', 'gemini', 'claude', 'openai', 'google', 'anthropic', 'modelo'])) {
+            return 'Modelos y herramientas';
+        }
+
+        if (Str::contains($normalized, ['regulacion', 'ley', 'privacidad', 'biometr', 'derecho', 'copyright'])) {
+            return 'Regulacion y datos';
+        }
+
+        return 'IA general';
     }
 
     private function buildSectionPerformance($pageMetrics): Collection
