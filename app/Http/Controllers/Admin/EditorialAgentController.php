@@ -132,6 +132,77 @@ class EditorialAgentController extends Controller
         return redirect()->route('admin.editorial-agent.index')->with('success', 'Propuesta aprobada. Quedó lista para ejecutar.');
     }
 
+    public function bulkAction(Request $request)
+    {
+        $data = $request->validate([
+            'task_ids' => 'required|array|min:1',
+            'task_ids.*' => 'integer|exists:editorial_agent_tasks,id',
+            'bulk_action' => 'required|in:approve,complete,reject',
+            'review_notes' => 'nullable|string|max:2000',
+        ]);
+
+        $tasks = EditorialAgentTask::whereIn('id', $data['task_ids'])->get();
+        $processed = 0;
+        $createdDrafts = 0;
+
+        foreach ($tasks as $task) {
+            if ($data['bulk_action'] === 'approve') {
+                $createdNews = null;
+
+                if ($task->task_type === 'news_draft') {
+                    $createdNews = $this->createNewsDraftFromTask($task, $request);
+                    $createdDrafts += $createdNews ? 1 : 0;
+                }
+
+                $task->update([
+                    'status' => 'approved',
+                    'reviewed_by' => $request->user()->id,
+                    'reviewed_at' => now(),
+                    'review_notes' => $data['review_notes'] ?? null,
+                    'content_type' => $createdNews ? 'noticia' : $task->content_type,
+                    'content_id' => $createdNews?->id ?? $task->content_id,
+                    'content_url' => $createdNews ? route('admin.news.edit', $createdNews) : $task->content_url,
+                    'payload' => $createdNews
+                        ? array_merge($task->payload ?? [], ['created_news_id' => $createdNews->id])
+                        : $task->payload,
+                ]);
+            }
+
+            if ($data['bulk_action'] === 'complete') {
+                $task->update([
+                    'status' => 'completed',
+                    'reviewed_by' => $request->user()->id,
+                    'reviewed_at' => now(),
+                    'review_notes' => $data['review_notes'] ?? $task->review_notes,
+                ]);
+            }
+
+            if ($data['bulk_action'] === 'reject') {
+                $task->update([
+                    'status' => 'rejected',
+                    'reviewed_by' => $request->user()->id,
+                    'reviewed_at' => now(),
+                    'review_notes' => $data['review_notes'] ?? null,
+                ]);
+            }
+
+            $processed++;
+
+            EditorialAgentLogger::info('task_bulk_action', 'Acción masiva aplicada a tarea editorial.', [
+                'task_id' => $task->id,
+                'task_type' => $task->task_type,
+                'bulk_action' => $data['bulk_action'],
+            ]);
+        }
+
+        $message = "Acción masiva aplicada a {$processed} propuesta(s).";
+        if ($createdDrafts > 0) {
+            $message .= " Se crearon {$createdDrafts} borrador(es) de noticia.";
+        }
+
+        return back()->with('success', $message);
+    }
+
     public function complete(Request $request, EditorialAgentTask $task)
     {
         $task->update([

@@ -71,10 +71,41 @@
     </div>
 
     <div class="card border-0 shadow-sm">
+        <div class="card-body border-bottom">
+            <form id="bulkEditorialForm" action="{{ route('admin.editorial-agent.bulk-action') }}" method="POST" class="row g-2 align-items-end">
+                @csrf
+                @method('PATCH')
+                <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Acción masiva</label>
+                    <select name="bulk_action" class="form-select form-select-sm" required>
+                        <option value="">Seleccionar acción</option>
+                        <option value="approve">Aprobar seleccionadas</option>
+                        <option value="complete">Marcar ejecutadas</option>
+                        <option value="reject">Descartar seleccionadas</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small text-muted mb-1">Nota opcional</label>
+                    <input type="text" name="review_notes" class="form-control form-control-sm" maxlength="2000" placeholder="Ej: aprobado por lote, duplicadas, ya revisadas...">
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button type="submit" class="btn btn-sm btn-primary" id="bulkSubmitButton" disabled>
+                        Aplicar a seleccionadas
+                    </button>
+                </div>
+            </form>
+            <div class="small text-muted mt-2">
+                <span id="selectedCount">0</span> seleccionada(s). Al aprobar borradores de noticia se crean como borradores, no se publican.
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table align-middle mb-0">
                 <thead>
                     <tr>
+                        <th style="width:42px;">
+                            <input type="checkbox" class="form-check-input" id="selectAllTasks" aria-label="Seleccionar todas las propuestas visibles">
+                        </th>
                         <th>Propuesta</th>
                         <th>Tipo</th>
                         <th>Prioridad</th>
@@ -86,6 +117,14 @@
                 <tbody>
                     @forelse($tasks as $task)
                         <tr>
+                            <td>
+                                <input type="checkbox"
+                                       class="form-check-input editorial-task-checkbox"
+                                       name="task_ids[]"
+                                       value="{{ $task->id }}"
+                                       form="bulkEditorialForm"
+                                       aria-label="Seleccionar {{ $task->title }}">
+                            </td>
                             <td>
                                 <a href="{{ route('admin.editorial-agent.show', $task) }}" class="fw-semibold text-decoration-none">
                                     {{ $task->title }}
@@ -108,7 +147,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No hay propuestas para este filtro.</td>
+                            <td colspan="7" class="text-center text-muted py-4">No hay propuestas para este filtro.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -119,4 +158,55 @@
     <div class="mt-3">
         {{ $tasks->links() }}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAll = document.getElementById('selectAllTasks');
+            const checkboxes = Array.from(document.querySelectorAll('.editorial-task-checkbox'));
+            const selectedCount = document.getElementById('selectedCount');
+            const submitButton = document.getElementById('bulkSubmitButton');
+            const form = document.getElementById('bulkEditorialForm');
+
+            function updateBulkState() {
+                const checked = checkboxes.filter((checkbox) => checkbox.checked).length;
+                selectedCount.textContent = checked;
+                submitButton.disabled = checked === 0;
+
+                if (selectAll) {
+                    selectAll.checked = checked > 0 && checked === checkboxes.length;
+                    selectAll.indeterminate = checked > 0 && checked < checkboxes.length;
+                }
+            }
+
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    checkboxes.forEach((checkbox) => {
+                        checkbox.checked = selectAll.checked;
+                    });
+                    updateBulkState();
+                });
+            }
+
+            checkboxes.forEach((checkbox) => checkbox.addEventListener('change', updateBulkState));
+
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    const checked = checkboxes.filter((checkbox) => checkbox.checked).length;
+                    const action = form.querySelector('[name="bulk_action"]').value;
+
+                    if (checked === 0 || !action) {
+                        event.preventDefault();
+                        return;
+                    }
+
+                    const label = action === 'approve' ? 'aprobar' : (action === 'complete' ? 'marcar como ejecutadas' : 'descartar');
+                    if (!confirm(`Vas a ${label} ${checked} propuesta(s). ¿Continuar?`)) {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            updateBulkState();
+        });
+    </script>
 @endsection
