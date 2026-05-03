@@ -140,6 +140,12 @@ return Application::configure(basePath: dirname(__DIR__))
             ->when($searchConsoleConfigured)
             ->appendOutputTo(storage_path('logs/search-console-audit.log'));
 
+        $schedule->command('seo:generate-editorial-opportunities --days=28 --limit=12')
+            ->dailyAt('06:55')
+            ->withoutOverlapping()
+            ->when($searchConsoleConfigured)
+            ->appendOutputTo(storage_path('logs/search-console-editorial-opportunities.log'));
+
         // Agente editorial asistido — oportunidades internas para aprobar
         $schedule->command('editorial-agent:scan --days=7')
             ->everyFourHours()

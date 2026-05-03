@@ -73,12 +73,14 @@ class AutoCreateEditorialAgentContent extends Command
         $topic = $this->nextTopic();
         $category = $topic['category'] ?? 'inteligencia-artificial';
         $days = (int) config('services.editorial_agent.auto_news_days', 2);
+        $sourceTaskId = $topic['source_task_id'] ?? null;
 
         $this->info("Creando propuesta automatica: {$topic['topic']}");
         EditorialAgentLogger::info('auto_run_started', 'Creando propuesta automática.', [
             'topic' => $topic['topic'],
             'category' => $category,
             'days' => $days,
+            'source_task_id' => $sourceTaskId,
         ]);
 
         $exitCode = Artisan::call('editorial-agent:create-news', [
@@ -97,14 +99,48 @@ class AutoCreateEditorialAgentContent extends Command
                 'topic' => $topic['topic'],
                 'category' => $category,
                 'exit_code' => $exitCode,
+                'source_task_id' => $sourceTaskId,
             ]
         );
+
+        if ($exitCode === 0 && $sourceTaskId) {
+            EditorialAgentTask::whereKey($sourceTaskId)
+                ->where('status', 'pending')
+                ->update([
+                    'status' => 'completed',
+                    'reviewed_at' => now(),
+                    'review_notes' => 'El agente automático tomó esta oportunidad SEO y creó una propuesta de borrador relacionada.',
+                ]);
+
+            EditorialAgentLogger::info('seo_opportunity_consumed', 'Oportunidad SEO convertida en propuesta automática.', [
+                'task_id' => $sourceTaskId,
+                'topic' => $topic['topic'],
+            ]);
+        }
 
         return $exitCode === 0 ? self::SUCCESS : self::FAILURE;
     }
 
     private function nextTopic(): array
     {
+        $seoTask = EditorialAgentTask::query()
+            ->where('task_type', 'content_idea')
+            ->where('status', 'pending')
+            ->where('payload->auto_create_news', true)
+            ->oldest()
+            ->first();
+
+        if ($seoTask) {
+            $payload = $seoTask->payload ?? [];
+
+            return [
+                'topic' => $payload['topic'] ?? $seoTask->title,
+                'category' => $payload['category_slug'] ?? 'inteligencia-artificial',
+                'priority' => $seoTask->priority,
+                'source_task_id' => $seoTask->id,
+            ];
+        }
+
         $topics = config('services.editorial_agent.auto_news_topics', []);
 
         if (empty($topics)) {
