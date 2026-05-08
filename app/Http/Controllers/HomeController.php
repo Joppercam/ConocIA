@@ -27,13 +27,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $viewData = Cache::remember('home_page_data_v2', 600, function () {
-            $featuredNews  = $this->fetchFeaturedNews();
-            $featuredIds   = $featuredNews->pluck('id')->toArray();
+        $featuredNews = $this->fetchFeaturedNews();
+        $featuredIds = $featuredNews->pluck('id')->toArray();
 
+        $viewData = Cache::remember('home_page_data_v2', 600, function () use ($featuredIds) {
             return array_merge(
                 [
-                    'featuredNews' => $featuredNews,
                     'popularNews'  => $this->fetchPopularNews(),
                     'secondaryNews' => $this->fetchSecondaryNews(),
                     'featuredCategories' => $this->fetchFeaturedCategories(),
@@ -46,6 +45,7 @@ class HomeController extends Controller
         });
 
         extract($viewData);
+        $featuredNews = $this->fetchFeaturedNews();
 
         $featuredPaper = $featuredPaper ?? Cache::remember('home_featured_paper', 300,
             fn() => ConocIaPaper::published()
@@ -165,7 +165,7 @@ class HomeController extends Controller
 
     private function fetchFeaturedNews()
     {
-        return Cache::remember('all_published_news_v2', 600, function () {
+        $news = Cache::remember('home_hero_news_pool_v1', 600, function () {
             return News::with('category')
                 ->where('status', 'published')
                 ->whereNotNull('image')
@@ -178,9 +178,26 @@ class HomeController extends Controller
                 })
                 ->orderByDesc('featured')
                 ->orderByDesc('published_at')
-                ->take(5)
+                ->take(12)
                 ->get();
         });
+
+        return $this->rotateHeroNews($news)->take(5)->values();
+    }
+
+    private function rotateHeroNews($news)
+    {
+        $news = collect($news)->values();
+        $count = $news->count();
+
+        if ($count <= 1) {
+            return $news;
+        }
+
+        $slot = intdiv(now()->hour, 4);
+        $offset = $slot % $count;
+
+        return $news->slice($offset)->concat($news->slice(0, $offset))->values();
     }
 
     private function fetchRecentNews(array $featuredIds): array
