@@ -113,7 +113,7 @@ return [
     ],
 
     'analytics' => [
-        'enabled' => env('ANALYTICS_ENABLED', true),
+        'enabled' => filter_var(env('ANALYTICS_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
         'ga4_measurement_id' => env('GOOGLE_ANALYTICS_MEASUREMENT_ID', 'G-W2M9Q5P8MQ'),
         'google_tag_id' => env('GOOGLE_TAG_ID', 'GT-TNP9X5ZP'),
         'gtm_container_id' => env('GOOGLE_TAG_MANAGER_ID'),

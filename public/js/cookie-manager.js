@@ -13,6 +13,9 @@ class CookieManager {
             analytics: false,
             marketing: false
         };
+        this.analyticsConfig = window.conociaAnalyticsConfig || {};
+        this.analyticsLoaded = false;
+        this.gtmLoaded = false;
         
         this.initListeners();
         this.checkConsent();
@@ -208,6 +211,8 @@ class CookieManager {
         // Google Analytics
         if (this.cookieOptions.analytics) {
             this.loadGoogleAnalytics();
+        } else {
+            this.disableGoogleAnalytics();
         }
         
         // Scripts de marketing
@@ -226,26 +231,104 @@ class CookieManager {
      * Carga Google Analytics si está permitido
      */
     loadGoogleAnalytics() {
-        // Esta es una implementación de ejemplo para GA4
-        if (!window.gtag && this.cookieOptions.analytics) {
-            console.log('Loading Google Analytics...');
-            
-            // Código para cargar GA de forma dinámica
-            // Aquí puedes incluir el script de Google Analytics cuando lo tengas
-            
-            // Ejemplo de cómo se cargaría (comentado para evitar ejecución real):
-            /*
+        if (!this.analyticsConfig.enabled || !this.cookieOptions.analytics) {
+            return;
+        }
+
+        if (this.analyticsConfig.gtmContainerId) {
+            this.loadGoogleTagManager(this.analyticsConfig.gtmContainerId);
+        }
+
+        const loaderId = this.analyticsConfig.gtagLoaderId || this.analyticsConfig.ga4MeasurementId || this.analyticsConfig.googleTagId;
+        const measurementId = this.analyticsConfig.ga4MeasurementId || this.analyticsConfig.googleTagId;
+
+        if (!loaderId || !measurementId) {
+            return;
+        }
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function gtag(){ window.dataLayer.push(arguments); };
+
+        window.gtag('consent', 'update', {
+            analytics_storage: 'granted',
+            ad_storage: this.cookieOptions.marketing ? 'granted' : 'denied',
+            ad_user_data: this.cookieOptions.marketing ? 'granted' : 'denied',
+            ad_personalization: this.cookieOptions.marketing ? 'granted' : 'denied'
+        });
+
+        if (!this.analyticsLoaded) {
             const script = document.createElement('script');
             script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX'; // Reemplazar con el ID real
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(loaderId)}`;
             document.head.appendChild(script);
-            
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX'); // Reemplazar con el ID real
-            */
+
+            window.gtag('js', new Date());
+            window.gtag('config', measurementId, { anonymize_ip: true });
+            this.analyticsLoaded = true;
         }
+    }
+
+    /**
+     * Carga Google Tag Manager si existe un contenedor configurado.
+     */
+    loadGoogleTagManager(containerId) {
+        if (this.gtmLoaded || !containerId) {
+            return;
+        }
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(containerId)}`;
+        document.head.appendChild(script);
+        this.gtmLoaded = true;
+    }
+
+    /**
+     * Revoca el consentimiento de analytics para la sesión actual.
+     */
+    disableGoogleAnalytics() {
+        if (typeof window.gtag === 'function') {
+            window.gtag('consent', 'update', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+            });
+        }
+
+        this.deleteCookieByPrefix('_ga');
+        this.deleteCookieByPrefix('_gid');
+        this.deleteCookieByPrefix('_gat');
+    }
+
+    /**
+     * Borra cookies conocidas de Google Analytics en el dominio actual.
+     */
+    deleteCookieByPrefix(prefix) {
+        document.cookie.split(';').forEach((cookie) => {
+            const cookieName = cookie.split('=')[0].trim();
+            if (!cookieName || !cookieName.startsWith(prefix)) {
+                return;
+            }
+
+            const hostnameParts = window.location.hostname.split('.');
+            const domains = [
+                window.location.hostname,
+                `.${window.location.hostname}`
+            ];
+
+            if (hostnameParts.length > 2) {
+                domains.push(`.${hostnameParts.slice(-2).join('.')}`);
+            }
+
+            domains.forEach((domain) => {
+                document.cookie = `${cookieName}=; Max-Age=0; path=/; domain=${domain}; SameSite=Lax`;
+            });
+            document.cookie = `${cookieName}=; Max-Age=0; path=/; SameSite=Lax`;
+        });
     }
     
     /**
