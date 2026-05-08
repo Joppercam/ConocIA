@@ -8,6 +8,7 @@ use App\Models\VideoPlatform;
 use App\Services\Video\YoutubeService;
 use App\Services\Video\VideoService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class FetchYoutubeVideos extends Command
@@ -16,7 +17,8 @@ class FetchYoutubeVideos extends Command
                             {--per-query=4     : Videos a importar por búsqueda}
                             {--dry-run         : Mostrar resultados sin guardar en DB}
                             {--min-duration=120 : Duración mínima en segundos (evita shorts)}
-                            {--max-duration=7200 : Duración máxima en segundos (evita maratones)}';
+                            {--max-duration=7200 : Duración máxima en segundos (evita maratones)}
+                            {--max-age-days=14 : Antigüedad máxima del video en días}';
 
     protected $description = 'Importa videos de YouTube sobre IA y tecnología alineados con el perfil editorial de ConocIA';
 
@@ -124,6 +126,8 @@ class FetchYoutubeVideos extends Command
         $dryRun      = $this->option('dry-run');
         $minDuration = (int) $this->option('min-duration');
         $maxDuration = (int) $this->option('max-duration');
+        $maxAgeDays  = max(1, (int) $this->option('max-age-days'));
+        $publishedAfter = now()->subDays($maxAgeDays);
 
         $platform = VideoPlatform::where('code', 'youtube')->first();
         if (!$platform) {
@@ -152,7 +156,7 @@ class FetchYoutubeVideos extends Command
             $this->line("\n<fg=cyan>── {$label}</> → \"{$q}\"");
 
             try {
-                $results = $youtubeService->search([$q], $perQuery + 3); // +3 para compensar filtrados
+                $results = $youtubeService->search([$q], $perQuery + 6, $publishedAfter); // +6 para compensar filtrados
             } catch (\Exception $e) {
                 $this->warn("  Error buscando: " . $e->getMessage());
                 $errors++;
@@ -170,6 +174,14 @@ class FetchYoutubeVideos extends Command
                 $duration = (int) ($videoData['duration_seconds'] ?? 0);
                 if ($duration < $minDuration || $duration > $maxDuration) {
                     $this->line("  <fg=yellow>SKIP</> {$externalId} (duración {$duration}s fuera de rango)");
+                    $skipped++;
+                    continue;
+                }
+
+                $publishedAt = $this->publishedAt($videoData['published_at'] ?? null);
+                if (!$publishedAt || $publishedAt->lt($publishedAfter)) {
+                    $dateLabel = $publishedAt?->toDateString() ?? 'sin fecha';
+                    $this->line("  <fg=yellow>SKIP</> {$externalId} (publicado {$dateLabel}, fuera de los últimos {$maxAgeDays} días)");
                     $skipped++;
                     continue;
                 }
@@ -194,6 +206,14 @@ class FetchYoutubeVideos extends Command
                     $fullData = $youtubeService->getVideoInfo($externalId);
                     if (!$fullData) {
                         $this->warn("  Sin datos para {$externalId}");
+                        continue;
+                    }
+
+                    $fullPublishedAt = $this->publishedAt($fullData['published_at'] ?? null);
+                    if (!$fullPublishedAt || $fullPublishedAt->lt($publishedAfter)) {
+                        $dateLabel = $fullPublishedAt?->toDateString() ?? 'sin fecha';
+                        $this->line("  <fg=yellow>SKIP</> {$externalId} (detalle publicado {$dateLabel}, fuera de los últimos {$maxAgeDays} días)");
+                        $skipped++;
                         continue;
                     }
 
@@ -230,5 +250,18 @@ class FetchYoutubeVideos extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function publishedAt(?string $publishedAt): ?Carbon
+    {
+        if (!$publishedAt) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($publishedAt);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

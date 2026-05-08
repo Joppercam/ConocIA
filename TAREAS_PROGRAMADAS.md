@@ -262,6 +262,12 @@ php artisan news:publish-twitter --dry-run   # simula sin publicar
 YOUTUBE_API_KEY=    # https://console.cloud.google.com → YouTube Data API v3
 ```
 
+**Automatización activa:**
+- `videos:fetch-youtube --per-query=3` corre martes y viernes a las 10:00.
+- Por defecto solo importa videos publicados durante los últimos 14 días.
+- Para ajustar la ventana manualmente: `php artisan videos:fetch-youtube --max-age-days=14`.
+- Los videos importados quedan visibles automáticamente en `/videos`; no existe estado de revisión para la tabla `videos`.
+
 ---
 
 ## 7. Logs de cada tarea
@@ -332,6 +338,7 @@ videos:generate-summaries
 
 ```bash
 # YouTube (requiere YOUTUBE_API_KEY)
+php artisan videos:fetch-youtube --per-query=3 --max-age-days=14
 # Vimeo
 php artisan videos:fetch-vimeo "inteligencia artificial" --limit=10
 

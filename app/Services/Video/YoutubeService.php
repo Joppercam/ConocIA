@@ -2,6 +2,7 @@
 
 namespace App\Services\Video;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -12,22 +13,30 @@ class YoutubeService extends AbstractVideoService
         $this->resolvePlatform('youtube', 'services.youtube.key');
     }
 
-    public function search(array $keywords, int $limit = 5): array
+    public function search(array $keywords, int $limit = 5, ?Carbon $publishedAfter = null): array
     {
         $query = implode(' ', $keywords);
+        $publishedAfterIso = $publishedAfter?->copy()->utc()->toIso8601String();
 
         return $this->cachedApiCall(
-            'youtube_search_' . md5($query . '_' . $limit),
+            'youtube_search_' . md5($query . '_' . $limit . '_' . ($publishedAfterIso ?? 'any')),
             now()->addHours(6),
-            function () use ($query, $limit) {
-                $response = Http::get('https://www.googleapis.com/youtube/v3/search', [
+            function () use ($query, $limit, $publishedAfterIso) {
+                $params = [
                     'key'               => $this->apiKey,
                     'q'                 => $query,
                     'part'              => 'snippet',
                     'type'              => 'video',
                     'maxResults'        => $limit,
                     'relevanceLanguage' => 'es',
-                ]);
+                ];
+
+                if ($publishedAfterIso) {
+                    $params['publishedAfter'] = $publishedAfterIso;
+                    $params['order'] = 'date';
+                }
+
+                $response = Http::get('https://www.googleapis.com/youtube/v3/search', $params);
 
                 if (!$response->successful()) {
                     Log::error('Error en la búsqueda de YouTube: ' . $response->body());
