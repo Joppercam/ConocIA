@@ -81,8 +81,8 @@ class PodcastService
         $content = preg_replace('/\s+/', ' ', $content);
         $content = trim($content);
 
-        $suffix = '. Para leer el artículo completo, visitá Conoc-ía punto cl.';
-        $prefix = "Conoc-ía. {$news->title}. {$news->summary} ";
+        $suffix = '. Para leer el artículo completo, visitá Conocía punto cl.';
+        $prefix = "Conocía. {$news->title}. {$news->summary} ";
         $maxBytes = 4800;
         $available = $maxBytes - strlen($prefix) - strlen($suffix);
 
