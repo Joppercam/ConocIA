@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\PodcastEpisode;
 use App\Support\AdminDashboardCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -322,6 +323,11 @@ class News extends Model implements Feedable
     public function tags()
     {
         return $this->belongsToMany(Tag::class, 'news_tag');
+    }
+
+    public function podcastEpisode()
+    {
+        return $this->hasOne(PodcastEpisode::class);
     }
 
 

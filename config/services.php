@@ -119,6 +119,10 @@ return [
         'gtm_container_id' => env('GOOGLE_TAG_MANAGER_ID'),
     ],
 
+    'podcast' => [
+        'voice' => env('PODCAST_VOICE', 'nova'),
+    ],
+
     'editorial_agent' => [
         'auto_news_enabled' => env('EDITORIAL_AGENT_AUTO_NEWS_ENABLED', true),
         'auto_news_daily_limit' => env('EDITORIAL_AGENT_AUTO_NEWS_DAILY_LIMIT', 3),
