@@ -90,9 +90,16 @@ class PodcastService
         ];
 
         $signingInput = implode('.', $segments);
-        $privateKey   = str_replace('\n', "\n", (string) config('services.search_console.private_key'));
+        $rawKey       = (string) config('services.search_console.private_key');
+        $privateKey   = str_replace(['\r\n', '\n'], "\n", $rawKey);
 
-        openssl_sign($signingInput, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+        $keyResource = openssl_pkey_get_private($privateKey);
+
+        if ($keyResource === false) {
+            throw new \RuntimeException('Google TTS: clave privada inválida — ' . openssl_error_string());
+        }
+
+        openssl_sign($signingInput, $signature, $keyResource, OPENSSL_ALGO_SHA256);
 
         $segments[] = $this->base64UrlEncode($signature);
         $jwt        = implode('.', $segments);
