@@ -120,7 +120,11 @@ return [
     ],
 
     'podcast' => [
-        'voice' => env('PODCAST_VOICE', 'nova'),
+        'voice' => env('PODCAST_VOICE', 'es-US-Neural2-A'),
+    ],
+
+    'google_tts' => [
+        'key' => env('GOOGLE_TTS_KEY'),
     ],
 
     'editorial_agent' => [

@@ -14,7 +14,7 @@ class PodcastService
     {
         $episode = PodcastEpisode::firstOrCreate(
             ['news_id' => $news->id],
-            ['status' => 'pending', 'voice' => config('services.podcast.voice', 'nova')]
+            ['status' => 'pending', 'voice' => 'es-US-Neural2-A']
         );
 
         $episode->update(['status' => 'processing', 'error_message' => null]);
@@ -22,23 +22,33 @@ class PodcastService
         try {
             $text = $this->buildText($news);
 
-            $response = Http::withToken(config('services.openai.api_key'))
-                ->timeout(120)
-                ->post('https://api.openai.com/v1/audio/speech', [
-                    'model' => 'tts-1',
-                    'input' => $text,
-                    'voice' => $episode->voice,
-                    'response_format' => 'mp3',
+            $apiKey = config('services.google_tts.key');
+
+            $response = Http::timeout(120)
+                ->post("https://texttospeech.googleapis.com/v1/text:synthesize?key={$apiKey}", [
+                    'input' => ['text' => $text],
+                    'voice' => [
+                        'languageCode' => 'es-US',
+                        'name'         => 'es-US-Neural2-A',
+                        'ssmlGender'   => 'FEMALE',
+                    ],
+                    'audioConfig' => [
+                        'audioEncoding' => 'MP3',
+                    ],
                 ]);
 
             if (!$response->successful()) {
-                throw new \RuntimeException('OpenAI TTS error: ' . $response->body());
+                throw new \RuntimeException('Google TTS error: ' . $response->body());
             }
 
-            $audioData = $response->body();
-            $path = 'podcasts/' . $news->slug . '.mp3';
+            $audioData = base64_decode($response->json('audioContent'));
 
-            Storage::disk('r2')->put($path, $audioData, 'public');
+            if (!$audioData) {
+                throw new \RuntimeException('Google TTS: respuesta vacía o inválida.');
+            }
+
+            $path = 'podcasts/' . $news->slug . '.mp3';
+            Storage::disk('r2')->put($path, $audioData);
 
             $publicUrl = config('filesystems.disks.r2.url') . '/' . $path;
             $wordCount = str_word_count(strip_tags($news->content ?? ''));
@@ -66,8 +76,8 @@ class PodcastService
         $content = strip_tags($news->content ?? '');
         $content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $content = preg_replace('/\s+/', ' ', $content);
-        $content = mb_substr(trim($content), 0, 4000);
+        $content = mb_substr(trim($content), 0, 4500);
 
-        return "ConocIA. {$news->title}. {$news->summary} {$content}... Para leer el artículo completo, visitá ConocIA punto cl.";
+        return "ConocIA. {$news->title}. {$news->summary} {$content}. Para leer el artículo completo, visitá ConocIA punto cl.";
     }
 }
