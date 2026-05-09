@@ -22,7 +22,7 @@ class PodcastService
         try {
             $text = $this->buildText($news);
 
-            $response = Http::withToken(config('openai.api_key'))
+            $response = Http::withToken(config('services.openai.api_key'))
                 ->timeout(120)
                 ->post('https://api.openai.com/v1/audio/speech', [
                     'model' => 'tts-1',
