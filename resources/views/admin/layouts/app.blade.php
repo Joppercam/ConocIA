@@ -304,6 +304,11 @@
                         <i class="fas fa-microphone"></i> Podcast
                     </a>
                 </li>
+                <li>
+                    <a href="/diag/ffmpeg" target="_blank">
+                        <i class="fas fa-flask"></i> Diag FFmpeg
+                    </a>
+                </li>
                 <li class="{{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
                     <a href="#newsletterSubmenu" data-bs-toggle="collapse"
                     aria-expanded="{{ request()->routeIs('admin.newsletter.*') ? 'true' : 'false' }}"
