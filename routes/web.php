@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\TikTokController;
 use App\Http\Controllers\Admin\PaperController as AdminPaperController;
 use App\Http\Controllers\Admin\EstadoArteAdminController;
 use App\Http\Controllers\Admin\PasswordResetController as AdminPasswordResetController;
+use App\Http\Controllers\Admin\PodcastController as AdminPodcastController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ConceptoIaController;
 use App\Http\Controllers\AnalisisFondoController;
@@ -585,6 +586,13 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
                 Route::put('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'update'])->name('update');
                 Route::delete('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'destroy'])->name('destroy');
             });
+        });
+
+        Route::prefix('podcast')->name('podcast.')->group(function () {
+            Route::get('/', [AdminPodcastController::class, 'index'])->name('index');
+            Route::post('/generate/{news}', [AdminPodcastController::class, 'generate'])->name('generate');
+            Route::post('/regenerate/{episode}', [AdminPodcastController::class, 'regenerate'])->name('regenerate');
+            Route::delete('/{episode}', [AdminPodcastController::class, 'destroy'])->name('destroy');
         });
     });
 });
