@@ -76,7 +76,12 @@
                                 @elseif($episode->status === 'pending')
                                     <span class="badge bg-warning text-dark">Pendiente</span>
                                 @else
-                                    <span class="badge bg-danger" title="{{ $episode->error_message }}">Error</span>
+                                    <span class="badge bg-danger">Error</span>
+                                    @if($episode->error_message)
+                                        <div class="text-danger small mt-1" style="max-width:260px;word-break:break-word;">
+                                            {{ Str::limit($episode->error_message, 120) }}
+                                        </div>
+                                    @endif
                                 @endif
                             </td>
                             <td class="align-middle text-muted small">
