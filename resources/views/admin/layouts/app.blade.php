@@ -299,9 +299,14 @@
                         <li><a href="{{ route('admin.videos.platforms.index') }}">Plataformas</a></li>
                     </ul>
                 </li>
+                <li class="{{ request()->routeIs('admin.podcast.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.podcast.index') }}">
+                        <i class="fas fa-microphone"></i> Podcast
+                    </a>
+                </li>
                 <li class="{{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
-                    <a href="#newsletterSubmenu" data-bs-toggle="collapse" 
-                    aria-expanded="{{ request()->routeIs('admin.newsletter.*') ? 'true' : 'false' }}" 
+                    <a href="#newsletterSubmenu" data-bs-toggle="collapse"
+                    aria-expanded="{{ request()->routeIs('admin.newsletter.*') ? 'true' : 'false' }}"
                     class="dropdown-toggle">
                         <i class="fas fa-envelope"></i> Newsletter
                     </a>
