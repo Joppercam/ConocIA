@@ -285,6 +285,8 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
             </div>
             @endif
 
+            @include('components.podcast-player', ['episode' => $article->podcastEpisode ?? null])
+
             <!-- Contenido Principal -->
             @if($canAccessPremiumContent ?? true)
                 <div class="news-content mb-4">

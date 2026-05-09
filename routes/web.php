@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\PaperController as AdminPaperController;
 use App\Http\Controllers\Admin\EstadoArteAdminController;
 use App\Http\Controllers\Admin\PasswordResetController as AdminPasswordResetController;
 use App\Http\Controllers\Admin\PodcastController as AdminPodcastController;
+use App\Http\Controllers\PodcastController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ConceptoIaController;
 use App\Http\Controllers\AnalisisFondoController;
@@ -52,6 +53,9 @@ $crawlerEndpointMiddleware = [
     \App\Http\Middleware\TrackSiteVisit::class,
 ];
 
+
+// ── Podcast RSS ──────────────────────────────────────────────────────────────
+Route::get('/podcast.rss', [PodcastController::class, 'rss'])->name('podcast.rss');
 
 // ── Conceptos IA ─────────────────────────────────────────────────────────────
 Route::prefix('conceptos-ia')->name('conceptos.')->group(function () {
