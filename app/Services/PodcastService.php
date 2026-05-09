@@ -20,12 +20,15 @@ class PodcastService
         $episode->update(['status' => 'processing', 'error_message' => null]);
 
         try {
-            $text      = $this->buildText($news);
-            $token     = $this->getAccessToken();
+            $text   = $this->buildText($news);
+            $apiKey = config('services.google_tts.key');
+
+            if (!$apiKey) {
+                throw new \RuntimeException('GOOGLE_TTS_KEY no está configurada.');
+            }
 
             $response = Http::timeout(120)
-                ->withToken($token)
-                ->post('https://texttospeech.googleapis.com/v1/text:synthesize', [
+                ->post("https://texttospeech.googleapis.com/v1/text:synthesize?key={$apiKey}", [
                     'input' => ['text' => $text],
                     'voice' => [
                         'languageCode' => 'es-US',
@@ -69,56 +72,6 @@ class PodcastService
         }
 
         return $episode->fresh();
-    }
-
-    private function getAccessToken(): string
-    {
-        $now = time();
-
-        $header = ['alg' => 'RS256', 'typ' => 'JWT'];
-        $claims = [
-            'iss'   => config('services.search_console.client_email'),
-            'scope' => 'https://www.googleapis.com/auth/cloud-platform',
-            'aud'   => 'https://oauth2.googleapis.com/token',
-            'iat'   => $now,
-            'exp'   => $now + 3600,
-        ];
-
-        $segments = [
-            $this->base64UrlEncode(json_encode($header, JSON_UNESCAPED_SLASHES)),
-            $this->base64UrlEncode(json_encode($claims, JSON_UNESCAPED_SLASHES)),
-        ];
-
-        $signingInput = implode('.', $segments);
-        $rawKey       = (string) config('services.search_console.private_key');
-        $privateKey   = str_replace(['\r\n', '\n'], "\n", $rawKey);
-
-        $keyResource = openssl_pkey_get_private($privateKey);
-
-        if ($keyResource === false) {
-            throw new \RuntimeException('Google TTS: clave privada inválida — ' . openssl_error_string());
-        }
-
-        openssl_sign($signingInput, $signature, $keyResource, OPENSSL_ALGO_SHA256);
-
-        $segments[] = $this->base64UrlEncode($signature);
-        $jwt        = implode('.', $segments);
-
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
-            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion'  => $jwt,
-        ]);
-
-        if (!$response->successful()) {
-            throw new \RuntimeException('Google OAuth error: ' . $response->body());
-        }
-
-        return $response->json('access_token');
-    }
-
-    private function base64UrlEncode(string $value): string
-    {
-        return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
     }
 
     private function buildText(News $news): string
