@@ -333,11 +333,6 @@ class News extends Model implements Feedable
         return $this->hasMany(SocialMediaPost::class);
     }
 
-    public function podcastEpisode()
-    {
-        return $this->hasOne(PodcastEpisode::class);
-    }
-
     /**
      * Verifica si esta noticia ha sido publicada en la red social especificada
      *

@@ -585,17 +585,6 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
                 Route::put('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'update'])->name('update');
                 Route::delete('/{platform}', [App\Http\Controllers\Admin\VideoPlatformController::class, 'destroy'])->name('destroy');
             });
-
-            // Podcast
-            Route::prefix('podcast')->name('podcast.')->group(function () {
-                Route::get('/', [App\Http\Controllers\Admin\PodcastController::class, 'index'])->name('index');
-                Route::post('/generate/{news}', [App\Http\Controllers\Admin\PodcastController::class, 'generate'])->name('generate');
-                Route::post('/regenerate/{episode}', [App\Http\Controllers\Admin\PodcastController::class, 'regenerate'])->name('regenerate');
-                Route::delete('/{episode}', [App\Http\Controllers\Admin\PodcastController::class, 'destroy'])->name('destroy');
-            });
         });
     });
 });
-
-// RSS feed público del podcast
-Route::get('/podcast.rss', [App\Http\Controllers\PodcastController::class, 'rss'])->name('podcast.rss');
