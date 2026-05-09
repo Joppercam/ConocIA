@@ -45,7 +45,7 @@
     @include('partials.analytics-head')
 
     {{-- JSON-LD global: Organization + WebSite + SearchAction --}}
-    @include('partials.schema-organization')
+    @include('partials.schema-org')
 
     {{-- Barra de progreso de lectura (solo en páginas de artículo) --}}
     @hasSection('reading_progress')

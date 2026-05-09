@@ -29,10 +29,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Limpiar caché de vistas una sola vez si hay vistas compiladas corruptas
-        if (!Cache::get('views_cleared_2026_05_09')) {
+        // Limpiar caché de vistas y OPcache corruptos (fix 2026-05-09)
+        if (!Cache::get('views_cleared_20260509b')) {
+            if (function_exists('opcache_reset')) {
+                opcache_reset();
+            }
             Artisan::call('view:clear');
-            Cache::put('views_cleared_2026_05_09', true, now()->addDays(30));
+            Cache::put('views_cleared_20260509b', true, now()->addDays(30));
         }
 
         // Registrar observer para News
