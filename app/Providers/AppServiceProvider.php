@@ -3,9 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Cache;
 use App\Models\NewsHistoric;
 use App\Observers\NewsHistoricObserver;
 use Carbon\Carbon;
@@ -29,15 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Limpiar caché de vistas y OPcache corruptos (fix 2026-05-09)
-        if (!Cache::get('views_cleared_20260509b')) {
-            if (function_exists('opcache_reset')) {
-                opcache_reset();
-            }
-            Artisan::call('view:clear');
-            Cache::put('views_cleared_20260509b', true, now()->addDays(30));
-        }
-
         // Registrar observer para News
         News::observe(NewsObserver::class);
 
