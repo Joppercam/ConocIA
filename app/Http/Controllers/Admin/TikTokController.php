@@ -172,14 +172,8 @@ class TikTokController extends Controller
      */
     public function recommendations()
     {
-        // Obtener artículos recomendados para TikTok
-        // Puedes ajustar la lógica según tus criterios de recomendación
-        $recommendedArticles = News::where('status', 'published')
-            ->where('tiktok_status', '!=', 'generated') // No mostrar los que ya tienen guión
-            ->orderBy('tiktok_score', 'desc') // Ordenar por puntuación TikTok si tienes ese campo
-            ->paginate(15);
-            
-        // Pasar los artículos recomendados a la vista
+        $recommendedArticles = $this->newsSelector->getRecommendedNews(20);
+
         return view('admin.tiktok.recommendations', compact('recommendedArticles'));
     }
     
