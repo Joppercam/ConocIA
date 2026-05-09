@@ -299,15 +299,22 @@
                         <li><a href="{{ route('admin.videos.platforms.index') }}">Plataformas</a></li>
                     </ul>
                 </li>
-                <li class="{{ request()->routeIs('admin.podcast.*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.podcast.index') }}">
-                        <i class="fas fa-microphone"></i> Podcast
+                <li class="{{ request()->routeIs('admin.podcast.*', 'admin.tiktok.*') ? 'active' : '' }}">
+                    <a href="#multimediaSubmenu" data-bs-toggle="collapse"
+                       aria-expanded="{{ request()->routeIs('admin.podcast.*', 'admin.tiktok.*') ? 'true' : 'false' }}"
+                       class="dropdown-toggle">
+                        <i class="fas fa-photo-film"></i> Multimedia
+                        @if(isset($pendingTikTokScriptsCount) && $pendingTikTokScriptsCount > 0)
+                            <span class="badge bg-danger float-end">{{ $pendingTikTokScriptsCount }}</span>
+                        @endif
                     </a>
-                </li>
-                <li>
-                    <a href="/diag/ffmpeg" target="_blank">
-                        <i class="fas fa-flask"></i> Diag FFmpeg
-                    </a>
+                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.podcast.*', 'admin.tiktok.*') ? 'show' : '' }}" id="multimediaSubmenu">
+                        <li><a href="{{ route('admin.podcast.index') }}"><i class="fas fa-microphone fa-sm me-1"></i> Podcast</a></li>
+                        <li><a href="{{ route('admin.tiktok.index') }}"><i class="fab fa-tiktok fa-sm me-1"></i> TikTok</a></li>
+                        <li><a href="{{ route('admin.tiktok.recommendations') }}">Recomendaciones</a></li>
+                        <li><a href="{{ route('admin.tiktok.stats') }}">Estadísticas</a></li>
+                        <li><a href="{{ route('admin.tiktok.help') }}">Guía de Uso</a></li>
+                    </ul>
                 </li>
                 <li class="{{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}">
                     <a href="#newsletterSubmenu" data-bs-toggle="collapse"
@@ -331,38 +338,6 @@
                     </a>
                     <ul class="collapse list-unstyled {{ request()->routeIs('admin.social-media.*') ? 'show' : '' }}" id="socialMediaSubmenu">
                         <li><a href="{{ route('admin.social-media.queue') }}">Cola de Publicación</a></li>
-                    </ul>
-                </li>
-                <li class="{{ request()->routeIs('admin.tiktok.*') ? 'active' : '' }}">
-                    <a href="#tiktokSubmenu" data-bs-toggle="collapse" 
-                    aria-expanded="{{ request()->routeIs('admin.tiktok.*') ? 'true' : 'false' }}" 
-                    class="dropdown-toggle">
-                        <i class="fab fa-tiktok"></i> TikTok
-                        @if(isset($pendingTikTokScriptsCount) && $pendingTikTokScriptsCount > 0)
-                            <span class="badge bg-danger float-end">{{ $pendingTikTokScriptsCount }}</span>
-                        @endif
-                    </a>
-                    <ul class="collapse list-unstyled {{ request()->routeIs('admin.tiktok.*') ? 'show' : '' }}" id="tiktokSubmenu">
-                        <li>
-                            <a href="{{ route('admin.tiktok.index') }}">
-                                <i class="fas fa-tachometer-alt fa-sm fa-fw mr-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.tiktok.recommendations') }}">
-                                <i class="fas fa-lightbulb fa-sm fa-fw mr-2"></i> Recomendaciones
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.tiktok.stats') }}">
-                                <i class="fas fa-chart-bar fa-sm fa-fw mr-2"></i> Estadísticas
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.tiktok.help') }}">
-                                <i class="fas fa-question-circle fa-sm fa-fw mr-2"></i> Guía de Uso
-                            </a>
-                        </li>
                     </ul>
                 </li>
 

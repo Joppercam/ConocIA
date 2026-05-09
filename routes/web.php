@@ -382,13 +382,6 @@ Route::prefix('cp-conocia/tiktok')->name('admin.tiktok.')->middleware(['auth', \
 });
 
 
-// Diagnóstico temporal — eliminar después
-Route::get('/diag/ffmpeg', function () {
-    $output = shell_exec('which ffmpeg 2>&1 || echo "not found"');
-    $version = shell_exec('ffmpeg -version 2>&1 | head -1') ?? 'N/A';
-    return response()->json(['which' => trim($output), 'version' => trim($version)]);
-})->middleware('auth');
-
 // Alias de compatibilidad para el panel admin legado.
 Route::redirect('/admin', '/cp-conocia', 301);
 Route::redirect('/admin/login', '/cp-conocia/login', 301);
