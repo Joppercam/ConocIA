@@ -79,8 +79,19 @@ class PodcastService
         $content = strip_tags($news->content ?? '');
         $content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $content = preg_replace('/\s+/', ' ', $content);
-        $content = mb_substr(trim($content), 0, 4500);
+        $content = trim($content);
 
-        return "ConocIA. {$news->title}. {$news->summary} {$content}. Para leer el artículo completo, visitá ConocIA punto cl.";
+        $suffix = '. Para leer el artículo completo, visitá ConocIA punto cl.';
+        $prefix = "ConocIA. {$news->title}. {$news->summary} ";
+        $maxBytes = 4800;
+        $available = $maxBytes - strlen($prefix) - strlen($suffix);
+
+        if ($available > 0) {
+            $content = mb_strcut($content, 0, max(0, $available));
+        } else {
+            $content = '';
+        }
+
+        return $prefix . $content . $suffix;
     }
 }
