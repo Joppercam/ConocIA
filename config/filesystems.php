@@ -92,6 +92,20 @@ return [
             'use_path_style_endpoint' => true,
         ],
 
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('CLOUDFLARE_R2_KEY'),
+            'secret' => env('CLOUDFLARE_R2_SECRET'),
+            'region' => 'auto',
+            'bucket' => env('CLOUDFLARE_R2_BUCKET', 'conocia-media'),
+            'endpoint' => 'https://'.env('CLOUDFLARE_ACCOUNT_ID').'.r2.cloudflarestorage.com',
+            'use_path_style_endpoint' => true,
+            'url' => env('CLOUDFLARE_R2_PUBLIC_URL'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

@@ -66,6 +66,10 @@ return [
         'model'   => env('ANTHROPIC_MODEL', 'claude-sonnet-4-5'),
     ],
 
+    'podcast' => [
+        'voice' => env('PODCAST_VOICE', 'nova'),
+    ],
+
     
     'text_analysis' => [
         'api_key' => env('TEXT_ANALYSIS_API_KEY'),

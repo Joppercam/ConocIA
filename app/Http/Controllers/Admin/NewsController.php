@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\GeneratePodcastEpisode;
 use App\Models\News;
 use App\Models\Category;
 use App\Models\Tag;
@@ -105,7 +106,11 @@ class NewsController extends Controller
 
         $news = News::create($validated);
         $this->syncTags($news, $validated);
-        
+
+        if ($news->status === 'published') {
+            GeneratePodcastEpisode::dispatch($news);
+        }
+
         return redirect()->route('admin.news.index')
             ->with('success', 'Noticia creada exitosamente.');
     }
@@ -153,7 +158,11 @@ class NewsController extends Controller
 
         $news->update($validated);
         $this->syncTags($news, $validated);
-        
+
+        if ($news->status === 'published' && !$news->podcastEpisode?->isReady()) {
+            GeneratePodcastEpisode::dispatch($news);
+        }
+
         return redirect()->route('admin.news.index')
             ->with('success', 'Noticia actualizada exitosamente.');
     }
