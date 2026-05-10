@@ -16,9 +16,9 @@
       <itunes:category text="Tech News"/>
     </itunes:category>
     <itunes:explicit>false</itunes:explicit>
-    <itunes:image href="{{ asset('images/logo.png') }}"/>
+    <itunes:image href="{{ asset('images/podcast-cover.jpg') }}"/>
     <image>
-      <url>{{ asset('images/logo.png') }}</url>
+      <url>{{ asset('images/podcast-cover.jpg') }}</url>
       <title>ConocIA Podcast</title>
       <link>{{ url('/') }}</link>
     </image>
