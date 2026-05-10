@@ -245,29 +245,6 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
             </div>
             @endif
 
-            @if(isset($insights) && $insights->count() > 0)
-            <div class="mb-4 rounded-3 p-4" style="background:linear-gradient(135deg,rgba(10,16,32,.96),rgba(15,27,45,.96));border:1px solid rgba(56,182,255,.22);position:relative;overflow:hidden;">
-                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                    <div>
-                        <div class="small text-uppercase fw-bold" style="color:var(--primary-color);letter-spacing:.06em;">ConocIA Insights</div>
-                        <h2 class="h5 text-white mb-1">Lectura estratégica generada por IA</h2>
-                        <p class="text-muted mb-0" style="font-size:.9rem;">Resumen ejecutivo, impacto y señal accionable para entender por qué importa esta noticia.</p>
-                    </div>
-                </div>
-
-                @foreach($insights as $insight)
-                    <div class="rounded-3 p-3 mb-3" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <span class="badge bg-info">{{ ucfirst($insight->tipo) }}</span>
-                            <span class="badge bg-light text-dark">Relevancia {{ $insight->relevancia }}/100</span>
-                        </div>
-                        <p class="text-white mb-2">{{ $insight->resumen }}</p>
-                        <p class="text-muted mb-2"><strong>Impacto:</strong> {{ $insight->impacto }}</p>
-                        <p class="text-muted mb-0"><strong>Acción:</strong> {{ $insight->insight_accionable }}</p>
-                    </div>
-                @endforeach
-            </div>
-            @endif
 
             <!-- Contenido Principal -->
             <div class="news-content mb-4">
