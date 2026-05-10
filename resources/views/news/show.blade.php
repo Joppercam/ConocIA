@@ -113,9 +113,6 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
                 @else
                 <span class="badge mb-2" style="background:var(--primary-color);font-size:.78rem;">{{ $article->category }}</span>
                 @endif
-                @if(($isPremiumContent ?? false))
-                    <span class="badge bg-warning text-dark mb-2 d-inline-block ms-1" style="font-size:.78rem;">PRO</span>
-                @endif
                 <h1 class="mb-2">{{ $article->title }}</h1>
                 @if($articleSummary)
                 <p class="mb-3 news-summary-text" style="font-size:1rem;line-height:1.7;">{{ $articleSummary }}</p>
@@ -254,7 +251,6 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
                         <h2 class="h5 text-white mb-1">Lectura estratégica generada por IA</h2>
                         <p class="text-muted mb-0" style="font-size:.9rem;">Resumen ejecutivo, impacto y señal accionable para entender por qué importa esta noticia.</p>
                     </div>
-                    <span class="badge bg-warning text-dark">PRO</span>
                 </div>
 
                 @foreach($insights as $insight)
