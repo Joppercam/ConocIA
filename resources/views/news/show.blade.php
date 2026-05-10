@@ -258,10 +258,7 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
                 </div>
 
                 @foreach($insights as $insight)
-                    @php
-                        $locked = $insight->is_premium && !$canAccessPremiumInsights;
-                    @endphp
-                    <div class="rounded-3 p-3 mb-3" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);{{ $locked ? 'filter:blur(2px);user-select:none;' : '' }}">
+                    <div class="rounded-3 p-3 mb-3" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
                         <div class="d-flex flex-wrap gap-2 mb-2">
                             <span class="badge bg-info">{{ ucfirst($insight->tipo) }}</span>
                             <span class="badge bg-light text-dark">Relevancia {{ $insight->relevancia }}/100</span>
@@ -271,42 +268,15 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
                         <p class="text-muted mb-0"><strong>Acción:</strong> {{ $insight->insight_accionable }}</p>
                     </div>
                 @endforeach
-
-                @if(!$canAccessPremiumInsights)
-                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-4" style="background:linear-gradient(180deg,rgba(10,16,32,.25),rgba(10,16,32,.92));">
-                        <div class="text-center" style="max-width:420px;">
-                            <div class="mb-2"><i class="fas fa-lock text-warning fa-2x"></i></div>
-                            <h3 class="h5 text-white">Desbloquea este insight con ConocIA PRO</h3>
-                            <p class="text-light mb-3">Accede a insights accionables, contenido premium y alertas personalizadas.</p>
-                            <a href="{{ route('billing.plans') }}" class="btn btn-warning fw-semibold">Actualizar plan</a>
-                        </div>
-                    </div>
-                @endif
             </div>
             @endif
 
             @include('components.podcast-player', ['episode' => $article->podcastEpisode ?? null])
 
             <!-- Contenido Principal -->
-            @if($canAccessPremiumContent ?? true)
-                <div class="news-content mb-4">
-                    {!! format_news_content($article->content) !!}
-                </div>
-            @else
-                <div class="news-content mb-4 position-relative rounded-3 p-4" style="background:#fff;border:1px solid rgba(15,23,42,.08);overflow:hidden;">
-                    <div style="filter:blur(3px);user-select:none;max-height:220px;overflow:hidden;">
-                        {!! nl2br(e(Str::limit(strip_tags($article->content), 520))) !!}
-                    </div>
-                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-4" style="background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.96));">
-                        <div class="text-center" style="max-width:430px;">
-                            <div class="mb-2"><i class="fas fa-lock text-warning fa-2x"></i></div>
-                            <h3 class="h5 mb-2">Desbloquea este contenido con ConocIA PRO</h3>
-                            <p class="text-muted mb-3">Accede a contenido premium, insights accionables y alertas personalizadas.</p>
-                            <a href="{{ route('billing.plans') }}" class="btn btn-warning fw-semibold">Actualizar plan</a>
-                        </div>
-                    </div>
-                </div>
-            @endif
+            <div class="news-content mb-4">
+                {!! format_news_content($article->content) !!}
+            </div>
 
             @if($contentLooksIncomplete)
             <div class="mb-5 rounded-3 p-4" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-left:4px solid #f59e0b;">
