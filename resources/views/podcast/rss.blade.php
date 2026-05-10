@@ -10,7 +10,7 @@
     <itunes:author>ConocIA</itunes:author>
     <itunes:owner>
       <itunes:name>ConocIA</itunes:name>
-      <itunes:email>contacto@conocia.cl</itunes:email>
+      <itunes:email>conociacl@gmail.com</itunes:email>
     </itunes:owner>
     <itunes:category text="Technology">
       <itunes:category text="Tech News"/>
