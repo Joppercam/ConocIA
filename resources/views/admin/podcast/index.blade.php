@@ -54,7 +54,8 @@
                     <thead class="table-light">
                         <tr>
                             <th>Artículo</th>
-                            <th>Estado</th>
+                            <th>Podcast</th>
+                            <th>TikTok</th>
                             <th>Duración</th>
                             <th>Generado</th>
                             <th class="text-end">Acciones</th>
@@ -62,10 +63,11 @@
                     </thead>
                     <tbody>
                         @forelse($episodes as $episode)
+                        @php $tiktok = $episode->news?->tiktokScript; @endphp
                         <tr>
                             <td class="align-middle">
-                                <div class="fw-semibold" style="max-width:340px;">
-                                    {{ Str::limit($episode->news?->title ?? '—', 70) }}
+                                <div class="fw-semibold" style="max-width:300px;">
+                                    {{ Str::limit($episode->news?->title ?? 'Sin título', 70) }}
                                 </div>
                             </td>
                             <td class="align-middle">
@@ -78,10 +80,32 @@
                                 @else
                                     <span class="badge bg-danger">Error</span>
                                     @if($episode->error_message)
-                                        <div class="text-danger small mt-1" style="max-width:260px;word-break:break-word;">
-                                            {{ Str::limit($episode->error_message, 120) }}
+                                        <div class="text-danger small mt-1" style="max-width:220px;word-break:break-word;">
+                                            {{ Str::limit($episode->error_message, 100) }}
                                         </div>
                                     @endif
+                                @endif
+                            </td>
+                            <td class="align-middle">
+                                @if(!$tiktok)
+                                    @if($episode->isReady() && $episode->news)
+                                        <a href="{{ route('admin.tiktok.generate', $episode->news->id) }}"
+                                           class="btn btn-sm btn-outline-dark">
+                                            <i class="fab fa-tiktok me-1"></i> Crear guión
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">Sin guión</span>
+                                    @endif
+                                @elseif($tiktok->status === 'published')
+                                    <span class="badge bg-dark"><i class="fab fa-tiktok me-1"></i> Publicado</span>
+                                @elseif($tiktok->status === 'approved')
+                                    <a href="{{ route('admin.tiktok.edit', $tiktok->id) }}"
+                                       class="badge bg-success text-decoration-none">Aprobado</a>
+                                @elseif(in_array($tiktok->status, ['pending_review', 'draft']))
+                                    <a href="{{ route('admin.tiktok.edit', $tiktok->id) }}"
+                                       class="badge bg-warning text-dark text-decoration-none">Revisar guión</a>
+                                @else
+                                    <span class="badge bg-secondary">{{ $tiktok->status }}</span>
                                 @endif
                             </td>
                             <td class="align-middle text-muted small">
@@ -100,7 +124,7 @@
                                     @endif
                                     <form action="{{ route('admin.podcast.regenerate', $episode) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Re-generar">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Re-generar audio">
                                             <i class="fas fa-redo"></i>
                                         </button>
                                     </form>
@@ -116,7 +140,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-5">
+                            <td colspan="6" class="text-center text-muted py-5">
                                 No hay episodios todavía.<br>
                                 <small>Se generan automáticamente al publicar un artículo.</small>
                             </td>

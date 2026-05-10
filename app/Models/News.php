@@ -330,6 +330,11 @@ class News extends Model implements Feedable
         return $this->hasOne(PodcastEpisode::class);
     }
 
+    public function tiktokScript()
+    {
+        return $this->hasOne(\App\Models\TikTokScript::class);
+    }
+
 
     /**
      * Obtiene las publicaciones en redes sociales de esta noticia

@@ -12,7 +12,7 @@ class PodcastController extends Controller
 {
     public function index(Request $request)
     {
-        $episodes = PodcastEpisode::with('news')
+        $episodes = PodcastEpisode::with(['news.tiktokScript'])
             ->latest()
             ->paginate(20);
 

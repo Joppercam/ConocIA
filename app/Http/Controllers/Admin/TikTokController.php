@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\ViewComposers\AdminLayoutComposer;
 use App\Models\News;
+use App\Models\PodcastEpisode;
 use App\Models\TikTokScript;
 use App\Support\TikTokCache;
 use App\Services\TikTokKitGenerator;
@@ -172,9 +173,22 @@ class TikTokController extends Controller
      */
     public function recommendations()
     {
-        $recommendedArticles = $this->newsSelector->getRecommendedNews(20);
+        // Artículos con podcast listo y sin guión TikTok activo — sección prioritaria
+        $scriptedNewsIds = TikTokScript::whereIn('status', ['draft', 'pending_review', 'approved', 'published'])
+            ->pluck('news_id');
 
-        return view('admin.tiktok.recommendations', compact('recommendedArticles'));
+        $withPodcast = News::where('status', 'published')
+            ->whereNotIn('id', $scriptedNewsIds)
+            ->whereHas('podcastEpisode', fn($q) => $q->where('status', 'ready'))
+            ->with(['podcastEpisode', 'category'])
+            ->orderByDesc('published_at')
+            ->get();
+
+        // Recomendaciones estándar (últimos 7 días, scored), excluyendo los que ya aparecen arriba
+        $recommendedArticles = $this->newsSelector->getRecommendedNews(20)
+            ->whereNotIn('id', $withPodcast->pluck('id'));
+
+        return view('admin.tiktok.recommendations', compact('recommendedArticles', 'withPodcast'));
     }
     
     /**
