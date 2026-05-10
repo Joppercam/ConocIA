@@ -221,8 +221,8 @@ Route::post('/contacto', [HomeController::class, 'sendContact'])->name('contact.
 Route::get('/buscar', [SearchController::class, 'search'])->name('search');
 Route::get('/api/buscar', [SearchController::class, 'live'])->name('search.live');
 Route::get('/guardados', fn() => view('saved'))->name('saved');
-Route::get('/planes', [BillingController::class, 'plans'])->name('billing.plans');
-Route::post('/planes/{plan}', [BillingController::class, 'select'])->name('billing.select');
+Route::get('/planes', fn() => redirect('/')->name('billing.plans'));
+Route::post('/planes/{plan}', fn() => redirect('/'))->name('billing.select');
 Route::get('/api/briefing/today', function () {
     $b = \App\Models\DailyBriefing::today() ?? \App\Models\DailyBriefing::latest();
     if (!$b) return response()->json(['available' => false]);
@@ -309,7 +309,7 @@ Route::get('/login/google/callback', [\App\Http\Controllers\Auth\GoogleControlle
 
 // Rutas para el perfil de usuario
 Route::middleware('auth')->group(function () {
-    Route::get('/app', [SaasDashboardController::class, 'index'])->name('saas.dashboard');
+    Route::get('/app', fn() => redirect('/profile'))->name('saas.dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
