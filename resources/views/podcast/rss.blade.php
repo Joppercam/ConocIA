@@ -8,11 +8,17 @@
     <description>Noticias y análisis sobre inteligencia artificial en español, desde Chile.</description>
     <language>es-cl</language>
     <itunes:author>ConocIA</itunes:author>
-    <itunes:category text="Technology"/>
+    <itunes:owner>
+      <itunes:name>ConocIA</itunes:name>
+      <itunes:email>contacto@conocia.cl</itunes:email>
+    </itunes:owner>
+    <itunes:category text="Technology">
+      <itunes:category text="Tech News"/>
+    </itunes:category>
     <itunes:explicit>false</itunes:explicit>
-    <itunes:image href="{{ asset('storage/images/logo.png') }}"/>
+    <itunes:image href="{{ asset('images/logo.png') }}"/>
     <image>
-      <url>{{ asset('storage/images/logo.png') }}</url>
+      <url>{{ asset('images/logo.png') }}</url>
       <title>ConocIA Podcast</title>
       <link>{{ url('/') }}</link>
     </image>
