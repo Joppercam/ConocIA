@@ -161,6 +161,8 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
                 </div>
             </div>
 
+            @include('components.podcast-player', ['episode' => $article->podcastEpisode ?? null])
+
             <!-- Verificación de imagen mejorada con rutas alternativas -->
             @php
                 // Variable para controlar si mostrar o no la imagen
@@ -266,8 +268,6 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
                 @endforeach
             </div>
             @endif
-
-            @include('components.podcast-player', ['episode' => $article->podcastEpisode ?? null])
 
             <!-- Contenido Principal -->
             <div class="news-content mb-4">
