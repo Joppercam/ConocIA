@@ -3,6 +3,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\GeneratePodcastEpisode;
 use App\Models\News;
 use Illuminate\Support\Str;
 
@@ -19,6 +20,13 @@ class NewsObserver
         $this->generateSlug($news);
     }
 
+    public function created(News $news)
+    {
+        if ($news->status === 'published') {
+            GeneratePodcastEpisode::dispatch($news);
+        }
+    }
+
     /**
      * Handle the News "updating" event.
      *
@@ -30,6 +38,15 @@ class NewsObserver
         // Solo regenerar el slug si el título ha cambiado
         if ($news->isDirty('title') && !$news->isDirty('slug')) {
             $this->generateSlug($news);
+        }
+    }
+
+    public function updated(News $news)
+    {
+        if ($news->isDirty('status') && $news->status === 'published') {
+            if (!$news->podcastEpisode?->isReady()) {
+                GeneratePodcastEpisode::dispatch($news);
+            }
         }
     }
 
