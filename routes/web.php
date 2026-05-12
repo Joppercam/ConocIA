@@ -284,6 +284,7 @@ Route::post('/columnas/escribe', [ColumnController::class, 'submitWriteForUs'])-
 Route::get('/columnas/categoria/{slug}', [ColumnController::class, 'byCategory'])->name('columns.category');
 Route::get('/columnas/autor/{id}', [ColumnController::class, 'byAuthor'])->name('columns.author');
 Route::get('/columnas/{slug}', [ColumnController::class, 'show'])->name('columns.show');
+Route::get('/columnas/{column}/audio', [ColumnController::class, 'streamAudio'])->name('columns.audio');
 
 // Rutas para publicaciones de invitados
 Route::prefix('colaboraciones')->group(function () {
@@ -473,6 +474,8 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::post('/api/execute', [NewsApiController::class, 'execute'])->name('api.execute');
 
         Route::resource('columns', AdminColumnController::class);
+        Route::post('/columns/{column}/generate-audio', [AdminColumnController::class, 'generateAudio'])->name('columns.generate-audio');
+        Route::delete('/columns/{column}/audio', [AdminColumnController::class, 'deleteAudio'])->name('columns.delete-audio');
 
         // ConocIA Papers admin
         Route::prefix('papers')->name('papers.')->group(function () {

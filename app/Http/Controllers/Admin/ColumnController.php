@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Column;
 use App\Models\User;
 use App\Models\Category;
+use App\Services\ColumnAudioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -133,5 +134,29 @@ class ColumnController extends Controller
 
         return redirect()->route('admin.columns.index')
                 ->with('success', 'Columna eliminada exitosamente');
+    }
+
+    /**
+     * Generar audio MP3 para la columna usando OpenAI TTS.
+     */
+    public function generateAudio(Column $column, ColumnAudioService $audioService)
+    {
+        $result = $audioService->generate($column);
+
+        if ($result === true) {
+            return back()->with('success', 'Audio generado exitosamente.');
+        }
+
+        return back()->with('error', $result);
+    }
+
+    /**
+     * Eliminar el audio de una columna.
+     */
+    public function deleteAudio(Column $column, ColumnAudioService $audioService)
+    {
+        $audioService->delete($column);
+
+        return back()->with('success', 'Audio eliminado.');
     }
 }

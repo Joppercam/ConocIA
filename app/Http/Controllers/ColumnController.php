@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ColumnController extends Controller
@@ -391,5 +392,22 @@ class ColumnController extends Controller
 
         return redirect()->route('columns.write-for-us')
             ->with('success', '¡Propuesta recibida! Te responderemos a ' . $validated['email'] . ' en los próximos 5 días hábiles.');
+    }
+
+    /**
+     * Sirve el audio MP3 de una columna para reproducción en el navegador.
+     */
+    public function streamAudio(Column $column)
+    {
+        if (!$column->audio_path || !Storage::disk('local')->exists($column->audio_path)) {
+            abort(404);
+        }
+
+        $path = Storage::disk('local')->path($column->audio_path);
+
+        return response()->file($path, [
+            'Content-Type'  => 'audio/mpeg',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
 }

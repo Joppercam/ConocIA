@@ -109,6 +109,61 @@
                     </form>
                 </div>
             </div>
+
+            {{-- Audio --}}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0"><i class="fas fa-headphones me-2 text-primary"></i>Audio de la columna</h5>
+                    @if($column->audio_generated_at)
+                    <span class="badge bg-success">Generado {{ $column->audio_generated_at->diffForHumans() }}</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @if($column->audio_path)
+                        <div class="mb-3">
+                            <audio controls class="w-100">
+                                <source src="{{ route('columns.audio', $column) }}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <form action="{{ route('admin.columns.generate-audio', $column) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-sync-alt me-1"></i>Regenerar audio
+                                </button>
+                            </form>
+                            <form action="{{ route('admin.columns.delete-audio', $column) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar el audio de esta columna?')">
+                                    <i class="fas fa-trash me-1"></i>Eliminar audio
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <p class="text-muted mb-3">Esta columna todavía no tiene audio generado. Usá el botón para generarlo con OpenAI TTS (voz <em>nova</em>).</p>
+                        <form action="{{ route('admin.columns.generate-audio', $column) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-microphone me-1"></i>Generar audio
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 </div>

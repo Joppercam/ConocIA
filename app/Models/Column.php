@@ -26,6 +26,8 @@ class Column extends Model
         'reading_time',
         'views',
         'published_at',
+        'audio_path',
+        'audio_generated_at',
     ];
 
     /**
@@ -38,6 +40,7 @@ class Column extends Model
         'views' => 'integer',
         'reading_time' => 'integer',
         'published_at' => 'datetime',
+        'audio_generated_at' => 'datetime',
     ];
 
     /**

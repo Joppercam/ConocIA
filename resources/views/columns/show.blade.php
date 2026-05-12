@@ -142,6 +142,36 @@
             {{-- Article --}}
             <div class="col-lg-8">
 
+                {{-- Audio player --}}
+                @if($column->audio_path)
+                <div class="col-audio-player mb-4" id="colAudioPlayer">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div style="width:3px;height:16px;background:var(--primary-color);border-radius:2px;"></div>
+                        <span style="font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--primary-color);text-transform:uppercase;">Escuchar columna</span>
+                    </div>
+                    <div class="col-audio-wrap d-flex align-items-center gap-3">
+                        <button id="colAudioPlayBtn" onclick="toggleColAudio()" class="col-audio-play-btn" aria-label="Reproducir">
+                            <i class="fas fa-play" id="colAudioPlayIcon"></i>
+                        </button>
+                        <div class="flex-grow-1">
+                            <div class="col-audio-progress-wrap" onclick="seekColAudio(event)" id="colAudioProgressWrap">
+                                <div class="col-audio-progress-bar" id="colAudioProgressBar"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <span class="col-audio-time" id="colAudioCurrent">0:00</span>
+                                <span class="col-audio-time" id="colAudioDuration">--:--</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <button onclick="changeColSpeed()" class="col-audio-speed-btn" id="colAudioSpeedBtn" title="Velocidad">1×</button>
+                        </div>
+                    </div>
+                    <audio id="colAudio" preload="none">
+                        <source src="{{ route('columns.audio', $column) }}" type="audio/mpeg">
+                    </audio>
+                </div>
+                @endif
+
                 {{-- Content --}}
                 <div class="col-article-content mb-5">
                     {!! $column->content !!}
@@ -357,6 +387,65 @@
     background: rgba(56,182,255,.08);
 }
 
+/* Audio player */
+.col-audio-player {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+}
+.col-audio-wrap { gap: .75rem; }
+.col-audio-play-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary-color);
+    color: #000;
+    font-size: .9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity .15s;
+}
+.col-audio-play-btn:hover { opacity: .85; }
+.col-audio-progress-wrap {
+    width: 100%;
+    height: 4px;
+    background: #2a2a2a;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+.col-audio-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    pointer-events: none;
+    transition: width .1s linear;
+}
+.col-audio-time {
+    color: #555;
+    font-size: .73rem;
+    font-variant-numeric: tabular-nums;
+}
+.col-audio-speed-btn {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #888;
+    border-radius: 6px;
+    font-size: .75rem;
+    padding: .2rem .5rem;
+    cursor: pointer;
+    transition: all .15s;
+}
+.col-audio-speed-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
 /* Sidebar */
 .col-sidebar-block {
     background: #111;
@@ -396,6 +485,68 @@ function copyLink(url) {
         }, 2000);
     });
 }
+
+@if($column->audio_path)
+(function () {
+    const audio     = document.getElementById('colAudio');
+    const playBtn   = document.getElementById('colAudioPlayBtn');
+    const playIcon  = document.getElementById('colAudioPlayIcon');
+    const bar       = document.getElementById('colAudioProgressBar');
+    const current   = document.getElementById('colAudioCurrent');
+    const duration  = document.getElementById('colAudioDuration');
+    const speedBtn  = document.getElementById('colAudioSpeedBtn');
+    const speeds    = [1, 1.25, 1.5, 0.75];
+    let speedIdx    = 0;
+
+    if (!audio) return;
+
+    function fmt(s) {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return m + ':' + String(sec).padStart(2, '0');
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+        duration.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+        if (!audio.duration) return;
+        const pct = (audio.currentTime / audio.duration) * 100;
+        bar.style.width = pct + '%';
+        current.textContent = fmt(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+        playIcon.className = 'fas fa-play';
+        bar.style.width = '0%';
+        current.textContent = '0:00';
+        audio.currentTime = 0;
+    });
+
+    window.toggleColAudio = function () {
+        if (audio.paused) {
+            audio.play();
+            playIcon.className = 'fas fa-pause';
+        } else {
+            audio.pause();
+            playIcon.className = 'fas fa-play';
+        }
+    };
+
+    window.seekColAudio = function (e) {
+        if (!audio.duration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+    };
+
+    window.changeColSpeed = function () {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        audio.playbackRate = speeds[speedIdx];
+        speedBtn.textContent = speeds[speedIdx] + '×';
+    };
+})();
+@endif
 </script>
 @endpush
 
