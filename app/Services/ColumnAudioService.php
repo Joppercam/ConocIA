@@ -9,95 +9,95 @@ use Illuminate\Support\Facades\Storage;
 
 class ColumnAudioService
 {
-    protected string $openaiKey;
-
-    public function __construct()
-    {
-        $this->openaiKey = env('OPENAI_API_KEY', '');
-    }
-
     /**
-     * Genera el audio MP3 para una columna y guarda la ruta en el modelo.
+     * Genera el audio MP3 para una columna usando Google TTS y lo sube a R2.
      * Devuelve true si fue exitoso, string con error si falló.
      */
     public function generate(Column $column): true|string
     {
-        if (empty($this->openaiKey)) {
-            return 'OPENAI_API_KEY no configurada o sin créditos.';
-        }
+        $apiKey = config('services.google_tts.key');
 
-        $audioPath = $this->generateAudio($column->content, $column->id);
-
-        if (!$audioPath) {
-            return 'No se pudo generar el audio. Verificá que OPENAI_API_KEY tenga créditos.';
-        }
-
-        $column->update([
-            'audio_path'         => $audioPath,
-            'audio_generated_at' => now(),
-        ]);
-
-        return true;
-    }
-
-    /**
-     * Llama a OpenAI TTS y guarda el MP3 en storage.
-     * Devuelve la ruta relativa o null si falla.
-     */
-    protected function generateAudio(string $content, int $columnId): ?string
-    {
-        $clean = strip_tags($content);
-        $clean = preg_replace('/\*+/', '', $clean);
-        $clean = preg_replace('/#+\s/', '', $clean);
-        $clean = trim($clean);
-
-        // OpenAI TTS tiene límite de 4096 caracteres por request
-        if (strlen($clean) > 4096) {
-            $clean = substr($clean, 0, 4096);
+        if (!$apiKey) {
+            return 'GOOGLE_TTS_KEY no está configurada.';
         }
 
         try {
+            $text = $this->buildText($column);
+
             $response = Http::timeout(120)
-                ->withToken($this->openaiKey)
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->post('https://api.openai.com/v1/audio/speech', [
-                    'model'           => 'tts-1',
-                    'input'           => $clean,
-                    'voice'           => 'nova',
-                    'speed'           => 0.95,
-                    'response_format' => 'mp3',
+                ->post("https://texttospeech.googleapis.com/v1/text:synthesize?key={$apiKey}", [
+                    'input' => ['text' => $text],
+                    'voice' => [
+                        'languageCode' => 'es-US',
+                        'name'         => 'es-US-Neural2-A',
+                        'ssmlGender'   => 'FEMALE',
+                    ],
+                    'audioConfig' => [
+                        'audioEncoding' => 'MP3',
+                    ],
                 ]);
 
-            if ($response->failed()) {
-                Log::error('ColumnAudioService TTS error: ' . $response->body());
-                return null;
+            if (!$response->successful()) {
+                Log::error('ColumnAudioService Google TTS error: ' . $response->body());
+                return 'Error al generar el audio: ' . $response->json('error.message', $response->status());
             }
 
-            $dir  = 'column-audio/' . $columnId;
-            $path = $dir . '/audio.mp3';
+            $audioData = base64_decode($response->json('audioContent'));
 
-            Storage::disk('local')->makeDirectory($dir);
-            Storage::disk('local')->put($path, $response->body());
+            if (!$audioData) {
+                return 'Google TTS devolvió una respuesta vacía.';
+            }
 
-            return $path;
-        } catch (\Exception $e) {
-            Log::error('ColumnAudioService TTS exception: ' . $e->getMessage());
-            return null;
+            $path      = 'column-audio/' . $column->slug . '.mp3';
+            Storage::disk('r2')->put($path, $audioData);
+            $publicUrl = config('filesystems.disks.r2.url') . '/' . $path;
+
+            $column->update([
+                'audio_path'         => $publicUrl,
+                'audio_generated_at' => now(),
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('ColumnAudioService exception', ['column_id' => $column->id, 'error' => $e->getMessage()]);
+            return 'Error inesperado: ' . $e->getMessage();
         }
     }
 
     /**
-     * Elimina el audio de storage y limpia los campos del modelo.
+     * Elimina el audio de R2 y limpia los campos del modelo.
      */
     public function delete(Column $column): void
     {
-        if ($column->audio_path && Storage::disk('local')->exists($column->audio_path)) {
-            Storage::disk('local')->delete($column->audio_path);
+        if ($column->audio_path) {
+            $path = 'column-audio/' . $column->slug . '.mp3';
+            Storage::disk('r2')->delete($path);
         }
 
         $column->update([
             'audio_path'         => null,
             'audio_generated_at' => null,
         ]);
+    }
+
+    private function buildText(Column $column): string
+    {
+        $content = strip_tags($column->content ?? '');
+        $content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $content = preg_replace('/\s+/', ' ', $content);
+        $content = trim($content);
+
+        $prefix  = "ConocIA. {$column->title}. ";
+        $suffix  = '. Para leer la columna completa, visitá ConocIA punto cl.';
+        $maxBytes = 4800;
+        $available = $maxBytes - strlen($prefix) - strlen($suffix);
+
+        if ($available > 0) {
+            $content = mb_strcut($content, 0, max(0, $available));
+        } else {
+            $content = '';
+        }
+
+        return $prefix . $content . $suffix;
     }
 }

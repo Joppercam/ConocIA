@@ -135,7 +135,7 @@
                     @if($column->audio_path)
                         <div class="mb-3">
                             <audio controls class="w-100">
-                                <source src="{{ route('columns.audio', $column) }}" type="audio/mpeg">
+                                <source src="{{ $column->audio_path }}" type="audio/mpeg">
                             </audio>
                         </div>
                         <div class="d-flex gap-2">

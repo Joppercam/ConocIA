@@ -167,7 +167,7 @@
                         </div>
                     </div>
                     <audio id="colAudio" preload="none">
-                        <source src="{{ route('columns.audio', $column) }}" type="audio/mpeg">
+                        <source src="{{ $column->audio_path }}" type="audio/mpeg">
                     </audio>
                 </div>
                 @endif
