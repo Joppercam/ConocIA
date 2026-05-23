@@ -140,6 +140,12 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/analisis-fondo.log'));
 
+        // Radar Regulatorio: generar/actualizar hitos cada jueves a las 10:00
+        $schedule->command('radar:generate')
+            ->weekly()->thursdays()->at('10:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/radar-regulatorio.log'));
+
         // Papers arXiv: lunes y jueves a las 23:00 (off-peak, max 2 por categoría)
         $schedule->command('papers:fetch-arxiv --max-results=2')
             ->twiceWeekly(1, 4)->at('23:00')

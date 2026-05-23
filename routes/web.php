@@ -41,6 +41,7 @@ use App\Http\Controllers\SaasDashboardController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ImpactController;
 use App\Http\Controllers\ComingSoonController;
+use App\Http\Controllers\RadarRegulatorioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,12 @@ Route::get('/podcast.rss', [PodcastController::class, 'rss'])->name('podcast.rss
 Route::prefix('conceptos-ia')->name('conceptos.')->group(function () {
     Route::get('/', [ConceptoIaController::class, 'index'])->name('index');
     Route::get('/{slug}', [ConceptoIaController::class, 'show'])->name('show');
+});
+
+// ── Radar Regulatorio ─────────────────────────────────────────────────────────
+Route::prefix('radar-regulatorio')->name('radar.')->group(function () {
+    Route::get('/', [RadarRegulatorioController::class, 'index'])->name('index');
+    Route::get('/{slug}', [RadarRegulatorioController::class, 'show'])->name('show');
 });
 
 // ── Análisis de Fondo ─────────────────────────────────────────────────────────
