@@ -12,7 +12,7 @@
             </span>
             <h2 class="fw-bold text-white mb-3"
                 style="font-size:clamp(1.6rem,4.5vw,2.8rem);letter-spacing:-.02em;line-height:1.15;">
-                Explicamos la IA para que<br class="d-none d-sm-block"> todos la entiendan.
+                IA sin simplificar.<br class="d-none d-sm-block"> Divulgación sin barreras.
             </h2>
             <p class="mb-4 mx-auto"
                style="max-width:580px;font-size:clamp(.9rem,2vw,1.05rem);color:#8899aa;line-height:1.7;">
