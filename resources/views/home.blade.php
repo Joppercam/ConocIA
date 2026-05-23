@@ -559,7 +559,8 @@
                         @csrf
                         <div class="input-group shadow-sm">
                             <input type="email" name="email" class="form-control border-0 rounded-start"
-                                   placeholder="tu@correo.com" required style="font-size:.88rem;">
+                                   placeholder="tu@correo.com" required style="font-size:.88rem;"
+                                   aria-label="Correo electrónico para newsletter">
                             <button class="btn btn-primary px-4 fw-semibold" type="submit" style="font-size:.88rem;">
                                 <i class="fas fa-paper-plane me-2"></i>Suscribirme
                             </button>

@@ -1,6 +1,6 @@
 <!-- resources/views/layouts/app.blade.php (versión mejorada) -->
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="es-CL">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -691,6 +691,11 @@
     </style>
 </head>
 <body class="theme-light" data-bs-theme="light">
+    <a href="#main-content"
+       class="visually-hidden-focusable position-absolute top-0 start-0 m-2 px-3 py-2 rounded fw-semibold"
+       style="z-index:10000;background:var(--primary-color);color:#fff;text-decoration:none;">
+        Saltar al contenido principal
+    </a>
     @include('partials.analytics-body')
 
     <!-- Barra de progreso de lectura -->
@@ -977,7 +982,7 @@
     @endif
 
     <!-- Main Content -->
-    <main class="flex-grow-1">
+    <main id="main-content" class="flex-grow-1">
         @yield('content')
     </main>
 
@@ -1053,6 +1058,7 @@
                         @csrf
                         <div class="input-group input-group-sm">
                             <input type="email" name="email" placeholder="tu@correo.com" required
+                                   aria-label="Correo electrónico para newsletter"
                                    class="form-control" style="border-radius:6px 0 0 6px;font-size:.8rem;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#fff;">
                             <button type="submit" class="btn btn-primary btn-sm" style="background:var(--primary-color);border:none;border-radius:0 6px 6px 0;font-size:.8rem;">
                                 Suscribir
