@@ -88,6 +88,17 @@ class HomeController extends Controller
                 ->toArray()
         );
 
+        $homeStats = Cache::remember('home_stats_v1', 3600, function () {
+            return [
+                'chile_notes' => News::where('status', 'published')
+                    ->whereHas('category', fn($q) => $q->where('slug', 'ia-en-chile'))
+                    ->count(),
+                'papers'   => ConocIaPaper::count(),
+                'research' => Research::count(),
+                'fields'   => 6,
+            ];
+        });
+
         $getImageUrl      = $this->imageUrlHelper();
         $getCategoryStyle = fn($cat) => $cat && isset($cat->color)
             ? 'background-color: ' . $cat->color . ';'
@@ -116,7 +127,8 @@ class HomeController extends Controller
             'profundizaMeta',
             'startupOfWeek',
             'recentStartups',
-            'chileNews'
+            'chileNews',
+            'homeStats'
         ))->with([
             'getImageUrl'      => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,

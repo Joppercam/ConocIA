@@ -3,6 +3,37 @@
 
 @section('content')
 
+    <!-- ═══ BANNER INSTITUCIONAL ═══ -->
+    <section style="background:linear-gradient(135deg,#08090f 0%,#0d1220 50%,#080e1a 100%);border-bottom:1px solid rgba(56,182,255,.12);" class="py-4 py-md-5">
+        <div class="container text-center">
+            <span class="badge mb-3 px-3 py-2"
+                  style="background:rgba(56,182,255,.1);color:var(--primary-color);border:1px solid rgba(56,182,255,.25);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;border-radius:50px;">
+                <i class="fas fa-microscope me-2"></i>Divulgación Científico-Tecnológica · Chile
+            </span>
+            <h2 class="fw-bold text-white mb-3"
+                style="font-size:clamp(1.6rem,4.5vw,2.8rem);letter-spacing:-.02em;line-height:1.15;">
+                Explicamos la IA para que<br class="d-none d-sm-block"> todos la entiendan.
+            </h2>
+            <p class="mb-4 mx-auto"
+               style="max-width:580px;font-size:clamp(.9rem,2vw,1.05rem);color:#8899aa;line-height:1.7;">
+                Papers académicos en español, investigación sobre IA en Chile y contenido educativo
+                accesible para cualquier persona, sin importar su formación técnica.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{{ route('papers.index') }}"
+                   class="btn btn-primary rounded-pill px-4 py-2"
+                   style="font-size:.9rem;font-weight:600;">
+                    <i class="fas fa-flask me-2"></i>Explorar Papers
+                </a>
+                <a href="{{ route('quienes-somos') }}"
+                   class="btn rounded-pill px-4 py-2"
+                   style="font-size:.9rem;font-weight:600;background:rgba(255,255,255,.06);color:#ccc;border:1px solid rgba(255,255,255,.15);">
+                    <i class="fas fa-info-circle me-2"></i>Quiénes Somos
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- ═══ BREAKING NEWS TICKER ═══ -->
     <div class="breaking-ticker" style="background:#1a1a1a; border-bottom:2px solid var(--primary-color);">
         <div class="d-flex align-items-center overflow-hidden" style="height:36px;">
@@ -675,6 +706,58 @@
     </section>
 
 
+    <!-- ═══ BARRA DE IMPACTO ═══ -->
+    <section class="py-5" style="background:linear-gradient(135deg,#08090f 0%,#0d1220 60%,#080e1a 100%);border-top:1px solid rgba(56,182,255,.12);">
+        <div class="container">
+            <div class="text-center mb-4">
+                <span class="badge px-3 py-2 mb-2"
+                      style="background:rgba(56,182,255,.1);color:var(--primary-color);border:1px solid rgba(56,182,255,.2);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;border-radius:50px;">
+                    <i class="fas fa-chart-bar me-2"></i>Impacto verificable
+                </span>
+                <h3 class="fw-bold text-white mb-0" style="font-size:1.2rem;">
+                    Divulgación que se mide en contenido real
+                </h3>
+            </div>
+            <div class="row g-3 justify-content-center" id="stats-row">
+                @php
+                    $statsItems = [
+                        ['value' => $homeStats['chile_notes'] ?? 163, 'label' => 'Notas sobre IA en Chile', 'icon' => 'fa-map-marker-alt', 'suffix' => '+'],
+                        ['value' => $homeStats['papers']      ?? 7,   'label' => 'Papers explicados en español', 'icon' => 'fa-file-alt',     'suffix' => ''],
+                        ['value' => $homeStats['research']    ?? 13,  'label' => 'Investigaciones originales', 'icon' => 'fa-microscope',    'suffix' => ''],
+                        ['value' => $homeStats['fields']      ?? 6,   'label' => 'Campos de IA cubiertos', 'icon' => 'fa-layer-group',    'suffix' => ''],
+                    ];
+                @endphp
+                @foreach($statsItems as $stat)
+                <div class="col-6 col-md-3">
+                    <div class="text-center p-3 p-md-4 rounded-3 h-100"
+                         style="background:rgba(255,255,255,.03);border:1px solid rgba(56,182,255,.1);transition:border-color .2s;"
+                         onmouseenter="this.style.borderColor='rgba(56,182,255,.3)'"
+                         onmouseleave="this.style.borderColor='rgba(56,182,255,.1)'">
+                        <div class="mb-2" style="color:var(--primary-color);font-size:1.3rem;">
+                            <i class="fas {{ $stat['icon'] }}"></i>
+                        </div>
+                        <div class="fw-bold text-white stat-number"
+                             style="font-size:clamp(2rem,5vw,2.8rem);line-height:1;letter-spacing:-.03em;"
+                             data-target="{{ $stat['value'] }}"
+                             data-suffix="{{ $stat['suffix'] }}">
+                            0
+                        </div>
+                        <div class="mt-2" style="color:#6b7a90;font-size:.78rem;line-height:1.4;">
+                            {{ $stat['label'] }}
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ route('impacto') }}"
+                   style="color:var(--primary-color);font-size:.82rem;text-decoration:none;">
+                    Ver métricas completas <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
 <!-- Al final de tu archivo de vista -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
     <!-- Toast para éxito -->
@@ -1225,6 +1308,41 @@
 @endpush
 
 @push('scripts')
+
+<script>
+// Animación de conteo para la barra de impacto
+(function () {
+    const counters = document.querySelectorAll('.stat-number');
+    if (!counters.length) return;
+
+    const run = (el) => {
+        const target = parseInt(el.dataset.target, 10);
+        const suffix = el.dataset.suffix || '';
+        const duration = 1400;
+        const step = duration / target;
+        let current = 0;
+        const timer = setInterval(() => {
+            current += Math.ceil(target / 60);
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            el.textContent = current.toLocaleString('es-CL') + suffix;
+        }, step);
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                run(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    counters.forEach(el => observer.observe(el));
+})();
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
