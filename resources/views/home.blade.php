@@ -4,32 +4,35 @@
 @section('content')
 
     <!-- ═══ BANNER INSTITUCIONAL ═══ -->
-    <section style="background:linear-gradient(135deg,#08090f 0%,#0d1220 50%,#080e1a 100%);border-bottom:1px solid rgba(56,182,255,.12);" class="py-4 py-md-5">
-        <div class="container text-center">
-            <span class="badge mb-3 px-3 py-2"
-                  style="background:rgba(56,182,255,.1);color:var(--primary-color);border:1px solid rgba(56,182,255,.25);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;border-radius:50px;">
-                <i class="fas fa-microscope me-2"></i>Divulgación Científico-Tecnológica · Chile
-            </span>
-            <h2 class="fw-bold text-white mb-3"
-                style="font-size:clamp(1.6rem,4.5vw,2.8rem);letter-spacing:-.02em;line-height:1.15;">
-                IA sin simplificar.<br class="d-none d-sm-block"> Divulgación sin barreras.
-            </h2>
-            <p class="mb-4 mx-auto"
-               style="max-width:580px;font-size:clamp(.9rem,2vw,1.05rem);color:#8899aa;line-height:1.7;">
-                Papers académicos en español, investigación sobre IA en Chile y contenido educativo
-                accesible para cualquier persona, sin importar su formación técnica.
-            </p>
-            <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <a href="{{ route('papers.index') }}"
-                   class="btn btn-primary rounded-pill px-4 py-2"
-                   style="font-size:.9rem;font-weight:600;">
-                    <i class="fas fa-flask me-2"></i>Explorar Papers
-                </a>
-                <a href="{{ route('quienes-somos') }}"
-                   class="btn rounded-pill px-4 py-2"
-                   style="font-size:.9rem;font-weight:600;background:rgba(255,255,255,.06);color:#ccc;border:1px solid rgba(255,255,255,.15);">
-                    <i class="fas fa-info-circle me-2"></i>Quiénes Somos
-                </a>
+    <section style="background:linear-gradient(135deg,#08090f 0%,#0d1220 50%,#080e1a 100%);border-bottom:1px solid rgba(56,182,255,.12);" class="py-3">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge px-2 py-1 d-none d-md-inline-flex align-items-center gap-1 flex-shrink-0"
+                          style="background:rgba(56,182,255,.1);color:var(--primary-color);border:1px solid rgba(56,182,255,.25);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;border-radius:50px;">
+                        <i class="fas fa-microscope"></i> Chile
+                    </span>
+                    <div>
+                        <div class="fw-bold text-white" style="font-size:1rem;letter-spacing:-.01em;line-height:1.2;">
+                            IA sin simplificar. Divulgación sin barreras.
+                        </div>
+                        <div style="color:#6b7a90;font-size:.78rem;margin-top:2px;">
+                            Papers, investigación y análisis sobre IA en español
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 flex-shrink-0">
+                    <a href="{{ route('papers.index') }}"
+                       class="btn btn-primary btn-sm rounded-pill px-3"
+                       style="font-size:.8rem;">
+                        <i class="fas fa-flask me-1"></i>Papers
+                    </a>
+                    <a href="{{ route('quienes-somos') }}"
+                       class="btn btn-sm rounded-pill px-3"
+                       style="font-size:.8rem;background:rgba(255,255,255,.06);color:#ccc;border:1px solid rgba(255,255,255,.15);">
+                        Quiénes Somos
+                    </a>
+                </div>
             </div>
         </div>
     </section>
