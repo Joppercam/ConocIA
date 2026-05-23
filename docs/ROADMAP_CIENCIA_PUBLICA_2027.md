@@ -11,7 +11,7 @@
 | 2 | Página Quiénes Somos | ✅ Completada |
 | 3 | Página Impacto | ✅ Completada |
 | 4 | Reestructuración de navegación + placeholders | ✅ Completada |
-| 5 | Sistema de niveles de complejidad | ⚠️ Parcial (solo Papers) |
+| 5 | Sistema de niveles de complejidad | ✅ Completada |
 | 6 | Footer actualizado | ✅ Completada |
 | 7 | Accesibilidad WCAG 2.1 básico | ⚠️ Parcial (skip nav + lang + aria-label) |
 | 8 | Mejoras al home | ✅ Completada |
