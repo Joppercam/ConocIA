@@ -161,7 +161,7 @@
             $researchCount  = \App\Models\Research::count();
             $conceptosCount = \App\Models\ConceptoIa::where('status','published')->count();
             $userCount      = \App\Models\User::count();
-            $colCount       = \App\Models\Column::where('status','published')->count();
+            $colCount       = \App\Models\Column::whereNotNull('published_at')->where('published_at','<=',now())->count();
         @endphp
         <div class="row g-4 text-center">
             <div class="col-6 col-md-4 col-lg-2">
