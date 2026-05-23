@@ -24,7 +24,7 @@ class ImpactController extends Controller
             'registered_users' => User::count(),
             'radio_episodes'   => DailyBriefing::count(),
             'estado_arte'      => EstadoArte::count(),
-            'columns'          => Column::where('status', 'published')->count(),
+            'columns'          => Column::whereNotNull('published_at')->where('published_at', '<=', now())->count(),
             'subscribers'      => Newsletter::where('is_active', true)->count(),
             'fields_covered'   => 6,
         ];
