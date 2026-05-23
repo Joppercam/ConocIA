@@ -25,16 +25,39 @@ class GenerateAnalisisFondo extends Command
      * Temas rotativos — se toma el siguiente que no tenga análisis reciente.
      */
     protected array $topics = [
-        ['slug' => 'carrera-frontier-models',      'name' => 'La carrera por los Frontier Models',         'category' => 'Modelos de Lenguaje',   'news_categories' => ['openai','anthropic','google-ai','microsoft-ai']],
-        ['slug' => 'razonamiento-llms',             'name' => 'El problema del razonamiento en los LLMs',   'category' => 'Modelos de Lenguaje',   'news_categories' => ['nlp','inteligencia-artificial','deep-learning']],
-        ['slug' => 'regulacion-ia-global',          'name' => 'Regulación de IA: el pulso global',          'category' => 'Regulación y Ética',    'news_categories' => ['regulacion-de-ia','etica-de-la-ia']],
-        ['slug' => 'ia-agentes-autonomos',          'name' => 'Agentes autónomos: IA que actúa en el mundo','category' => 'Aplicaciones',          'news_categories' => ['inteligencia-artificial','automatizacion']],
-        ['slug' => 'ia-generativa-industria',       'name' => 'IA generativa y su impacto en la industria', 'category' => 'Aplicaciones',          'news_categories' => ['ia-generativa','impacto-laboral','automatizacion']],
-        ['slug' => 'open-source-vs-closed-ai',      'name' => 'Open source vs. IA propietaria',             'category' => 'Industria',             'news_categories' => ['inteligencia-artificial','startups-de-ia']],
-        ['slug' => 'seguridad-alineamiento-ia',     'name' => 'Seguridad y alineamiento: el debate urgente','category' => 'Regulación y Ética',    'news_categories' => ['etica-de-la-ia','regulacion-de-ia','anthropic']],
-        ['slug' => 'computacion-cuantica-ia',       'name' => 'Computación cuántica e IA: promesas y límites','category' => 'Tecnología',          'news_categories' => ['computacion-cuantica','inteligencia-artificial']],
-        ['slug' => 'ia-salud-diagnostico',          'name' => 'IA en salud: del diagnóstico a la medicina personalizada', 'category' => 'Aplicaciones', 'news_categories' => ['ia-en-salud']],
-        ['slug' => 'multimodalidad-ia',             'name' => 'La revolución multimodal: texto, imagen, audio y más', 'category' => 'Modelos de Lenguaje', 'news_categories' => ['ia-generativa','computer-vision','inteligencia-artificial']],
+        // ── Técnicos / globales ───────────────────────────────────────
+        ['slug' => 'carrera-frontier-models',      'name' => 'La carrera por los Frontier Models',                          'category' => 'Modelos de Lenguaje',   'news_categories' => ['openai','anthropic','google-ai','microsoft-ai']],
+        ['slug' => 'razonamiento-llms',             'name' => 'El problema del razonamiento en los LLMs',                    'category' => 'Modelos de Lenguaje',   'news_categories' => ['nlp','inteligencia-artificial','deep-learning']],
+        ['slug' => 'regulacion-ia-global',          'name' => 'Regulación de IA: el pulso global',                          'category' => 'Regulación y Ética',    'news_categories' => ['regulacion-de-ia','etica-de-la-ia']],
+        ['slug' => 'ia-agentes-autonomos',          'name' => 'Agentes autónomos: IA que actúa en el mundo',                'category' => 'Aplicaciones',          'news_categories' => ['inteligencia-artificial','automatizacion']],
+        ['slug' => 'ia-generativa-industria',       'name' => 'IA generativa y su impacto en la industria',                 'category' => 'Aplicaciones',          'news_categories' => ['ia-generativa','impacto-laboral','automatizacion']],
+        ['slug' => 'open-source-vs-closed-ai',      'name' => 'Open source vs. IA propietaria',                             'category' => 'Industria',             'news_categories' => ['inteligencia-artificial','startups-de-ia']],
+        ['slug' => 'seguridad-alineamiento-ia',     'name' => 'Seguridad y alineamiento: el debate urgente',                'category' => 'Regulación y Ética',    'news_categories' => ['etica-de-la-ia','regulacion-de-ia','anthropic']],
+        ['slug' => 'computacion-cuantica-ia',       'name' => 'Computación cuántica e IA: promesas y límites',              'category' => 'Tecnología',            'news_categories' => ['computacion-cuantica','inteligencia-artificial']],
+        ['slug' => 'ia-salud-diagnostico',          'name' => 'IA en salud: del diagnóstico a la medicina personalizada',   'category' => 'Aplicaciones',          'news_categories' => ['ia-en-salud']],
+        ['slug' => 'multimodalidad-ia',             'name' => 'La revolución multimodal: texto, imagen, audio y más',       'category' => 'Modelos de Lenguaje',   'news_categories' => ['ia-generativa','computer-vision','inteligencia-artificial']],
+        ['slug' => 'ia-codigo-programadores',       'name' => 'IA y programación: ¿el fin del desarrollador clásico?',     'category' => 'Aplicaciones',          'news_categories' => ['inteligencia-artificial','startups-de-ia']],
+        ['slug' => 'modelos-pequenos-eficiencia',   'name' => 'Modelos pequeños y eficientes: la otra carrera de la IA',   'category' => 'Modelos de Lenguaje',   'news_categories' => ['inteligencia-artificial','deep-learning']],
+        ['slug' => 'ia-desinformacion',             'name' => 'IA y desinformación: fabricar la realidad a escala',        'category' => 'Regulación y Ética',    'news_categories' => ['etica-de-la-ia','ia-generativa']],
+        ['slug' => 'ia-creatividad-arte',           'name' => 'IA y creatividad: propiedad intelectual en disputa',        'category' => 'Regulación y Ética',    'news_categories' => ['ia-generativa','etica-de-la-ia']],
+        ['slug' => 'costos-computacionales-ia',     'name' => 'El costo real de entrenar y correr modelos de IA',          'category' => 'Tecnología',            'news_categories' => ['inteligencia-artificial','deep-learning']],
+
+        // ── Chile y Latinoamérica ─────────────────────────────────────
+        ['slug' => 'politica-nacional-ia-chile',    'name' => 'La Política Nacional de IA de Chile: avances y desafíos',   'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','regulacion-de-ia']],
+        ['slug' => 'ia-educacion-chile',            'name' => 'IA en el sistema educativo chileno: oportunidad o amenaza', 'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','ia-en-educacion']],
+        ['slug' => 'mercado-laboral-ia-chile',      'name' => 'Automatización e impacto laboral en Chile',                 'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','impacto-laboral','automatizacion']],
+        ['slug' => 'ia-salud-publica-chile',        'name' => 'IA en el sistema de salud público chileno',                 'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','ia-en-salud']],
+        ['slug' => 'startups-ia-chile',             'name' => 'El ecosistema de startups de IA en Chile: quiénes son',    'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','startups-de-ia']],
+        ['slug' => 'brecha-digital-chile-ia',       'name' => 'Brecha digital e IA: quién queda fuera en Chile',          'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','etica-de-la-ia']],
+        ['slug' => 'ia-sector-publico-chile',       'name' => 'IA en el Estado chileno: digitalización y riesgos',        'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','regulacion-de-ia']],
+        ['slug' => 'soberania-datos-latam',         'name' => 'Soberanía de datos e IA en Latinoamérica',                 'category' => 'Chile y Latam',         'news_categories' => ['ia-en-chile','regulacion-de-ia','etica-de-la-ia']],
+
+        // ── Divulgación ciudadana ─────────────────────────────────────
+        ['slug' => 'como-funciona-chatgpt-ciudadano','name' => 'Cómo funciona ChatGPT: sin jerga técnica',               'category' => 'Divulgación',           'news_categories' => ['inteligencia-artificial','ia-generativa']],
+        ['slug' => 'ia-en-tu-vida-cotidiana',       'name' => 'La IA que ya usas sin saberlo',                           'category' => 'Divulgación',           'news_categories' => ['inteligencia-artificial','aplicaciones-ia']],
+        ['slug' => 'derechos-ciudadanos-ia',        'name' => 'Tus derechos frente a decisiones automatizadas',          'category' => 'Divulgación',           'news_categories' => ['etica-de-la-ia','regulacion-de-ia']],
+        ['slug' => 'ia-verdad-o-mito',              'name' => 'IA: 10 mitos que necesitas desmentir',                    'category' => 'Divulgación',           'news_categories' => ['inteligencia-artificial','etica-de-la-ia']],
+        ['slug' => 'como-leer-un-paper-ia',         'name' => 'Cómo leer un paper de IA sin ser investigador',           'category' => 'Divulgación',           'news_categories' => ['inteligencia-artificial','deep-learning']],
     ];
 
     public function handle(): int

@@ -83,6 +83,39 @@ class GenerateConceptosIa extends Command
         'ecosistema-ia-chile'              => 'El Ecosistema de IA en Chile',
         'politicas-publicas-ia'            => 'Políticas Públicas en Inteligencia Artificial',
         'brecha-digital'                   => 'Brecha Digital y Acceso a la IA',
+        'politica-nacional-ia-chile'       => 'La Política Nacional de IA de Chile: avances y brechas',
+        'ia-salud-publica-chile'           => 'IA en el Sistema de Salud Público Chileno',
+        'ia-educacion-chilena'             => 'IA en las Aulas Chilenas: oportunidades y desafíos reales',
+        'automatizacion-trabajo-chile'     => 'Automatización y Mercado Laboral en Chile: qué empleos están en riesgo',
+        'soberania-datos-latam'            => 'Soberanía de Datos en Latinoamérica: ¿quién controla nuestra información?',
+        'ia-sector-publico-chile'          => 'IA en el Estado Chileno: digitalización, riesgos y oportunidades',
+        'startups-ia-chile'                => 'El Ecosistema de Startups de IA en Chile: quiénes son y qué hacen',
+
+        // Impacto social avanzado
+        'ia-y-democracia'                  => 'IA y Democracia: riesgos para la deliberación pública',
+        'vigilancia-ia'                    => 'Vigilancia Masiva con IA: entre seguridad y control social',
+        'ia-y-genero'                      => 'IA y Género: cuando los algoritmos reproducen la desigualdad',
+        'gobernanza-ia-global'             => 'Gobernanza Global de la IA: quién decide las reglas del juego',
+        'ia-y-medioambiente'               => 'IA y Medio Ambiente: costos energéticos e impacto climático',
+        'ia-y-propiedad-intelectual'       => 'IA y Propiedad Intelectual: ¿quién es el autor de lo que crea la IA?',
+
+        // Técnica avanzada
+        'inference-efficiency'             => 'Eficiencia en Inferencia: el costo real de usar la IA',
+        'model-quantization'               => 'Cuantización de Modelos: hacer la IA más eficiente y accesible',
+        'benchmarks-evaluacion-ia'         => 'Benchmarks de IA: cómo medimos (y engañamos) la inteligencia artificial',
+        'edge-ai'                          => 'Edge AI: inteligencia artificial sin conexión a internet',
+        'multiagentes-ia'                  => 'Sistemas Multi-Agente: cuando varios IAs colaboran para resolver problemas',
+        'seguridad-ia-adversarial'         => 'Ataques Adversariales: cómo engañar a los modelos de IA',
+        'datos-sinteticos'                 => 'Datos Sintéticos: cuando la IA aprende de datos que ella misma genera',
+
+        // Divulgación ciudadana
+        'que-es-chatgpt-explicado'         => '¿Qué es ChatGPT? Explicado para quien nunca ha programado',
+        'ia-en-tu-celular'                 => 'La IA que ya llevas en el bolsillo: tu celular',
+        'ia-vs-ser-humano'                 => '¿Puede la IA pensar como un humano? Mitos y realidades',
+        'tus-datos-y-la-ia'                => 'Tus Datos y la IA: qué saben de ti y qué puedes hacer',
+        'como-detectar-deepfakes'          => 'Cómo Detectar Deepfakes y Contenido Falso Generado por IA',
+        'ia-y-creatividad-artistas'        => 'IA y Creatividad: ¿amenaza u oportunidad para artistas y escritores?',
+        'derechos-frente-a-algoritmos'     => 'Tus Derechos Frente a Decisiones Algorítmicas',
     ];
 
     public function handle(): int
