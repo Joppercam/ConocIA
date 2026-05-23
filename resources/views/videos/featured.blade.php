@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Videos Destacados - Portal de Noticias')
+@section('title', 'Videos Destacados - ConocIA')
 
 @section('content')
 <!-- Banner de título para sección de Videos Destacados -->
