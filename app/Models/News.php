@@ -38,6 +38,7 @@ class News extends Model implements Feedable
         'source_url',
         'published_at',
         'reading_time',
+        'difficulty_level',
     ];
 
       /**

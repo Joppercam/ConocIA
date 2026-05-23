@@ -45,7 +45,8 @@ class Research extends Model
         'institution',
         'references',
         'document_path',
-        'published_at'
+        'published_at',
+        'difficulty_level',
     ];
 
     /**

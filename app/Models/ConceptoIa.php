@@ -12,7 +12,7 @@ class ConceptoIa extends Model
     protected $fillable = [
         'title', 'slug', 'excerpt', 'content', 'definition',
         'category', 'related_concepts', 'key_players', 'further_reading',
-        'image', 'featured', 'status', 'views', 'reading_time', 'published_at',
+        'image', 'featured', 'status', 'views', 'reading_time', 'published_at', 'difficulty_level',
     ];
 
     protected $casts = [

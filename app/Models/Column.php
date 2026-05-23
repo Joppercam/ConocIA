@@ -28,6 +28,7 @@ class Column extends Model
         'published_at',
         'audio_path',
         'audio_generated_at',
+        'difficulty_level',
     ];
 
     /**

@@ -63,6 +63,11 @@
                                 <span class="research-type-badge">
                                     {{ Str::headline(str_replace(['-', '_'], ' ', $researchLabel)) }}
                                 </span>
+                                @if($research->difficulty_level)
+                                <span class="badge difficulty-badge-{{ $research->difficulty_level }}" style="font-size:.7rem;">
+                                    {{ ucfirst($research->difficulty_level) }}
+                                </span>
+                                @endif
                                 <span class="research-meta-pill"><i class="far fa-calendar me-1"></i>{{ ($research->published_at ?? $research->created_at)->locale('es')->isoFormat('D MMM, YYYY') }}</span>
                             </div>
 

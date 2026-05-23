@@ -108,13 +108,20 @@
                     <div class="col-md-{{ $hasImage ? '8' : '12' }} news-content d-flex flex-column">
                         <div class="card-body py-3 px-3 d-flex flex-column h-100">
 
-                            {{-- Category + date --}}
+                            {{-- Category + difficulty + date --}}
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <a href="{{ route('news.category', $article->category->slug ?? 'general') }}"
-                                   class="badge text-decoration-none"
-                                   style="background:{{ $catColor }};font-size:.72rem;letter-spacing:.02em;">
-                                    {{ $article->category->name ?? 'General' }}
-                                </a>
+                                <div class="d-flex gap-1 align-items-center">
+                                    <a href="{{ route('news.category', $article->category->slug ?? 'general') }}"
+                                       class="badge text-decoration-none"
+                                       style="background:{{ $catColor }};font-size:.72rem;letter-spacing:.02em;">
+                                        {{ $article->category->name ?? 'General' }}
+                                    </a>
+                                    @if($article->difficulty_level)
+                                    <span class="badge difficulty-badge-{{ $article->difficulty_level }}" style="font-size:.65rem;">
+                                        {{ ucfirst($article->difficulty_level) }}
+                                    </span>
+                                    @endif
+                                </div>
                                 <span class="text-muted" style="font-size:.78rem;">
                                     <i class="far fa-calendar-alt me-1"></i>
                                     {{ $article->published_at?->locale('es')->isoFormat('D MMM, YYYY') ?? $article->created_at->locale('es')->isoFormat('D MMM, YYYY') }}

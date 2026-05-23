@@ -59,7 +59,10 @@
                                 <i class="fas fa-brain" style="color:var(--primary-color);font-size:.85rem;"></i>
                             </div>
                             <div class="flex-grow-1 min-w-0">
-                                @if($concepto->category)<span class="badge mb-1" style="background:rgba(56,182,255,.1);color:#0369a1;font-size:.65rem;">{{ $concepto->category }}</span>@endif
+                                <div class="d-flex gap-1 flex-wrap mb-1">
+                                    @if($concepto->category)<span class="badge" style="background:rgba(56,182,255,.1);color:#0369a1;font-size:.65rem;">{{ $concepto->category }}</span>@endif
+                                    @if($concepto->difficulty_level)<span class="badge difficulty-badge-{{ $concepto->difficulty_level }}" style="font-size:.6rem;">{{ ucfirst($concepto->difficulty_level) }}</span>@endif
+                                </div>
                                 <h6 class="fw-bold mb-1" style="color:#0f172a;font-size:.88rem;line-height:1.3;">{{ $concepto->title }}</h6>
                                 <p style="color:#64748b;font-size:.78rem;line-height:1.45;margin:0;">{{ Str::limit($concepto->definition ?? strip_tags($concepto->excerpt), 85) }}</p>
                             </div>
