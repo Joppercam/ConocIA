@@ -47,48 +47,33 @@ class Kernel extends ConsoleKernel
         }
 
         // ══════════════════════════════════════════════════════════════
-        // Noticias distribuidas de 07:00 a 20:00 — tandas pequeñas
-        // para evitar timeouts. Cada fuente corre 2x/día con cantidad
-        // reducida a la mitad vs. una sola corrida grande.
+        // Noticias — frecuencia reducida, foco en calidad y curación.
+        // ConocIA es plataforma de divulgación: las noticias son contexto,
+        // no el producto principal. Cada fuente corre 1x/día.
         // ══════════════════════════════════════════════════════════════
 
-        // Gemini Search Grounding — 2x/día, 2 noticias c/u (antes: 1x con 3)
+        // Gemini Search Grounding — 1x/día, 2 noticias (antes: 2x con 2 c/u = 4/día)
         $schedule->command('news:fetch-gemini --all --count=2 --days=2')
-            ->dailyAt('07:00')
-            ->withoutOverlapping(90)
-            ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
-        $schedule->command('news:fetch-gemini --all --count=2 --days=2')
-            ->dailyAt('15:00')
+            ->dailyAt('08:00')
             ->withoutOverlapping(90)
             ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
 
-        // NewsAPI — 2x/día, 1 noticia por categoría c/u (antes: 1x con 1)
+        // NewsAPI — 1x/día, 1 noticia por categoría (antes: 2x/día)
         $schedule->command('news:fetch-all --count=1')
-            ->dailyAt('09:00')
-            ->withoutOverlapping(60)
-            ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
-        $schedule->command('news:fetch-all --count=1')
-            ->dailyAt('17:00')
+            ->dailyAt('10:00')
             ->withoutOverlapping(60)
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
 
-        // RSS curado — 2x/día, 2 artículos c/u (antes: 1x con 3)
-        $schedule->command('news:fetch-rss --limit=2')
-            ->dailyAt('11:00')
-            ->withoutOverlapping(30)
-            ->appendOutputTo(storage_path('logs/fetch-rss.log'));
-        $schedule->command('news:fetch-rss --limit=2')
-            ->dailyAt('19:00')
+        // RSS curado — 1x/día, 1 artículo (antes: 2x/día con 2 c/u = 4/día)
+        $schedule->command('news:fetch-rss --limit=1')
+            ->dailyAt('12:00')
             ->withoutOverlapping(30)
             ->appendOutputTo(storage_path('logs/fetch-rss.log'));
 
-        // The Guardian API — 2x/día, 3 artículos c/u (antes: 1x con 5)
-        $schedule->command('news:fetch-guardian --limit=3')
-            ->dailyAt('13:00')
-            ->withoutOverlapping(20)
-            ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
-        $schedule->command('news:fetch-guardian --limit=3')
-            ->dailyAt('20:00')
+        // The Guardian API — 3x/semana, 2 artículos c/u (antes: 2x/día con 3 c/u = 6/día)
+        $schedule->command('news:fetch-guardian --limit=2')
+            ->weekdays()->at('14:00')
+            ->days([1, 3, 5]) // lunes, miércoles, viernes
             ->withoutOverlapping(20)
             ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
 
@@ -141,18 +126,11 @@ class Kernel extends ConsoleKernel
 
         // ── Sección "Profundiza" ──────────────────────────────────────────────
 
-        // Conceptos IA: 3 conceptos/semana (lunes, miércoles, viernes) para
-        // construir la enciclopedia con ritmo sostenido hacia el fondo 2027.
+        // Conceptos IA: 5 conceptos/semana (lunes a viernes) para construir
+        // la enciclopedia antes del cierre del fondo Ciencia Pública 2027.
+        // Antes: 3x/semana. Aumentado para acelerar el volumen de la enciclopedia.
         $schedule->command('conceptos:generate --count=1')
-            ->weekly()->mondays()->at('06:00')
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
-        $schedule->command('conceptos:generate --count=1')
-            ->weekly()->wednesdays()->at('06:00')
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
-        $schedule->command('conceptos:generate --count=1')
-            ->weekly()->fridays()->at('06:00')
+            ->weekdays()->at('06:00')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
 
