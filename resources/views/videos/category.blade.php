@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $category->name . ' - Videos - Portal de Noticias')
+@section('title', $category->name . ' - Videos - ConocIA')
 
 @section('content')
 <!-- Banner de título para sección de Videos por Categoría -->

@@ -6,8 +6,8 @@ $sectionDescription = trim($__env->yieldContent('meta_description'));
 $sectionKeywords = trim($__env->yieldContent('meta_keywords'));
 
 $metaTitle = $metaTitle ?? ($title ?? ($sectionTitle !== '' ? $sectionTitle : config('app.name', 'ConocIA')));
-$metaDescription = $metaDescription ?? ($description ?? ($sectionDescription !== '' ? $sectionDescription : 'Noticias de tecnología e inteligencia artificial - ConocIA'));
-$metaKeywords = $metaKeywords ?? ($keywords ?? ($sectionKeywords !== '' ? $sectionKeywords : 'inteligencia artificial, tecnología, noticias tecnología, IA'));
+$metaDescription = $metaDescription ?? ($description ?? ($sectionDescription !== '' ? $sectionDescription : 'Plataforma chilena de divulgación, educación y alfabetización en inteligencia artificial. Papers explicados, investigación, herramientas interactivas y contenido para entender la IA sin barreras.'));
+$metaKeywords = $metaKeywords ?? ($keywords ?? ($sectionKeywords !== '' ? $sectionKeywords : 'inteligencia artificial, divulgación científica, IA Chile, alfabetización digital, papers IA español, educación tecnológica, ciencia pública'));
 $metaImage = $metaImage ?? ($image ?? asset('images/defaults/social-share.jpg'));
 $metaType = $metaType ?? ($type ?? 'website');
 $metaUrl = $metaUrl ?? ($url ?? url()->current());

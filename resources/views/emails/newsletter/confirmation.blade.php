@@ -1,7 +1,7 @@
 <x-mail::message>
 # Confirma tu suscripción a ConocIA
 
-Gracias por suscribirte a **ConocIA**, el portal de noticias sobre Inteligencia Artificial en español.
+Gracias por suscribirte a **ConocIA**, la plataforma chilena de divulgación en Inteligencia Artificial.
 
 Para completar tu suscripción y comenzar a recibir las últimas noticias de IA, haz clic en el botón:
 

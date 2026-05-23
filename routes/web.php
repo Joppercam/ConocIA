@@ -39,6 +39,8 @@ use App\Http\Controllers\ConocIaPaperController;
 use App\Http\Controllers\EstadoArteController;
 use App\Http\Controllers\SaasDashboardController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ImpactController;
+use App\Http\Controllers\ComingSoonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -215,7 +217,10 @@ Route::feeds();
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::redirect('/noticias', '/news', 301);
 Route::redirect('/profundiza', '/conceptos-ia', 301);
-Route::get('/acerca-de', [HomeController::class, 'about'])->name('about');
+Route::redirect('/acerca-de', '/quienes-somos', 301)->name('about');
+Route::get('/quienes-somos', fn() => view('about'))->name('quienes-somos');
+Route::get('/impacto', [ImpactController::class, 'index'])->name('impacto');
+Route::get('/proximamente/{slug}', [ComingSoonController::class, 'show'])->name('coming-soon');
 Route::get('/contacto', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contacto', [HomeController::class, 'sendContact'])->name('contact.send');
 Route::get('/buscar', [SearchController::class, 'search'])->name('search');

@@ -141,9 +141,18 @@ class Kernel extends ConsoleKernel
 
         // ── Sección "Profundiza" ──────────────────────────────────────────────
 
-        // Conceptos IA: un concepto nuevo cada lunes a las 06:00 (quota baja)
+        // Conceptos IA: 3 conceptos/semana (lunes, miércoles, viernes) para
+        // construir la enciclopedia con ritmo sostenido hacia el fondo 2027.
         $schedule->command('conceptos:generate --count=1')
             ->weekly()->mondays()->at('06:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
+        $schedule->command('conceptos:generate --count=1')
+            ->weekly()->wednesdays()->at('06:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
+        $schedule->command('conceptos:generate --count=1')
+            ->weekly()->fridays()->at('06:00')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/conceptos-ia.log'));
 

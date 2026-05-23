@@ -726,58 +726,12 @@
                 </div>
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('news.*') ? 'active' : '' }}" 
-                               href="{{ route('news.index') }}"
-                               aria-current="{{ request()->routeIs('news.*') ? 'page' : 'false' }}">
-                               <i class="fas fa-newspaper me-1 d-lg-none"></i>Noticias
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('chile.*') ? 'active' : '' }}"
-                               href="{{ route('chile.index') }}"
-                               aria-current="{{ request()->routeIs('chile.*') ? 'page' : 'false' }}">
-                               <i class="fas fa-flag me-1 d-lg-none"></i>
-                               <span class="d-lg-none">IA en Chile</span>
-                               <span class="d-none d-lg-inline">Chile IA</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('research.*') ? 'active' : '' }}"
-                               href="{{ route('research.index') }}"
-                               aria-current="{{ request()->routeIs('research.*') ? 'page' : 'false' }}">
-                               <i class="fas fa-flask me-1 d-lg-none"></i>Investigación
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('columns.*') ? 'active' : '' }}"
-                               href="{{ route('columns.index') }}"
-                               aria-current="{{ request()->routeIs('columns.*') ? 'page' : 'false' }}">
-                                <i class="fas fa-pen-fancy me-1 d-lg-none"></i>Columnas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('videos.*') ? 'active' : '' }}"
-                               href="{{ route('videos.index') }}"
-                               aria-current="{{ request()->routeIs('videos.*') ? 'page' : 'false' }}">
-                                <i class="fas fa-tv me-1 d-lg-none"></i>
-                                <span class="d-lg-none">ConocIA TV</span>
-                                <span class="d-none d-lg-inline">ConocIA <span style="color:var(--primary-color);">TV</span></span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('radio.*') ? 'active' : '' }}"
-                               href="{{ route('radio.index') }}"
-                               aria-current="{{ request()->routeIs('radio.*') ? 'page' : 'false' }}">
-                                <i class="fas fa-microphone me-1 d-lg-none"></i>
-                                <span class="d-lg-none">ConocIA Radio</span>
-                                <span class="d-none d-lg-inline">ConocIA <span style="color:var(--primary-color);">Radio</span></span>
-                            </a>
-                        </li>
+
+                        {{-- Aprende --}}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->routeIs('conceptos.*','analisis.*','papers.*','estado-arte.*') ? 'active' : '' }}"
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('conceptos.*') ? 'active' : '' }}"
                                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-brain me-1 d-lg-none"></i>Profundiza
+                                <i class="fas fa-graduation-cap me-1 d-lg-none"></i>Aprende
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" style="min-width:240px;">
                                 <li>
@@ -788,12 +742,29 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item py-2" href="{{ route('analisis.index') }}">
-                                        <i class="fas fa-microscope me-2" style="color:var(--primary-color);"></i>
-                                        <strong>Análisis de Fondo</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Editorial largo sobre un tema IA</div>
+                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'ia-para-todos') }}">
+                                        <i class="fas fa-graduation-cap me-2" style="color:var(--primary-color);"></i>
+                                        <strong>IA para Todos</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Alfabetización en IA · <span style="color:#f59e0b;">Próximamente</span></div>
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'glosario') }}">
+                                        <i class="fas fa-list-alt me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Glosario</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Términos clave · <span style="color:#f59e0b;">Próximamente</span></div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Investiga --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('papers.*','estado-arte.*','analisis.*','research.*') ? 'active' : '' }}"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-microscope me-1 d-lg-none"></i>Investiga
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:240px;">
                                 <li>
                                     <a class="dropdown-item py-2" href="{{ route('papers.index') }}">
                                         <i class="fas fa-file-alt me-2" style="color:var(--primary-color);"></i>
@@ -808,8 +779,112 @@
                                         <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Digest semanal por campo de IA</div>
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('analisis.index') }}">
+                                        <i class="fas fa-microscope me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Análisis de Fondo</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Editorial de largo aliento sobre IA</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('research.index') }}">
+                                        <i class="fas fa-flask me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Investigación</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Análisis originales sobre IA y sociedad</div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
+
+                        {{-- IA en Chile --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('chile.*','startups.*') ? 'active' : '' }}"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-flag me-1 d-lg-none"></i>IA en Chile
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:240px;">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('chile.index') }}">
+                                        <i class="fas fa-newspaper me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Noticias locales</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Ecosistema de IA en Chile</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'ecosistema') }}">
+                                        <i class="fas fa-map-marked-alt me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Mapa del Ecosistema</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Startups, universidades · <span style="color:#f59e0b;">Próximamente</span></div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'regulacion') }}">
+                                        <i class="fas fa-balance-scale me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Observatorio Regulación</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Legislación y políticas · <span style="color:#f59e0b;">Próximamente</span></div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Actualidad --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('news.*','columns.*') ? 'active' : '' }}"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-newspaper me-1 d-lg-none"></i>Actualidad
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:220px;">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('news.index') }}">
+                                        <i class="fas fa-newspaper me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Noticias</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Lo más reciente en IA</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('columns.index') }}">
+                                        <i class="fas fa-pen-fancy me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Columnas</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Opinión y análisis editorial</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Multimedia --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->routeIs('videos.*','radio.*') ? 'active' : '' }}"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-play-circle me-1 d-lg-none"></i>Multimedia
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" style="min-width:220px;">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('radio.index') }}">
+                                        <i class="fas fa-podcast me-2" style="color:var(--primary-color);"></i>
+                                        <strong>ConocIA <span style="color:var(--primary-color);">Radio</span></strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Briefings diarios de IA</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('videos.index') }}">
+                                        <i class="fas fa-tv me-2" style="color:var(--primary-color);"></i>
+                                        <strong>ConocIA <span style="color:var(--primary-color);">TV</span></strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Contenido en video sobre IA</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Impacto --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('impacto') ? 'active' : '' }}"
+                               href="{{ route('impacto') }}"
+                               aria-current="{{ request()->routeIs('impacto') ? 'page' : 'false' }}">
+                                <i class="fas fa-chart-bar me-1 d-lg-none"></i>Impacto
+                            </a>
+                        </li>
+
+                        {{-- Guardados --}}
                         <li class="nav-item">
                             <a class="nav-link position-relative {{ request()->routeIs('saved') ? 'active' : '' }}"
                                href="{{ route('saved') }}" title="Artículos guardados">
@@ -927,9 +1002,9 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="mb-3">
                         <span class="logo-text footer-logo">Conoc<span class="text-highlight">IA</span></span>
-                        <p class="text-light mt-2 mb-1" style="font-size:.85rem;">"El futuro del conocimiento es artificialmente inteligente"</p>
+                        <p class="text-light mt-2 mb-1" style="font-size:.85rem;">"Democratizando el conocimiento en IA para Chile y Latinoamérica"</p>
                     </div>
-                    <p style="font-size:.82rem;">Tu portal de noticias, análisis y conocimiento sobre inteligencia artificial en español.</p>
+                    <p style="font-size:.82rem;">Plataforma chilena de divulgación, educación y alfabetización en inteligencia artificial. Explicamos la IA para que todos la entiendan.</p>
                     <div class="social-links mt-3">
                         <a href="#" class="text-white me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
                         <a href="#" class="text-white me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -949,20 +1024,20 @@
                         <li class="mb-2"><a href="{{ route('home') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Inicio</a></li>
                         <li class="mb-2"><a href="{{ route('news.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Noticias</a></li>
                         <li class="mb-2"><a href="{{ route('chile.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>IA en Chile</a></li>
-                        <li class="mb-2"><a href="{{ route('columns.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Columnas</a></li>
-                        <li class="mb-2"><a href="{{ route('startups.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Startups IA</a></li>
-                        <li class="mb-2"><a href="{{ route('news.archive', date('Y')) }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Archivo</a></li>
-                        <li><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Enviar investigación</a></li>
+                        <li class="mb-2"><a href="{{ route('papers.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Papers</a></li>
+                        <li class="mb-2"><a href="{{ route('research.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Investigación</a></li>
+                        <li class="mb-2"><a href="{{ route('estado-arte.index') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Estado del Arte</a></li>
+                        <li><a href="{{ route('impacto') }}" class="text-white"><i class="fas fa-angle-right me-2"></i>Impacto</a></li>
                     </ul>
                 </div>
 
                 <div class="col-lg-3 col-md-3 col-6">
-                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;">Profundiza</h5>
+                    <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;">Institucional</h5>
                     <ul class="list-unstyled mb-3" style="font-size:.82rem;">
-                        <li class="mb-2"><a href="{{ route('conceptos.index') }}" class="text-white"><i class="fas fa-book-open me-2"></i>Conceptos IA</a></li>
-                        <li class="mb-2"><a href="{{ route('papers.index') }}" class="text-white"><i class="fas fa-file-alt me-2"></i>ConocIA Papers</a></li>
-                        <li class="mb-2"><a href="{{ route('analisis.index') }}" class="text-white"><i class="fas fa-microscope me-2"></i>Análisis de Fondo</a></li>
-                        <li><a href="{{ route('estado-arte.index') }}" class="text-white"><i class="fas fa-chart-line me-2"></i>Estado del Arte</a></li>
+                        <li class="mb-2"><a href="{{ route('quienes-somos') }}" class="text-white"><i class="fas fa-info-circle me-2"></i>Quiénes Somos</a></li>
+                        <li class="mb-2"><a href="{{ route('quienes-somos') }}#linea-editorial" class="text-white"><i class="fas fa-pen-nib me-2"></i>Línea Editorial</a></li>
+                        <li class="mb-2"><a href="{{ route('submit-research') }}" class="text-white"><i class="fas fa-paper-plane me-2"></i>Enviar Investigación</a></li>
+                        <li><a href="{{ route('contact') }}" class="text-white"><i class="fas fa-envelope me-2"></i>Contacto</a></li>
                     </ul>
                     <h5 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary-color);margin-bottom:.9rem;margin-top:1.2rem;">Media</h5>
                     <ul class="list-unstyled mb-0" style="font-size:.82rem;">

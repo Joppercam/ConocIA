@@ -21,14 +21,14 @@
                 "https://www.instagram.com/conocia.cl",
                 "https://www.linkedin.com/company/conocia"
             ],
-            "description": "Portal chileno de noticias, análisis y divulgación sobre inteligencia artificial y tecnología."
+            "description": "Plataforma chilena de divulgación, educación y alfabetización en inteligencia artificial. Papers explicados, investigación y contenido para entender la IA sin barreras."
         },
         {
             "@type": "WebSite",
             "@id": "{{ url('/') }}/#website",
             "url": "{{ url('/') }}",
             "name": "ConocIA",
-            "description": "Tu portal de noticias sobre inteligencia artificial en español",
+            "description": "Plataforma chilena de divulgación, educación y alfabetización en inteligencia artificial.",
             "publisher": {
                 "@id": "{{ url('/') }}/#organization"
             },
