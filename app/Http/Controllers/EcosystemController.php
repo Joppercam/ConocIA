@@ -11,8 +11,6 @@ class EcosystemController extends Controller
         $actors = EcosystemActor::orderBy('type')->orderBy('name')->get();
         $total  = $actors->count();
 
-        $byType = $actors->groupBy('type');
-
         $typeCounts = [
             'universidad'          => $actors->where('type', 'universidad')->count(),
             'centro_investigacion' => $actors->where('type', 'centro_investigacion')->count(),
@@ -21,6 +19,20 @@ class EcosystemController extends Controller
             'organizacion'         => $actors->where('type', 'organizacion')->count(),
         ];
 
-        return view('ecosistema.index', compact('actors', 'total', 'typeCounts'));
+        $academicos = $typeCounts['universidad'] + $typeCounts['centro_investigacion'];
+
+        return view('ecosistema.index', compact('actors', 'total', 'typeCounts', 'academicos'));
+    }
+
+    public function show(string $slug)
+    {
+        $actor   = EcosystemActor::where('slug', $slug)->firstOrFail();
+        $related = EcosystemActor::where('type', $actor->type)
+            ->where('id', '!=', $actor->id)
+            ->orderBy('name')
+            ->limit(3)
+            ->get();
+
+        return view('ecosistema.show', compact('actor', 'related'));
     }
 }

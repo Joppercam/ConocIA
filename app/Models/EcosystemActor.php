@@ -10,11 +10,20 @@ class EcosystemActor extends Model
     protected $fillable = [
         'name', 'slug', 'type', 'description', 'url',
         'location', 'region', 'focus_areas', 'logo',
+        'key_facts', 'director', 'founded',
     ];
 
     protected $casts = [
         'focus_areas' => 'array',
+        'key_facts'   => 'array',
     ];
+
+    public function getExcerptAttribute(): string
+    {
+        return mb_strlen($this->description) > 180
+            ? mb_substr($this->description, 0, 177) . '...'
+            : $this->description;
+    }
 
     public static function boot(): void
     {
