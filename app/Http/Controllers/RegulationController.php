@@ -126,3 +126,4 @@ class RegulationController extends Controller
 
         return view('regulacion.voces', compact('voices'));
     }
+}
