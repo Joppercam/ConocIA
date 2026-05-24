@@ -170,12 +170,7 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/video-summaries.log'));
 
-        // Generar briefing diario con IA cada mañana (después de fetch-all y fetch-rss de las 08:00/09:00)
-        $schedule->command('briefing:generate')
-            ->dailyAt('08:30')
-            ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/briefing.log'));
-   
+        // briefing:generate está en bootstrap/app.php — no duplicar aquí
 
                 // TikTok desactivado temporalmente
                 // $schedule->command('tiktok:generate-scripts --count=5')->twiceDaily(9, 16)->withoutOverlapping()->appendOutputTo(storage_path('logs/tiktok-scripts.log'));

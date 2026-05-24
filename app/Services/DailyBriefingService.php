@@ -38,21 +38,26 @@ class DailyBriefingService
             return null;
         }
 
-        $script = $this->callOpenAI($content);
+        // Orden: Claude primero (no comparte quota con fetch de noticias),
+        // Gemini segundo, OpenAI como último recurso.
+        $script = $this->callClaude($content);
 
         if (empty($script)) {
-            Log::warning('DailyBriefing: OpenAI devolvio vacio, intentando Gemini.');
+            Log::warning('DailyBriefing: Claude no disponible o falló, intentando Gemini.');
             $script = $this->callGemini($content);
         }
 
         if (empty($script)) {
-            Log::info('DailyBriefing: Gemini failed, trying Claude fallback.');
-            $script = $this->callClaude($content);
+            Log::warning('DailyBriefing: Gemini falló, intentando OpenAI.');
+            $script = $this->callOpenAI($content);
         }
 
         if (empty($script)) {
+            Log::error('DailyBriefing: todos los providers fallaron. Sin briefing para hoy.');
             return null;
         }
+
+        Log::info('DailyBriefing: script generado correctamente (' . str_word_count($script) . ' palabras).');
 
         $wordCount       = str_word_count($script);
         $durationSeconds = (int) round(($wordCount / 145) * 60);
@@ -288,6 +293,6 @@ PROMPT;
             return '';
         }
 
-        return $openai->generateText($this->buildPrompt($content), 1800, 0.75);
+        return $openai->generateText($this->buildPrompt($content), 2500, 0.75);
     }
 }
