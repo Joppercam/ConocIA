@@ -238,6 +238,7 @@ Route::get('/glosario', [GlossaryController::class, 'index'])->name('glosario.in
 Route::get('/ecosistema', [EcosystemController::class, 'index'])->name('ecosistema.index');
 Route::get('/ecosistema/{slug}', [EcosystemController::class, 'show'])->name('ecosistema.show');
 Route::get('/regulacion', [RegulationController::class, 'index'])->name('regulacion.index');
+Route::get('/regulacion/{slug}', [RegulationController::class, 'show'])->name('regulacion.show');
 Route::get('/ia-para-todos', [IaParaTodosController::class, 'index'])->name('ia-para-todos.index');
 Route::redirect('/proximamente/glosario', '/glosario', 301);
 Route::redirect('/proximamente/ecosistema', '/ecosistema', 301);

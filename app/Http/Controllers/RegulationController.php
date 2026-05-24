@@ -17,4 +17,15 @@ class RegulationController extends Controller
 
         return view('regulacion.index', compact('all', 'featured', 'chile', 'internacional', 'updatedAt'));
     }
+
+    public function show(string $slug)
+    {
+        $regulation = Regulation::where('slug', $slug)->firstOrFail();
+        $others     = Regulation::where('id', '!=', $regulation->id)
+            ->orderByDesc('date_introduced')
+            ->limit(3)
+            ->get();
+
+        return view('regulacion.show', compact('regulation', 'others'));
+    }
 }
