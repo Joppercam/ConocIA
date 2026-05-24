@@ -212,8 +212,32 @@
 
     </div>
 
+    {{-- Teaser Voces y Posturas --}}
+    <div class="mt-5 mb-4 p-4 p-md-5" style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);border:1px solid rgba(56,182,255,.2);border-radius:.75rem;">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge px-3 py-2 mb-3 d-inline-block" style="background:rgba(56,182,255,.2);color:#7dd3f0;font-size:.75rem;letter-spacing:.05em;">DEBATE PÚBLICO</span>
+                <h2 class="fw-bold text-white mb-2" style="font-size:1.3rem;line-height:1.3;">¿Qué opinan los actores clave?</h2>
+                <p style="color:#94a3b8;font-size:.93rem;line-height:1.75;margin-bottom:0;">
+                    Gobierno, academia, juristas, big tech y think tanks tienen posturas muy distintas sobre cómo regular la IA en Chile. ConocIA las presenta sin tomar partido, para que te formes tu propia opinión.
+                </p>
+            </div>
+            <div class="col-lg-4 d-flex flex-wrap gap-2 align-items-center justify-content-lg-end">
+                <div class="d-flex flex-column gap-1 me-3">
+                    <span class="badge" style="background:#3b82f622;color:#93c5fd;border:1px solid #3b82f644;font-size:.72rem;">Gobierno impulsor</span>
+                    <span class="badge" style="background:#10b98122;color:#6ee7b7;border:1px solid #10b98144;font-size:.72rem;">Academia con matices</span>
+                    <span class="badge" style="background:#f59e0b22;color:#fcd34d;border:1px solid #f59e0b44;font-size:.72rem;">Big Tech: cautela</span>
+                    <span class="badge" style="background:#ef444422;color:#fca5a5;border:1px solid #ef444444;font-size:.72rem;">Juristas y LyD: críticos</span>
+                </div>
+                <a href="{{ route('regulacion.voces') }}" class="btn btn-primary" style="font-size:.9rem;white-space:nowrap;">
+                    <i class="fas fa-comments me-2"></i>Ver todas las posturas
+                </a>
+            </div>
+        </div>
+    </div>
+
     {{-- Nota editorial --}}
-    <div class="mt-5 p-4" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.75rem;">
+    <div class="mt-4 p-4" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.75rem;">
         <p class="mb-0" style="color:#64748b;font-size:.85rem;line-height:1.7;">
             <i class="fas fa-info-circle me-2" style="color:var(--primary-color);"></i>
             <strong style="color:#475569;">Nota editorial:</strong>
