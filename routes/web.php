@@ -242,6 +242,7 @@ Route::get('/api/briefing/today', function () {
     return response()->json([
         'available'        => true,
         'script'           => $b->script,
+        'audio_url'        => $b->audio_url,
         'headlines'        => $b->headlines,
         'duration_seconds' => $b->duration_seconds,
         'estimated_minutes'=> $b->estimated_minutes,

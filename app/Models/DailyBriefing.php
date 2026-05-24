@@ -13,12 +13,15 @@ class DailyBriefing extends Model
         'duration_seconds',
         'news_count',
         'generated_at',
+        'audio_url',
+        'audio_generated_at',
     ];
 
     protected $casts = [
-        'date'         => 'date',
-        'headlines'    => 'array',
-        'generated_at' => 'datetime',
+        'date'               => 'date',
+        'headlines'          => 'array',
+        'generated_at'       => 'datetime',
+        'audio_generated_at' => 'datetime',
     ];
 
     public static function today(): ?self

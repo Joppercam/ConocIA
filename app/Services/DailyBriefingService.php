@@ -6,6 +6,7 @@ use App\Models\DailyBriefing;
 use App\Models\News;
 use App\Models\ConocIaPaper;
 use App\Models\ConceptoIa;
+use App\Services\BriefingAudioService;
 use App\Services\ClaudeService;
 use App\Services\GeminiQuotaGuard;
 use App\Services\OpenAIService;
@@ -20,8 +21,8 @@ class DailyBriefingService
 
     public function __construct()
     {
-        $this->geminiKey   = config('services.gemini.api_key', '');
-        $this->geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+        $this->geminiKey   = (string) config('services.gemini.api_key', '');
+        $this->geminiModel = (string) config('services.gemini.model', 'gemini-2.0-flash');
     }
 
     public function generate(bool $force = false): ?DailyBriefing
@@ -89,6 +90,8 @@ class DailyBriefingService
 
         $totalCount = $content['news']->count() + $content['papers']->count() + $content['conceptos']->count();
 
+        $audio = app(BriefingAudioService::class);
+
         if ($existing) {
             $existing->update([
                 'script'           => $script,
@@ -96,11 +99,17 @@ class DailyBriefingService
                 'duration_seconds' => $durationSeconds,
                 'news_count'       => $totalCount,
                 'generated_at'     => now(),
+                'audio_url'        => null,
             ]);
-            return $existing->fresh();
+            $existing = $existing->fresh();
+            $audioResult = $audio->generate($existing);
+            if ($audioResult !== true) {
+                Log::warning('BriefingAudio (update): ' . $audioResult);
+            }
+            return $existing;
         }
 
-        return DailyBriefing::create([
+        $briefing = DailyBriefing::create([
             'date'             => today()->toDateString(),
             'script'           => $script,
             'headlines'        => $headlines,
@@ -108,6 +117,13 @@ class DailyBriefingService
             'news_count'       => $totalCount,
             'generated_at'     => now(),
         ]);
+
+        $audioResult = $audio->generate($briefing);
+        if ($audioResult !== true) {
+            Log::warning('BriefingAudio (create): ' . $audioResult);
+        }
+
+        return $briefing->fresh();
     }
 
     protected function fetchContent(): array
