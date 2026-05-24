@@ -78,10 +78,10 @@
                 <div class="profundiza-card p-4 p-md-5">
                     <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-4">
 
-                        {{-- Foto / placeholder --}}
+                        {{-- Foto de perfil --}}
                         <div class="flex-shrink-0 text-center">
-                            <div style="width:96px;height:96px;background:linear-gradient(135deg,rgba(56,182,255,.25),rgba(0,200,150,.15));border-radius:50%;border:2px solid rgba(56,182,255,.35);display:flex;align-items:center;justify-content:center;margin:0 auto;">
-                                <span class="fw-bold" style="color:var(--primary-color);font-size:1.4rem;letter-spacing:.03em;">JPB</span>
+                            <div style="width:96px;height:96px;border-radius:50%;border:2px solid rgba(56,182,255,.35);overflow:hidden;margin:0 auto;">
+                                <img src="{{ asset('images/founder-jpb.png') }}" alt="Juan Pablo Basualdo" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
                             </div>
                             {{-- Redes sociales --}}
                             <div class="d-flex justify-content-center gap-2 mt-3">
