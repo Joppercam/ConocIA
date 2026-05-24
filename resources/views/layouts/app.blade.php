@@ -747,17 +747,17 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'ia-para-todos') }}">
+                                    <a class="dropdown-item py-2" href="{{ route('ia-para-todos.index') }}">
                                         <i class="fas fa-graduation-cap me-2" style="color:var(--primary-color);"></i>
                                         <strong>IA para Todos</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Alfabetización en IA · <span style="color:#f59e0b;">Próximamente</span></div>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Alfabetización en IA · Módulo 1 disponible</div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'glosario') }}">
+                                    <a class="dropdown-item py-2" href="{{ route('glosario.index') }}">
                                         <i class="fas fa-list-alt me-2" style="color:var(--primary-color);"></i>
                                         <strong>Glosario</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Términos clave · <span style="color:#f59e0b;">Próximamente</span></div>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">30 términos clave explicados</div>
                                     </a>
                                 </li>
                             </ul>
@@ -816,17 +816,17 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'ecosistema') }}">
+                                    <a class="dropdown-item py-2" href="{{ route('ecosistema.index') }}">
                                         <i class="fas fa-map-marked-alt me-2" style="color:var(--primary-color);"></i>
                                         <strong>Mapa del Ecosistema</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Startups, universidades · <span style="color:#f59e0b;">Próximamente</span></div>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">17 actores: startups, universidades y más</div>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item py-2" href="{{ route('coming-soon', 'regulacion') }}">
+                                    <a class="dropdown-item py-2" href="{{ route('regulacion.index') }}">
                                         <i class="fas fa-balance-scale me-2" style="color:var(--primary-color);"></i>
                                         <strong>Observatorio Regulación</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Legislación y políticas · <span style="color:#f59e0b;">Próximamente</span></div>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Legislación y políticas públicas</div>
                                     </a>
                                 </li>
                             </ul>

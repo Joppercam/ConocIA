@@ -42,6 +42,10 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ImpactController;
 use App\Http\Controllers\ComingSoonController;
 use App\Http\Controllers\RadarRegulatorioController;
+use App\Http\Controllers\GlossaryController;
+use App\Http\Controllers\EcosystemController;
+use App\Http\Controllers\RegulationController;
+use App\Http\Controllers\IaParaTodosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -228,6 +232,16 @@ Route::redirect('/acerca-de', '/quienes-somos', 301)->name('about');
 Route::get('/quienes-somos', fn() => view('about'))->name('quienes-somos');
 Route::get('/impacto', [ImpactController::class, 'index'])->name('impacto');
 Route::get('/proximamente/{slug}', [ComingSoonController::class, 'show'])->name('coming-soon');
+
+// ── Nuevas secciones (antes "Próximamente") ──────────────────────────────────
+Route::get('/glosario', [GlossaryController::class, 'index'])->name('glosario.index');
+Route::get('/ecosistema', [EcosystemController::class, 'index'])->name('ecosistema.index');
+Route::get('/regulacion', [RegulationController::class, 'index'])->name('regulacion.index');
+Route::get('/ia-para-todos', [IaParaTodosController::class, 'index'])->name('ia-para-todos.index');
+Route::redirect('/proximamente/glosario', '/glosario', 301);
+Route::redirect('/proximamente/ecosistema', '/ecosistema', 301);
+Route::redirect('/proximamente/regulacion', '/regulacion', 301);
+Route::redirect('/proximamente/ia-para-todos', '/ia-para-todos', 301);
 Route::get('/contacto', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contacto', [HomeController::class, 'sendContact'])->name('contact.send');
 Route::get('/buscar', [SearchController::class, 'search'])->name('search');
