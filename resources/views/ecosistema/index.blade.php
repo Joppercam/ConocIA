@@ -56,129 +56,254 @@
 </section>
 
 <div class="container py-5">
+    <div class="row g-5">
 
-    {{-- Filtros --}}
-    <div class="d-flex flex-wrap gap-2 mb-5" id="filter-buttons">
-        <button class="btn btn-primary btn-sm filter-btn active" data-filter="all">
-            Todos <span class="badge bg-white text-primary ms-1">{{ $total }}</span>
-        </button>
-        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="universidad">
-            Universidades <span class="badge bg-secondary ms-1">{{ $typeCounts['universidad'] }}</span>
-        </button>
-        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="centro_investigacion">
-            Centros de Investigación <span class="badge bg-secondary ms-1">{{ $typeCounts['centro_investigacion'] }}</span>
-        </button>
-        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="startup">
-            Startups <span class="badge bg-secondary ms-1">{{ $typeCounts['startup'] }}</span>
-        </button>
-        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="gobierno">
-            Gobierno <span class="badge bg-secondary ms-1">{{ $typeCounts['gobierno'] }}</span>
-        </button>
-        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="organizacion">
-            Organizaciones <span class="badge bg-secondary ms-1">{{ $typeCounts['organizacion'] }}</span>
-        </button>
-    </div>
+        {{-- Sidebar navegación --}}
+        <div class="col-lg-3">
+            <nav style="position:sticky;top:88px;z-index:10;">
+                <p class="text-uppercase fw-semibold mb-2" style="color:#94a3b8;font-size:.72rem;letter-spacing:.08em;">Explorar por categoría</p>
 
-    {{-- Grid --}}
-    <div class="row g-4" id="actors-grid">
-        @foreach($actors as $actor)
-        <div class="col-md-6 col-lg-4 actor-card" data-type="{{ $actor->type }}">
-            <div class="profundiza-card h-100 p-4 d-flex flex-column">
-
-                {{-- Tipo + link externo --}}
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="badge" style="background:{{ $actor->type_color }}22;color:{{ $actor->type_color }};border:1px solid {{ $actor->type_color }}44;font-size:.72rem;">
-                        {{ $actor->type_label }}
-                    </span>
-                    @if($actor->url)
-                        <a href="{{ $actor->url }}" target="_blank" rel="noopener" title="Sitio web"
-                           style="color:#94a3b8;font-size:.85rem;text-decoration:none;flex-shrink:0;">
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
-                    @endif
+                <div class="d-flex flex-column gap-1">
+                    <button class="eco-nav-btn active" data-target="todos">
+                        <span class="flex-grow-1 text-start">Todos</span>
+                        <span class="eco-count">{{ $total }}</span>
+                    </button>
+                    <button class="eco-nav-btn" data-target="universidad">
+                        <span class="eco-dot" style="background:#38b6ff;"></span>
+                        <span class="flex-grow-1 text-start">Universidades</span>
+                        <span class="eco-count">{{ $typeCounts['universidad'] }}</span>
+                    </button>
+                    <button class="eco-nav-btn" data-target="centro_investigacion">
+                        <span class="eco-dot" style="background:#a78bfa;"></span>
+                        <span class="flex-grow-1 text-start">C. de Investigación</span>
+                        <span class="eco-count">{{ $typeCounts['centro_investigacion'] }}</span>
+                    </button>
+                    <button class="eco-nav-btn" data-target="startup">
+                        <span class="eco-dot" style="background:#00c896;"></span>
+                        <span class="flex-grow-1 text-start">Startups</span>
+                        <span class="eco-count">{{ $typeCounts['startup'] }}</span>
+                    </button>
+                    <button class="eco-nav-btn" data-target="gobierno">
+                        <span class="eco-dot" style="background:#f59e0b;"></span>
+                        <span class="flex-grow-1 text-start">Gobierno</span>
+                        <span class="eco-count">{{ $typeCounts['gobierno'] }}</span>
+                    </button>
+                    <button class="eco-nav-btn" data-target="organizacion">
+                        <span class="eco-dot" style="background:#f472b6;"></span>
+                        <span class="flex-grow-1 text-start">Organizaciones</span>
+                        <span class="eco-count">{{ $typeCounts['organizacion'] }}</span>
+                    </button>
                 </div>
 
-                {{-- Nombre --}}
-                <h3 class="fw-bold mb-1" style="color:#0f172a;font-size:.97rem;line-height:1.35;">{{ $actor->name }}</h3>
-
-                {{-- Ubicación + fundación --}}
-                <div class="mb-3" style="color:#94a3b8;font-size:.78rem;">
-                    <i class="fas fa-map-marker-alt me-1" style="color:var(--primary-color);"></i>
-                    {{ $actor->location }}@if($actor->region !== 'Metropolitana'), {{ $actor->region }}@endif
-                    @if($actor->founded)
-                        <span class="ms-2"><i class="fas fa-calendar me-1"></i>{{ $actor->founded }}</span>
-                    @endif
+                <div class="mt-4 pt-3" style="border-top:1px solid #f1f5f9;">
+                    <p style="color:#94a3b8;font-size:.78rem;line-height:1.6;margin:0;">
+                        ¿Conoces un actor que no está aquí? Escríbenos a
+                        <a href="mailto:contacto@conocia.cl" style="color:var(--primary-color);">contacto@conocia.cl</a>
+                    </p>
                 </div>
-
-                {{-- Excerpt --}}
-                <p style="color:#475569;font-size:.88rem;line-height:1.7;flex:1;margin:0;">{{ $actor->excerpt }}</p>
-
-                {{-- Áreas --}}
-                @if($actor->focus_areas)
-                <div class="d-flex flex-wrap gap-1 mt-3">
-                    @foreach(array_slice($actor->focus_areas, 0, 3) as $area)
-                        <span class="badge" style="background:#f1f5f9;color:#475569;font-size:.7rem;font-weight:500;">{{ $area }}</span>
-                    @endforeach
-                    @if(count($actor->focus_areas) > 3)
-                        <span class="badge" style="background:#f1f5f9;color:#94a3b8;font-size:.7rem;">+{{ count($actor->focus_areas) - 3 }}</span>
-                    @endif
-                </div>
-                @endif
-
-                {{-- Footer --}}
-                <div class="mt-3 pt-3 d-flex gap-2" style="border-top:1px solid #f1f5f9;">
-                    <a href="{{ route('ecosistema.show', $actor->slug) }}"
-                       class="btn btn-sm btn-primary flex-fill" style="font-size:.8rem;">
-                        <i class="fas fa-info-circle me-1"></i>Ver ficha completa
-                    </a>
-                    @if($actor->url)
-                        <a href="{{ $actor->url }}" target="_blank" rel="noopener"
-                           class="btn btn-sm btn-outline-secondary" style="font-size:.8rem;" title="Sitio web">
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
-                    @endif
-                </div>
-            </div>
+            </nav>
         </div>
-        @endforeach
-    </div>
 
-    <div id="no-actors" class="text-center py-5 d-none">
-        <p style="color:#64748b;">No hay actores en esta categoría.</p>
-    </div>
+        {{-- Paneles de contenido --}}
+        <div class="col-lg-9">
 
-    {{-- CTA --}}
-    <div style="background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-radius:.75rem;padding:2rem;border:1px solid #bae6fd;margin-top:3rem;" class="text-center">
-        <p style="color:#0369a1;font-size:.95rem;margin:0;">
-            <i class="fas fa-plus-circle me-2"></i>
-            ¿Conoces un actor del ecosistema IA chileno que no está en esta lista? Escríbenos a
-            <a href="mailto:contacto@conocia.cl" style="color:#0369a1;font-weight:600;">contacto@conocia.cl</a>
-        </p>
-    </div>
+            {{-- Panel: Todos --}}
+            <div data-panel="todos">
+                @php $prevType = null; @endphp
+                @foreach($actors as $actor)
+                    @if($actor->type !== $prevType)
+                        @if($prevType !== null)
+                            <div style="height:2rem;"></div>
+                        @endif
+                        <div class="d-flex align-items-center gap-2 mb-3" style="padding-bottom:.5rem;border-bottom:2px solid rgba(56,182,255,.12);">
+                            <span class="fw-bold" style="color:#0f172a;font-size:.92rem;">{{ $actor->type_label }}</span>
+                            <span style="color:#94a3b8;font-size:.78rem;">— {{ $actors->where('type', $actor->type)->count() }} actores</span>
+                        </div>
+                        @php $prevType = $actor->type; @endphp
+                    @endif
 
+                    <div class="eco-actor-row">
+                        <div class="d-flex align-items-start gap-3">
+                            <div style="width:40px;height:40px;background:{{ $actor->type_color }}18;border-radius:.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem;">
+                                @if($actor->type === 'universidad')
+                                    <i class="fas fa-graduation-cap" style="color:{{ $actor->type_color }};font-size:.9rem;"></i>
+                                @elseif($actor->type === 'centro_investigacion')
+                                    <i class="fas fa-flask" style="color:{{ $actor->type_color }};font-size:.9rem;"></i>
+                                @elseif($actor->type === 'startup')
+                                    <i class="fas fa-rocket" style="color:{{ $actor->type_color }};font-size:.9rem;"></i>
+                                @elseif($actor->type === 'gobierno')
+                                    <i class="fas fa-landmark" style="color:{{ $actor->type_color }};font-size:.9rem;"></i>
+                                @else
+                                    <i class="fas fa-handshake" style="color:{{ $actor->type_color }};font-size:.9rem;"></i>
+                                @endif
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mb-1" style="color:#94a3b8;font-size:.78rem;">
+                                    <span><i class="fas fa-map-marker-alt me-1" style="color:var(--primary-color);"></i>{{ $actor->location }}@if($actor->region && $actor->region !== 'Metropolitana'), {{ $actor->region }}@endif</span>
+                                    @if($actor->founded)
+                                        <span><i class="fas fa-calendar me-1"></i>{{ $actor->founded }}</span>
+                                    @endif
+                                </div>
+                                <a href="{{ route('ecosistema.show', $actor->slug) }}" class="eco-actor-name d-block mb-2">{{ $actor->name }}</a>
+                                <p style="color:#475569;font-size:.88rem;line-height:1.65;margin:0 0 .75rem;">{{ $actor->excerpt }}</p>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    @if($actor->focus_areas)
+                                        @foreach(array_slice($actor->focus_areas, 0, 3) as $area)
+                                            <span style="background:#f1f5f9;color:#475569;font-size:.7rem;font-weight:500;padding:.2rem .55rem;border-radius:999px;">{{ $area }}</span>
+                                        @endforeach
+                                        @if(count($actor->focus_areas) > 3)
+                                            <span style="background:#f1f5f9;color:#94a3b8;font-size:.7rem;padding:.2rem .55rem;border-radius:999px;">+{{ count($actor->focus_areas) - 3 }}</span>
+                                        @endif
+                                    @endif
+                                    <a href="{{ route('ecosistema.show', $actor->slug) }}" style="margin-left:auto;color:var(--primary-color);font-size:.82rem;font-weight:600;text-decoration:none;white-space:nowrap;">
+                                        Ver ficha <i class="fas fa-arrow-right ms-1" style="font-size:.75rem;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            @php
+            $panelDefs = [
+                'universidad'          => ['label' => 'Universidades',           'count_key' => 'universidad',          'icon' => 'fa-graduation-cap', 'color' => '#38b6ff', 'suffix' => 'instituciones'],
+                'centro_investigacion' => ['label' => 'Centros de Investigación','count_key' => 'centro_investigacion',  'icon' => 'fa-flask',           'color' => '#a78bfa', 'suffix' => 'centros'],
+                'startup'              => ['label' => 'Startups',                'count_key' => 'startup',               'icon' => 'fa-rocket',          'color' => '#00c896', 'suffix' => 'empresas'],
+                'gobierno'             => ['label' => 'Gobierno',                'count_key' => 'gobierno',              'icon' => 'fa-landmark',        'color' => '#f59e0b', 'suffix' => 'instituciones'],
+                'organizacion'         => ['label' => 'Organizaciones',          'count_key' => 'organizacion',          'icon' => 'fa-handshake',       'color' => '#f472b6', 'suffix' => 'organizaciones'],
+            ];
+            @endphp
+
+            @foreach($panelDefs as $type => $def)
+            <div data-panel="{{ $type }}" style="display:none;">
+                <div class="d-flex align-items-center gap-2 mb-4" style="padding-bottom:.75rem;border-bottom:2px solid rgba(56,182,255,.12);">
+                    <div style="width:36px;height:36px;background:{{ $def['color'] }}18;border-radius:.5rem;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas {{ $def['icon'] }}" style="color:{{ $def['color'] }};font-size:.9rem;"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0" style="color:#0f172a;font-size:1.15rem;">{{ $def['label'] }}</h2>
+                    <span style="color:#94a3b8;font-size:.85rem;">{{ $typeCounts[$def['count_key']] }} {{ $def['suffix'] }}</span>
+                </div>
+
+                @foreach($actors->where('type', $type) as $actor)
+                <div class="eco-actor-row">
+                    <div class="d-flex align-items-start gap-3">
+                        <div style="width:40px;height:40px;background:{{ $actor->type_color }}18;border-radius:.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem;">
+                            <i class="fas {{ $def['icon'] }}" style="color:{{ $actor->type_color }};font-size:.9rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1" style="color:#94a3b8;font-size:.78rem;">
+                                <span><i class="fas fa-map-marker-alt me-1" style="color:var(--primary-color);"></i>{{ $actor->location }}@if($actor->region && $actor->region !== 'Metropolitana'), {{ $actor->region }}@endif</span>
+                                @if($actor->founded)
+                                    <span><i class="fas fa-calendar me-1"></i>{{ $actor->founded }}</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('ecosistema.show', $actor->slug) }}" class="eco-actor-name d-block mb-2">{{ $actor->name }}</a>
+                            <p style="color:#475569;font-size:.88rem;line-height:1.65;margin:0 0 .75rem;">{{ $actor->excerpt }}</p>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                @if($actor->focus_areas)
+                                    @foreach(array_slice($actor->focus_areas, 0, 3) as $area)
+                                        <span style="background:#f1f5f9;color:#475569;font-size:.7rem;font-weight:500;padding:.2rem .55rem;border-radius:999px;">{{ $area }}</span>
+                                    @endforeach
+                                    @if(count($actor->focus_areas) > 3)
+                                        <span style="background:#f1f5f9;color:#94a3b8;font-size:.7rem;padding:.2rem .55rem;border-radius:999px;">+{{ count($actor->focus_areas) - 3 }}</span>
+                                    @endif
+                                @endif
+                                <a href="{{ route('ecosistema.show', $actor->slug) }}" style="margin-left:auto;color:var(--primary-color);font-size:.82rem;font-weight:600;text-decoration:none;white-space:nowrap;">
+                                    Ver ficha <i class="fas fa-arrow-right ms-1" style="font-size:.75rem;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endforeach
+
+        </div>
+    </div>
 </div>
+
+@push('styles')
+<style>
+.eco-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .6rem .85rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    cursor: pointer;
+    font-size: .88rem;
+    color: #475569;
+    transition: all .15s;
+}
+.eco-nav-btn:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #0f172a;
+}
+.eco-nav-btn.active {
+    background: rgba(56,182,255,.08);
+    border-color: rgba(56,182,255,.3);
+    color: #0f172a;
+    font-weight: 600;
+}
+.eco-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.eco-count {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: .72rem;
+    font-weight: 600;
+    padding: .1rem .45rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+.eco-nav-btn.active .eco-count {
+    background: rgba(56,182,255,.15);
+    color: #0369a1;
+}
+.eco-actor-row {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+.eco-actor-row:last-child {
+    border-bottom: none;
+}
+.eco-actor-name {
+    font-size: .97rem;
+    font-weight: 700;
+    color: #0f172a;
+    text-decoration: none;
+    line-height: 1.35;
+}
+.eco-actor-name:hover {
+    color: var(--primary-color);
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        document.querySelectorAll('.filter-btn').forEach(b => {
-            b.classList.remove('active', 'btn-primary');
-            b.classList.add('btn-outline-secondary');
-        });
-        this.classList.remove('btn-outline-secondary');
-        this.classList.add('active', 'btn-primary');
+(function () {
+    const panels = document.querySelectorAll('[data-panel]');
+    const links  = document.querySelectorAll('[data-target]');
 
-        const filter = this.dataset.filter;
-        let visible = 0;
-        document.querySelectorAll('.actor-card').forEach(card => {
-            const show = filter === 'all' || card.dataset.type === filter;
-            card.style.display = show ? '' : 'none';
-            if (show) visible++;
-        });
-        document.getElementById('no-actors').classList.toggle('d-none', visible > 0);
-    });
-});
+    function show(target) {
+        panels.forEach(p => p.style.display = p.dataset.panel === target ? '' : 'none');
+        links.forEach(l => l.classList.toggle('active', l.dataset.target === target));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    links.forEach(link => link.addEventListener('click', () => show(link.dataset.target)));
+})();
 </script>
 @endpush
 
