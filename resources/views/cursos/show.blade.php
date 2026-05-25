@@ -155,7 +155,7 @@
                     </div>
 
                     @auth
-                        <a href="#" class="btn btn-primary w-100 mb-2" style="font-size:.9rem;">
+                        <a href="{{ route('cursos.lesson', [$course['slug'], 1, 1]) }}" class="btn btn-primary w-100 mb-2" style="font-size:.9rem;">
                             <i class="fas fa-play me-1"></i>Comenzar curso
                         </a>
                         <p class="mb-0 text-center" style="color:#94a3b8;font-size:.78rem;">Tu progreso se guarda automáticamente</p>
