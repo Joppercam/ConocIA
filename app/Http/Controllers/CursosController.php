@@ -81,6 +81,11 @@ class CursosController extends Controller
             'ia-para-rrhh_3_1', 'ia-para-rrhh_3_2', 'ia-para-rrhh_3_3', 'ia-para-rrhh_3_4',
             'ia-para-rrhh_4_1', 'ia-para-rrhh_4_2', 'ia-para-rrhh_4_3', 'ia-para-rrhh_4_4',
             'ia-para-rrhh_5_1', 'ia-para-rrhh_5_2', 'ia-para-rrhh_5_3', 'ia-para-rrhh_5_4',
+            'ia-para-salud_1_1', 'ia-para-salud_1_2', 'ia-para-salud_1_3', 'ia-para-salud_1_4',
+            'ia-para-salud_2_1', 'ia-para-salud_2_2', 'ia-para-salud_2_3', 'ia-para-salud_2_4',
+            'ia-para-salud_3_1', 'ia-para-salud_3_2', 'ia-para-salud_3_3', 'ia-para-salud_3_4',
+            'ia-para-salud_4_1', 'ia-para-salud_4_2', 'ia-para-salud_4_3', 'ia-para-salud_4_4',
+            'ia-para-salud_5_1', 'ia-para-salud_5_2', 'ia-para-salud_5_3', 'ia-para-salud_5_4',
         ];
         return in_array($key, $defined) ? true : null;
     }
@@ -1447,6 +1452,269 @@ HTML,
     <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
     <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
     <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para RRHH y Gestión de Personas</strong>. Tienes ahora las herramientas para implementar IA en procesos de personas con criterio ético, legal y estratégico.</p>
+    <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
+</div>
+HTML,
+
+            // ── SALUD · MÓDULO 1 ────────────────────────────────────────────
+
+            'ia-para-salud_1_1' => <<<HTML
+<p>La inteligencia artificial lleva más de una década aplicándose en medicina. Pero entre 2020 y 2025 ocurrió un salto cualitativo: los sistemas pasaron de ser herramientas de investigación a convertirse en dispositivos aprobados regulatoriamente para uso clínico real. Entender ese estado del arte es el punto de partida para cualquier profesional de la salud.</p>
+<h2>Las áreas donde la IA clínica tiene más madurez</h2>
+<p><strong>Diagnóstico por imágenes:</strong> es donde la IA médica tiene los resultados más sólidos y los más regulados. Sistemas de análisis de radiografías de tórax, mamografías, imágenes de retina, dermatoscopia y patología digital tienen aprobación de la FDA y la CE y están en uso clínico en múltiples países.</p>
+<p><strong>Análisis de señales fisiológicas:</strong> algoritmos de ECG que detectan fibrilación auricular (el de Apple Watch tiene aprobación FDA), análisis de patrones en UCI, detección de sepsis en tiempo real mediante análisis de parámetros vitales.</p>
+<p><strong>Medicina de precisión y genómica:</strong> IA para análisis de variantes genéticas, predicción de respuesta a tratamientos oncológicos, identificación de subtipos de enfermedad con implicaciones terapéuticas distintas.</p>
+<p><strong>Asistencia al diagnóstico clínico:</strong> sistemas de apoyo a la decisión clínica (CDSS) que analizan la historia clínica completa y alertan sobre diagnósticos diferenciales, interacciones medicamentosas o indicadores de deterioro.</p>
+<h2>Lo que distingue la madurez clínica de la promesa tecnológica</h2>
+<p>Que un modelo tenga buen desempeño en un benchmark académico no significa que sea clínicamente útil. La madurez clínica requiere validación en poblaciones diversas, integración al flujo de trabajo real, estudios de impacto en outcomes del paciente —no solo en métricas del modelo— y aprobación regulatoria. Muchos productos que se anuncian como "IA médica" no han pasado por este proceso.</p>
+HTML,
+
+            'ia-para-salud_1_2' => <<<HTML
+<p>Las tres especialidades donde la IA ha producido los avances clínicamente más validados son radiología, patología y cardiología. Conocer el estado actual en cada una permite al profesional evaluar qué herramientas son reales y cuáles son principalmente marketing.</p>
+<h2>Radiología</h2>
+<p>Es la especialidad con mayor adopción de IA clínica. Los algoritmos de detección de nódulos pulmonares en TC de tórax, fracturas en radiografías y hallazgos críticos (neumotórax, hemorragia intracraneal) tienen rendimiento validado en múltiples estudios clínicos. El sistema Annalise Enterprise, aprobado por la FDA, analiza radiografías de tórax y detecta más de 120 hallazgos.</p>
+<p>El modelo de uso más extendido no es que la IA reemplace al radiólogo, sino que prioriza la lista de trabajo: estudios con hallazgos críticos pasan primero a revisión humana, reduciendo el tiempo hasta la decisión clínica.</p>
+<h2>Patología</h2>
+<p>La patología digital —escanear preparados histológicos y analizarlos con IA— permite cuantificación precisa de marcadores tumorales, clasificación de grado en cáncer de próstata y predicción de respuesta a inmunoterapia desde la imagen de la biopsia. Paige Prostate, aprobado por la FDA, detecta cáncer de próstata con sensibilidad comparable a patólogos expertos.</p>
+<h2>Cardiología</h2>
+<p>Más allá del ECG, la IA permite análisis automático de ecocardiografías (fracción de eyección, valvulopatías), detección de fibrilación auricular subclínica y predicción de riesgo de eventos cardiovasculares a partir de imágenes de retina —un hallazgo que abrió un campo de investigación nuevo.</p>
+<h2>El patrón común</h2>
+<p>En las tres especialidades, la IA funciona mejor como amplificador de la capacidad del especialista —no como sustituto. Los sistemas más exitosos clínicamente son los que se integraron al flujo de trabajo real con un rol definido, no los que intentaron reemplazar el juicio clínico.</p>
+HTML,
+
+            'ia-para-salud_1_3' => <<<HTML
+<p>Las urgencias y la UCI son los entornos clínicos donde la velocidad y la cantidad de datos son más críticas —y donde la IA predictiva tiene el potencial de mayor impacto. También donde los errores tienen consecuencias más inmediatas.</p>
+<h2>Predicción de deterioro y sepsis</h2>
+<p>El sepsis es una de las principales causas de muerte hospitalaria y su mortalidad aumenta significativamente con cada hora de retraso en el tratamiento. Los sistemas de alerta temprana basados en IA —que monitorean en tiempo real parámetros vitales, resultados de laboratorio e historia clínica— han mostrado en estudios prospectivos reducción de la mortalidad cuando se integran correctamente al flujo de trabajo.</p>
+<p>Epic Sepsis Model, uno de los más usados en EE.UU., fue sometido a una auditoría independiente publicada en JAMA en 2021 que encontró que generaba demasiados falsos positivos en condiciones reales, provocando fatiga de alarma y reduciendo la respuesta del personal. El caso ilustra perfectamente la diferencia entre desempeño en desarrollo y utilidad en producción.</p>
+<h2>Triaje asistido por IA</h2>
+<p>Sistemas que analizan los datos del paciente al ingreso de urgencias para predecir qué pacientes requieren atención inmediata, tienen mayor riesgo de hospitalización o de mortalidad intrahospitalaria. Permiten priorizar recursos en entornos de alta demanda.</p>
+<h2>Monitoreo continuo en UCI</h2>
+<p>Los pacientes de UCI generan volúmenes de datos imposibles de monitorear manualmente en su totalidad. Los sistemas de IA pueden detectar patrones en esos datos —cambios en la variabilidad de la frecuencia cardíaca, tendencias en parámetros respiratorios— que preceden eventos adversos horas antes de que sean clínicamente evidentes.</p>
+<h2>El desafío de la fatiga de alarma</h2>
+<p>El mayor obstáculo práctico no es técnico: es el exceso de alertas. Los sistemas de IA en UCI y urgencias pueden generar decenas de alertas por paciente por turno. Cuando la mayoría son falsos positivos, el personal aprende a ignorarlos —anulando el beneficio clínico. El diseño de la interfaz clínica y la calibración del umbral de alerta son tan importantes como el modelo subyacente.</p>
+HTML,
+
+            'ia-para-salud_1_4' => <<<HTML
+<p>Chile tiene un ecosistema de IA en salud en desarrollo, con algunos proyectos de vanguardia y múltiples desafíos estructurales. Conocer el panorama local permite al profesional tomar decisiones informadas sobre qué herramientas considerar y en qué contexto.</p>
+<h2>Proyectos destacados en el sistema público chileno</h2>
+<p><strong>FONASA y digitalización clínica:</strong> el Ministerio de Salud ha impulsado la historia clínica electrónica (HCE) como infraestructura base para el análisis de datos de salud. Sin datos digitales estructurados, la IA clínica no puede funcionar. La digitalización es el paso previo al que Chile ha dedicado más esfuerzo.</p>
+<p><strong>Detección de retinopatía diabética:</strong> proyectos piloto en varios servicios de salud han implementado sistemas de IA para cribado de retinopatía diabética mediante fotografía de fondo de ojo, permitiendo evaluación en atención primaria sin necesidad de derivar a oftalmólogo en cada caso.</p>
+<p><strong>CENIA y proyectos de investigación:</strong> el Centro Nacional de Inteligencia Artificial (CENIA) tiene líneas de trabajo en salud, incluyendo análisis de imágenes médicas y sistemas de apoyo diagnóstico en colaboración con hospitales universitarios.</p>
+<h2>Los desafíos estructurales</h2>
+<p><strong>Fragmentación de datos:</strong> Chile no tiene un sistema único de historia clínica electrónica. Los datos de un mismo paciente pueden estar en sistemas incompatibles entre el sistema público y el privado, entre distintos establecimientos, o incluso entre servicios dentro del mismo hospital.</p>
+<p><strong>Brechas de infraestructura tecnológica:</strong> la implementación de IA clínica requiere conectividad, hardware y capacidad de procesamiento que no están disponibles de forma uniforme en todos los niveles del sistema de salud.</p>
+<p><strong>Marco regulatorio en formación:</strong> el ISP (Instituto de Salud Pública) no tiene aún un proceso específico para aprobación de software como dispositivo médico (SaMD) con IA, aunque está en proceso de desarrollo alineándose con la FDA y la CE.</p>
+HTML,
+
+            // ── SALUD · MÓDULO 2 ────────────────────────────────────────────
+
+            'ia-para-salud_2_1' => <<<HTML
+<p>El profesional de salud que lee titulares sobre IA médica —"sistema supera a radiólogos en detección de cáncer"— necesita herramientas para evaluar críticamente esos estudios antes de cambiar su práctica clínica. Leer un estudio de validación de IA médica es una competencia nueva que el currículo médico tradicional no enseña.</p>
+<h2>Las preguntas clave al evaluar un estudio</h2>
+<p><strong>¿Cuál fue la población de entrenamiento vs. la de prueba?</strong> Un modelo entrenado y evaluado en la misma población puede mostrar desempeño excelente que no se replica en tu contexto. Busca estudios con sets de prueba externos e independientes, idealmente de múltiples instituciones.</p>
+<p><strong>¿Qué se usó como "ground truth"?</strong> El estándar de referencia con el que se comparó la IA define qué puede concluirse. Un modelo comparado con el diagnóstico de un solo radiólogo de guardia no es lo mismo que uno comparado con panel de expertos o con seguimiento histopatológico.</p>
+<p><strong>¿Cuál es el umbral de decisión y por qué?</strong> Todo modelo de clasificación binaria tiene un umbral entre positivo y negativo. Mover ese umbral cambia la sensibilidad y la especificidad. Los estudios deben reportar qué umbral usaron y por qué —o mostrar la curva ROC completa.</p>
+<p><strong>¿Se reporta desempeño por subgrupos?</strong> Un modelo con AUC de 0.92 en promedio puede tener AUC de 0.75 en mujeres, en pacientes mayores de 70 años o en imágenes de cierta calidad. El desempeño agregado puede ocultar fallas graves en subpoblaciones.</p>
+<h2>Métricas que debes entender</h2>
+<p><strong>Sensibilidad:</strong> de todos los casos positivos reales, cuántos detecta el sistema. Crítica cuando el costo del falso negativo es alto (cáncer en estadio precoz).</p>
+<p><strong>Especificidad:</strong> de todos los casos negativos reales, cuántos identifica correctamente. Crítica cuando el costo del falso positivo es alto (cirugías innecesarias, ansiedad del paciente).</p>
+<p><strong>VPP y VPN:</strong> valor predictivo positivo y negativo, que dependen de la prevalencia de la condición en tu población específica —no solo del modelo.</p>
+HTML,
+
+            'ia-para-salud_2_2' => <<<HTML
+<p>"El sistema de IA es comparable a un especialista" es una de las afirmaciones más repetidas en el campo de la IA médica —y una de las más mal comprendidas. Entender qué significa realmente es esencial para no sobrevalorar ni subvalorar estas herramientas.</p>
+<h2>Comparable en qué métrica y en qué condición</h2>
+<p>La comparabilidad siempre es específica a una tarea, una métrica y un contexto. "Comparable a un radiólogo" en sensibilidad para nódulos pulmonares en una TC de alta calidad con protocolo estandarizado no es lo mismo que "comparable a un radiólogo" en el conjunto completo de lo que hace un radiólogo en un turno real.</p>
+<p>Un sistema puede tener sensibilidad comparable o superior en la tarea específica para la que fue entrenado, y ser completamente incapaz de manejar la variabilidad del mundo real: imágenes de calidad subóptima, hallazgos incidentales fuera de su entrenamiento, variantes anatómicas infrecuentes.</p>
+<h2>El problema del "comparison shopping" de especialistas</h2>
+<p>Muchos estudios comparan la IA con médicos generales, residentes o especialistas que trabajan fuera de su área principal. Cuando el estudio dice "supera a los médicos", frecuentemente significa "supera a médicos en una tarea específica fuera de su especialidad". Comparar con especialistas expertos en su campo habitualmente produce resultados más matizados.</p>
+<h2>Lo que el "comparable a un especialista" no captura</h2>
+<p>El especialista que lee una imagen no solo detecta la anomalía: contextualiza en la historia clínica, evalúa la calidad de la imagen, reconoce cuándo no sabe, comunica la incertidumbre, prioriza hallazgos, decide el siguiente paso. Ninguno de esos elementos está capturado en una métrica de AUC o sensibilidad/especificidad.</p>
+<h2>La pregunta clínica correcta</h2>
+<p>No "¿es la IA tan buena como el especialista?" sino "¿el sistema de IA, integrado en este flujo de trabajo específico, mejora los outcomes de los pacientes en este contexto?" Esa pregunta requiere estudios de implementación clínica, no solo estudios de validación de modelo.</p>
+HTML,
+
+            'ia-para-salud_2_3' => <<<HTML
+<p>Los sistemas de IA médica fallan. No son herramientas perfectas que eventualmente cometen algún error: son herramientas con patrones de falla predecibles que el clínico debe conocer para compensarlos con su juicio.</p>
+<h2>Fallas por distribución shift</h2>
+<p>El problema más frecuente: el modelo fue entrenado en una población y se aplica en otra. Un modelo entrenado con imágenes de mamografía de equipos de alta gama en hospitales universitarios de EE.UU. puede tener un desempeño muy inferior cuando se aplica a imágenes de equipos más antiguos en establecimientos de atención primaria.</p>
+<p>Esto aplica a diferencias de equipo, de protocolo, de características de la población (edad, comorbilidades, prevalencia de la condición) y de calidad de imagen. Cualquier cambio en el contexto de implementación respecto al contexto de entrenamiento puede degradar el desempeño.</p>
+<h2>Fallas en casos infrecuentes</h2>
+<p>Los modelos de ML aprenden de patrones frecuentes. Las variantes raras, las presentaciones atípicas y los hallazgos infrecuentes están subrepresentados en el entrenamiento y son los casos donde el modelo falla con mayor probabilidad. Paradójicamente, son también los casos donde el diagnóstico es más difícil para los humanos y donde el apoyo de la IA sería más valioso.</p>
+<h2>Fallas por retroalimentación positiva</h2>
+<p>Cuando los clínicos confían en el sistema y rara vez anulan sus recomendaciones, el sistema no recibe señales correctivas. Los errores del sistema se consolidan en la práctica clínica sin mecanismo de corrección. Esto es especialmente peligroso en sistemas que "aprenden" de los datos de uso real.</p>
+<h2>El rol del clínico como detector de fallas</h2>
+<p>El profesional que usa IA clínica debe conocer los patrones de falla de la herramienta que usa y ser especialmente crítico cuando el output del sistema no coincide con su impresión clínica. "El sistema dice X pero yo pienso Y" no es un error: es la supervisión humana funcionando exactamente como debe.</p>
+HTML,
+
+            'ia-para-salud_2_4' => <<<HTML
+<p>Los datos clínicos con que se entrenan los modelos de IA médica no son neutrales. Reflejan décadas de práctica médica que tuvo acceso desigual, documentación sesgada y representación inequitativa de distintas poblaciones. Esos sesgos se transfieren directamente a los modelos.</p>
+<h2>El sesgo por representación en datos de entrenamiento</h2>
+<p>Los grandes datasets de imágenes médicas con que se entrenan los modelos provienen principalmente de hospitales universitarios de países de altos ingresos, con poblaciones predominantemente blancas. Un sistema entrenado en esa distribución puede tener desempeño inferior en poblaciones de mayor diversidad étnica —exactamente las poblaciones que tienen menor acceso a especialistas y que más podrían beneficiarse de herramientas de apoyo diagnóstico.</p>
+<p>Un estudio publicado en Nature Medicine (2019) encontró que algoritmos de diagnóstico dermatológico tenían desempeño significativamente inferior en lesiones cutáneas de pacientes de tez oscura, que estaban subrepresentados en el dataset de entrenamiento.</p>
+<h2>El sesgo de documentación</h2>
+<p>Los modelos que aprenden de texto clínico (historia clínica, notas de evolución) heredan los sesgos de quienes escribieron esas notas. Si históricamente las quejas de dolor de mujeres fueron subestimadas en la documentación, el modelo puede aprender a subestimar los síntomas reportados por mujeres como predictores de condiciones serias.</p>
+<h2>El sesgo de prevalencia</h2>
+<p>Un modelo entrenado en una institución con alta prevalencia de una enfermedad puede sobrestimar la probabilidad de esa enfermedad cuando se aplica en contextos de menor prevalencia. El valor predictivo positivo depende fuertemente de la prevalencia real en el contexto de uso.</p>
+<h2>Lo que el clínico puede hacer</h2>
+<p>Conocer en qué población fue entrenado el sistema que usa. Ser especialmente crítico con los outputs del sistema cuando el paciente tiene características que lo alejan de la población de entrenamiento. Reportar al proveedor cuando el sistema falla en patrones específicos —esa retroalimentación es el mecanismo de mejora.</p>
+HTML,
+
+            // ── SALUD · MÓDULO 3 ────────────────────────────────────────────
+
+            'ia-para-salud_3_1' => <<<HTML
+<p>Los sistemas de IA médica necesitan datos para funcionar. Pero "datos de salud" es una categoría amplia que incluye información extremadamente sensible, y entender exactamente qué datos recopila y procesa el sistema que usas es una responsabilidad clínica y legal.</p>
+<h2>Categorías de datos que procesan los sistemas de IA médica</h2>
+<p><strong>Datos clínicos directos:</strong> imágenes médicas (radiografías, TC, RM, ecografías), señales fisiológicas (ECG, EEG, oximetría), resultados de laboratorio, texto de historia clínica, notas de evolución, medicamentos prescritos, diagnósticos codificados.</p>
+<p><strong>Datos biométricos:</strong> características faciales (en sistemas de reconocimiento de pacientes), voz (en asistentes de documentación clínica), datos genómicos (en medicina de precisión).</p>
+<p><strong>Datos de comportamiento clínico:</strong> algunos sistemas aprenden del comportamiento de los médicos —qué recomendaciones aceptan, cuáles rechazan, cómo documentan— para personalizar o mejorar sus sugerencias. Esto significa que tus decisiones clínicas también son datos que procesa el sistema.</p>
+<h2>El problema del "procesamiento en la nube"</h2>
+<p>La mayoría de los sistemas de IA médica más sofisticados procesan datos en servidores remotos ("la nube"). Eso significa que los datos de tus pacientes salen del sistema de salud y viajan a servidores del proveedor, que pueden estar en otros países con marcos legales distintos.</p>
+<p>¿El proveedor usa esos datos para mejorar sus modelos? ¿Con qué datos de otros clientes se combinan? ¿Se pueden re-identificar los datos "anonimizados"? Estas preguntas deben tener respuesta en el contrato con el proveedor antes de implementar.</p>
+<h2>Los datos que NO deberían procesarse</h2>
+<p>Identificadores directos innecesarios para la función clínica del sistema: nombre, RUT, dirección. Si el sistema puede funcionar con datos seudoanonimizados (donde solo el establecimiento puede re-identificar), esa es la configuración más segura para el paciente.</p>
+HTML,
+
+            'ia-para-salud_3_2' => <<<HTML
+<p>Chile tiene un marco legal de protección de datos de salud que el profesional debe conocer para operar de forma legalmente correcta cuando usa sistemas de IA clínica. El desconocimiento no exime de responsabilidad, y las consecuencias de una violación en datos de salud son significativas.</p>
+<h2>La Ley 19.628 y los datos sensibles</h2>
+<p>La Ley 19.628 de Protección de Datos Personales clasifica los datos de salud como datos sensibles, con protecciones especiales. Su tratamiento requiere consentimiento expreso del titular o autorización legal específica. Esta ley está siendo reemplazada por una nueva normativa (en tramitación) que se alinea con el estándar RGPD europeo y será significativamente más exigente.</p>
+<h2>La Ley 20.584 de derechos del paciente</h2>
+<p>Esta ley, específica del contexto de salud, establece el derecho del paciente a la confidencialidad de su información clínica. Toda la información contenida en la historia clínica es reservada. El uso de esa información en sistemas de IA debe ser compatible con este principio —lo que implica que el paciente debe ser informado si su información clínica se usa para entrenar modelos o mejorar sistemas.</p>
+<h2>Lo que el profesional debe verificar antes de usar un sistema de IA</h2>
+<p>¿El sistema procesa datos identificados de pacientes fuera del establecimiento? Si sí, ¿existe un marco contractual con el proveedor que proteja esos datos según la ley chilena? ¿Los pacientes son informados de que su información puede ser procesada por sistemas de IA? ¿Existe un mecanismo para que el paciente se oponga?</p>
+<h2>El contexto de la nueva ley de datos</h2>
+<p>La nueva ley de protección de datos personales en tramitación en Chile creará la Agencia de Protección de Datos Personales con capacidad sancionatoria real, elevará las multas y establecerá derechos adicionales para los titulares, incluyendo el derecho a oponerse a decisiones automatizadas. Los establecimientos que implementen sistemas de IA clínica hoy deben diseñarlos con ese estándar futuro en mente.</p>
+HTML,
+
+            'ia-para-salud_3_3' => <<<HTML
+<p>El consentimiento informado es uno de los pilares éticos y legales de la práctica médica. La introducción de la IA en el proceso clínico genera preguntas nuevas sobre qué debe saber el paciente y cómo debe expresar su consentimiento.</p>
+<h2>¿Debe el paciente saber que hay IA en su atención?</h2>
+<p>La respuesta legal y ética es sí, cuando la IA tiene un rol en decisiones que le afectan significativamente. El derecho a la información del paciente establecido en la Ley 20.584 incluye la información sobre los procedimientos y tecnologías que se usan en su atención.</p>
+<p>Esto no significa que cada interacción con un sistema de apoyo a la decisión requiera un formulario específico. Significa que el paciente debe poder saber, si pregunta, que se usan herramientas de IA en su evaluación y cuál es su rol.</p>
+<h2>Los casos que sí requieren consentimiento explícito</h2>
+<p><strong>Cuando los datos del paciente se usan para entrenar modelos:</strong> usar la imagen de un paciente para mejorar el modelo del proveedor es un uso secundario de sus datos que requiere consentimiento explícito separado del consentimiento clínico.</p>
+<p><strong>Cuando el sistema toma decisiones sin supervisión médica directa:</strong> un sistema que envía automáticamente resultados al paciente sin revisión humana previa requiere que el paciente conozca y acepte ese flujo.</p>
+<p><strong>Cuando el sistema analiza datos biométricos:</strong> reconocimiento facial, análisis de voz, análisis genómico. Estos tipos de datos tienen sensibilidad especial y el consentimiento debe ser específico.</p>
+<h2>Cómo adaptar el consentimiento informado</h2>
+<p>Para la mayoría de los usos de IA como apoyo al diagnóstico con supervisión médica, puede ser suficiente incluir una cláusula en el consentimiento general de atención. Para usos de datos secundarios o sistemas más autónomos, se requiere un consentimiento separado y específico. La asesoría legal del establecimiento debe definir el estándar para cada tipo de sistema.</p>
+HTML,
+
+            'ia-para-salud_3_4' => <<<HTML
+<p>Evaluar la privacidad de un proveedor de IA médica antes de contratar o recomendar su uso es una responsabilidad que recae sobre los establecimientos y, en muchos casos, sobre los profesionales que los adoptan. No es suficiente con que el proveedor diga que "cumple con todas las normativas".</p>
+<h2>Preguntas que debes hacer a cualquier proveedor</h2>
+<p><strong>¿Dónde se almacenan los datos de mis pacientes?</strong> El país y el marco legal que aplica. Si los datos se procesan en EE.UU., aplica HIPAA. Si es en Europa, RGPD. Si es en Chile, Ley 19.628 y la nueva ley en tramitación. Cada marco tiene obligaciones distintas.</p>
+<p><strong>¿Los datos se usan para entrenar o mejorar modelos?</strong> Si la respuesta es sí, ¿con consentimiento explícito de los pacientes? ¿Los datos se comparten con terceros? ¿Se pueden re-identificar?</p>
+<p><strong>¿Qué pasa con los datos si termina el contrato?</strong> El proveedor debe comprometerse a eliminar o devolver los datos de forma verificable. Esto debe estar en el contrato, no solo en la política de privacidad.</p>
+<p><strong>¿El proveedor tiene certificaciones de seguridad?</strong> ISO 27001, SOC 2 Type II u equivalentes son estándares mínimos de seguridad de la información para sistemas que manejan datos de salud.</p>
+<h2>Las señales de alerta</h2>
+<p>Un proveedor que no puede responder estas preguntas con documentación concreta. Políticas de privacidad genéricas que no especifican el tratamiento de datos de salud. Contratos que reservan al proveedor el derecho de usar los datos para "mejorar sus servicios" sin especificar límites. Ausencia de un DPA (Data Processing Agreement) específico.</p>
+<h2>El principio práctico</h2>
+<p>Si no puedes explicarle a tu paciente exactamente qué hace el proveedor con sus datos de forma que el paciente lo entienda y lo acepte, probablemente hay un problema con el sistema que estás usando.</p>
+HTML,
+
+            // ── SALUD · MÓDULO 4 ────────────────────────────────────────────
+
+            'ia-para-salud_4_1' => <<<HTML
+<p>Cuando un sistema de IA médica contribuye a un diagnóstico erróneo o a una decisión clínica que daña al paciente, ¿quién responde? Esta pregunta no tiene una respuesta legal definitiva en Chile todavía, pero el análisis de los marcos legales disponibles y los casos internacionales permite construir una posición fundamentada.</p>
+<h2>El principio de responsabilidad médica vigente</h2>
+<p>En Chile, la Ley 19.966 (AUGE) y el Código Sanitario establecen la responsabilidad del médico por las decisiones clínicas que toma. La introducción de una herramienta de apoyo —sea una calculadora de riesgo, una guía clínica o un sistema de IA— no transfiere esa responsabilidad al fabricante de la herramienta. El médico que usa un sistema de IA para apoyar su diagnóstico y toma la decisión final sigue siendo el responsable de esa decisión.</p>
+<h2>La cadena de responsabilidad</h2>
+<p><strong>El fabricante del sistema:</strong> puede tener responsabilidad civil extracontractual si el sistema tenía defectos de diseño o no cumplía las especificaciones declaradas. Bajo el marco de productos defectuosos (Ley 19.496 de protección al consumidor en su aplicación más amplia), el fabricante puede ser demandado si el sistema funcionó fuera de sus especificaciones.</p>
+<p><strong>El establecimiento de salud:</strong> que implementó el sistema sin la debida diligencia en la evaluación, entrenamiento del personal o supervisión puede compartir responsabilidad. Si el sistema no tenía las aprobaciones regulatorias correspondientes, la responsabilidad del establecimiento es mayor.</p>
+<p><strong>El profesional:</strong> que tomó la decisión clínica basada en el output del sistema sin el nivel apropiado de revisión crítica. "El sistema lo dijo" no es una defensa jurídica suficiente cuando el clínico tenía o debía tener los conocimientos para cuestionar ese output.</p>
+<h2>El principio práctico</h2>
+<p>Usa la IA como lo que es: una herramienta de apoyo que informa tu juicio clínico, no que lo reemplaza. Documenta que tomaste una decisión clínica fundamentada, con el apoyo de la herramienta como uno de los insumos considerados. Eso es lo que protege al paciente y a ti.</p>
+HTML,
+
+            'ia-para-salud_4_2' => <<<HTML
+<p>La documentación clínica cuando hay IA involucrada sirve dos propósitos: permite la continuidad asistencial (otro profesional debe poder entender qué se hizo y por qué) y protege al profesional ante una eventual disputa. Ambos propósitos requieren documentar el uso de IA con suficiente especificidad.</p>
+<h2>Qué documentar cuando usas IA en una decisión clínica</h2>
+<p><strong>Qué sistema se usó:</strong> el nombre y versión del sistema, no solo "se usó IA". Los sistemas tienen versiones, y las versiones tienen rendimientos y limitaciones distintas.</p>
+<p><strong>Qué input se proporcionó al sistema:</strong> qué imagen, qué parámetros, qué datos clínicos procesó el sistema para generar su output.</p>
+<p><strong>Cuál fue el output del sistema:</strong> qué sugirió, con qué nivel de confianza, qué alternativas presentó.</p>
+<p><strong>Cuál fue tu decisión clínica y por qué:</strong> si seguiste la recomendación del sistema, por qué. Si te apartaste de ella, cuál fue el razonamiento clínico. Esto es lo más importante: mostrar que hubo juicio médico, no delegación a un algoritmo.</p>
+<h2>Un ejemplo concreto</h2>
+<p>En lugar de: "Se realizó radiografía de tórax. Se detectó nódulo pulmonar. Se deriva a neumología." Documenta: "Radiografía de tórax analizada con sistema [nombre] v[X]. El sistema identificó nódulo en lóbulo superior derecho con probabilidad de malignidad reportada de 18%. La evaluación clínica integrada —considerando factores de riesgo del paciente (tabaquismo 20 paquetes/año, 58 años) y las características morfológicas de la imagen— motivó decisión de derivación a neumología para evaluación especializada y eventual TC de tórax."</p>
+<h2>El nivel de detalle apropiado</h2>
+<p>No toda interacción con un sistema de apoyo requiere documentación exhaustiva. Un sistema que alerta sobre interacción medicamentosa que el médico verifica y descarta no requiere más que el registro habitual. Un sistema cuyo output fue determinante en una decisión diagnóstica o terapéutica significativa sí requiere documentación explícita.</p>
+HTML,
+
+            'ia-para-salud_4_3' => <<<HTML
+<p>Los casos legales que involucran IA médica están comenzando a aparecer en distintas jurisdicciones. Aunque Chile no tiene jurisprudencia específica en este campo, los casos internacionales iluminan qué preguntas van a plantearse cuando los tribunales chilenos enfrenten estas situaciones.</p>
+<h2>El caso del algoritmo de sepsis (EE.UU., 2021)</h2>
+<p>Una demanda en EE.UU. alegó que un hospital confió en un sistema de alerta de sepsis que no activó la alarma en un paciente que desarrolló sepsis fulminante. El hospital argumentó que el sistema funcionó dentro de sus especificaciones. El demandante argumentó que la implementación del sistema sin supervisión adecuada constituyó negligencia. El caso se resolvió extrajudicialmente, pero estableció el precedente de que la adopción de sistemas de IA sin protocolos de supervisión clara puede ser fuente de responsabilidad.</p>
+<h2>Responsabilidad por sobredependencia</h2>
+<p>En múltiples casos de derecho médico comparado, los tribunales han evaluado si el profesional ejerció juicio clínico independiente o delegó la decisión a una herramienta. El concepto de "automation bias" —la tendencia humana a aceptar la recomendación automatizada sin cuestionarla— es reconocido en la literatura y está comenzando a aparecer en argumentos legales.</p>
+<h2>El debate sobre el "learned intermediary"</h2>
+<p>En derecho de responsabilidad por productos, la doctrina del "learned intermediary" establece que el fabricante cumple su deber de advertencia cuando informa al profesional (no directamente al paciente), y el profesional ejerce su juicio. Si el fabricante informó adecuadamente al médico de los límites del sistema y el médico no los consideró, la responsabilidad se desplaza al médico.</p>
+<h2>La trayectoria en Chile</h2>
+<p>Chile no tiene jurisprudencia específica sobre IA médica a 2025. Pero a medida que la adopción aumenta, los litigios llegarán. Los profesionales y establecimientos que documentan sus procesos de evaluación e implementación de IA estarán en mejor posición cuando eso ocurra.</p>
+HTML,
+
+            'ia-para-salud_4_4' => <<<HTML
+<p>Una de las preguntas más filosóficamente profundas que plantea la IA médica es cuánta autonomía puede tener un sistema para tomar decisiones clínicas sin intervención humana directa. El debate no es solo académico: tiene implicaciones regulatorias, legales y éticas concretas.</p>
+<h2>Los niveles de autonomía en sistemas médicos</h2>
+<p>La FDA ha desarrollado un marco que clasifica los sistemas de IA médica por su nivel de autonomía: desde herramientas de información que el clínico usa libremente, pasando por sistemas de apoyo a la decisión, hasta sistemas que toman decisiones con mínima intervención humana.</p>
+<p>El nivel máximo de autonomía aprobado hoy —IDx-DR, para diagnóstico autónomo de retinopatía diabética— puede dar un diagnóstico sin que intervenga un oftalmólogo, con el resultado enviado directamente al médico de atención primaria. Es el único sistema con aprobación FDA para diagnóstico completamente autónomo en su categoría.</p>
+<h2>Los argumentos a favor de mayor autonomía</h2>
+<p>En contextos de escasez de especialistas —que describe la realidad de gran parte del sistema de salud chileno, especialmente en regiones— un sistema autónomo puede proveer diagnóstico donde de otra forma no habría ninguno. Un screening autónomo de retinopatía en atención primaria rural es mejor que ningún screening.</p>
+<h2>Los argumentos contra la autonomía no supervisada</h2>
+<p>Los sistemas autónomos fallan sin que haya un humano que detecte y corrija el error. En medicina, los errores del sistema se convierten directamente en daño al paciente. La complejidad clínica real —comorbilidades, contexto social, preferencias del paciente— no está bien representada en los datos con que se entrenan estos sistemas.</p>
+<h2>El consenso actual</h2>
+<p>La posición dominante en regulación y bioética médica es que la supervisión humana debe mantenerse en decisiones que afectan significativamente la salud del paciente. La IA como amplificador del juicio clínico humano, no como su reemplazante. Ese equilibrio puede cambiar a medida que los sistemas mejoren —pero el estándar de hoy es supervisión humana significativa.</p>
+HTML,
+
+            // ── SALUD · MÓDULO 5 ────────────────────────────────────────────
+
+            'ia-para-salud_5_1' => <<<HTML
+<p>El médico generalista y de familia es el profesional de salud con mayor potencial de impacto de la IA, y también el que enfrenta el mayor desafío de implementación: trabaja en el nivel más amplio del sistema, con el mayor volumen de pacientes y la mayor variedad de presentaciones clínicas.</p>
+<h2>Las herramientas más relevantes para medicina general</h2>
+<p><strong>Sistemas de apoyo diagnóstico:</strong> herramientas que analizan los síntomas y signos ingresados y sugieren diagnósticos diferenciales ordenados por probabilidad. Isabel DDx y Symptoma son los más usados internacionalmente. Útiles especialmente en presentaciones atípicas o en condiciones de baja prevalencia que el médico puede no tener presente.</p>
+<p><strong>Alertas de interacción medicamentosa e indicadores de riesgo:</strong> integrados en muchos sistemas de historia clínica electrónica, alertan sobre interacciones, contraindicaciones o indicadores de deterioro. El desafío es calibrar el umbral para reducir fatiga de alarma sin perder señales relevantes.</p>
+<p><strong>Apoyo a la gestión crónica:</strong> sistemas que monitorizan parámetros de pacientes con enfermedades crónicas (diabetes, HTA, EPOC) y alertan cuando hay desviaciones que requieren intervención. Especialmente útiles en modelos de atención a distancia o en equipos de salud familiar con alta carga.</p>
+<p><strong>Documentación asistida:</strong> herramientas que transcriben la consulta médica y generan un borrador de la nota clínica, liberando al médico de la carga administrativa para enfocarse en el paciente. Nuance DAX (Microsoft) es el más usado en contexto anglosajón; soluciones adaptadas al español están emergiendo.</p>
+<h2>El rol del médico general en la IA clínica</h2>
+<p>El médico de familia es frecuentemente el primero en recibir el output de un sistema de IA —el resultado de un screening automático, la alerta de un wearable, el diagnóstico de una aplicación. Saber interpretar esos outputs con criterio clínico, comunicarlos adecuadamente al paciente y decidir los próximos pasos es una competencia que se vuelve parte del oficio.</p>
+HTML,
+
+            'ia-para-salud_5_2' => <<<HTML
+<p>La salud mental es una de las áreas donde la IA genera más esperanza y más cautela simultáneamente. La esperanza viene de la brecha enorme entre la demanda de atención y la oferta de profesionales; la cautela, de la sensibilidad de los datos, la complejidad del vínculo terapéutico y los riesgos únicos de esta especialidad.</p>
+<h2>Las aplicaciones que existen hoy</h2>
+<p><strong>Chatbots de apoyo emocional:</strong> Woebot, Wysa, Youper. Basados en técnicas de terapia cognitivo-conductual, ofrecen intervención de baja intensidad de forma continua y accesible. No son psicoterapia: son apoyo entre sesiones, primeros auxilios emocionales o herramientas para personas que no tienen acceso a profesionales.</p>
+<p><strong>Detección de riesgo en texto y habla:</strong> sistemas que analizan patrones lingüísticos en texto o voz para detectar señales de depresión, ansiedad o riesgo suicida. Usados principalmente en contextos de investigación y, con mucha cautela, en algunos sistemas de crisis.</p>
+<p><strong>Apoyo a la documentación clínica:</strong> transcripción de sesiones (con consentimiento), análisis de progreso del paciente, alertas de deterioro en variables objetivas.</p>
+<h2>Los límites que el profesional debe conocer</h2>
+<p>El vínculo terapéutico —la relación entre el profesional y el paciente— es en sí mismo un elemento terapéutico en salud mental. Ningún sistema de IA puede replicarlo. Los chatbots de apoyo emocional pueden ser útiles como complemento pero representan un riesgo si se usan como sustituto de atención profesional en condiciones que la requieren.</p>
+<p>Los datos de salud mental son extraordinariamente sensibles. Las brechas de seguridad en aplicaciones de salud mental han ocurrido: en 2020, una filtración de datos de la aplicación Vastaamo en Finlandia expuso registros de sesiones de terapia de decenas de miles de pacientes, con consecuencias devastadoras. El estándar de privacidad para estas herramientas debe ser el más alto posible.</p>
+HTML,
+
+            'ia-para-salud_5_3' => <<<HTML
+<p>El profesional de salud que quiere incorporar una herramienta de IA en su práctica tiene que hacer una evaluación que va más allá de "¿funciona?" La pregunta es "¿funciona en mi contexto, con mis pacientes, de forma que mejora su atención y no la compromete?"</p>
+<h2>El marco de evaluación en cinco dimensiones</h2>
+<p><strong>1. Validez clínica:</strong> ¿el sistema ha sido validado en una población similar a la tuya en términos de demografía, prevalencia de la condición y contexto? ¿Los estudios de validación son independientes del fabricante? ¿En qué tipo de imágenes o datos funciona y cuáles están fuera de su alcance?</p>
+<p><strong>2. Aprobación regulatoria:</strong> en Chile, el ISP regula los dispositivos médicos incluyendo software como dispositivo médico (SaMD). ¿El sistema tiene la categorización y aprobación regulatoria correspondiente para el uso que pretendes darle? En ausencia de regulación específica chilena, ¿tiene aprobación FDA o CE?</p>
+<p><strong>3. Integración al flujo de trabajo:</strong> ¿cómo se integra en tu práctica real? ¿Agrega fricción o la reduce? Un sistema que técnicamente funciona pero que interrumpe el flujo de trabajo de forma que los clínicos lo evitan no genera valor.</p>
+<p><strong>4. Privacidad y seguridad:</strong> ya cubierto en el módulo anterior, pero aplicado a la evaluación específica: ¿dónde van los datos de tus pacientes, bajo qué marco legal, con qué garantías?</p>
+<p><strong>5. Soporte y actualizaciones:</strong> ¿el proveedor tiene presencia y soporte en Chile o América Latina? ¿Cómo se maneja cuando el sistema falla? ¿Con qué frecuencia se actualiza el modelo y cómo se comunican los cambios de rendimiento?</p>
+<h2>El piloto antes del deploy</h2>
+<p>Antes de incorporar definitivamente una herramienta, úsala en paralelo con tu proceso habitual durante un período definido. ¿Genera hallazgos adicionales útiles? ¿Produce alertas que cambian tu manejo? ¿Los falsos positivos son manejables? Esa evidencia propia, en tu contexto, vale más que cualquier estudio publicado.</p>
+HTML,
+
+            'ia-para-salud_5_4' => <<<HTML
+<p>La integración de la IA en la práctica clínica no es un evento sino un proceso. Hacerlo bien requiere atención a cómo cambia la relación con el paciente, cómo se mantiene el juicio clínico independiente y cómo se gestiona la incertidumbre que toda herramienta nueva introduce.</p>
+<h2>Mantener el juicio clínico como referencia</h2>
+<p>El riesgo más documentado de los sistemas de apoyo a la decisión es el automation bias: la tendencia a aceptar la recomendación automatizada sin el nivel de cuestionamiento que aplicaríamos a la recomendación de un colega. Contrarrestarlo requiere un hábito activo: antes de ver el output del sistema, formarte tu propia impresión clínica. Luego compara. Si el sistema coincide, refuerza tu confianza. Si discrepa, examina la razón del desacuerdo con cuidado.</p>
+<h2>La comunicación con el paciente</h2>
+<p>Cuando uses IA en la atención, considera cómo lo comunicas. Algunos pacientes valoran saber que hay una "segunda opinión tecnológica"; otros pueden sentirse incómodos. No hay una fórmula universal, pero la honestidad sobre las herramientas que usas en su atención es siempre la posición ética correcta.</p>
+<p>Evita presentar el output de la IA como más certero de lo que es. "El sistema sugiere que..." es más honesto que "el sistema dice que..." —la primera formulación mantiene la incertidumbre apropiada; la segunda la elimina artificialmente.</p>
+<h2>El aprendizaje continuo como parte del uso</h2>
+<p>Las herramientas de IA clínica mejoran, cambian y a veces empeoran con las actualizaciones. Mantener atención activa sobre el desempeño del sistema que usas —¿sigue produciendo outputs útiles? ¿Ha cambiado el tipo de alertas? ¿Los colegas reportan experiencias distintas?— es parte de la responsabilidad de usarla.</p>
+<div style="background:linear-gradient(135deg,#f43f5e,#e11d48);border-radius:1rem;padding:2rem;text-align:center;margin-top:2rem;">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
+    <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
+    <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Profesionales de la Salud</strong>. Tienes ahora el marco clínico, legal y ético para integrar IA en tu práctica sin comprometer a tus pacientes.</p>
     <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
 </div>
 HTML,
