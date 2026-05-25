@@ -11,6 +11,7 @@ class Regulation extends Model
         'title', 'slug', 'scope', 'status', 'summary',
         'content', 'source_url', 'institution',
         'date_introduced', 'date_updated',
+        'impact_laboral', 'impact_economico', 'impact_social',
     ];
 
     protected $casts = [

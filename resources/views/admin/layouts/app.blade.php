@@ -341,6 +341,13 @@
                     </ul>
                 </li>
 
+                <li class="sidebar-section">Observatorio</li>
+                <li class="{{ request()->routeIs('admin.regulations.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.regulations.index') }}">
+                        <i class="fas fa-balance-scale me-2"></i> Regulación IA
+                    </a>
+                </li>
+
                 <li class="sidebar-section">Comunidad y Sistema</li>
                 <li class="{{ request()->routeIs('admin.invitados.*', 'admin.comments.*', 'admin.categories.*', 'admin.tags.*', 'admin.users.*') ? 'active' : '' }}">
                     <a href="#communitySubmenu" data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.invitados.*', 'admin.comments.*', 'admin.categories.*', 'admin.tags.*', 'admin.users.*') ? 'true' : 'false' }}" class="dropdown-toggle">

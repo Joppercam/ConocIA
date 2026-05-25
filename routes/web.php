@@ -561,6 +561,16 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
             Route::patch('/{agent}/toggle',     [\App\Http\Controllers\Admin\AiAgentController::class, 'toggleActive'])->name('toggle');
         });
 
+        // Observatorio de Regulación IA — admin
+        Route::prefix('regulaciones')->name('regulations.')->group(function () {
+            Route::get('/',                    [\App\Http\Controllers\Admin\RegulationController::class, 'index'])->name('index');
+            Route::get('/create',              [\App\Http\Controllers\Admin\RegulationController::class, 'create'])->name('create');
+            Route::post('/',                   [\App\Http\Controllers\Admin\RegulationController::class, 'store'])->name('store');
+            Route::get('/{regulation}/edit',   [\App\Http\Controllers\Admin\RegulationController::class, 'edit'])->name('edit');
+            Route::put('/{regulation}',        [\App\Http\Controllers\Admin\RegulationController::class, 'update'])->name('update');
+            Route::delete('/{regulation}',     [\App\Http\Controllers\Admin\RegulationController::class, 'destroy'])->name('destroy');
+        });
+
         // Estado del Arte admin
         Route::prefix('estado-arte')->name('estado-arte.')->group(function () {
             Route::get('/',                         [EstadoArteAdminController::class, 'index'])->name('index');

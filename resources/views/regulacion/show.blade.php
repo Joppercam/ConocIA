@@ -65,6 +65,57 @@
                 </div>
             </div>
 
+            {{-- Secciones de impacto --}}
+            @if($regulation->impact_laboral || $regulation->impact_economico || $regulation->impact_social)
+            <div class="mt-4">
+                <h2 class="fw-bold mb-4" style="color:#0f172a;font-size:1.25rem;padding-bottom:.625rem;border-bottom:2px solid rgba(56,182,255,.15);">
+                    ¿Qué cambia en la práctica?
+                </h2>
+
+                @if($regulation->impact_laboral)
+                <div class="mb-4 p-4" style="border:1px solid #e2e8f0;border-left:4px solid #3b82f6;border-radius:0 .75rem .75rem 0;background:#fff;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:.5rem;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-briefcase" style="color:#3b82f6;font-size:.9rem;"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0" style="color:#1e40af;font-size:1rem;">Impacto laboral</h3>
+                    </div>
+                    <div class="reg-content">
+                        {!! $regulation->impact_laboral !!}
+                    </div>
+                </div>
+                @endif
+
+                @if($regulation->impact_economico)
+                <div class="mb-4 p-4" style="border:1px solid #e2e8f0;border-left:4px solid #10b981;border-radius:0 .75rem .75rem 0;background:#fff;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div style="width:36px;height:36px;background:#ecfdf5;border-radius:.5rem;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-chart-line" style="color:#10b981;font-size:.9rem;"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0" style="color:#065f46;font-size:1rem;">Impacto económico</h3>
+                    </div>
+                    <div class="reg-content">
+                        {!! $regulation->impact_economico !!}
+                    </div>
+                </div>
+                @endif
+
+                @if($regulation->impact_social)
+                <div class="mb-4 p-4" style="border:1px solid #e2e8f0;border-left:4px solid #f59e0b;border-radius:0 .75rem .75rem 0;background:#fff;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div style="width:36px;height:36px;background:#fffbeb;border-radius:.5rem;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-users" style="color:#f59e0b;font-size:.9rem;"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0" style="color:#92400e;font-size:1rem;">Impacto social</h3>
+                    </div>
+                    <div class="reg-content">
+                        {!! $regulation->impact_social !!}
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+
             {{-- Nota editorial --}}
             <div class="mt-4 p-3" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;">
                 <p class="mb-0" style="color:#94a3b8;font-size:.8rem;line-height:1.6;">
@@ -79,7 +130,7 @@
         <div class="col-lg-4">
 
             {{-- Ficha técnica --}}
-            <div class="profundiza-card p-4 mb-4 sticky-top" style="top:80px;">
+            <div class="profundiza-card p-4 mb-4" style="position:sticky;top:88px;z-index:10;">
                 <h3 class="fw-bold mb-3" style="color:#0f172a;font-size:1rem;border-bottom:2px solid rgba(56,182,255,.2);padding-bottom:.75rem;">
                     Ficha técnica
                 </h3>
