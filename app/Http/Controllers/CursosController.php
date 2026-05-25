@@ -76,6 +76,11 @@ class CursosController extends Controller
             'ia-para-periodistas_3_1', 'ia-para-periodistas_3_2', 'ia-para-periodistas_3_3', 'ia-para-periodistas_3_4',
             'ia-para-periodistas_4_1', 'ia-para-periodistas_4_2', 'ia-para-periodistas_4_3', 'ia-para-periodistas_4_4',
             'ia-para-periodistas_5_1', 'ia-para-periodistas_5_2', 'ia-para-periodistas_5_3', 'ia-para-periodistas_5_4',
+            'ia-para-rrhh_1_1', 'ia-para-rrhh_1_2', 'ia-para-rrhh_1_3', 'ia-para-rrhh_1_4',
+            'ia-para-rrhh_2_1', 'ia-para-rrhh_2_2', 'ia-para-rrhh_2_3', 'ia-para-rrhh_2_4',
+            'ia-para-rrhh_3_1', 'ia-para-rrhh_3_2', 'ia-para-rrhh_3_3', 'ia-para-rrhh_3_4',
+            'ia-para-rrhh_4_1', 'ia-para-rrhh_4_2', 'ia-para-rrhh_4_3', 'ia-para-rrhh_4_4',
+            'ia-para-rrhh_5_1', 'ia-para-rrhh_5_2', 'ia-para-rrhh_5_3', 'ia-para-rrhh_5_4',
         ];
         return in_array($key, $defined) ? true : null;
     }
@@ -1182,6 +1187,266 @@ HTML,
     <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
     <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
     <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Periodistas y Comunicadores</strong>. Tienes ahora las herramientas para cubrir IA con rigor, verificar contenido sintético y usar IA en tu oficio con criterio editorial.</p>
+    <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
+</div>
+HTML,
+
+            // ── RRHH · MÓDULO 1 ─────────────────────────────────────────────
+
+            'ia-para-rrhh_1_1' => <<<HTML
+<p>La inteligencia artificial ya no es una tecnología que RRHH está evaluando adoptar. Para la mayoría de las organizaciones medianas y grandes, ya está presente en al menos uno de sus procesos de personas —aunque el área no siempre lo sepa ni lo haya elegido conscientemente.</p>
+<h2>El mapa de la IA en el ciclo del empleado</h2>
+<p><strong>Reclutamiento y selección:</strong> filtros automáticos de CV, análisis de entrevistas en video, tests de personalidad con scoring algorítmico, matching de candidatos con perfiles. Es donde la IA más penetró en RRHH y donde más controversia ha generado.</p>
+<p><strong>Onboarding:</strong> chatbots que responden preguntas frecuentes de nuevos empleados, plataformas de aprendizaje adaptativas que personalizan el contenido de inducción, sistemas que identifican cuándo un nuevo empleado muestra señales de desconexión temprana.</p>
+<p><strong>Gestión del desempeño:</strong> sistemas que recopilan datos de productividad, asistencia, interacciones digitales y generan scores de desempeño, alertas de riesgo de renuncia, sugerencias de feedback.</p>
+<p><strong>Desarrollo y aprendizaje:</strong> plataformas de L&D que recomiendan contenidos de formación según el perfil del empleado, identifican brechas de competencias y predicen necesidades de upskilling.</p>
+<p><strong>Desvinculación:</strong> modelos predictivos de renuncia voluntaria, análisis de entrevistas de salida, identificación de patrones que preceden la rotación.</p>
+<h2>La brecha de conciencia en RRHH chileno</h2>
+<p>Muchas organizaciones chilenas usan plataformas internacionales (SAP, Workday, Oracle HCM) que tienen IA integrada como feature estándar, sin que el equipo de RRHH haya tomado una decisión explícita de activar esas funciones. El primer paso es hacer un inventario: ¿qué sistemas usa tu organización y qué componentes de IA tienen activos?</p>
+HTML,
+
+            'ia-para-rrhh_1_2' => <<<HTML
+<p>El mercado de herramientas de IA para RRHH creció un 40% entre 2022 y 2024 según reportes del sector. Hay cientos de productos disponibles, con niveles de madurez y confiabilidad muy variables. Conocer las categorías principales te permite navegar ese ecosistema con criterio.</p>
+<h2>Categorías de herramientas y ejemplos relevantes</h2>
+<p><strong>ATS con IA (Applicant Tracking Systems):</strong> Greenhouse, Lever, SmartRecruiters, BambooHR. Gestionan el proceso de selección e incorporan scoring automático de candidatos, filtros de CV y análisis de fit cultural. Son la categoría más extendida en Chile en empresas medianas y grandes.</p>
+<p><strong>Análisis de entrevistas en video:</strong> HireVue, Spark Hire, Willo. Analizan la grabación de una entrevista y generan scores sobre competencias, estabilidad emocional y ajuste al perfil. HireVue es el más conocido y también el más criticado por sus metodologías.</p>
+<p><strong>Plataformas de people analytics:</strong> Visier, Crunchhr, ChartHop. Consolidan datos de distintos sistemas de RRHH y generan dashboards de rotación, clima, desempeño y riesgo. Permiten cruzar variables que manualmente serían imposibles de analizar.</p>
+<p><strong>Herramientas de engagement y clima:</strong> Glint (Microsoft), Culture Amp, Officevibe. Pulsos de clima frecuentes con análisis de sentimiento, identificación de equipos en riesgo, sugerencias de acción para líderes.</p>
+<p><strong>Asistentes de RRHH basados en LLM:</strong> la generación más reciente. Plataformas que permiten hacer preguntas en lenguaje natural sobre los datos de personas ("¿cuáles son los equipos con mayor riesgo de rotación este trimestre?") y reciben respuestas con análisis.</p>
+<h2>El criterio para elegir</h2>
+<p>No el que tiene mejor marketing. El que puede demostrar: validez del modelo (¿cómo saben que predice lo que dice predecir?), transparencia del scoring (¿puedes explicar por qué un candidato fue filtrado?), y cumplimiento con la regulación local de privacidad de datos.</p>
+HTML,
+
+            'ia-para-rrhh_1_3' => <<<HTML
+<p>El mercado de IA para RRHH tiene un problema estructural: los proveedores tienen fuertes incentivos para exagerar sus capacidades, y los compradores (equipos de RRHH) rara vez tienen la formación técnica para evaluarlas críticamente. El resultado es una brecha entre lo que prometen los demos y lo que entregan en producción.</p>
+<h2>Las promesas más frecuentes y la realidad</h2>
+<p><strong>"Predice con X% de precisión qué candidatos tendrán mejor desempeño":</strong> el problema es que el "desempeño" suele medirse contra las evaluaciones de desempeño históricas de la empresa, que ya tienen sesgos. Si históricamente los gerentes puntuaron mejor a hombres de cierto perfil, el modelo aprende eso como éxito. La precisión puede ser real; lo que predice puede no ser lo que crees.</p>
+<p><strong>"Elimina el sesgo humano del proceso de selección":</strong> lo más frecuente es lo contrario. La IA automatiza los sesgos históricos a escala. Que el proceso sea automático no lo hace objetivo; lo hace más rápido y más difícil de cuestionar.</p>
+<p><strong>"Analiza la personalidad y fit cultural desde el video de la entrevista":</strong> no hay evidencia científica robusta de que el análisis de expresión facial, tono de voz y microgestos sea predictor confiable de desempeño laboral. La American Psychological Association y la SIOP (Society for Industrial-Organizational Psychology) han expresado serias reservas sobre estas metodologías.</p>
+<h2>Las preguntas que debes hacer a cualquier proveedor</h2>
+<p>¿Puedes mostrarme los estudios de validación del modelo, realizados por terceros independientes? ¿Cómo fue definida la variable de "éxito" con la que entrenaron el modelo? ¿Han hecho auditorías de sesgo por género, etnia y edad? ¿Qué pasa si un candidato quiere saber por qué fue filtrado?</p>
+<p>Si un proveedor no puede responder estas preguntas con documentación concreta, esa es información suficiente para tu decisión.</p>
+HTML,
+
+            'ia-para-rrhh_1_4' => <<<HTML
+<p>Antes de tomar decisiones sobre adoptar más IA o gestionar mejor la existente, necesitas un diagnóstico honesto de qué hay en tu organización hoy. Muchas áreas de RRHH descubren en este proceso que usan más IA de lo que pensaban —o que procesos que creían manuales tienen componentes algorítmicos que no conocían.</p>
+<h2>El inventario en cuatro pasos</h2>
+<p><strong>Paso 1 — Lista todos los sistemas y plataformas:</strong> ATS, HRMS, plataformas de nómina, herramientas de evaluación de desempeño, encuestas de clima, plataformas de aprendizaje, sistemas de control de asistencia. Para cada uno, revisa si tiene features de IA activos (la documentación del proveedor o el equipo de TI pueden ayudar).</p>
+<p><strong>Paso 2 — Identifica qué decisiones de personas toman esos sistemas:</strong> ¿el sistema genera scores que influyen en qué candidatos pasan a la siguiente etapa? ¿Genera alertas de riesgo de renuncia que determinan qué empleados reciben intervención? ¿Produce recomendaciones de desarrollo que los líderes siguen sin cuestionarlas?</p>
+<p><strong>Paso 3 — Evalúa la transparencia de cada sistema:</strong> ¿sabes cómo se calculan esos scores? ¿Puedes explicarlo a un empleado o candidato si lo pregunta? ¿Hay un humano que toma la decisión final con base en esos datos, o el sistema decide solo?</p>
+<p><strong>Paso 4 — Evalúa el cumplimiento de privacidad:</strong> ¿los empleados y candidatos saben qué datos se recopilan sobre ellos y para qué? ¿Hay consentimiento explícito? ¿Los datos se procesan o almacenan fuera de Chile, y bajo qué marcos legales?</p>
+<h2>Lo que suele sorprender en el diagnóstico</h2>
+<p>Que el proveedor de nómina usa machine learning para detectar "anomalías" en los datos sin que RRHH lo supiera. Que la plataforma de video entrevistas analiza expresión facial aunque esa feature no fue el motivo de la compra. Que el ATS tiene un score de "fit" que los reclutadores usan como referencia sin entender cómo se calcula. El diagnóstico es el punto de partida de la gestión responsable.</p>
+HTML,
+
+            // ── RRHH · MÓDULO 2 ─────────────────────────────────────────────
+
+            'ia-para-rrhh_2_1' => <<<HTML
+<p>Los filtros automáticos de CV son la aplicación de IA más extendida en RRHH y, por lejos, la que más consecuencias tiene sobre candidatos individuales. Entender cómo funcionan es indispensable para usarlos responsablemente y para defender las decisiones de selección ante candidatos o autoridades.</p>
+<h2>Cómo funcionan los filtros de CV con IA</h2>
+<p>Los modelos de screening de CV trabajan en dos capas principales:</p>
+<p><strong>Extracción de información:</strong> el sistema lee el CV y extrae campos estructurados —nombre, educación, experiencia, habilidades, idiomas. Aquí ya hay fuente de error: el sistema puede no reconocer formatos de CV inusuales, universidades latinoamericanas poco conocidas, o títulos que no coinciden con los nombres que espera.</p>
+<p><strong>Scoring contra el perfil:</strong> compara la información extraída con el perfil del cargo y asigna un score de match. Los criterios de scoring son los que definen si el modelo reproduce o amplifica sesgos. Si el perfil incluye "experiencia en empresa Fortune 500", el modelo discrimina sistemáticamente a candidatos de economías emergentes.</p>
+<h2>Los sesgos más documentados en filtros de CV</h2>
+<p><strong>Sesgo por nombre:</strong> estudios en EE.UU. (Bertrand & Mullainathan, replicado múltiples veces) muestran que CVs idénticos con nombres de mayoría étnica reciben menos callbacks. Los modelos entrenados sobre decisiones históricas de contratación reproducen este patrón.</p>
+<p><strong>Sesgo por institución educativa:</strong> los modelos aprenden que candidatos de ciertas universidades "tienen mejor desempeño" —cuando en realidad los candidatos de esas universidades tenían más acceso a redes de mentores y recursos de desarrollo.</p>
+<p><strong>Sesgo por gaps en el CV:</strong> períodos de ausencia laboral son sistemáticamente penalizados, afectando desproporcionadamente a personas que cuidaron familiares, atravesaron enfermedades o interrupciones no voluntarias.</p>
+<h2>Qué puede hacer RRHH</h2>
+<p>Revisar qué variables usa el modelo para el scoring. Auditar si los resultados del filtro producen disparidades por género o perfil demográfico. Nunca usar el score automático como único criterio —sino como herramienta de primera revisión con supervisión humana obligatoria.</p>
+HTML,
+
+            'ia-para-rrhh_2_2' => <<<HTML
+<p>Las entrevistas en video analizadas por IA son, de todas las herramientas de selección, la que genera más debate ético y científico. En Chile, su uso creció significativamente entre 2020 y 2023 impulsado por la pandemia y la adopción de herramientas como HireVue.</p>
+<h2>Qué analizan estos sistemas</h2>
+<p>Los sistemas más avanzados analizan múltiples dimensiones simultáneamente: contenido verbal (qué se dice), tono y velocidad del habla, expresión facial (frecuencia de sonrisa, contacto visual, microexpresiones), lenguaje corporal y movimiento de cabeza. Generan scores en dimensiones como "comunicación", "entusiasmo", "estabilidad emocional" y "ajuste al rol".</p>
+<h2>La base científica: muy cuestionada</h2>
+<p>La teoría detrás del análisis de expresión facial como predictor de personalidad y desempeño laboral proviene principalmente del trabajo de Paul Ekman sobre emociones universales —trabajo que ha sido ampliamente criticado y cuya replicabilidad está en duda. Una revisión sistemática de 2019 en la revista Psychological Science in the Public Interest concluyó que la expresión facial no es un indicador confiable del estado emocional interno.</p>
+<p>Dicho de otro modo: que el sistema detecte que alguien sonríe más no significa que esa persona sea más entusiasta, más confiable o mejor candidata para el cargo.</p>
+<h2>Los problemas prácticos documentados</h2>
+<p>Candidatos con neurodivergencia (autismo, TDAH), con acento no nativo, con condiciones de salud que afectan la expresión facial, o simplemente con estilos de comunicación no anglófonos son sistemáticamente perjudicados. Illinois fue el primer estado de EE.UU. en regular estas herramientas (2020), exigiendo consentimiento explícito y prohibición de usarlas como único criterio.</p>
+<h2>La postura responsable para RRHH</h2>
+<p>Si usas este tipo de herramientas: asegúrate de que el candidato lo sepa con anticipación y dé consentimiento. No uses el score como criterio definitivo. Siempre combina con entrevista humana. Y evalúa si el modelo ha sido auditado para sesgos en el contexto latinoamericano.</p>
+HTML,
+
+            'ia-para-rrhh_2_3' => <<<HTML
+<p>Los tests de personalidad y aptitud existen en selección desde hace décadas. Lo que cambió con la IA es la escala, la velocidad, la sofisticación de los análisis —y la opacidad de los modelos que procesan los resultados.</p>
+<h2>Tipos de evaluaciones predictivas con componente IA</h2>
+<p><strong>Tests de personalidad con scoring algorítmico:</strong> plataformas como Pymetrics, HackerRank Personality o Predictive Index aplican tests y usan ML para predecir ajuste al cargo o al equipo. Pymetrics usa juegos cognitivos y emocionales en lugar de cuestionarios directos, lo que reduce pero no elimina el gaming de respuestas.</p>
+<p><strong>Perfiles de comportamiento digital:</strong> algunos sistemas analizan el comportamiento del candidato durante el proceso de postulación —velocidad de respuesta, patrones de revisión, hora del día— para inferir características de personalidad. Esto ocurre sin declaración explícita en muchos casos.</p>
+<p><strong>Tests de aptitud cognitiva adaptativos:</strong> el nivel de dificultad cambia en función de las respuestas anteriores. Más precisos que los tests lineales, pero igualmente dependientes de que el constructo que miden esté validado para el cargo específico.</p>
+<h2>La pregunta crítica: ¿válidos para qué?</h2>
+<p>La validez de cualquier evaluación psicométrica depende de dos condiciones: que mida lo que dice medir (validez de constructo) y que ese constructo prediga el desempeño en el cargo específico (validez predictiva). Los proveedores suelen tener estudios de validez en muestras norteamericanas o europeas. ¿Esos estudios son relevantes para tu cargo, en tu industria, en Chile? Esa pregunta debe hacerse siempre.</p>
+<h2>Los límites que RRHH debe establecer</h2>
+<p>Ningún test de personalidad o perfil de IA debe ser condición eliminatoria por sí solo. Deben complementar, no reemplazar, la evaluación por competencias y la entrevista por comportamientos. Los candidatos tienen derecho a conocer si fueron evaluados con estas herramientas y qué información se procesó.</p>
+HTML,
+
+            'ia-para-rrhh_2_4' => <<<HTML
+<p>Los casos documentados de fallas en sistemas de IA para selección no son anécdotas: son patrones que muestran qué pasa cuando se adoptan estas herramientas sin la evaluación y supervisión adecuadas.</p>
+<h2>Amazon: el caso que cambió la conversación</h2>
+<p>En 2018, Reuters reveló que Amazon había desarrollado internamente un sistema de IA para screening de CV que resultó discriminar sistemáticamente a mujeres. El sistema fue entrenado con CVs de candidatos contratados en los diez años anteriores, período en que la gran mayoría de los contratados en roles técnicos eran hombres. El modelo aprendió que "hombre" era un predictor de éxito y penalizaba CVs con términos como "equipo de mujeres" o con graduación de universidades femeninas. Amazon descontinuó el sistema en 2017, pero la historia se conoció un año después.</p>
+<h2>HireVue y el sesgo en expresión facial</h2>
+<p>Múltiples investigaciones independientes encontraron que el sistema de análisis facial de HireVue producía scores más bajos para personas de tez oscura, personas con discapacidades visibles y personas con estilos de comunicación no anglosajones. En 2021, HireVue descontinuó el análisis de expresión facial tras presión regulatoria y de investigadores.</p>
+<h2>El caso de los algoritmos de riesgo de renuncia</h2>
+<p>Varias empresas usan sistemas que predicen qué empleados tienen mayor probabilidad de renunciar en los próximos 6-12 meses, con el objetivo de intervenir con retención. El problema documentado: estos sistemas pueden crear profecías autocumplidas —empleados identificados como "riesgo de renuncia" que no reciben oportunidades de desarrollo porque la empresa ya los da por perdidos, lo que efectivamente los lleva a renunciar.</p>
+<h2>La lección transversal</h2>
+<p>Ningún sistema de IA opera en un vacío. Opera sobre datos históricos con sesgos históricos, en organizaciones con culturas y estructuras de poder específicas. El rol de RRHH es entender esos contextos y no delegar la responsabilidad sobre las decisiones de personas a un algoritmo que no puede asumir esa responsabilidad.</p>
+HTML,
+
+            // ── RRHH · MÓDULO 3 ─────────────────────────────────────────────
+
+            'ia-para-rrhh_3_1' => <<<HTML
+<p>El sesgo algorítmico en selección no es un bug técnico ni un accidente. Es el resultado predecible de entrenar modelos sobre datos que reflejan desigualdades históricas. Entender de dónde viene es el primer paso para poder identificarlo y mitigarlo.</p>
+<h2>La fuente primaria: los datos de entrenamiento</h2>
+<p>La mayoría de los sistemas de IA para selección son entrenados sobre datos históricos de la propia organización o del sector: quiénes fueron contratados, quiénes tuvieron buen desempeño, quiénes fueron promovidos. Si esos datos reflejan una historia donde ciertos grupos tuvieron menos acceso a oportunidades, el modelo aprende esa historia como norma.</p>
+<p>El ejemplo más claro: si en los últimos diez años el 80% de las personas contratadas para roles de liderazgo eran hombres, el modelo aprende que el perfil de liderazgo exitoso es masculino. No porque el algoritmo tenga prejuicios conscientes, sino porque eso es lo que dicen los datos.</p>
+<h2>La amplificación del sesgo</h2>
+<p>Los algoritmos no solo reproducen el sesgo histórico: tienden a amplificarlo. Esto ocurre porque el modelo optimiza la similitud con los candidatos históricamente exitosos, creando un ciclo donde los perfiles diversos son sistemáticamente descontados aunque tengan las competencias necesarias.</p>
+<h2>Sesgos proxy: el problema de las variables indirectas</h2>
+<p>El sesgo no siempre viene de variables protegidas directas (género, etnia, edad). Viene de variables proxy que se correlacionan con ellas: el código postal correlaciona con nivel socioeconómico y, en muchos países, con etnia. La universidad correlaciona con género en ciertas carreras. El gap en el CV correlaciona con maternidad. El modelo puede discriminar usando estas variables sin que aparezca ninguna variable protegida explícita.</p>
+<h2>Por qué RRHH debe entender esto</h2>
+<p>Porque cuando un candidato, un empleado o una autoridad regulatoria pregunta "¿por qué fue descartado?", la respuesta "el sistema lo filtró" no es jurídicamente ni éticamente suficiente. RRHH es responsable de las decisiones de personas, independientemente de si las tomó un humano o un algoritmo.</p>
+HTML,
+
+            'ia-para-rrhh_3_2' => <<<HTML
+<p>Detectar si un sistema de IA está produciendo resultados discriminatorios no requiere ser científico de datos. Requiere saber qué mirar, cómo organizar los datos disponibles y qué patrones son señales de alerta.</p>
+<h2>El análisis de impacto dispar (disparate impact)</h2>
+<p>El concepto legal y estadístico más relevante es el de impacto dispar: cuando una práctica de selección produce tasas de aprobación significativamente distintas entre grupos protegidos, esa práctica es potencialmente discriminatoria —independientemente de si fue diseñada para serlo.</p>
+<p>La regla del 80%: si la tasa de aprobación de un grupo es menor al 80% de la tasa del grupo con mayor aprobación, hay una señal de alerta estadística. Ejemplo: si el sistema aprueba al 50% de los hombres que postulan a una etapa pero solo al 30% de las mujeres, la tasa es 30/50 = 60%, bajo el umbral del 80%.</p>
+<h2>Cómo hacer el análisis con los datos que ya tienes</h2>
+<p>Para cada etapa del proceso donde opera la IA, necesitas saber: ¿cuántas personas de cada grupo (género, rango etario, perfil educativo) entran? ¿Cuántas pasan? La diferencia entre esas tasas es el impacto dispar.</p>
+<p>Si tu ATS tiene reportería, este análisis puede hacerse con los datos que ya tienes. Si no tiene reportería adecuada, esa es en sí misma una señal de que el proveedor no está diseñado para la transparencia.</p>
+<h2>Señales de alerta cualitativas</h2>
+<p>¿Los reclutadores están anulando manualmente los filtros del sistema con frecuencia? Eso puede indicar que el sistema está eliminando candidatos que los humanos evalúan como buenos. ¿Los candidatos de ciertos perfiles se quejan sistemáticamente de haber sido filtrados sin razón? ¿La diversidad en las etapas iniciales del proceso desaparece hacia las etapas finales?</p>
+HTML,
+
+            'ia-para-rrhh_3_3' => <<<HTML
+<p>Una auditoría de sesgo es el proceso formal de evaluar si un sistema de IA produce resultados discriminatorios. No es un trámite burocrático: es el mecanismo que permite a RRHH defender sus procesos ante candidatos, empleados, reguladores y líderes de la organización.</p>
+<h2>Qué es una auditoría de sesgo y qué no es</h2>
+<p>Una auditoría de sesgo NO es que el proveedor de la herramienta te diga que su sistema "está diseñado para ser justo". Los proveedores tienen conflicto de interés para autoauditarse favorablemente. Una auditoría real es realizada por un tercero independiente, con acceso a los datos de entrenamiento, el código del modelo o sus outputs, y produce un informe con metodología, hallazgos y limitaciones explícitas.</p>
+<h2>Los componentes de una auditoría robusta</h2>
+<p><strong>Auditoría de datos de entrenamiento:</strong> ¿qué datos se usaron? ¿Qué sesgos históricos contienen? ¿Están documentados?</p>
+<p><strong>Auditoría de impacto dispar:</strong> análisis estadístico de si el modelo produce tasas de aprobación distintas por grupos protegidos.</p>
+<p><strong>Auditoría de validez predictiva:</strong> ¿el modelo realmente predice lo que dice predecir? ¿Con qué precisión y en qué condiciones?</p>
+<p><strong>Auditoría de explicabilidad:</strong> ¿pueden los operadores del sistema explicar por qué se tomó una decisión específica sobre un candidato específico?</p>
+<h2>Cómo pedirla a un proveedor</h2>
+<p>Antes de contratar: pide el reporte de auditoría de sesgo más reciente, realizado por terceros. Si no existe o no está disponible, pondera eso en tu decisión. En el contrato: incluye el derecho a solicitar auditorías periódicas y a recibir documentación actualizada sobre cambios en el modelo. Algunos reguladores (Nueva York, Illinois, UE) ya lo exigen legalmente; en Chile no es obligatorio aún, pero es buena práctica.</p>
+HTML,
+
+            'ia-para-rrhh_3_4' => <<<HTML
+<p>Cuando un sistema de IA discrimina en la selección, ¿quién es responsable? La respuesta que muchas organizaciones esperan —"el proveedor de la tecnología"— no es la que da la ley. Y entender eso cambia cómo RRHH debe relacionarse con estas herramientas.</p>
+<h2>El principio de responsabilidad del empleador</h2>
+<p>En el derecho laboral chileno, como en la mayoría de los marcos legales comparados, el empleador es responsable de sus procesos de selección. Si un proceso discrimina —sea porque lo ejecutó un humano o porque lo delegó a un algoritmo— la responsabilidad legal recae sobre la organización que tomó la decisión, no sobre el proveedor de software.</p>
+<p>La ley 20.609 (Antidiscriminación) y el Código del Trabajo establecen prohibiciones de discriminación en el acceso al empleo. La eventual Ley de IA que está en proceso de elaboración en Chile probablemente reforzará la responsabilidad del "deployer" (quien usa el sistema) versus el "developer" (quien lo crea).</p>
+<h2>El AI Act europeo como referencia</h2>
+<p>Chile no tiene aún regulación específica de IA. Pero el AI Act de la Unión Europea (2024) clasifica los sistemas de IA para selección, evaluación de desempeño y monitoreo laboral como "alto riesgo", con obligaciones específicas de transparencia, documentación, evaluación de impacto y supervisión humana. Muchas empresas chilenas con operaciones en Europa o que usan proveedores europeos ya están siendo afectadas por este marco.</p>
+<h2>Lo que RRHH debe documentar</h2>
+<p>Para cada sistema de IA que use en procesos de personas: qué decisiones toma o informa, qué evidencia hay de validez y ausencia de sesgo, qué supervisión humana existe sobre esas decisiones, y qué información reciben los candidatos y empleados. Esta documentación es tu escudo ante una reclamación de discriminación.</p>
+HTML,
+
+            // ── RRHH · MÓDULO 4 ─────────────────────────────────────────────
+
+            'ia-para-rrhh_4_1' => <<<HTML
+<p>El monitoreo de empleados siempre existió. Lo que ha cambiado es la escala, la continuidad y la granularidad con que puede hacerse gracias a la tecnología digital e IA. Entender qué existe hoy es el punto de partida para decidir qué es aceptable en tu organización.</p>
+<h2>El espectro del monitoreo con IA</h2>
+<p><strong>Monitoreo de productividad:</strong> sistemas que registran el tiempo activo en el computador, las aplicaciones usadas, los sitios visitados, la velocidad de escritura, el volumen de trabajo procesado. Herramientas como Hubstaff, Time Doctor o Teramind están diseñadas explícitamente para esto. Algunas plataformas de gestión de proyectos tienen features similares integrados.</p>
+<p><strong>Análisis de comunicaciones internas:</strong> sistemas que analizan el contenido, frecuencia y tono de los emails, mensajes de Slack o Teams para detectar señales de desconexión, conflicto o riesgo de renuncia. Microsoft Viva Insights incluye features de este tipo, aunque con limitaciones de privacidad.</p>
+<p><strong>Monitoreo físico:</strong> control de acceso, cámaras con análisis de presencia y movimiento, sistemas de reconocimiento facial para marcaje de asistencia. Más comunes en manufactura, retail y logística.</p>
+<p><strong>Análisis de comportamiento en herramientas de trabajo:</strong> quién responde emails más rápido, quién participa más en reuniones, quién trabaja fuera de horario. Datos que los sistemas de colaboración registran y que algunos productos de people analytics agregan y analizan.</p>
+<h2>La distinción clave</h2>
+<p>No es lo mismo monitorear resultados (¿se completaron los objetivos?) que monitorear procesos (¿cuántos minutos pasó activo?). La primera es gestión del desempeño tradicional. La segunda es vigilancia que puede afectar fundamentalmente la dignidad y autonomía del empleado —con consecuencias sobre clima, confianza y rotación.</p>
+HTML,
+
+            'ia-para-rrhh_4_2' => <<<HTML
+<p>Chile tiene un marco legal sobre privacidad y vigilancia laboral que muchas organizaciones no conocen en detalle. El desconocimiento no exime de responsabilidad, y las consecuencias de violar esos límites van desde multas hasta conflictos laborales complejos.</p>
+<h2>La Constitución y el Código del Trabajo</h2>
+<p>El artículo 19 de la Constitución garantiza el respeto a la vida privada y la honra de las personas. El Código del Trabajo, en su artículo 154, exige que el reglamento interno de la empresa establezca las normas de higiene y seguridad —y por extensión, cualquier política de monitoreo debe ser conocida por los trabajadores.</p>
+<p>El artículo 5° del Código del Trabajo es fundamental: establece que el empleador, en ejercicio de sus facultades, no puede afectar la dignidad del trabajador, sus derechos fundamentales ni su vida privada. El monitoreo que invade la privacidad sin justificación legítima viola este principio.</p>
+<h2>La Ley 19.628 de Protección de Datos Personales</h2>
+<p>Es la ley vigente que regula el tratamiento de datos personales en Chile. Para el contexto laboral, establece que los datos de los trabajadores solo pueden recopilarse y usarse para fines legítimos, específicos y proporcionales —y que los titulares deben ser informados de qué datos se recopilan y para qué.</p>
+<p>Chile está en proceso de reemplazar esta ley por una nueva (en tramitación legislativa a 2025) que se alinea con el RGPD europeo y será significativamente más exigente, incluyendo la figura de la Agencia de Protección de Datos Personales con capacidad sancionatoria.</p>
+<h2>El criterio de proporcionalidad y finalidad legítima</h2>
+<p>Cualquier medida de monitoreo debe cumplir dos condiciones para ser legalmente defensible: proporcionalidad (el nivel de vigilancia debe ser proporcional al objetivo legítimo que se busca) y finalidad legítima (el objetivo debe ser claramente justificable, no la vigilancia por sí misma). Registrar las pulsaciones por minuto de un trabajador administrativo no cumple estos criterios.</p>
+HTML,
+
+            'ia-para-rrhh_4_3' => <<<HTML
+<p>El debate sobre monitoreo de empleados tiene una tensión real y legítima en su centro: las organizaciones tienen intereses válidos en verificar el cumplimiento de objetivos y proteger sus activos; los empleados tienen derechos fundamentales a la privacidad y la dignidad. La IA intensifica esa tensión al hacer el monitoreo más continuo y más invasivo que nunca.</p>
+<h2>Por qué el monitoreo excesivo es contraproducente</h2>
+<p>La investigación en psicología organizacional es consistente: el monitoreo percibido como invasivo reduce la motivación intrínseca, aumenta el estrés y la rotación, destruye la confianza y genera comportamientos de conformidad superficial en lugar de compromiso genuino. Los empleados monitoreados en exceso aprenden a optimizar las métricas visibles, no a hacer buen trabajo.</p>
+<p>Un estudio de MIT (2021) encontró que las organizaciones que implementaron monitoreo intensivo durante el trabajo remoto pandémico tuvieron rotación 30% mayor en los 18 meses siguientes que las que confiaron en los resultados.</p>
+<h2>Cuándo el monitoreo tiene sentido</h2>
+<p>Hay contextos donde el monitoreo es justificado y esperado: roles con acceso a información sensible, cumplimiento de normativas regulatorias, seguridad física. El principio es que el nivel de monitoreo sea proporcional al nivel de riesgo o al requisito normativo, no una práctica generalizada aplicada a todos.</p>
+<h2>La pregunta que debes hacerte como líder de RRHH</h2>
+<p>¿El monitoreo que estás considerando existe porque confías en los datos más que en los líderes para gestionar el desempeño? Si la respuesta es sí, el problema puede no ser falta de vigilancia: puede ser falta de capacidad de liderazgo para gestionar sin métricas de proceso. El monitoreo que reemplaza la gestión directa no es una solución —es una señal de que hay otro problema que resolver.</p>
+HTML,
+
+            'ia-para-rrhh_4_4' => <<<HTML
+<p>Si tu organización va a usar tecnología de monitoreo —y muchas tienen razones legítimas para hacerlo en ciertos contextos— la diferencia entre una política aceptable y una que destruye la cultura organizacional está en cómo se diseña, comunica y aplica.</p>
+<h2>Los cinco principios de una política de monitoreo aceptable</h2>
+<p><strong>1. Transparencia absoluta:</strong> los empleados deben saber exactamente qué se monitorea, cómo se usan los datos, quién tiene acceso y por cuánto tiempo se almacena. Sin excepciones. La vigilancia encubierta es ilegal en Chile y éticamente indefendible.</p>
+<p><strong>2. Proporcionalidad:</strong> el nivel de monitoreo debe justificarse con un objetivo legítimo específico. Monitorear el cumplimiento de horario es distinto de monitorear cada pulsación de teclado. Define qué necesitas realmente y monitorea solo eso.</p>
+<p><strong>3. Finalidad limitada:</strong> los datos recopilados para un fin no pueden usarse para otro. Si recopilas datos de acceso a sistemas por seguridad informática, no puedes usarlos para evaluar el desempeño del empleado sin que ese sea un uso declarado explícitamente.</p>
+<p><strong>4. Participación de los empleados en el diseño:</strong> las políticas de monitoreo que se construyen con participación de los trabajadores (a través de representantes, comités o consultas) tienen más legitimidad y más probabilidades de ser percibidas como justas.</p>
+<p><strong>5. Revisión periódica:</strong> las tecnologías cambian y los contextos organizacionales también. Una política de monitoreo no debe ser permanente sin revisión. Define plazos de evaluación y mecanismos para que los empleados planteen preocupaciones.</p>
+<h2>El test final</h2>
+<p>Antes de implementar cualquier tecnología de monitoreo, hazte esta pregunta: ¿estarías dispuesto a explicar públicamente —a los empleados, a la prensa, a un regulador— exactamente qué monitoreas y por qué? Si la respuesta es no, reconsidera.</p>
+HTML,
+
+            // ── RRHH · MÓDULO 5 ─────────────────────────────────────────────
+
+            'ia-para-rrhh_5_1' => <<<HTML
+<p>El mercado de IA para RRHH está lleno de promesas atractivas y de proveedores con distintos niveles de seriedad, transparencia y madurez tecnológica. Saber evaluar a un proveedor antes de firmar un contrato es una competencia crítica para el área de personas.</p>
+<h2>Las dimensiones de evaluación</h2>
+<p><strong>Validez del modelo:</strong> ¿el sistema ha sido validado para predecir lo que dice predecir? ¿En qué industria, qué país, qué tamaño de empresa? ¿Los estudios de validación fueron realizados por terceros independientes o por el propio proveedor?</p>
+<p><strong>Transparencia y explicabilidad:</strong> ¿puedes saber por qué el sistema tomó una decisión específica sobre un candidato o empleado? Si la respuesta es "el modelo es una caja negra", eso es un riesgo legal y ético que debes ponderar.</p>
+<p><strong>Auditorías de sesgo:</strong> ¿el proveedor tiene documentación de auditorías de impacto dispar por grupos protegidos? ¿Qué encontraron y qué hicieron al respecto?</p>
+<p><strong>Privacidad y seguridad de datos:</strong> ¿dónde se almacenan los datos? ¿Bajo qué marco legal? ¿Cómo se manejan las brechas de seguridad? ¿Pueden los datos ser usados para entrenar modelos que comparte con otros clientes?</p>
+<p><strong>Cumplimiento regulatorio:</strong> ¿el proveedor conoce la regulación chilena de protección de datos y las tendencias regulatorias globales? ¿Puede documentar cumplimiento con marcos como RGPD si corresponde?</p>
+<h2>Las preguntas que revelan más</h2>
+<p>"¿Pueden mostrarme un caso donde su sistema produjo resultados discriminatorios y qué hicieron?" Los proveedores serios tienen respuestas honestas. Los que dicen que nunca ocurrió están mintiendo o no lo saben —ambas respuestas son señales de alerta.</p>
+HTML,
+
+            'ia-para-rrhh_5_2' => <<<HTML
+<p>La decisión de implementar un sistema de IA para personas no debería tomarse solo en base a la propuesta comercial del proveedor. Hay un conjunto de preguntas internas y externas que deben responderse antes de firmar cualquier contrato.</p>
+<h2>Preguntas internas antes de implementar</h2>
+<p><strong>¿Cuál es el problema específico que estamos resolviendo?</strong> "Queremos usar IA en RRHH" no es suficiente. "Necesitamos reducir el tiempo de screening de CV en procesos con más de 500 candidatos sin bajar la calidad" es un problema específico que puede tener una solución específica y evaluable.</p>
+<p><strong>¿Tenemos los datos necesarios para que el sistema funcione?</strong> Muchos sistemas de IA requieren datos históricos de calidad para operar bien. Si tu organización no tiene datos estructurados y completos de selección o desempeño, el sistema puede no producir los resultados prometidos.</p>
+<p><strong>¿Quién tiene la decisión final sobre las recomendaciones del sistema?</strong> Definir esto antes de implementar es crítico. El sistema recomienda; ¿quién decide? ¿Qué pasa si el humano decide diferente al algoritmo?</p>
+<p><strong>¿Cómo lo vamos a comunicar a los candidatos y empleados?</strong> Si el sistema va a afectar a personas, esas personas tienen derecho a saberlo. ¿Cuál es el plan de comunicación?</p>
+<h2>Preguntas al proveedor antes de contratar</h2>
+<p>¿Qué pasa con mis datos si dejo de usar el servicio? ¿Puedo exportarlos? ¿Se eliminarán de sus sistemas? ¿El contrato me permite auditar el sistema o exigir cambios si detecto sesgo? ¿Qué soporte existe para entender los outputs del sistema, no solo para instalarlo?</p>
+<h2>La implementación por fases</h2>
+<p>Implementa primero en un proceso o área piloto. Mide el impacto antes de escalar. Los sistemas que funcionan perfectamente en la demo pueden tener comportamientos inesperados con tus datos y tus procesos específicos.</p>
+HTML,
+
+            'ia-para-rrhh_5_3' => <<<HTML
+<p>Una de las principales causas de resistencia y conflicto cuando se implementa IA en RRHH es la falta de comunicación oportuna y transparente con los empleados. Las personas que sienten que les aplican tecnologías sin explicación desarrollan desconfianza que es muy difícil de revertir.</p>
+<h2>Qué deben saber los empleados</h2>
+<p><strong>Qué sistemas se usan:</strong> qué herramientas de IA están activas en procesos que los afectan. No el detalle técnico, pero sí la información suficiente para entender cómo funciona el proceso.</p>
+<p><strong>Qué datos se recopilan:</strong> qué información personal o de comportamiento se procesa, con qué finalidad y durante cuánto tiempo.</p>
+<p><strong>Cómo afecta las decisiones sobre ellos:</strong> si el sistema influye en decisiones de contratación, evaluación, desarrollo o desvinculación, los empleados tienen derecho a saberlo. Que una decisión sea informada por IA no la hace menos sujeta a cuestionamiento.</p>
+<p><strong>Cómo pueden obtener información o apelar:</strong> si un candidato fue filtrado por un sistema de IA, ¿puede pedir explicación? ¿Puede apelar? ¿Cuál es el proceso?</p>
+<h2>Cómo comunicarlo sin generar pánico</h2>
+<p>El framing importa. "Estamos implementando IA para vigilar la productividad" genera rechazo. "Estamos usando herramientas de análisis de datos para entender mejor cómo trabajan los equipos y qué apoyo necesitan" puede generar lo mismo, pero en tono colaborativo —siempre que sea verdad.</p>
+<p>La comunicación debe ser honesta, específica y abierta a preguntas. Los empleados que sienten que se les explica con respeto tienen más probabilidades de colaborar que los que sienten que la información se les esconde.</p>
+<h2>El rol de los representantes de trabajadores</h2>
+<p>Si tu organización tiene sindicato o comité de empresa, involucrarlos en el proceso de evaluación e implementación antes de hacerlo público general reduce el riesgo de conflicto y aumenta la legitimidad del proceso.</p>
+HTML,
+
+            'ia-para-rrhh_5_4' => <<<HTML
+<p>Chile no tiene aún una ley específica de inteligencia artificial, pero el marco regulatorio que viene está tomando forma. Los profesionales de RRHH que entiendan esa trayectoria podrán anticiparse y evitar tener que hacer cambios costosos de urgencia cuando la regulación llegue.</p>
+<h2>El panorama regulatorio actual en Chile</h2>
+<p>La Ley 19.628 de Protección de Datos Personales (actualmente en proceso de reemplazo) establece el marco base. El Código del Trabajo establece los límites del poder de dirección del empleador. La Ley 20.609 prohíbe la discriminación en el acceso al empleo. Ninguna de estas leyes menciona explícitamente la IA, pero todas aplican a sus usos.</p>
+<p>La nueva ley de datos personales en tramitación fortalecerá significativamente los derechos de los titulares, incluyendo el derecho a oponerse a decisiones automatizadas que los afecten significativamente —lo que impactará directamente los procesos de selección y evaluación con IA.</p>
+<h2>Lo que viene: tendencias globales que llegarán a Chile</h2>
+<p><strong>Derecho a explicación:</strong> el derecho a saber por qué un sistema de IA tomó una decisión sobre ti (ya existe en el RGPD europeo y en la nueva ley de datos chilena en tramitación).</p>
+<p><strong>Prohibición de decisiones automatizadas exclusivas:</strong> en procesos que afecten significativamente a personas, siempre debe haber una instancia de revisión humana.</p>
+<p><strong>Obligación de evaluación de impacto:</strong> antes de implementar sistemas de IA de alto riesgo en procesos de personas, documentar los riesgos identificados y las medidas de mitigación.</p>
+<h2>Cómo prepararse hoy</h2>
+<p>Documenta todos los sistemas de IA que usas en procesos de personas. Establece supervisión humana sobre las decisiones que influyen. Comunica a candidatos y empleados el uso de IA que los afecta. Exige a los proveedores evidencia de validez y auditoría de sesgo. Las organizaciones que hacen esto hoy no tendrán que rehacer sus procesos cuando la regulación llegue.</p>
+<div style="background:linear-gradient(135deg,#38b6ff,#0ea5e9);border-radius:1rem;padding:2rem;text-align:center;margin-top:2rem;">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
+    <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
+    <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para RRHH y Gestión de Personas</strong>. Tienes ahora las herramientas para implementar IA en procesos de personas con criterio ético, legal y estratégico.</p>
     <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
 </div>
 HTML,
