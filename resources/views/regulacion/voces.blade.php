@@ -33,7 +33,6 @@
                 <span><i class="fas fa-arrow-left me-1"></i>Más regulación</span>
                 <span>Menos regulación<i class="fas fa-arrow-right ms-1"></i></span>
             </div>
-            {{-- Barra --}}
             <div style="position:relative;height:8px;background:linear-gradient(to right,#3b82f6,#10b981,#f59e0b,#ef4444);border-radius:4px;margin-bottom:2.5rem;">
                 @foreach($voices as $voice)
                 <div style="position:absolute;top:-4px;left:{{ $voice['spectrum_pos'] }}%;transform:translateX(-50%);">
@@ -41,7 +40,6 @@
                 </div>
                 @endforeach
             </div>
-            {{-- Etiquetas --}}
             <div style="position:relative;height:3.5rem;">
                 @foreach($voices as $voice)
                 <div style="position:absolute;left:{{ $voice['spectrum_pos'] }}%;transform:translateX(-50%);text-align:center;width:90px;">
@@ -55,61 +53,44 @@
         </div>
     </div>
 
-    {{-- Cards de voces --}}
+    {{-- Voces --}}
     <p class="profundiza-section-label">Las posturas en detalle</p>
-    <div class="row g-4 mb-5">
+    <div class="d-flex flex-column gap-4 mb-5">
         @foreach($voices as $voice)
-        <div class="col-lg-6">
-            <div class="profundiza-card h-100 p-4 d-flex flex-column">
+        <div class="profundiza-card p-4 p-md-5">
 
-                {{-- Cabecera --}}
-                <div class="d-flex align-items-start gap-3 mb-3">
-                    <div style="width:44px;height:44px;min-width:44px;background:{{ $voice['postura_color'] }}18;border:1px solid {{ $voice['postura_color'] }}33;border-radius:.5rem;display:flex;align-items:center;justify-content:center;">
-                        <i class="{{ $voice['icon'] }}" style="color:{{ $voice['postura_color'] }};font-size:.95rem;"></i>
+            {{-- Cabecera --}}
+            <div class="d-flex align-items-start gap-3 mb-4">
+                <div style="width:48px;height:48px;min-width:48px;background:{{ $voice['postura_color'] }}18;border:1px solid {{ $voice['postura_color'] }}33;border-radius:.625rem;display:flex;align-items:center;justify-content:center;">
+                    <i class="{{ $voice['icon'] }}" style="color:{{ $voice['postura_color'] }};font-size:1rem;"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                        <h2 class="fw-bold mb-0" style="color:#0f172a;font-size:1.05rem;">{{ $voice['name'] }}</h2>
+                        <span class="badge" style="background:{{ $voice['postura_color'] }}22;color:{{ $voice['postura_color'] }};border:1px solid {{ $voice['postura_color'] }}44;font-size:.72rem;">
+                            {{ $voice['postura_label'] }}
+                        </span>
                     </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                            <h3 class="fw-bold mb-0" style="color:#0f172a;font-size:.97rem;">{{ $voice['name'] }}</h3>
-                            <span class="badge" style="background:{{ $voice['postura_color'] }}22;color:{{ $voice['postura_color'] }};border:1px solid {{ $voice['postura_color'] }}44;font-size:.7rem;">
-                                {{ $voice['postura_label'] }}
-                            </span>
-                        </div>
-                        <p style="color:#64748b;font-size:.8rem;margin:0;line-height:1.4;">{{ $voice['role'] }}</p>
-                        <p style="color:#94a3b8;font-size:.75rem;margin:0;">{{ $voice['institution'] }}</p>
-                    </div>
+                    <p style="color:#64748b;font-size:.83rem;margin:0;">{{ $voice['role'] }} · <span style="color:#94a3b8;">{{ $voice['institution'] }}</span></p>
                 </div>
-
-                {{-- Resumen --}}
-                <p style="color:#334155;font-size:.93rem;line-height:1.75;font-style:italic;margin-bottom:1rem;padding-left:.75rem;border-left:3px solid {{ $voice['postura_color'] }};">
-                    "{{ $voice['summary'] }}"
-                </p>
-
-                {{-- Contexto expandible --}}
-                <div class="voice-context" id="ctx-{{ $voice['id'] }}" style="display:none;">
-                    <p style="color:#475569;font-size:.88rem;line-height:1.85;margin-bottom:1rem;">
-                        {{ $voice['context'] }}
-                    </p>
-                </div>
-
-                {{-- Punto clave --}}
-                <div class="voice-punto" id="punto-{{ $voice['id'] }}" style="display:none;">
-                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid {{ $voice['postura_color'] }};border-radius:.375rem;padding:.75rem 1rem;margin-bottom:1rem;">
-                        <p style="color:#1e293b;font-size:.85rem;font-weight:600;margin-bottom:.2rem;">Punto clave</p>
-                        <p style="color:#475569;font-size:.85rem;line-height:1.7;margin:0;">{{ $voice['punto_clave'] }}</p>
-                    </div>
-                </div>
-
-                {{-- Toggle --}}
-                <div class="mt-auto pt-2">
-                    <button class="btn btn-sm btn-outline-secondary voice-toggle w-100"
-                            data-target="{{ $voice['id'] }}"
-                            style="font-size:.8rem;">
-                        <i class="fas fa-chevron-down me-1 toggle-icon"></i>
-                        <span class="toggle-label">Leer contexto completo</span>
-                    </button>
-                </div>
-
             </div>
+
+            {{-- Resumen --}}
+            <p style="color:#1e293b;font-size:1rem;line-height:1.75;font-weight:500;padding:.875rem 1.25rem;background:{{ $voice['postura_color'] }}0d;border-left:3px solid {{ $voice['postura_color'] }};border-radius:0 .375rem .375rem 0;margin-bottom:1.25rem;">
+                {{ $voice['summary'] }}
+            </p>
+
+            {{-- Contexto --}}
+            <p style="color:#475569;font-size:.93rem;line-height:1.9;margin-bottom:1.25rem;">
+                {{ $voice['context'] }}
+            </p>
+
+            {{-- Punto clave --}}
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid {{ $voice['postura_color'] }};border-radius:0 .375rem .375rem 0;padding:.875rem 1.25rem;">
+                <p style="color:#64748b;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem;">Punto clave</p>
+                <p style="color:#1e293b;font-size:.9rem;line-height:1.75;margin:0;">{{ $voice['punto_clave'] }}</p>
+            </div>
+
         </div>
         @endforeach
     </div>
@@ -136,25 +117,5 @@
     </div>
 
 </div>
-
-@push('scripts')
-<script>
-document.querySelectorAll('.voice-toggle').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const id      = this.dataset.target;
-        const ctx     = document.getElementById('ctx-' + id);
-        const punto   = document.getElementById('punto-' + id);
-        const icon    = this.querySelector('.toggle-icon');
-        const label   = this.querySelector('.toggle-label');
-        const open    = ctx.style.display === 'block';
-
-        ctx.style.display   = open ? 'none' : 'block';
-        punto.style.display = open ? 'none' : 'block';
-        icon.className      = open ? 'fas fa-chevron-down me-1 toggle-icon' : 'fas fa-chevron-up me-1 toggle-icon';
-        label.textContent   = open ? 'Leer contexto completo' : 'Ocultar';
-    });
-});
-</script>
-@endpush
 
 @endsection
