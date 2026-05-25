@@ -71,6 +71,11 @@ class CursosController extends Controller
             'ia-para-docentes_3_1', 'ia-para-docentes_3_2', 'ia-para-docentes_3_3', 'ia-para-docentes_3_4',
             'ia-para-docentes_4_1', 'ia-para-docentes_4_2', 'ia-para-docentes_4_3', 'ia-para-docentes_4_4',
             'ia-para-docentes_5_1', 'ia-para-docentes_5_2', 'ia-para-docentes_5_3', 'ia-para-docentes_5_4',
+            'ia-para-periodistas_1_1', 'ia-para-periodistas_1_2', 'ia-para-periodistas_1_3', 'ia-para-periodistas_1_4',
+            'ia-para-periodistas_2_1', 'ia-para-periodistas_2_2', 'ia-para-periodistas_2_3', 'ia-para-periodistas_2_4',
+            'ia-para-periodistas_3_1', 'ia-para-periodistas_3_2', 'ia-para-periodistas_3_3', 'ia-para-periodistas_3_4',
+            'ia-para-periodistas_4_1', 'ia-para-periodistas_4_2', 'ia-para-periodistas_4_3', 'ia-para-periodistas_4_4',
+            'ia-para-periodistas_5_1', 'ia-para-periodistas_5_2', 'ia-para-periodistas_5_3', 'ia-para-periodistas_5_4',
         ];
         return in_array($key, $defined) ? true : null;
     }
@@ -895,6 +900,288 @@ HTML,
     <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
     <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
     <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Docentes</strong>. Tienes ahora un marco concreto para tomar decisiones pedagógicas informadas en el aula con IA.</p>
+    <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
+</div>
+HTML,
+
+            // ── PERIODISTAS · MÓDULO 1 ──────────────────────────────────────
+
+            'ia-para-periodistas_1_1' => <<<HTML
+<p>La IA no es el futuro del periodismo: es el presente. Los medios más importantes del mundo llevan años integrando herramientas de inteligencia artificial en sus redacciones, y los resultados son tan variados como las formas en que lo están haciendo.</p>
+<h2>Medios que ya usan IA de forma sistemática</h2>
+<p><strong>Associated Press:</strong> desde 2014, AP usa IA para generar automáticamente reportes de resultados deportivos, ganancias corporativas trimestrales y datos electorales. El sistema —desarrollado con Automated Insights— produce miles de artículos al mes que serían inviables de escribir manualmente. AP estima que esto libera a sus periodistas para trabajo de mayor valor.</p>
+<p><strong>The Washington Post:</strong> su sistema interno "Heliograf" cubrió los Juegos Olímpicos de Río 2016 y las elecciones de EE.UU. con alertas y reportes automatizados. En 2020 expandió su uso a cobertura local donde la redacción no puede estar presente físicamente.</p>
+<p><strong>Bloomberg:</strong> usa IA para procesar y resumir información financiera en tiempo real. Cerca del 30% de su contenido tiene algún grado de automatización, según datos del propio medio.</p>
+<p><strong>Reuters:</strong> su herramienta Lynx Insight analiza grandes conjuntos de datos en tiempo real y sugiere historias a los periodistas basándose en anomalías estadísticas. No escribe la nota: alerta al periodista de que algo vale la pena investigar.</p>
+<h2>En América Latina y Chile</h2>
+<p>La adopción es más lenta pero existe. El Mercurio usa sistemas de automatización para ciertos datos de mercado. Medios digitales como La Tercera y Emol experimentan con herramientas de IA para SEO y personalización de contenidos. Agencias como EFE América han comenzado a explorar generación automática de noticias de datos.</p>
+<p>El patrón común: la IA se integra primero donde hay datos estructurados y volumen alto. Las historias de investigación, análisis político y cobertura humana siguen siendo territorio de periodistas.</p>
+HTML,
+
+            'ia-para-periodistas_1_2' => <<<HTML
+<p>La desinformación existía antes de la IA. Pero la IA ha cambiado la ecuación de una manera fundamental: ha eliminado la barrera de entrada. Crear contenido falso convincente ya no requiere equipos, presupuesto ni habilidades técnicas avanzadas. Requiere un celular y cinco minutos.</p>
+<h2>La escala del problema</h2>
+<p>En 2023, el Centro de Contrainformación de la Unión Europea documentó más de 6.000 casos de desinformación vinculados a actores estatales. El crecimiento de casos con componente de IA generativa fue del 300% entre 2022 y 2024, según el informe de NewsGuard sobre "noticias falsas con IA".</p>
+<p>En Chile, el Observatorio de Desinformación de la Universidad de Chile ha identificado redes de cuentas que usan contenido generado por IA para amplificar narrativas durante períodos electorales y conflictos sociales.</p>
+<h2>Las nuevas herramientas de la desinformación</h2>
+<p><strong>Granjas de contenido automatizado:</strong> sitios web que publican cientos de artículos diarios generados por IA con información falsa o engañosa, optimizados para buscadores. Muchos parecen medios legítimos.</p>
+<p><strong>Deepfakes de figuras públicas:</strong> videos y audios falsos de políticos, empresarios y figuras públicas. En 2024, circularon en redes sociales chilenas audios deepfake atribuidos a candidatos durante el período electoral.</p>
+<p><strong>Imágenes sintéticas de eventos falsos:</strong> fotografías de "manifestaciones", "accidentes" o "crisis" que nunca ocurrieron, generadas con Midjourney, DALL-E o Stable Diffusion y distribuidas como si fueran reales.</p>
+<h2>El impacto en el periodismo</h2>
+<p>El periodismo ya no solo compite por la atención: compite por la credibilidad en un ambiente donde cualquier imagen, video o texto puede ser cuestionado. Eso eleva el estándar de verificación y hace que la transparencia sobre las fuentes sea más crítica que nunca.</p>
+HTML,
+
+            'ia-para-periodistas_1_3' => <<<HTML
+<p>La relación entre IA y periodismo no es solo de amenaza. Hay capacidades concretas que la IA aporta al oficio periodístico y que, bien usadas, mejoran la calidad del trabajo y amplían lo que una redacción puede hacer.</p>
+<h2>Procesamiento de grandes volúmenes de información</h2>
+<p>El periodismo de datos e investigación enfrenta un problema estructural: hay más información disponible que capacidad humana para procesarla. Filtros de la Unión Europea, contratos públicos del Estado chileno, declaraciones de patrimonio de funcionarios, actas de directorios. Revisar todo esto manualmente tomaría semanas.</p>
+<p>La IA puede procesar miles de documentos en minutos, identificar anomalías, comparar cifras, detectar inconsistencias. El periodista define qué buscar; la IA hace la búsqueda exhaustiva.</p>
+<h2>Transcripción y análisis de entrevistas</h2>
+<p>Herramientas como Whisper (OpenAI), Otter.ai o Notta transcriben audio a texto con alta precisión, incluido español con acento chileno. Lo que antes tomaba horas de trabajo manual ahora toma minutos. Más aún: algunos sistemas permiten análisis temático de la entrevista, identificar contradicciones entre declaraciones, o comparar lo que una fuente dijo en distintas instancias.</p>
+<h2>Monitoreo y alertas</h2>
+<p>La IA puede monitorear en tiempo real redes sociales, publicaciones oficiales, Diario Oficial, actas del Congreso y generar alertas cuando aparece información relevante para un tema de cobertura. Esto permite al periodista estar más informado sin revisar fuentes manualmente todo el día.</p>
+<h2>Traducción y acceso a fuentes internacionales</h2>
+<p>Los traductores basados en IA han alcanzado una calidad que antes tomaba especialistas. Un periodista chileno puede hoy acceder, en tiempo real y con traducción de alta calidad, a publicaciones en mandarín, árabe, ruso o alemán que antes simplemente no estaban disponibles para su trabajo.</p>
+HTML,
+
+            'ia-para-periodistas_1_4' => <<<HTML
+<p>El periodismo también tiene razones legítimas para preocuparse por la IA. No como excusa para ignorar la tecnología, sino como marco realista para entender qué está en juego en el oficio.</p>
+<h2>La amenaza a los empleos en periodismo</h2>
+<p>El contenido automatizable —reportes de datos, síntesis de información pública, cobertura de eventos rutinarios— ya está siendo reemplazado en muchas redacciones. Buzzfeed cerró su división de noticias en 2023 y explicó que la IA era parte del reordenamiento. Sports Illustrated publicó artículos generados por IA bajo nombres de autores ficticios —un escándalo que reveló las presiones hacia la automatización en redacciones bajo presión financiera.</p>
+<h2>La erosión de la confianza</h2>
+<p>Cuando los lectores no pueden distinguir qué fue escrito por un periodista y qué por una máquina, la credibilidad del medio se erosiona. La promesa implícita del periodismo —que hay un humano responsable que verificó, que tiene criterio, que puede ser interpelado— se diluye.</p>
+<h2>La concentración del poder informativo</h2>
+<p>Los modelos de IA más poderosos son desarrollados por unas pocas empresas tecnológicas. Eso significa que la infraestructura que determina cómo se procesa y presenta la información está controlada por actores con intereses propios, sin el mandato de servicio público que tienen (o deberían tener) los medios de comunicación.</p>
+<h2>La pérdida de la huella humana</h2>
+<p>El periodismo no es solo información: es punto de vista, contexto cultural, empatía con la fuente, presencia en terreno. Un periodista que cubrió el estallido social en Santiago en 2019 trae una comprensión que ningún modelo entrenado con texto puede replicar. La pregunta es si las redacciones van a valorar eso lo suficiente como para mantenerlo.</p>
+HTML,
+
+            // ── PERIODISTAS · MÓDULO 2 ──────────────────────────────────────
+
+            'ia-para-periodistas_2_1' => <<<HTML
+<p>La imagen que no es real ya no necesita fotomontaje de Photoshop ni horas de trabajo. Las herramientas de generación de imágenes por IA producen fotografías hiperrealistas en segundos. Saber identificarlas es una competencia básica del periodista contemporáneo.</p>
+<h2>Señales de alerta en imágenes generadas por IA</h2>
+<p><strong>Manos y dedos:</strong> históricamente el punto más débil de los modelos de imagen. Aunque ha mejorado mucho con modelos de 2024 y 2025, todavía es frecuente ver manos con números incorrectos de dedos, proporciones extrañas o uniones anatómicamente imposibles. Examina las manos siempre.</p>
+<p><strong>Texto en la imagen:</strong> letras, carteles, señales, ropa con texto. Los modelos generativos tienen dificultad para producir texto coherente dentro de las imágenes. Las letras suelen ser ilegibles, estar invertidas o ser combinaciones sin sentido.</p>
+<p><strong>Fondo y bordes:</strong> objetos en el fondo que se funden, estructuras que no tienen sentido arquitectónico, bordes de cabello que se mezclan con el fondo de forma irreal. Los fondos complejos suelen revelar imprecisiones.</p>
+<p><strong>Simetría facial y física exagerada:</strong> las imágenes generadas por IA tienden a la perfección simétrica poco natural. Las caras reales tienen asimetrías; las generadas por IA pueden verse "demasiado perfectas".</p>
+<h2>Herramientas de detección</h2>
+<p><strong>Google Lens y búsqueda inversa:</strong> el primer paso siempre. Si la imagen fue tomada de otro contexto, la búsqueda inversa lo revela. No detecta imágenes generadas por IA, pero sí imágenes recicladas de otros contextos.</p>
+<p><strong>Hive Moderation y AI or Not:</strong> herramientas web que analizan una imagen y estiman la probabilidad de que sea generada por IA. No son infalibles, pero son útiles como primera señal.</p>
+<p><strong>Metadata (EXIF):</strong> las imágenes fotográficas reales tienen metadata de cámara. Las imágenes generadas por IA típicamente no. Revisar la metadata con herramientas como Jeffrey's Exif Viewer puede ser revelador.</p>
+<h2>El principio fundamental</h2>
+<p>Ninguna herramienta es definitiva. La detección de imágenes IA es una práctica, no un proceso automático. La combinación de análisis visual, búsqueda inversa y contexto editorial es lo que funciona.</p>
+HTML,
+
+            'ia-para-periodistas_2_2' => <<<HTML
+<p>Los deepfakes de video y audio representan el desafío de verificación más complejo que enfrenta el periodismo hoy. A diferencia de las imágenes estáticas, el video en movimiento activa mecanismos cognitivos de confianza muy fuertes: "lo vi con mis propios ojos."</p>
+<h2>El estado actual de la tecnología</h2>
+<p>Los deepfakes de alta calidad ya no requieren equipos de producción ni meses de entrenamiento. Herramientas como HeyGen, ElevenLabs y Runway ML permiten crear videos sintéticos y voces clonadas en minutos. En 2024, una llamada de audio deepfake clonando la voz del director financiero de una empresa multinacional convenció a un empleado en Hong Kong de transferir 25 millones de dólares a cuentas fraudulentas.</p>
+<h2>Señales de alerta en video deepfake</h2>
+<p><strong>Sincronización labial:</strong> busca desincronía entre el movimiento de los labios y el audio, especialmente en consonantes labiales (p, b, m). Los modelos actuales han mejorado pero todavía cometen errores en secuencias rápidas.</p>
+<p><strong>Parpadeo y movimiento ocular:</strong> los primeros modelos deepfake fallaban en parpadeos naturales. Los actuales han mejorado, pero el movimiento ocular en momentos de emoción intensa puede verse antinatural.</p>
+<p><strong>Iluminación inconsistente:</strong> si la fuente de luz en el rostro no coincide con la del resto de la escena, puede indicar superposición de imágenes.</p>
+<p><strong>Bordes del rostro:</strong> en movimiento rápido o rotación de cabeza, los bordes del rostro pueden mostrar artefactos o difuminación poco natural.</p>
+<h2>Señales de alerta en audio deepfake</h2>
+<p>Pausas poco naturales entre palabras, cambios de calidad de audio dentro de la misma grabación, pronunciación de nombres propios o términos técnicos de forma extraña, falta de "ruido de fondo" consistente.</p>
+<h2>El protocolo mínimo antes de usar un video o audio</h2>
+<p>Verificar la fuente original. Buscar el video en bases de datos de verificación (AFP Fact Check, Reuters Fact Check, Maldita.es). Consultar al protagonista o su equipo. Si el video llegó por Telegram o WhatsApp sin fuente clara, ese es ya un factor de alerta máxima.</p>
+HTML,
+
+            'ia-para-periodistas_2_3' => <<<HTML
+<p>Un artículo generado por IA puede ser indistinguible de uno escrito por un humano para un lector casual —y en muchos casos, también para un periodista experimentado. Entender las señales de alerta y los límites de la detección es parte del oficio.</p>
+<h2>Por qué la detección de texto IA es difícil</h2>
+<p>Los detectores de texto IA funcionan sobre patrones estadísticos: los textos de IA tienden a ser predecibles, uniformes, con variabilidad menor en la longitud de oraciones. Pero esos mismos patrones aparecen en escritura técnica clara, en personas no nativas del idioma, o en textos editados para ser más directos.</p>
+<p>Más importante: el texto generado por IA puede ser editado para "humanizarse". Herramientas como Quillbot, Undetectable.ai y otras están específicamente diseñadas para modificar texto de IA hasta evadir detectores. La carrera armamentista entre generadores y detectores la están ganando los generadores.</p>
+<h2>Señales editoriales de texto sintético</h2>
+<p><strong>Ausencia de especificidad:</strong> el texto de IA tiende a ser correcto en términos generales pero vago en detalles. Fechas aproximadas ("en los últimos años"), cifras sin fuente, afirmaciones plausibles pero no verificables.</p>
+<p><strong>Equilibrio artificial:</strong> los modelos tienden a presentar "ambos lados" de cualquier argumento de forma mecánica, incluso cuando hay consenso claro. Un texto que equilibra artificialmente posiciones asimétrica puede ser señal.</p>
+<p><strong>Ausencia de voz y perspectiva:</strong> el texto de IA carece de la voz específica de un autor, del juicio editorial que decide qué incluir y qué dejar fuera, de la anécdota que solo existe si alguien estuvo ahí.</p>
+<p><strong>Citas sin verificación posible:</strong> el texto de IA puede generar citas de personas reales que nunca las dijeron, o citar estudios que no existen. Verificar citas específicas es crítico.</p>
+<h2>Lo que sí funciona para detectar</h2>
+<p>Verificar las afirmaciones específicas contra fuentes primarias. Buscar las citas. Preguntar a los supuestos autores si escribieron el texto. Contrastar con el estilo previo del supuesto autor. La detección de texto sintético es edición periodística rigurosa, no tecnología mágica.</p>
+HTML,
+
+            'ia-para-periodistas_2_4' => <<<HTML
+<p>La verificación no puede ser un proceso ad hoc que se activa cuando algo "se ve raro". Necesita ser un flujo integrado en la rutina diaria de la redacción, especialmente en un ambiente donde el contenido sintético es cada vez más común y menos distinguible.</p>
+<h2>El flujo de verificación en cuatro pasos</h2>
+<p><strong>Paso 1 — ¿De dónde viene esto?</strong> Antes de ver el contenido, verifica la fuente. ¿Es un medio con trayectoria verificable? ¿Una cuenta con historial? ¿Llegó por un canal sin identificación clara? La procedencia es la primera señal.</p>
+<p><strong>Paso 2 — ¿Existe evidencia independiente?</strong> Si la historia es real, debe haber otras fuentes que la confirmen o al menos que puedan confirmarse. Una historia exclusiva puede ser real; una historia que solo existe en una fuente sin respaldo es una alerta.</p>
+<p><strong>Paso 3 — Verificación técnica del material:</strong> para imágenes, búsqueda inversa + análisis de metadata + revisión visual de anomalías. Para video, búsqueda de la fuente original + revisión de señales de deepfake. Para texto, verificación de citas y afirmaciones específicas.</p>
+<p><strong>Paso 4 — Consulta a la fuente primaria:</strong> si el material involucra a una persona, organización o evento específico, la fuente primaria debe confirmarlo antes de publicar. No como cortesía: como protocolo.</p>
+<h2>Herramientas para integrar en la redacción</h2>
+<p><strong>InVID/WeVerify:</strong> extensión de navegador para verificar videos, imágenes y noticias. Estándar en redacciones de fact-checking internacionales.</p>
+<p><strong>TinEye y Google Images:</strong> búsqueda inversa de imágenes para identificar si fueron tomadas de otro contexto.</p>
+<p><strong>Botometer:</strong> analiza si una cuenta de Twitter/X tiene comportamiento de bot.</p>
+<p><strong>Perplexity y búsqueda con fuentes:</strong> para verificar afirmaciones específicas con citas a fuentes identificables.</p>
+<h2>El principio de velocidad vs. exactitud</h2>
+<p>La presión del tiempo real es real. Pero publicar primero algo falso tiene un costo reputacional muy superior al de llegar segundos después con información verificada. La política editorial que prioriza la verificación sobre la velocidad es la que construye credibilidad a largo plazo.</p>
+HTML,
+
+            // ── PERIODISTAS · MÓDULO 3 ──────────────────────────────────────
+
+            'ia-para-periodistas_3_1' => <<<HTML
+<p>Cubrir inteligencia artificial mal es fácil. La combinación de tecnología compleja, intereses económicos enormes, narrativas de ciencia ficción arraigadas y fuentes con agendas propias produce un ambiente donde los errores se replican constantemente. Identificarlos es el primer paso para no cometerlos.</p>
+<h2>Error 1: Antropomorfizar la IA</h2>
+<p>"La IA decidió", "el sistema pensó", "el algoritmo eligió". Estas formulaciones atribuyen intención y agencia a sistemas que no tienen ninguna. Los modelos de IA predicen tokens basándose en patrones estadísticos: no deciden, no piensan, no eligen. El lenguaje importa porque forma cómo el público entiende quién es responsable cuando algo sale mal.</p>
+<h2>Error 2: Generalizar de un caso a "la IA"</h2>
+<p>Un chatbot médico que da malos consejos no dice nada sobre "la IA en salud" en general, así como un auto que falla los frenos no dice nada sobre "los autos". Los sistemas de IA son extremadamente heterogéneos. Una nota que salta de un caso específico a conclusiones sobre "la IA" está generalizando sin fundamento.</p>
+<h2>Error 3: Confundir demostración con deploym ent</h2>
+<p>Las demostraciones de laboratorio y los sistemas en producción son cosas distintas. Un video de un robot haciendo volteretas en el laboratorio de Boston Dynamics no significa que esos robots están en uso generalizado. Un modelo que resuelve exámenes de medicina en condiciones controladas no es lo mismo que un sistema diagnóstico clínico. Pregunta siempre: ¿esto está en uso real, dónde y bajo qué condiciones?</p>
+<h2>Error 4: Reproducir los comunicados de prensa de empresas de IA</h2>
+<p>Las empresas de IA tienen incentivos poderosos para exagerar sus capacidades. Los benchmarks que publican son elegidos para mostrarlos favorablemente. Busca evaluaciones independientes, investigación académica, y fuentes críticas antes de reproducir afirmaciones de capacidad.</p>
+<h2>Error 5: Ignorar el contexto geopolítico y económico</h2>
+<p>La IA no es una tecnología neutral. Los modelos más poderosos están concentrados en pocas empresas de EE.UU. y China. Las decisiones sobre qué datos usan, qué idiomas priorizan, qué sesgos perpetúan tienen consecuencias geopolíticas. Una cobertura que ignora esto es incompleta.</p>
+HTML,
+
+            'ia-para-periodistas_3_2' => <<<HTML
+<p>El periodista que cubre IA enfrenta un desafío de traducción: cómo explicar sistemas técnicamente complejos a audiencias que no tienen formación en ciencias de la computación, sin simplificar hasta el punto de distorsionar.</p>
+<h2>Los conceptos que más se malentienden y cómo explicarlos</h2>
+<p><strong>Modelo de lenguaje / LLM:</strong> evita la definición técnica. Úsala así: "un sistema que predice, palabra por palabra, cuál es el texto más probable como respuesta a una pregunta, basándose en patrones en billones de textos humanos." Esto captura lo esencial sin requerir formación técnica.</p>
+<p><strong>Entrenamiento:</strong> "el proceso por el que el sistema aprende a asociar patrones en los datos, de manera similar a cómo un estudiante aprende a reconocer patrones en ejemplos." Evita el lenguaje de "la IA aprende como los humanos" —no es preciso.</p>
+<p><strong>Alucinación:</strong> el término técnico es útil y ya está extendido, pero explícalo: "cuando el sistema genera información que suena convincente pero es incorrecta o inventada, como si tuviera confianza en algo que no sabe."</p>
+<p><strong>Sesgo algorítmico:</strong> "cuando el sistema reproduce o amplifica discriminaciones que estaban en los datos con que fue entrenado. Si entrenas un sistema para predecir desempeño laboral con datos históricos donde las mujeres accedían menos a ciertas posiciones, el sistema aprende esa discriminación como si fuera una verdad."</p>
+<h2>Analogías que funcionan y las que no</h2>
+<p>Funciona: comparar LLMs con autocomplete muy sofisticado, porque captura la naturaleza predictiva sin sugerir comprensión.</p>
+<p>No funciona: comparar la IA con el cerebro humano, porque sugiere procesos cognitivos que no existen en estos sistemas.</p>
+<h2>El test de la audiencia</h2>
+<p>Antes de publicar, pregúntate: "¿Podría alguien leer esto y tener una imagen correcta de cómo funciona el sistema y qué implicaciones tiene?" Si la respuesta es no, revisa el nivel de abstracción.</p>
+HTML,
+
+            'ia-para-periodistas_3_3' => <<<HTML
+<p>Una de las dificultades de cubrir IA en Chile y América Latina es la escasez de fuentes locales con criterio independiente. El ecosistema de expertos es pequeño, muchos tienen vínculos con empresas de IA, y las voces críticas son menos visibles. Construir un mapa de fuentes confiables es trabajo editorial necesario.</p>
+<h2>Fuentes académicas en Chile</h2>
+<p><strong>Centro Nacional de Inteligencia Artificial (CENIA):</strong> institución financiada por el Estado chileno con investigadores en machine learning, procesamiento de lenguaje natural y ética de IA. Sus publicaciones son rigorosas y los investigadores suelen estar disponibles para consultas periodísticas.</p>
+<p><strong>Instituto de Sistemas Complejos de Ingeniería (ISCI) — U. de Chile:</strong> trabaja en optimización, análisis de datos y sistemas. Perspectiva más aplicada, con trabajo en sectores como salud, energía y transporte.</p>
+<p><strong>Departamento de Ciencias de la Computación — PUC:</strong> investigación en machine learning, visión computacional e IA. Referentes para temas técnicos específicos.</p>
+<h2>Voces críticas e independientes</h2>
+<p>Busca investigadores que trabajen en ética de IA, derecho digital y sociología de la tecnología. En Chile: académicos del Centro de Estudios de Derecho Informático (CEDI) de la U. de Chile, investigadores del Observatorio de Inteligencia Artificial de la UDP.</p>
+<h2>Fuentes internacionales confiables</h2>
+<p><strong>AI Now Institute:</strong> investigación crítica sobre impactos sociales de IA. <strong>Partnership on AI:</strong> foco en uso responsable. <strong>MIT Technology Review:</strong> periodismo tecnológico riguroso. <strong>The Markup:</strong> periodismo de datos sobre tecnología y poder.</p>
+<h2>Señales de una fuente con conflicto de interés</h2>
+<p>Investigador financiado directamente por una empresa de IA cuyo producto está cubriendo. Consultor que cobra a empresas de IA y también opina públicamente sobre regulación. Representantes de asociaciones empresariales de tecnología. No invalida su perspectiva automáticamente, pero hay que declararlo y buscar voces adicionales independientes.</p>
+HTML,
+
+            'ia-para-periodistas_3_4' => <<<HTML
+<p>El periodismo sobre IA requiere estándares editoriales específicos. No porque la IA sea más difícil de cubrir que otras áreas, sino porque las consecuencias de cubrirla mal —amplificar pánico infundado o exagerar capacidades— son particularmente dañinas en un momento de formación de política pública.</p>
+<h2>Estándares básicos para informar sobre IA</h2>
+<p><strong>Identificar el sistema específico:</strong> no "la IA", sino "GPT-4 de OpenAI" o "el sistema de reconocimiento facial de X empresa desplegado en Y contexto." La especificidad permite verificación y crítica.</p>
+<p><strong>Separar demostración de uso real:</strong> señalar siempre si lo que se describe es un experimento de laboratorio, un proyecto piloto o un sistema en uso generalizado. Son cosas fundamentalmente distintas.</p>
+<p><strong>Incluir voces críticas:</strong> la cobertura de IA que solo cita a las empresas que desarrollan los sistemas o a sus inversores no es periodismo equilibrado. Siempre busca expertos independientes y personas afectadas.</p>
+<p><strong>Declarar las limitaciones del conocimiento:</strong> el campo cambia rápidamente. Es periodísticamente honesto señalar cuando algo no se sabe, cuando hay incertidumbre científica, o cuando las afirmaciones son disputadas.</p>
+<h2>Sobre las afirmaciones de capacidad</h2>
+<p>Cuando una empresa afirma que su sistema "supera a los humanos" en alguna tarea, pregunta: ¿en qué benchmark específico? ¿Quién validó el benchmark? ¿Bajo qué condiciones? ¿Qué falla el sistema que los humanos no? Las afirmaciones de superioridad de IA rara vez sobreviven a estas preguntas sin matices importantes.</p>
+<h2>Sobre el impacto en personas</h2>
+<p>Las mejores coberturas de IA no son sobre la tecnología: son sobre las personas afectadas por ella. Quién perdió el trabajo, quién fue discriminado por un algoritmo, quién se benefició de un diagnóstico más temprano. La IA tiene consecuencias humanas concretas; ese es el eje del periodismo que importa.</p>
+HTML,
+
+            // ── PERIODISTAS · MÓDULO 4 ──────────────────────────────────────
+
+            'ia-para-periodistas_4_1' => <<<HTML
+<p>La transcripción automática era, hasta hace pocos años, una promesa frustrantemente imprecisa. Hoy es una herramienta de producción real que ya forma parte de la rutina de muchas redacciones. Saber usarla bien multiplica lo que puedes hacer con el material de tus entrevistas.</p>
+<h2>Herramientas de transcripción disponibles</h2>
+<p><strong>Whisper (OpenAI):</strong> modelo de código abierto con excelente desempeño en español, incluyendo español chileno con sus particularidades fonéticas. Puede instalarse localmente (sin enviar audio a la nube) o usarse a través de interfaces como Whisper.ai o Replicate. Gratuito en su versión base.</p>
+<p><strong>Otter.ai:</strong> orientado al inglés pero con soporte para español. Permite transcripción en tiempo real durante entrevistas telefónicas o en persona (con el micrófono del teléfono). Integración con Zoom y Google Meet.</p>
+<p><strong>Notta:</strong> alternativa con mejor soporte para español latinoamericano. Permite subir archivos de audio y obtener transcripción editable con marcas de tiempo.</p>
+<h2>Flujo de trabajo práctico</h2>
+<p>Graba la entrevista (siempre con consentimiento informado y explícito). Sube el audio a la herramienta de transcripción. Obtén el texto base —que tendrá errores, especialmente en nombres propios, términos técnicos y habla informal. Edita y verifica contra el audio en los fragmentos que vas a citar directamente.</p>
+<p>La transcripción automática no reemplaza la escucha cuidadosa: reemplaza la transcripción manual y te permite enfocarte en los fragmentos que realmente importan.</p>
+<h2>Análisis de entrevistas con IA</h2>
+<p>Con la transcripción en texto, puedes usar modelos de lenguaje para: identificar los temas principales, encontrar contradicciones internas en el discurso, comparar lo que una fuente dijo en distintas entrevistas, extraer todas las citas sobre un tema específico en una entrevista larga. Esto es especialmente útil en periodismo de investigación con múltiples fuentes y mucho material.</p>
+HTML,
+
+            'ia-para-periodistas_4_2' => <<<HTML
+<p>El periodismo de investigación siempre fue un trabajo intensivo en lectura de documentos. La IA no cambia el objetivo —encontrar la historia en los datos— pero cambia radicalmente la escala a la que puede hacerse.</p>
+<h2>Analizar documentos masivos</h2>
+<p>Los grandes filtros de documentos —Panama Papers, Pandora Papers, archivos Snowden— requirieron equipos internacionales y meses de trabajo. Hoy, herramientas de IA permiten que un periodista solo pueda hacer análisis similares, aunque a menor escala, en días.</p>
+<p><strong>Casos de uso concretos en Chile:</strong> analizar contratos de compras públicas para detectar patrones de adjudicación directa, procesar declaraciones de patrimonio de funcionarios en busca de inconsistencias, revisar actas de sesiones del Congreso para rastrear cambios de posición de parlamentarios, analizar bases de datos de sanciones o multas.</p>
+<h2>Herramientas para análisis de documentos</h2>
+<p><strong>ChatGPT con función de carga de archivos:</strong> permite subir PDFs y hacer preguntas sobre su contenido. Útil para documentos individuales o pequeños conjuntos. Verificar siempre las afirmaciones del modelo contra el documento original.</p>
+<p><strong>Claude.ai (Anthropic):</strong> mayor ventana de contexto, permite procesar documentos más largos. Especialmente útil para análisis de contratos, normativas extensas o actas largas.</p>
+<p><strong>Elicit y Consensus:</strong> diseñados para análisis de literatura científica. Si el reportaje involucra evidencia científica, estas herramientas permiten revisar cientos de papers en poco tiempo.</p>
+<h2>El límite crítico: verificación de lo que dice la IA</h2>
+<p>Los modelos de lenguaje pueden "confundir" información entre documentos, inventar citas que no existen o simplificar de forma que distorsiona. Todo hallazgo obtenido con IA en análisis documental debe verificarse contra el documento fuente antes de publicar. La IA te lleva al hallazgo; tú verificas que sea real.</p>
+HTML,
+
+            'ia-para-periodistas_4_3' => <<<HTML
+<p>El periodismo de datos siempre requirió habilidades técnicas que no todos los periodistas tienen. La IA está democratizando una parte de ese proceso: crear visualizaciones que antes requerían conocimiento de código o diseño especializado.</p>
+<h2>Qué puede hacer la IA en visualización</h2>
+<p><strong>Generar código para gráficos:</strong> puedes describir los datos que tienes y el tipo de gráfico que necesitas, y modelos como GPT-4 o Claude generan el código Python (matplotlib, plotly) o JavaScript (D3.js, Chart.js) para crearlo. Sin necesidad de saber programar.</p>
+<p><strong>Sugerir el tipo de visualización más adecuado:</strong> describe tu conjunto de datos y tu historia, y la IA puede recomendarte si necesitas un gráfico de barras, un mapa de calor, un diagrama de dispersión o un gráfico de líneas de tiempo —y por qué.</p>
+<p><strong>Limpiar y estructurar datos:</strong> los datos públicos del Estado chileno suelen venir en formatos inconsistentes, con errores de digitación, campos vacíos. La IA puede ayudar a generar scripts de limpieza de datos sin que el periodista domine pandas o Excel avanzado.</p>
+<h2>Herramientas específicas</h2>
+<p><strong>Datawrapper:</strong> la herramienta estándar para periodismo de datos. No es IA per se, pero tiene integración con asistentes que sugieren tipos de gráfico. Usada por NYT, BBC, Der Spiegel.</p>
+<p><strong>Flourish:</strong> permite crear visualizaciones interactivas más complejas sin código. Con IA puedes generar el script de datos estructurado para Flourish.</p>
+<p><strong>Observable con IA:</strong> entorno de código para periodismo de datos donde puedes usar asistentes de IA directamente en el flujo de trabajo.</p>
+<h2>Lo que la IA no puede hacer</h2>
+<p>Decidir qué historia cuentan los datos. Elegir qué mostrar y qué omitir. Evaluar si una visualización es engañosa o si distorsiona la realidad. Esas decisiones editoriales siguen siendo del periodista.</p>
+HTML,
+
+            'ia-para-periodistas_4_4' => <<<HTML
+<p>Más allá del análisis y la producción de contenido, la IA puede automatizar una serie de tareas operativas que consumen tiempo en cualquier redacción sin añadir valor periodístico. Identificarlas y automatizarlas libera tiempo para el trabajo que realmente importa.</p>
+<h2>Tareas automatizables en la redacción</h2>
+<p><strong>Monitoreo de fuentes:</strong> en lugar de revisar manualmente el Diario Oficial, el Congreso, boletines de ministerios y redes sociales de fuentes clave, puedes configurar alertas automáticas y sistemas de síntesis que te notifiquen cuando aparece información relevante. Herramientas como Zapier con feeds RSS, o soluciones más avanzadas como Feedly + IA, permiten esto.</p>
+<p><strong>Resumen de reuniones y eventos:</strong> grabación + transcripción automática + resumen con IA de puntos clave de conferencias de prensa, sesiones del Congreso o reuniones de directorio.</p>
+<p><strong>SEO básico y metadata:</strong> generación de títulos alternativos para SEO, meta descripciones, extractos para redes sociales. Contenido que el periodista produce pero que la redacción necesita en múltiples formatos para distintas plataformas.</p>
+<p><strong>Clasificación y archivo:</strong> etiquetar automáticamente el archivo del medio por temas, personas y organizaciones mencionadas. Útil para redacciones con mucho contenido histórico que quieren hacerlo buscable.</p>
+<h2>El principio de automatización responsable</h2>
+<p>Automatiza las tareas que no requieren juicio periodístico. No automatices las que sí lo requieren: la selección de qué cubrir, cómo enmarcar la historia, qué fuentes incluir, qué tono usar. La automatización bien aplicada libera al periodista; mal aplicada lo vacía del oficio.</p>
+HTML,
+
+            // ── PERIODISTAS · MÓDULO 5 ──────────────────────────────────────
+
+            'ia-para-periodistas_5_1' => <<<HTML
+<p>La pregunta de cuándo declarar el uso de IA en una pieza periodística es una de las más debatidas en las redacciones del mundo hoy. No hay consenso universal, pero hay principios que permiten tomar decisiones coherentes.</p>
+<h2>El principio de transparencia periodística aplicado a la IA</h2>
+<p>El periodismo siempre ha declarado sus métodos cuando hay razones para que el lector los conozca. Declaramos si una fuente pidió anonimato, si el periodista tiene relación con el tema, si el medio tiene intereses económicos en la materia cubierta. La IA es otro caso del mismo principio.</p>
+<h2>Cuándo debes declararlo</h2>
+<p><strong>Cuando la IA generó contenido que aparece en la pieza:</strong> si la IA redactó párrafos que publicaste sin reescribirlos sustancialmente, eso debe declararse. El lector tiene derecho a saber que el texto no fue escrito íntegramente por el periodista.</p>
+<p><strong>Cuando la IA fue determinante en el análisis o hallazgo:</strong> si un sistema de IA identificó la irregularidad que es el corazón de la investigación, declarar el método es parte de la transparencia metodológica, como en periodismo de datos.</p>
+<p><strong>Cuando el uso es inédito o podría generar dudas:</strong> si usas una herramienta de IA de una manera que tu audiencia no esperaría, es mejor declararlo y explicar el proceso.</p>
+<h2>Cuándo no es necesario declararlo</h2>
+<p>Cuando la IA fue usada para tareas instrumentales que no afectan el contenido editorial: corrección ortográfica, transcripción de audio, búsqueda en archivo, traducción de un documento que luego verificaste y reescribiste. De la misma manera que no declaras que usaste Google para buscar un dato, no necesitas declarar que usaste una herramienta de transcripción automática.</p>
+<h2>El estándar en construcción</h2>
+<p>Organizaciones como SPJ (Society of Professional Journalists), Reuters y AP ya han publicado sus primeras políticas. En Chile, el Colegio de Periodistas no tiene aún lineamientos específicos. Seguir los estándares internacionales más exigentes es la postura más defensible.</p>
+HTML,
+
+            'ia-para-periodistas_5_2' => <<<HTML
+<p>Si hay un campo donde los límites éticos de la IA son más claros, es el periodismo. El oficio descansa sobre valores —verificación, independencia, responsabilidad humana— que no pueden delegarse a sistemas automáticos sin consecuencias graves.</p>
+<h2>Lo que la IA no debe hacer en periodismo</h2>
+<p><strong>Inventar o fabricar información:</strong> el límite más básico. La IA genera texto convincente que puede ser factualmente falso. Publicar contenido de IA sin verificación factual es equivalente a fabricar información —con la diferencia de que el sistema no lo hace intencionalmente, pero el daño es el mismo.</p>
+<p><strong>Sustituir el contacto con las fuentes:</strong> la entrevista no es solo un mecanismo para obtener información: es una instancia donde el periodista observa, juzga, construye relación y ejerce criterio. Sintetizar lo que "probablemente diría" una fuente con IA es una violación ética fundamental, independientemente de qué tan plausible suene el resultado.</p>
+<p><strong>Generar imágenes o audio falso para ilustrar historias reales:</strong> usar deepfakes o imágenes de IA para "ilustrar" eventos que no pueden fotografiarse es fabricar evidencia visual. La línea entre ilustración artística declarada y fabricación de evidencia debe ser explícita y consistente.</p>
+<p><strong>Personalizar contenido de forma manipuladora:</strong> usar IA para adaptar el mismo artículo a diferentes sesgos políticos de la audiencia, maximizando el engagement emocional. Esto no es periodismo: es propaganda microfocalizada.</p>
+<h2>El criterio de responsabilidad humana</h2>
+<p>Una regla útil: si algo sale mal con el contenido publicado, ¿hay un periodista que pueda dar cuenta de cada decisión editorial relevante? Si la respuesta es no porque un sistema automatizado tomó esas decisiones, hay un problema ético. La responsabilidad periodística requiere agencia humana en las decisiones que importan.</p>
+HTML,
+
+            'ia-para-periodistas_5_3' => <<<HTML
+<p>Una política editorial de IA no es un documento legal ni un manual de procedimientos. Es un marco que ayuda a los periodistas a tomar decisiones coherentes en situaciones que cambian rápidamente, y que da a la audiencia la transparencia que merece.</p>
+<h2>Los componentes de una política editorial de IA</h2>
+<p><strong>Posición sobre generación de contenido:</strong> ¿puede la IA generar texto que se publique sin reescritura sustancial? ¿En qué circunstancias y con qué condiciones? La mayoría de los medios serios responden que no en general, con excepciones muy acotadas para contenido automatizable de bajo riesgo (resúmenes de datos, alertas).</p>
+<p><strong>Política de declaración:</strong> cuándo se declara el uso de IA en el pie de cada pieza o en el manual de estilo. Adoptar un estándar claro y aplicarlo consistentemente.</p>
+<p><strong>Herramientas permitidas y prohibidas:</strong> un inventario de qué herramientas de IA están autorizadas para uso interno y para qué propósitos. Esto no es restrictivo por naturaleza: es ordenado y permite que los periodistas trabajen con claridad.</p>
+<p><strong>Proceso de verificación adicional para contenido asistido por IA:</strong> qué pasos adicionales se requieren cuando la IA jugó un rol en la producción de una pieza. Quién es responsable de esa verificación.</p>
+<h2>Cómo construir la política</h2>
+<p>No la construyas solo desde la dirección editorial. Los periodistas que usan (o no usan) las herramientas en su práctica diaria tienen información que los editores no tienen. Una política construida con su participación tiene más probabilidades de ser adoptada y más de reflejar la realidad del trabajo.</p>
+<h2>Un ejemplo de política mínima</h2>
+<p>"La IA puede usarse como herramienta de apoyo en transcripción, investigación documental y corrección. No puede generar texto que se publique sin edición sustancial del periodista. Todo uso de IA en la producción de una pieza debe declararse en el proceso interno. El periodista responsable de la firma asume responsabilidad editorial por todo el contenido, independientemente de las herramientas usadas."</p>
+HTML,
+
+            'ia-para-periodistas_5_4' => <<<HTML
+<p>El periodismo ha sobrevivido la imprenta, la radio, la televisión, internet y las redes sociales. No porque se adaptó pasivamente, sino porque redefinió su valor en cada transición. La IA es el siguiente ciclo de esa redefinición.</p>
+<h2>Lo que no va a cambiar</h2>
+<p>Las funciones que la IA no puede replicar son exactamente las que definen el periodismo en su sentido más profundo: la presencia en el lugar de los hechos, la decisión editorial sobre qué importa y por qué, la construcción de relación con las fuentes, el criterio para distinguir lo verdadero de lo falso cuando ambos suenan igual, la responsabilidad ante la audiencia y la historia.</p>
+<p>Estas funciones no son menos valiosas porque la IA existe: son más valiosas.</p>
+<h2>Lo que va a cambiar</h2>
+<p>El periodista que sepa usar la IA para procesar información a mayor escala, verificar más rápido, acceder a más fuentes y producir más formatos va a tener ventaja. No porque la IA lo haga mejor, sino porque amplifica las capacidades humanas que ya tiene.</p>
+<p>Las redacciones van a ser más pequeñas en términos de personal que hace tareas rutinarias, y más especializadas en términos de quienes hacen el trabajo de mayor valor. Eso no es una predicción tranquilizadora para todos, pero es honesta.</p>
+<h2>El periodista que más valor tendrá</h2>
+<p>El que combine criterio editorial sólido con capacidad de trabajar con IA de forma crítica. Que sepa qué pedirle a la IA, evalúe lo que devuelve, y construya encima de eso con el juicio y la perspectiva que solo viene de la experiencia y la presencia humana.</p>
+<div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:1rem;padding:2rem;text-align:center;margin-top:2rem;">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
+    <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
+    <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Periodistas y Comunicadores</strong>. Tienes ahora las herramientas para cubrir IA con rigor, verificar contenido sintético y usar IA en tu oficio con criterio editorial.</p>
     <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
 </div>
 HTML,
