@@ -750,7 +750,14 @@
                                     <a class="dropdown-item py-2" href="{{ route('ia-para-todos.index') }}">
                                         <i class="fas fa-graduation-cap me-2" style="color:var(--primary-color);"></i>
                                         <strong>IA para Todos</strong>
-                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Alfabetización en IA · Módulo 1 disponible</div>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Alfabetización en IA · 5 módulos · Gratis</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('cursos.index') }}">
+                                        <i class="fas fa-chalkboard me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Cursos especializados</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Derecho, Educación, Periodismo y más · Registro gratis</div>
                                     </a>
                                 </li>
                                 <li>

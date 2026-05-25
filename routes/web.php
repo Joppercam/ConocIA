@@ -46,6 +46,7 @@ use App\Http\Controllers\GlossaryController;
 use App\Http\Controllers\EcosystemController;
 use App\Http\Controllers\RegulationController;
 use App\Http\Controllers\IaParaTodosController;
+use App\Http\Controllers\CursosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -241,6 +242,8 @@ Route::get('/regulacion', [RegulationController::class, 'index'])->name('regulac
 Route::get('/regulacion/voces', [RegulationController::class, 'voces'])->name('regulacion.voces');
 Route::get('/regulacion/{slug}', [RegulationController::class, 'show'])->name('regulacion.show');
 Route::get('/ia-para-todos', [IaParaTodosController::class, 'index'])->name('ia-para-todos.index');
+Route::get('/cursos', [CursosController::class, 'index'])->name('cursos.index');
+Route::get('/cursos/{slug}', [CursosController::class, 'show'])->name('cursos.show');
 Route::redirect('/proximamente/glosario', '/glosario', 301);
 Route::redirect('/proximamente/ecosistema', '/ecosistema', 301);
 Route::redirect('/proximamente/regulacion', '/regulacion', 301);
