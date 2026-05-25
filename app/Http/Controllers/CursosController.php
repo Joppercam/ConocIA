@@ -86,6 +86,11 @@ class CursosController extends Controller
             'ia-para-salud_3_1', 'ia-para-salud_3_2', 'ia-para-salud_3_3', 'ia-para-salud_3_4',
             'ia-para-salud_4_1', 'ia-para-salud_4_2', 'ia-para-salud_4_3', 'ia-para-salud_4_4',
             'ia-para-salud_5_1', 'ia-para-salud_5_2', 'ia-para-salud_5_3', 'ia-para-salud_5_4',
+            'ia-para-pymes_1_1', 'ia-para-pymes_1_2', 'ia-para-pymes_1_3', 'ia-para-pymes_1_4',
+            'ia-para-pymes_2_1', 'ia-para-pymes_2_2', 'ia-para-pymes_2_3', 'ia-para-pymes_2_4',
+            'ia-para-pymes_3_1', 'ia-para-pymes_3_2', 'ia-para-pymes_3_3', 'ia-para-pymes_3_4',
+            'ia-para-pymes_4_1', 'ia-para-pymes_4_2', 'ia-para-pymes_4_3', 'ia-para-pymes_4_4',
+            'ia-para-pymes_5_1', 'ia-para-pymes_5_2', 'ia-para-pymes_5_3', 'ia-para-pymes_5_4',
         ];
         return in_array($key, $defined) ? true : null;
     }
@@ -1715,6 +1720,281 @@ HTML,
     <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
     <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
     <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Profesionales de la Salud</strong>. Tienes ahora el marco clínico, legal y ético para integrar IA en tu práctica sin comprometer a tus pacientes.</p>
+    <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
+</div>
+HTML,
+
+            // ── PYMES · MÓDULO 1 ────────────────────────────────────────────
+
+            'ia-para-pymes_1_1' => <<<HTML
+<p>La IA no es solo para empresas grandes con equipos de tecnología. Hay pymes y emprendimientos chilenos que ya la están usando para competir en mejores condiciones —y en la mayoría de los casos, empezaron sin ningún conocimiento técnico previo.</p>
+<h2>Casos reales de pymes usando IA en Chile</h2>
+<p><strong>E-commerce de moda:</strong> una tienda online de ropa femenina en Santiago usa IA para responder automáticamente las preguntas frecuentes en Instagram y WhatsApp (horarios, tallas, disponibilidad, envíos). Lo que antes tomaba 3 horas diarias al dueño ahora está automatizado. Resultado: más tiempo para compras y diseño, respuestas más rápidas, menos carritos abandonados.</p>
+<p><strong>Clínica veterinaria:</strong> una clínica de 4 veterinarios en Providencia usa IA para recordatorios automáticos de vacunas y controles. El sistema identifica qué mascotas están próximas a su fecha de control y envía WhatsApp personalizados. La tasa de reactivación de pacientes inactivos subió un 35% en seis meses.</p>
+<p><strong>Agencia de marketing:</strong> una agencia pequeña de 6 personas usa IA para generar los primeros borradores de contenido para redes sociales de sus clientes. No publican el texto sin revisarlo —pero el tiempo de producción de contenido se redujo en un 60%, lo que les permitió aumentar el número de clientes sin contratar más personas.</p>
+<p><strong>Restaurante de comida saludable:</strong> usa IA para analizar qué platos tienen mejor y peor rotación en distintos días y horarios, y ajusta el menú y los pedidos al proveedor en consecuencia. Redujo el desperdicio de alimentos en un 20%.</p>
+<h2>El patrón común</h2>
+<p>Ninguno de estos casos requirió contratar un programador ni pagar por sistemas complejos. Todos empezaron con herramientas existentes, aplicadas a un problema concreto, con resultados medibles. Eso es lo que vas a aprender a hacer en este curso.</p>
+HTML,
+
+            'ia-para-pymes_1_2' => <<<HTML
+<p>No todo proceso de una empresa es igual de fácil de automatizar. Hay características que hacen que algunos procesos sean candidatos naturales para la IA, mientras que otros requieren mucho más esfuerzo del que vale la pena. Identificar los candidatos correctos es la diferencia entre una implementación que genera valor y una que genera frustración.</p>
+<h2>Los procesos que se automatizan más fácilmente</h2>
+<p><strong>Procesos repetitivos con reglas claras:</strong> si puedes describir el proceso como "si pasa X, haz Y", es automatizable. Ejemplos: responder preguntas frecuentes, enviar recordatorios, clasificar correos entrantes, generar reportes periódicos con los mismos datos.</p>
+<p><strong>Procesos basados en texto:</strong> generar contenido, resumir información, redactar respuestas, clasificar reseñas. Los modelos de lenguaje son especialmente buenos aquí.</p>
+<p><strong>Procesos con datos estructurados:</strong> análisis de ventas, predicción de inventario, detección de patrones en transacciones. Si los datos están en una planilla, hay una herramienta de IA que puede analizarlos.</p>
+<p><strong>Comunicaciones de seguimiento:</strong> emails de bienvenida, recordatorios de pago, seguimiento post-venta, encuestas de satisfacción. Secuencias que se disparan por eventos específicos son ideales para automatización.</p>
+<h2>Los procesos que NO conviene automatizar todavía</h2>
+<p><strong>Decisiones que requieren juicio y contexto:</strong> la negociación con un cliente difícil, la decisión de contratar a alguien, la respuesta a una crisis de reputación. La IA puede informar, pero no reemplazar el juicio humano aquí.</p>
+<p><strong>Procesos que no están bien definidos:</strong> si no puedes describir exactamente cómo funciona el proceso hoy, automatizarlo solo va a hacerlo más caótico. Primero documenta, luego automatiza.</p>
+<p><strong>Interacciones de alto valor emocional:</strong> el seguimiento a un cliente que tuvo una mala experiencia, la atención a un paciente en una situación delicada. La automatización aquí puede empeorar la relación.</p>
+HTML,
+
+            'ia-para-pymes_1_3' => <<<HTML
+<p>Antes de implementar cualquier herramienta de IA, vale la pena hacer una estimación básica de si el retorno justifica la inversión. No necesitas un modelo financiero sofisticado — necesitas honestidad sobre cuánto tiempo te cuesta el proceso hoy y cuánto ahorrarías.</p>
+<h2>El cálculo básico de retorno</h2>
+<p>La fórmula es simple: <strong>(tiempo ahorrado × costo de ese tiempo) − costo de la herramienta = retorno mensual</strong>.</p>
+<p>Ejemplo concreto: tienes un proceso de atención al cliente que toma 2 horas diarias de tu tiempo (o de un empleado). A $5.000 la hora (costo laboral aproximado de un empleado promedio en Chile), eso son $10.000 diarios, $200.000 mensuales. Si una herramienta de chatbot que cuesta $30.000 mensuales automatiza el 70% de esas consultas, ahorras $140.000 y gastas $30.000: retorno de $110.000 mensuales. El sistema se paga en el primer mes.</p>
+<h2>Más allá del tiempo: los beneficios difíciles de medir</h2>
+<p><strong>Velocidad de respuesta:</strong> responder en 2 minutos en lugar de 4 horas puede ser la diferencia entre ganar o perder una venta. ¿Cuánto vale eso para tu negocio?</p>
+<p><strong>Consistencia:</strong> un proceso automatizado hace siempre lo mismo. Un proceso manual varía con el estado de ánimo, el nivel de cansancio y quién esté de turno.</p>
+<p><strong>Escalabilidad:</strong> si tu negocio crece, el proceso automatizado crece con él sin costo adicional proporcional. El proceso manual requiere contratar más personas.</p>
+<h2>Cuándo el retorno no justifica</h2>
+<p>Si el proceso ocurre menos de 5 veces por semana, si requiere mucha personalización por caso, o si el costo de implementación y mantenimiento es alto respecto al volumen, probablemente no vale la pena ahora. Empieza por los procesos de mayor volumen y mayor repetición.</p>
+HTML,
+
+            'ia-para-pymes_1_4' => <<<HTML
+<p>Hay creencias sobre la IA que llevan a las pymes a no empezar, o a empezar en la dirección equivocada. Identificar estos mitos permite tomar decisiones más realistas.</p>
+<h2>Mito 1: "La IA es para empresas grandes con equipos de tecnología"</h2>
+<p>Falso. Las herramientas de IA más útiles para pymes son exactamente las que no requieren equipo técnico: interfaces de chat, plataformas de automatización sin código, integraciones listas para usar. Un dueño de negocio con conocimientos básicos de computación puede implementar un chatbot funcional en un día.</p>
+<h2>Mito 2: "Implementar IA es muy caro"</h2>
+<p>Depende de qué implementas. ChatGPT con acceso de API tiene un costo de centavos por consulta. Zapier tiene un plan gratuito que permite automatizar cientos de tareas al mes. Make (ex-Integromat) tiene planes desde $9 USD mensuales. Las herramientas de IA más útiles para pymes cuestan entre $0 y $100 USD mensuales —una fracción del costo de una hora de consultoría.</p>
+<h2>Mito 3: "Necesito mis datos perfectamente ordenados para empezar"</h2>
+<p>Los datos perfectos no existen. Puedes empezar con los datos que tienes, imperfectos como están, y mejorar la calidad gradualmente. Las herramientas de IA para pymes no requieren infraestructura de datos corporativa para generar valor desde el primer día.</p>
+<h2>Mito 4: "La IA va a reemplazar a mis empleados y crea mal clima"</h2>
+<p>La experiencia más común en pymes que implementan IA es que los empleados se liberan de las tareas más tediosas y pueden enfocarse en lo que hace la diferencia: la relación con el cliente, la creatividad, las decisiones. La IA rara vez reemplaza empleados en pymes — más frecuentemente permite que el equipo actual haga más sin contratar.</p>
+<h2>Mito 5: "Si espero un poco, la tecnología va a ser mejor y más barata"</h2>
+<p>Siempre va a ser verdad que la próxima versión va a ser mejor. Pero cada mes que esperas, tu competencia puede estar implementando. El costo de esperar es la ventaja competitiva que no acumulas.</p>
+HTML,
+
+            // ── PYMES · MÓDULO 2 ────────────────────────────────────────────
+
+            'ia-para-pymes_2_1' => <<<HTML
+<p>Hasta hace pocos años, automatizar procesos requería programadores. Hoy existe una categoría completa de herramientas diseñadas específicamente para que cualquier persona —sin saber programar— pueda conectar aplicaciones, automatizar tareas y construir flujos de trabajo inteligentes.</p>
+<h2>Las plataformas de automatización sin código</h2>
+<p><strong>Zapier:</strong> la más popular y con mayor cantidad de integraciones (más de 6.000 aplicaciones). Permite crear "Zaps" que conectan aplicaciones entre sí: cuando ocurre algo en una app (un nuevo formulario, un pago, un mensaje), hace algo en otra (envía un email, actualiza una planilla, manda una notificación). Plan gratuito disponible con limitaciones.</p>
+<p><strong>Make (ex-Integromat):</strong> más flexible que Zapier para flujos complejos, con mejor visualización del proceso. Ideal cuando necesitas lógica condicional, loops o manejo de datos más sofisticado. Más económico que Zapier en planes pagos.</p>
+<p><strong>n8n:</strong> alternativa de código abierto que puede instalarse en tu propio servidor. Gratuita en autoservicio, con planes cloud. Requiere algo más de configuración pero no tiene límites de uso en la versión propia.</p>
+<p><strong>Notion AI, ClickUp AI, Monday AI:</strong> plataformas de gestión de proyectos con IA integrada que permiten generar resúmenes, asignar tareas automáticamente, identificar cuellos de botella y generar reportes sin salir de la herramienta de trabajo.</p>
+<h2>Cómo elegir</h2>
+<p>Si recién empiezas: Zapier por su facilidad y cantidad de integraciones. Si quieres más control y presupuesto ajustado: Make. Si manejas volúmenes altos y te incomoda pagar por uso: n8n. No necesitas elegir de por vida — empieza con uno y migra si lo necesitas.</p>
+HTML,
+
+            'ia-para-pymes_2_2' => <<<HTML
+<p>Los emails, reportes y seguimientos son tres de las tareas más repetitivas en cualquier negocio — y tres de las más fáciles de automatizar. Hacerlo bien libera horas semanales sin sacrificar la calidad de la comunicación.</p>
+<h2>Automatizar emails</h2>
+<p><strong>Emails de bienvenida:</strong> cuando alguien se registra, compra por primera vez o completa un formulario, un email automático de bienvenida personalizado mejora la experiencia y establece el tono de la relación. Herramientas como Mailchimp, Brevo (ex-Sendinblue) o ActiveCampaign permiten configurar esto en menos de una hora.</p>
+<p><strong>Seguimiento post-venta:</strong> 3 días después de una compra, un email automático preguntando cómo está el producto genera reseñas positivas y detecta problemas antes de que el cliente lo publique en redes. 30 días después, una oferta de recompra o complemento.</p>
+<p><strong>Carritos abandonados:</strong> si tienes e-commerce, el email de carrito abandonado es probablemente la automatización con mayor retorno inmediato. Tasas de recuperación del 5-15% son comunes con un email bien diseñado enviado entre 1 y 3 horas después del abandono.</p>
+<h2>Automatizar reportes</h2>
+<p>En lugar de construir manualmente el reporte semanal de ventas, configura una automatización que recopile los datos de tu sistema de ventas, los procese y te envíe el resumen todos los lunes a las 8am. Zapier + Google Sheets + Gmail puede hacer esto sin costo adicional.</p>
+<h2>Automatizar seguimientos comerciales</h2>
+<p>Un CRM simple (HubSpot tiene plan gratuito, Pipedrive es muy usado en Chile) con secuencias de email automatizadas puede hacer seguimiento a prospectos sin que tengas que recordar manualmente a quién llamar. El sistema alerta cuando un prospecto abre tu email o visita tu sitio.</p>
+HTML,
+
+            'ia-para-pymes_2_3' => <<<HTML
+<p>Uno de los mayores dolores de las pymes es que los datos están en silos: las ventas en una planilla, los clientes en el email, los pedidos en WhatsApp, la contabilidad en otro software. La IA y las herramientas de integración permiten conectar esos sistemas sin contratar un programador.</p>
+<h2>El concepto de integración sin código</h2>
+<p>Integrar dos sistemas significa que cuando pasa algo en uno, el otro se actualiza automáticamente. Un nuevo pedido en tu tienda online actualiza automáticamente el inventario en tu planilla. Un pago confirmado en Transbank dispara el envío del comprobante y actualiza el estado en tu CRM. Un formulario de contacto en tu web crea automáticamente un lead en tu sistema de seguimiento.</p>
+<h2>Las integraciones más útiles para pymes chilenas</h2>
+<p><strong>Tienda online → Planilla de inventario:</strong> cada venta descuenta del stock en tiempo real. Shopify, WooCommerce y Jumpseller tienen integraciones nativas con Google Sheets via Zapier.</p>
+<p><strong>Formulario de contacto → CRM → Email de respuesta:</strong> un lead que completa un formulario en tu web aparece automáticamente en tu CRM y recibe un email de respuesta en segundos. Con Tally (formularios) + HubSpot (CRM) + Gmail, esto se configura en media hora.</p>
+<p><strong>WhatsApp Business → Planilla de seguimiento:</strong> las conversaciones de WhatsApp Business pueden integrarse con Google Sheets para tener registro de todos los clientes y conversaciones. Herramientas como Kommo (ex-amoCRM) están diseñadas para esto.</p>
+<p><strong>Sistema de pagos → Facturación:</strong> Transbank, Mercado Pago o Flow pueden integrarse con sistemas de facturación electrónica (SII-compatible en Chile) para generar facturas automáticamente cuando se confirma un pago.</p>
+<h2>Por dónde empezar</h2>
+<p>Identifica el proceso que más tiempo te toma porque tienes que copiar datos de un sistema a otro. Esa es tu primera integración. Generalmente se resuelve en menos de una hora con Zapier o Make.</p>
+HTML,
+
+            'ia-para-pymes_2_4' => <<<HTML
+<p>Una de las preguntas más frecuentes cuando se empieza a explorar la IA para el negocio es cuánto cuesta realmente. La respuesta honesta: mucho menos de lo que imaginas para empezar, y escala gradualmente según el uso.</p>
+<h2>El rango de costos reales</h2>
+<p><strong>Nivel gratuito (costo: $0):</strong> ChatGPT gratuito para generar contenido, responder preguntas y apoyar la escritura. Zapier gratuito para hasta 100 tareas automatizadas al mes. HubSpot CRM gratuito. Google Sheets con fórmulas básicas de análisis. Con estas herramientas gratuitas puedes resolver el 70% de los casos de uso más frecuentes de una pyme.</p>
+<p><strong>Nivel básico (costo: $20–$80 USD mensuales):</strong> ChatGPT Plus (~$20/mes) para acceso a GPT-4 y uso más intensivo. Zapier Starter (~$20/mes) para más tareas y más integraciones. Un chatbot básico para tu web (Tidio, Crisp) desde $0 a $25/mes. Este nivel es suficiente para la mayoría de las pymes en crecimiento.</p>
+<p><strong>Nivel intermedio (costo: $100–$300 USD mensuales):</strong> plataformas de email marketing con automatización avanzada (ActiveCampaign, Klaviyo). CRM con IA integrada (Pipedrive, Zoho). Chatbot más sofisticado con integración a WhatsApp Business. Adecuado para empresas con mayor volumen de clientes y procesos más complejos.</p>
+<h2>Los costos ocultos que hay que considerar</h2>
+<p><strong>Tiempo de configuración:</strong> aunque la herramienta sea gratuita, configurarla toma tiempo. Cuenta 2 a 10 horas para una automatización simple, dependiendo de tu familiaridad con la plataforma.</p>
+<p><strong>Mantenimiento:</strong> cuando cambia algo en tu negocio (un proceso nuevo, una integración que se rompe), hay que actualizar la automatización. No es costoso, pero sí requiere atención periódica.</p>
+<p><strong>API de IA:</strong> si usas la API de OpenAI directamente (para integraciones más avanzadas), el costo depende del volumen de uso. Para la mayoría de las pymes, los costos de API son inferiores a $20 USD mensuales.</p>
+HTML,
+
+            // ── PYMES · MÓDULO 3 ────────────────────────────────────────────
+
+            'ia-para-pymes_3_1' => <<<HTML
+<p>Los chatbots son la aplicación de IA que más pymes están explorando, y también la que más decepciones genera cuando se implementa sin el criterio correcto. La diferencia entre un chatbot que genera valor y uno que frustra a tus clientes está en entender bien qué puede y qué no puede hacer.</p>
+<h2>Los casos donde los chatbots funcionan bien</h2>
+<p><strong>Preguntas frecuentes con respuestas claras:</strong> horarios, precios, disponibilidad, formas de pago, políticas de devolución, información de envíos. Si la respuesta es siempre la misma, el chatbot puede responderla perfectamente.</p>
+<p><strong>Captura inicial de datos:</strong> "¿En qué ciudad estás? ¿Cuántas personas son? ¿Para qué fecha necesitas?" El chatbot recoge la información y la pasa al humano ya con el contexto.</p>
+<p><strong>Atención fuera de horario:</strong> el chatbot que responde a las 11pm no reemplaza al humano de las 9am — complementa la atención en horarios donde no hay nadie disponible.</p>
+<p><strong>Primero filtro para derivar al humano correcto:</strong> identifica si el cliente necesita soporte técnico, ventas o administración, y deriva al canal correcto.</p>
+<h2>Los casos donde los chatbots fallan</h2>
+<p><strong>Consultas complejas con muchas variables:</strong> si la respuesta depende de 5 factores distintos y cada caso es único, el chatbot va a frustrar al cliente que necesita una respuesta específica.</p>
+<p><strong>Clientes molestos:</strong> un cliente que tuvo un problema serio necesita sentir que hay un humano que lo escucha. Un chatbot en esa situación generalmente empeora la experiencia.</p>
+<p><strong>Ventas de alta consideración:</strong> compras importantes donde el cliente necesita confianza y asesoría personalizada. El chatbot puede ser el primer contacto, pero el cierre debe ser humano.</p>
+<h2>El criterio práctico</h2>
+<p>Antes de implementar un chatbot, registra las 30 últimas consultas que recibiste. ¿Cuántas de ellas tienen respuestas estándar? Esas son las que el chatbot puede manejar. Las demás necesitan humano.</p>
+HTML,
+
+            'ia-para-pymes_3_2' => <<<HTML
+<p>El mayor miedo de los dueños de pymes al automatizar la atención al cliente es perder el trato humano que los diferencia de las empresas grandes. Es un miedo legítimo — y evitable si se diseña la automatización correctamente.</p>
+<h2>El principio del "escalamiento inteligente"</h2>
+<p>La automatización no tiene que ser todo o nada. El modelo que funciona mejor es el que usa la IA para las partes rutinarias y reserva el tiempo humano para lo que realmente importa: las consultas complejas, los clientes con problemas, las oportunidades de venta de alto valor.</p>
+<p>Un chatbot que responde las preguntas frecuentes pero escala inmediatamente al humano cuando detecta frustración, una queja o una consulta que no puede resolver bien, ofrece lo mejor de ambos mundos.</p>
+<h2>Cómo mantener la voz y el estilo del negocio</h2>
+<p>Los chatbots modernos son entrenables con el tono de tu negocio. Si tu marca es cercana y usa lenguaje informal, el chatbot puede hablar así. Si es más formal, también. El error más común es dejar la configuración por defecto —que suena genérico y corporativo— sin personalizarla.</p>
+<p>Invierte tiempo en escribir las respuestas del chatbot como las escribirías tú. Eso es lo que determina si suena como parte de tu negocio o como un robot impersonal.</p>
+<h2>El "botón del humano" siempre disponible</h2>
+<p>En cualquier flujo automatizado, el cliente debe poder en cualquier momento pedir hablar con una persona. Bloquear ese camino genera frustración y daño a la marca. El chatbot que dice "para hablar con una persona, escribe HUMANO" en cada respuesta da control al cliente y reduce la percepción de que están siendo esquivados.</p>
+<h2>La honestidad sobre la automatización</h2>
+<p>¿Debe el chatbot presentarse como humano o como bot? La práctica ética —y en varios países ya la práctica legal— es que el cliente sepa que está hablando con un sistema automático. En la práctica, cuando el bot está bien configurado, a los clientes generalmente no les molesta — les molesta cuando el bot falla y nadie les dijo que era un bot.</p>
+HTML,
+
+            'ia-para-pymes_3_3' => <<<HTML
+<p>La personalización era antes un privilegio de las grandes empresas con equipos de marketing y datos. La IA lo democratizó: una pyme puede hoy personalizar sus comunicaciones y ofertas con un nivel de relevancia que antes era imposible sin tecnología costosa.</p>
+<h2>Qué significa personalizar con IA para una pyme</h2>
+<p>No se trata de llamar al cliente por su nombre en el email — eso ya lo hacía el marketing de los años 90. Se trata de mostrar el producto correcto, en el momento correcto, con el mensaje correcto, basándose en el comportamiento real del cliente.</p>
+<p><strong>Personalización de ofertas por comportamiento:</strong> si un cliente compró zapatos de running, el próximo email relevante para él es sobre medias técnicas, no sobre sandalias de verano. Las plataformas de email marketing con IA (Klaviyo, ActiveCampaign) pueden segmentar y enviar automáticamente según el historial de compras.</p>
+<p><strong>Recomendaciones de productos:</strong> si tienes e-commerce, los sistemas de recomendación ("también te puede gustar") pueden implementarse con herramientas como Wiser, LimeSpot o directamente con las funciones de recomendación que ofrecen Shopify y WooCommerce.</p>
+<p><strong>Timing personalizado:</strong> enviar el mensaje cuando ese cliente específico está más receptivo. Las plataformas de email con IA aprenden a qué hora abre los emails cada suscriptor y optimizan el envío individualmente.</p>
+<h2>Personalización en WhatsApp Business</h2>
+<p>Con la API de WhatsApp Business (disponible a través de plataformas como Twilio, Infobip o Vonage), puedes enviar mensajes personalizados a escala: el recordatorio de una cita que menciona el servicio específico, el seguimiento post-venta que nombra el producto que compró, la oferta de cumpleaños que llega el día correcto.</p>
+HTML,
+
+            'ia-para-pymes_3_4' => <<<HTML
+<p>Cada conversación con un cliente es una fuente de información sobre qué le importa, qué le preocupa, qué le frena de comprar y qué lo hace volver. La IA permite analizar esas conversaciones a escala y extraer insights que de otra forma quedarían perdidos.</p>
+<h2>Qué puedes aprender de tus conversaciones con clientes</h2>
+<p><strong>Las preguntas más frecuentes:</strong> si el 30% de los clientes pregunta lo mismo antes de comprar, esa información debería estar visible en tu web o en tu comunicación de marketing. Cada pregunta frecuente es una objeción que puedes resolver proactivamente.</p>
+<p><strong>Las quejas que se repiten:</strong> si múltiples clientes mencionan lo mismo (demora en la entrega, embalaje deficiente, un producto específico que defrauda), eso es un problema operacional que la analítica de conversaciones puede hacer visible antes de que escale.</p>
+<p><strong>El vocabulario que usan los clientes:</strong> cómo describen tus productos, qué palabras usan para referirse a su problema. Ese vocabulario debería aparecer en tu marketing — es el lenguaje que resuena con tu audiencia porque es el suyo.</p>
+<h2>Herramientas para analizar conversaciones</h2>
+<p><strong>ChatGPT como analizador:</strong> exporta tus conversaciones de WhatsApp Business, email o soporte, y pega un lote en ChatGPT con la instrucción "identifica las 10 temas más frecuentes y las principales quejas". No es automatizado, pero es inmediato y gratuito.</p>
+<p><strong>Tidio, Crisp y similares:</strong> plataformas de chat con funciones de análisis de conversaciones integradas. Muestran los topics más frecuentes, la satisfacción del cliente y los puntos donde la conversación se interrumpe.</p>
+<p><strong>Plataformas de CRM con IA:</strong> HubSpot y Zoho tienen funciones de análisis de interacciones que identifican patrones en el pipeline de ventas, momentos de alta conversión y señales de riesgo de pérdida.</p>
+HTML,
+
+            // ── PYMES · MÓDULO 4 ────────────────────────────────────────────
+
+            'ia-para-pymes_4_1' => <<<HTML
+<p>Cuando usas datos de clientes en herramientas de IA, hay un marco legal que aplica. Muchas pymes operan sin saberlo, lo que las expone a riesgos que son perfectamente evitables con información básica.</p>
+<h2>La Ley 19.628 de Protección de Datos Personales</h2>
+<p>Es la ley vigente en Chile que regula cómo las empresas pueden recopilar, almacenar y usar datos personales de sus clientes. Sus principios clave:</p>
+<p><strong>Finalidad:</strong> los datos solo pueden usarse para el propósito por el que fueron recopilados. Si un cliente te da su email para recibir su boleta, no puedes usarlo automáticamente para enviarle publicidad sin su consentimiento adicional.</p>
+<p><strong>Proporcionalidad:</strong> solo puedes recopilar los datos que realmente necesitas para la finalidad declarada. Pedir el RUT, dirección, teléfono y fecha de nacimiento para una suscripción a newsletter que no los requiere es desproporcionado.</p>
+<p><strong>Seguridad:</strong> debes adoptar medidas razonables para proteger los datos de acceso no autorizado. No hay una definición exacta de "razonables", pero incluye contraseñas seguras, acceso limitado a los datos y backups.</p>
+<h2>La nueva ley en tramitación</h2>
+<p>Chile está procesando una reforma sustancial a esta ley que la alineará con el RGPD europeo. Cuando entre en vigencia (proceso aún en curso a 2025), incluirá: derechos más fuertes para los titulares, obligación de notificar brechas de seguridad, creación de una Agencia de Protección de Datos con capacidad sancionatoria y multas significativamente mayores.</p>
+<h2>Lo que esto significa en la práctica</h2>
+<p>Si usas una herramienta de IA que procesa datos de clientes (nombres, emails, comportamiento de compra), esa herramienta y tú deben cumplir con estos principios. La responsabilidad no recae solo en el proveedor de la herramienta: recae también en tu empresa como responsable del tratamiento de los datos.</p>
+HTML,
+
+            'ia-para-pymes_4_2' => <<<HTML
+<p>Cumplir con la protección de datos no requiere un abogado de planta ni sistemas complejos. Para la mayoría de las pymes, hay un conjunto básico de obligaciones que con atención y orden se pueden manejar sin dificultad.</p>
+<h2>Las obligaciones básicas en la práctica</h2>
+<p><strong>Informar qué datos recopilas y para qué:</strong> tu sitio web debe tener una política de privacidad que explique qué datos recopilas (nombre, email, datos de navegación, comportamiento de compra), para qué los usas (gestionar pedidos, enviar comunicaciones, mejorar el servicio) y con quién los compartes (herramientas de email marketing, plataformas de pago).</p>
+<p>No necesita ser un documento legal denso. Puede ser una página sencilla escrita en lenguaje claro. ChatGPT puede ayudarte a redactar una política de privacidad básica adaptada a tu negocio en minutos — solo asegúrate de que refleje realmente lo que haces.</p>
+<p><strong>Obtener consentimiento para comunicaciones de marketing:</strong> el checkbox "acepto recibir comunicaciones comerciales" no puede estar pre-marcado. El cliente debe marcarlo activamente. Esto aplica a emails de marketing, SMS y WhatsApp con fines comerciales.</p>
+<p><strong>Permitir que los clientes accedan a sus datos y los eliminen:</strong> si un cliente te pide que elimines sus datos de tu base, debes poder hacerlo. Tener un proceso claro para esto (aunque sea tan simple como un email a una dirección específica) es suficiente para la mayoría de las pymes.</p>
+<h2>Los pasos mínimos para empezar a cumplir</h2>
+<ol style="color:#475569;font-size:.97rem;line-height:1.85;padding-left:1.5rem;margin-bottom:1rem;">
+<li>Publica una política de privacidad en tu sitio web</li>
+<li>Revisa que tus formularios tengan consentimiento explícito para marketing</li>
+<li>Identifica qué herramientas de terceros procesan datos de tus clientes</li>
+<li>Verifica que esas herramientas tengan sus propias políticas de privacidad adecuadas</li>
+</ol>
+HTML,
+
+            'ia-para-pymes_4_3' => <<<HTML
+<p>Además de cumplir con las obligaciones, hay prácticas específicas con datos de clientes que pueden generar consecuencias legales, reputacionales o de confianza que afecten directamente al negocio.</p>
+<h2>Lo que definitivamente no debes hacer</h2>
+<p><strong>Comprar listas de emails y usarlas para marketing masivo:</strong> ilegal bajo la ley chilena de datos y bajo los términos de uso de prácticamente todas las plataformas de email marketing. Además de ineficaz (tasas de apertura mínimas, alta tasa de spam) y dañino para la reputación de tu dominio.</p>
+<p><strong>Compartir datos de clientes con terceros sin base legal:</strong> si un socio comercial, proveedor o afiliado quiere acceso a tu base de clientes, eso requiere consentimiento de los clientes o una relación contractual clara que justifique el tratamiento compartido.</p>
+<p><strong>Pegar datos de clientes en herramientas de IA públicas sin precaución:</strong> si copias conversaciones con clientes que incluyen nombres, RUTs o información sensible y las pegas en ChatGPT u otras herramientas públicas, esos datos se envían a servidores de terceros. Usa descripciones genéricas o herramientas con garantías de privacidad adecuadas.</p>
+<p><strong>Almacenar datos de tarjetas de crédito:</strong> esto está prohibido por las normas PCI-DSS y puede generar responsabilidad civil grave. Usa siempre pasarelas de pago certificadas (Transbank, Mercado Pago, Flow) que manejan esos datos en su infraestructura segura.</p>
+<p><strong>Usar datos de clientes para propósitos distintos a los declarados:</strong> si recopilaste el email para enviar una boleta y luego lo usas para una campaña de marketing sin consentimiento adicional, eso viola el principio de finalidad de la ley de datos.</p>
+<h2>La regla práctica</h2>
+<p>Antes de hacer algo con datos de clientes, pregúntate: "¿El cliente esperaría que hiciera esto con sus datos? ¿Lo aceptaría si se lo preguntara?" Si la respuesta es no o no sé, es mejor no hacerlo o pedir consentimiento explícito primero.</p>
+HTML,
+
+            'ia-para-pymes_4_4' => <<<HTML
+<p>Muchas pymes asumen que la protección legal requiere un abogado de planta o consultoría cara. Para la mayoría de los casos prácticos, hay medidas de protección básica que puedes implementar sin asesoría legal permanente.</p>
+<h2>Los documentos mínimos que necesitas</h2>
+<p><strong>Política de privacidad:</strong> ya mencionada. Publicada en el sitio web, actualizada cuando cambia cómo usas los datos. ChatGPT puede generar un borrador que un abogado revisa por horas — no por días.</p>
+<p><strong>Términos y condiciones de servicio:</strong> qué ofreces, en qué condiciones, qué pasa si hay disputas, limitaciones de responsabilidad. Especialmente importante si vendes online. Nuevamente, el borrador puede generarse con IA y revisarse por un abogado.</p>
+<p><strong>Contratos con proveedores que procesan datos de tus clientes:</strong> si usas plataformas de email marketing, CRM o chatbots que acceden a datos de tus clientes, verifica que esas plataformas tengan términos de servicio que establezcan cómo manejan esos datos. La mayoría de las plataformas serias los tienen — solo necesitas leerlos y conservar el registro.</p>
+<h2>Cuándo sí necesitas asesoría legal</h2>
+<p>Cuando manejas datos especialmente sensibles (salud, información financiera). Cuando recibes una reclamación formal sobre el uso de datos. Cuando tu negocio crece al punto de tener más de 50 clientes activos cuya información guardas de forma centralizada. Cuando implementas sistemas de IA con lógica de decisión que afecta directamente a las personas.</p>
+<h2>El activo más valioso: la confianza del cliente</h2>
+<p>Más allá de lo legal, proteger bien los datos de tus clientes es una ventaja competitiva. Los clientes que confían en que sus datos están seguros son más leales y más dispuestos a compartir información que te permite servirlos mejor. La privacidad no es solo cumplimiento — es reputación.</p>
+HTML,
+
+            // ── PYMES · MÓDULO 5 ────────────────────────────────────────────
+
+            'ia-para-pymes_5_1' => <<<HTML
+<p>Una de las trampas más comunes cuando una pyme decide "implementar IA" es querer hacer todo a la vez. El resultado suele ser varios proyectos a medio terminar, cansancio y la sensación de que "la IA no funcionó". La clave es priorizar con criterio y empezar por lo que genera valor más rápido.</p>
+<h2>El framework de priorización: impacto vs. esfuerzo</h2>
+<p>Para cada proceso que consideras automatizar, evalúa dos dimensiones:</p>
+<p><strong>Impacto:</strong> ¿cuánto tiempo o dinero te cuesta hoy? ¿Cuánto mejoraría la experiencia del cliente? ¿Qué tan frecuente es el proceso?</p>
+<p><strong>Esfuerzo de implementación:</strong> ¿hay herramientas disponibles que lo resuelvan sin código? ¿Cuánto tiempo tomaría configurarlo? ¿Requiere integración con sistemas que ya tienes?</p>
+<p>Empieza por los procesos de <strong>alto impacto y bajo esfuerzo</strong>. Esos son tu "fruta baja": generan valor rápido y te dan confianza y aprendizaje para proyectos más complejos.</p>
+<h2>Los tres candidatos más frecuentes en pymes chilenas</h2>
+<p><strong>1. Respuesta automática a preguntas frecuentes por WhatsApp:</strong> alto impacto (libera horas diarias), bajo esfuerzo (herramientas como Respond.io o Kommo se configuran en un día).</p>
+<p><strong>2. Generación de contenido para redes sociales:</strong> alto impacto (libera tiempo creativo), bajo esfuerzo (ChatGPT + Canva + un calendario editorial básico).</p>
+<p><strong>3. Seguimiento automático de clientes que no volvieron:</strong> alto impacto (recuperación de clientes perdidos), bajo esfuerzo (una secuencia de email automatizada en Mailchimp o Brevo).</p>
+<h2>Lo que dejas para después</h2>
+<p>Los proyectos de alto impacto pero alto esfuerzo (implementar un CRM completo, integrar todos tus sistemas, construir un chatbot avanzado) son para la fase 2, cuando ya tienes el músculo de la implementación y sabes lo que funciona en tu negocio específico.</p>
+HTML,
+
+            'ia-para-pymes_5_2' => <<<HTML
+<p>Los primeros 30 días son los más críticos en cualquier implementación de IA. Es cuando se establece si la herramienta va a generar valor real o va a quedar como un experimento abandonado. El objetivo de este mes no es hacer todo — es demostrar valor con algo concreto.</p>
+<h2>La implementación mínima viable (IMV)</h2>
+<p>El concepto viene del mundo de los startups: lanza la versión más pequeña posible que te permite aprender si vas en la dirección correcta. Aplicado a la IA para pymes: implementa la versión más simple de la automatización que te permite ver si funciona, antes de invertir más tiempo en hacerla perfecta.</p>
+<h2>Un plan concreto para los primeros 30 días</h2>
+<p><strong>Días 1–5 — Elige un proceso y una herramienta:</strong> elige el proceso de mayor impacto y menor esfuerzo que identificaste. Investiga 2 o 3 herramientas que lo resuelven. Elige una y regístrate en el plan gratuito o de prueba.</p>
+<p><strong>Días 6–10 — Configura y prueba:</strong> configura la herramienta con datos reales pero en modo de prueba (no lanzada a clientes). Prueba tú mismo como si fueras cliente. Identifica qué falta y ajusta.</p>
+<p><strong>Días 11–20 — Lanza con un grupo pequeño:</strong> activa la automatización para un subconjunto de clientes o un canal específico. Monitorea activamente los resultados. ¿Funciona como esperabas? ¿Qué edge cases no habías considerado?</p>
+<p><strong>Días 21–30 — Evalúa y decide:</strong> ¿generó valor medible? ¿Los clientes respondieron bien? ¿Qué ajustes necesita? Con esa información, decide si escalar, ajustar o descartar y probar otra cosa.</p>
+<h2>El indicador de éxito de los primeros 30 días</h2>
+<p>No es que la automatización sea perfecta. Es que puedas responder honestamente: "¿Esta herramienta genera más valor del que cuesta (en dinero y tiempo)?" Si la respuesta es sí, escala. Si es no, aprende por qué y ajusta.</p>
+HTML,
+
+            'ia-para-pymes_5_3' => <<<HTML
+<p>Sin medición, no sabes si la IA está funcionando o si solo estás pagando por una herramienta que no hace diferencia. Medir no tiene que ser complejo — tiene que ser honesto y consistente.</p>
+<h2>Define la métrica antes de implementar</h2>
+<p>El error más frecuente es implementar y luego buscar qué medir. La métrica debe definirse antes: "el éxito de esta automatización se mide por X". Si no puedes definir ese X antes de implementar, probablemente no tienes claro qué problema estás resolviendo.</p>
+<h2>Las métricas más relevantes para automatizaciones de pymes</h2>
+<p><strong>Tiempo ahorrado:</strong> ¿cuántas horas por semana libera la automatización? Mídelo antes y después. Si antes dedicabas 10 horas semanales a responder preguntas frecuentes y ahora dedicas 3, ahorraste 7 horas.</p>
+<p><strong>Tasa de conversión:</strong> si automatizaste el seguimiento de leads, ¿qué porcentaje de leads convierte ahora vs. antes? Un seguimiento más rápido y consistente debería mejorar esta tasa.</p>
+<p><strong>Tiempo de respuesta al cliente:</strong> si automatizaste la atención inicial, ¿en cuánto tiempo recibe el cliente su primera respuesta? ¿Mejoró la satisfacción del cliente?</p>
+<p><strong>Tasa de reactivación:</strong> si automatizaste los emails a clientes inactivos, ¿qué porcentaje vuelve a comprar?</p>
+<p><strong>Costo por lead o por cliente:</strong> si la IA ayudó a captar más leads con el mismo presupuesto de marketing, el costo por lead baja.</p>
+<h2>El reporte mínimo mensual</h2>
+<p>Una vez al mes, revisa: ¿la herramienta sigue funcionando correctamente? ¿Las métricas que definiste mejoraron? ¿El costo sigue siendo proporcional al valor generado? Ese reporte de 30 minutos mensuales es lo que te dice si seguir, ajustar o cambiar.</p>
+HTML,
+
+            'ia-para-pymes_5_4' => <<<HTML
+<p>Una vez que tienes la primera automatización funcionando y generando valor medible, viene la pregunta de cómo crecer. El error más común es escalar demasiado rápido — implementar todo a la vez antes de tener el aprendizaje suficiente. El camino sostenible es gradual.</p>
+<h2>El principio de escalamiento gradual</h2>
+<p>Cada nueva implementación debe construir sobre lo que aprendiste en la anterior. No des el siguiente paso hasta que el paso actual esté estabilizado y midiendo bien. Una empresa con 3 automatizaciones que funcionan perfecto es más fuerte que una con 10 que funcionan a medias.</p>
+<h2>El orden natural de escalamiento para pymes</h2>
+<p><strong>Fase 1 — Automatizar lo repetitivo:</strong> preguntas frecuentes, seguimientos, reportes. Lo que hace la misma cosa muchas veces. Aquí es donde empieza la mayoría.</p>
+<p><strong>Fase 2 — Conectar los sistemas:</strong> integrar las herramientas que ya usas para que los datos fluyan sin intervención manual. El pedido que actualiza el inventario, el pago que genera la factura, el lead que entra al CRM.</p>
+<p><strong>Fase 3 — Personalizar a escala:</strong> usar los datos que ya tienes para comunicaciones más relevantes. Segmentación por comportamiento, ofertas basadas en historial, timing optimizado.</p>
+<p><strong>Fase 4 — Analizar y aprender:</strong> usar la IA para entender qué está pasando en el negocio. Qué productos tienen más rotación, qué clientes tienen mayor valor de vida, qué procesos tienen cuellos de botella.</p>
+<h2>El activo más valioso que construyes en el camino</h2>
+<p>No son las herramientas — son los datos y el conocimiento sobre tu negocio que acumulas al medirlo. Una pyme que lleva dos años midiendo sus procesos con IA tiene un activo de inteligencia de negocio que le permite tomar mejores decisiones, más rápido, que sus competidores que operan a ciegas.</p>
+<div style="background:linear-gradient(135deg,#f472b6,#ec4899);border-radius:1rem;padding:2rem;text-align:center;margin-top:2rem;">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
+    <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">¡Curso completado!</h2>
+    <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Emprendedores y Pymes</strong>. Tienes ahora un plan concreto para implementar IA en tu negocio, medir su impacto y escalar gradualmente.</p>
     <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
 </div>
 HTML,
