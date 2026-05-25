@@ -102,7 +102,7 @@
                             <div class="fw-bold mb-1" style="color:#0f172a;font-size:1.1rem;">Juan Pablo Basualdo</div>
                             <div style="color:var(--primary-color);font-size:.82rem;margin-bottom:.75rem;">Fundador y Director</div>
                             <p style="color:#475569;font-size:.93rem;line-height:1.75;margin:0;">
-                                Ingeniero informático y desarrollador de software. Fundó ConocIA con la convicción de que el conocimiento sobre inteligencia artificial no puede seguir siendo exclusivo de quienes leen papers en inglés o trabajan en Silicon Valley. Desde Santiago de Chile, combina su formación técnica con una vocación por explicar lo complejo de forma accesible.
+                                Ingeniero informático. Fundó ConocIA con la convicción de que el conocimiento sobre inteligencia artificial no puede seguir siendo exclusivo de quienes leen papers en inglés o trabajan en Silicon Valley. Desde Santiago de Chile, combina su formación técnica con una vocación por explicar lo complejo de forma accesible.
                             </p>
                         </div>
                     </div>

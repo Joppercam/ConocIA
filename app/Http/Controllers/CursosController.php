@@ -66,6 +66,11 @@ class CursosController extends Controller
             'ia-para-derecho_3_1', 'ia-para-derecho_3_2', 'ia-para-derecho_3_3', 'ia-para-derecho_3_4',
             'ia-para-derecho_4_1', 'ia-para-derecho_4_2', 'ia-para-derecho_4_3', 'ia-para-derecho_4_4',
             'ia-para-derecho_5_1', 'ia-para-derecho_5_2', 'ia-para-derecho_5_3', 'ia-para-derecho_5_4',
+            'ia-para-docentes_1_1', 'ia-para-docentes_1_2', 'ia-para-docentes_1_3', 'ia-para-docentes_1_4',
+            'ia-para-docentes_2_1', 'ia-para-docentes_2_2', 'ia-para-docentes_2_3', 'ia-para-docentes_2_4',
+            'ia-para-docentes_3_1', 'ia-para-docentes_3_2', 'ia-para-docentes_3_3', 'ia-para-docentes_3_4',
+            'ia-para-docentes_4_1', 'ia-para-docentes_4_2', 'ia-para-docentes_4_3', 'ia-para-docentes_4_4',
+            'ia-para-docentes_5_1', 'ia-para-docentes_5_2', 'ia-para-docentes_5_3', 'ia-para-docentes_5_4',
         ];
         return in_array($key, $defined) ? true : null;
     }
@@ -599,6 +604,298 @@ HTML,
     <a href="{{ route('cursos.index') }}" class="btn btn-sm" style="background:#00c896;color:white;font-size:.85rem;border:none;padding:.5rem 1.25rem;border-radius:.5rem;text-decoration:none;">
         Ver otros cursos
     </a>
+</div>
+HTML,
+
+            // ── DOCENTES · MÓDULO 1 ─────────────────────────────────────────
+
+            'ia-para-docentes_1_1' => <<<HTML
+<p>Entre el 60 y el 70% de los estudiantes universitarios en América Latina reconocen haber usado IA generativa en sus trabajos académicos. En educación media, la cifra es más difícil de medir pero los datos cualitativos apuntan en la misma dirección: ChatGPT, Copilot y herramientas similares forman parte de la rutina de estudio de una generación entera.</p>
+<p>Lo primero que necesitas entender es <strong>cómo usan la IA, no solo cuánto</strong>. No es lo mismo usar ChatGPT para generar un ensayo completo que usarlo para explicar un concepto que no se entendió en clases, o para corregir la gramática de un texto propio. El uso varía enormemente según la asignatura, el nivel educativo y la cultura del establecimiento.</p>
+<h2>Los tres patrones de uso más frecuentes</h2>
+<p><strong>1. Generación completa de tareas:</strong> el estudiante entrega el prompt al modelo, copia la respuesta y la entrega. Este es el caso que más preocupa a los docentes y es, según los datos, el menos frecuente de los tres —aunque no marginal.</p>
+<p><strong>2. Apoyo y complemento:</strong> el estudiante hace su trabajo, luego pide a la IA que lo revise, lo mejore, lo amplíe o lo explique de otra manera. Aquí la IA actúa como un tutor disponible 24/7. Es el uso más extendido en estudiantes de rendimiento medio-alto.</p>
+<p><strong>3. Exploración y comprensión:</strong> el estudiante usa la IA para entender un concepto antes de enfrentarse a la tarea. "Explícame qué es la fotosíntesis como si tuviera 12 años." Este uso es el más cercano a lo pedagógicamente valioso y el menos discutido en las políticas escolares.</p>
+<h2>Qué implica esto para tu práctica docente</h2>
+<p>Que el fenómeno ya ocurre con o sin tu autorización. La pregunta ya no es "¿permito la IA?" sino "¿tengo claridad sobre qué usos son aceptables y cuáles no, y mis estudiantes también la tienen?"</p>
+<p>El docente que sigue diseñando evaluaciones como si la IA no existiera no está siendo más exigente: está siendo menos realista. Y el que prohíbe sin política clara crea un doble estándar donde quienes hacen trampa son los que menos pueden permitirse el tiempo de hacer el trabajo completo por su cuenta.</p>
+HTML,
+
+            'ia-para-docentes_1_2' => <<<HTML
+<p>Para poder tomar decisiones informadas sobre el uso de IA en tu aula, necesitas conocer el ecosistema de herramientas al que tus estudiantes tienen acceso. No es un catálogo tecnológico: es el mapa de lo que ya está en sus bolsillos.</p>
+<h2>Las herramientas más usadas por estudiantes</h2>
+<p><strong>ChatGPT (OpenAI):</strong> la más popular por lejos. En su versión gratuita (GPT-3.5 y ahora GPT-4o) permite generar texto, resumir documentos, resolver ejercicios matemáticos, escribir código y mucho más. La versión gratuita es suficiente para la mayoría de las tareas académicas de educación media y universitaria.</p>
+<p><strong>Microsoft Copilot:</strong> integrado en Edge, Bing y Office 365. Si tu establecimiento usa cuentas Microsoft para estudiantes, Copilot puede estar disponible directamente en Word. Muchos estudiantes ni siquiera saben que lo están usando cuando piden "sugerencias" en un documento.</p>
+<p><strong>Google Gemini:</strong> integrado en el ecosistema Google. Si tus estudiantes usan Google Docs, Gmail o Google Classroom, Gemini puede aparecer como asistente de escritura. Relevante especialmente para establecimientos que usan Google Workspace for Education.</p>
+<p><strong>Quillbot y similares:</strong> herramientas de paráfrasis que permiten reescribir texto manteniendo el sentido pero cambiando las palabras. Muy usadas para "humanizar" textos generados por IA o evitar la detección de plagio tradicional.</p>
+<p><strong>Wolfram Alpha:</strong> no es IA generativa, pero lleva años resolviendo problemas matemáticos paso a paso. Cualquier evaluación de matemáticas que no considere esta herramienta tiene décadas de atraso.</p>
+<h2>Lo que cambia en 2025</h2>
+<p>Las IA multimodales ya permiten que un estudiante fotografíe un ejercicio con su celular y reciba la solución explicada en segundos. Las búsquedas con IA integrada (Google AI Overviews, Perplexity) están reemplazando la lectura de fuentes primarias. El estudiante de hoy no googlea: pregunta.</p>
+<p>El conocer estas herramientas no es para que las uses todas: es para que no te sorprendan y para que tus políticas y evaluaciones sean realistas.</p>
+HTML,
+
+            'ia-para-docentes_1_3' => <<<HTML
+<p>Una de las causas de malas decisiones pedagógicas frente a la IA es la fantasía —en ambas direcciones. Algunos docentes creen que la IA "lo puede todo" y que cualquier evaluación es inútil. Otros creen que la IA comete tantos errores que sus estudiantes igual aprenden al detectarlos. Ni uno ni otro extremo es útil.</p>
+<h2>Qué pueden hacer estas herramientas hoy</h2>
+<p><strong>Generar texto coherente y fluido:</strong> a nivel de redacción superficial, los modelos actuales escriben mejor que muchos humanos. Pueden producir ensayos, informes, resúmenes, correos formales y narrativas con coherencia gramatical y estructura lógica.</p>
+<p><strong>Resumir y sintetizar:</strong> a partir de un documento largo, pueden extraer los puntos clave con alta precisión. Esto hace irrelevante cualquier evaluación que pida "resumir el capítulo".</p>
+<p><strong>Resolver problemas estructurados:</strong> matemáticas, física, química, código de programación. Problemas con respuesta única y verificable son altamente manejables para los modelos actuales.</p>
+<p><strong>Responder preguntas factuales conocidas:</strong> historia, geografía, biología, conceptos establecidos. Si la respuesta existe en el entrenamiento del modelo, lo más probable es que la responda bien.</p>
+<h2>Qué no pueden hacer (todavía) bien</h2>
+<p><strong>Experiencias personales auténticas:</strong> no pueden describir lo que TÚ viviste, lo que TÚ observaste, lo que TÚ construiste. Las evaluaciones basadas en experiencias de aprendizaje concretas y situadas siguen siendo robustas.</p>
+<p><strong>Razonamiento en situaciones inéditas:</strong> los modelos son brillantes en patrones conocidos y débiles ante problemas que requieren adaptación creativa genuina a un contexto específico y local.</p>
+<p><strong>Opinión fundamentada en lectura real:</strong> pueden simular haber leído, pero si pides una opinión sobre cómo un texto específico cambió la perspectiva del estudiante, o qué pasó en la discusión del martes pasado en clases, la IA no puede saberlo.</p>
+<p><strong>Consistencia factual en dominios especializados:</strong> cometen errores con fechas, citas, estadísticas recientes y detalles técnicos específicos. No siempre los detecta el estudiante, pero sí un docente que conoce bien su disciplina.</p>
+HTML,
+
+            'ia-para-docentes_1_4' => <<<HTML
+<p>La discusión sobre IA en educación en Chile tiene particularidades que hay que considerar. No es lo mismo hablar de esto en una universidad privada de Santiago que en un liceo técnico de La Araucanía o una escuela rural de la Región de Los Ríos.</p>
+<h2>Los datos que tenemos</h2>
+<p>El Ministerio de Educación de Chile no tiene aún estadísticas oficiales publicadas sobre uso de IA en establecimientos. Los datos disponibles vienen de estudios de universidades (especialmente PUC y UAI) y de organismos internacionales como UNESCO y OCDE.</p>
+<p>Un estudio de la UAI (2024) encontró que el <strong>73% de los estudiantes universitarios chilenos</strong> había usado ChatGPT al menos una vez para tareas académicas. Entre los que la usaban regularmente, el 44% declaró no saber bien si lo que hacían estaba permitido o no.</p>
+<p>Esa última cifra es clave: el problema no es solo la herramienta, es la ausencia de política clara.</p>
+<h2>La brecha digital que complica todo</h2>
+<p>Chile tiene una de las tasas de penetración de smartphone más altas de América Latina (sobre el 80% de la población). Pero el acceso a internet de calidad en el hogar sigue siendo desigual. Eso significa que en muchos contextos, la IA generativa es accesible principalmente desde el celular con datos móviles, no desde un computador con conexión estable.</p>
+<p>Esto tiene implicancias directas: las políticas de "no IA" en el aula que no consideran que el estudiante puede acceder igual desde su teléfono son ingenuamente ineficaces.</p>
+<h2>Qué está haciendo el sistema educativo chileno</h2>
+<p>A 2025, el Mineduc tiene lineamientos generales sobre uso ético de tecnología pero no una política específica sobre IA generativa. Algunas universidades (UAI, UDD, Diego Portales) han publicado sus propias políticas. La mayoría de los establecimientos escolares opera sin directrices claras.</p>
+<p>Eso te deja a ti, docente, en una posición de mayor responsabilidad y también de mayor oportunidad: puedes ser quien lidera esta conversación en tu establecimiento antes de que llegue desde arriba con una política que no se adapta a tu realidad.</p>
+HTML,
+
+            // ── DOCENTES · MÓDULO 2 ─────────────────────────────────────────
+
+            'ia-para-docentes_2_1' => <<<HTML
+<p>La pregunta que más escuchan los docentes hoy es también la más difícil: "¿usar ChatGPT para hacer la tarea es trampa?" La respuesta honesta es: depende. Y esa ambigüedad, si no la resuelves tú explícitamente, la resolverán tus estudiantes a su favor.</p>
+<h2>El problema con la definición tradicional de trampa</h2>
+<p>La deshonestidad académica siempre tuvo una definición relativamente clara: copiar el trabajo de otro sin atribución, usar material no autorizado en una evaluación, fabricar datos. La IA lo complica porque:</p>
+<ul>
+<li>El texto generado no pertenece a ninguna persona identificable</li>
+<li>El estudiante sí tomó la decisión de qué preguntar y qué entregar</li>
+<li>La herramienta está disponible legalmente y de forma gratuita</li>
+<li>No hay consenso institucional claro sobre qué está permitido</li>
+</ul>
+<h2>Un marco más útil: ¿qué aprendizaje estás evaluando?</h2>
+<p>En lugar de preguntarte "¿es trampa?", pregúntate: <strong>¿qué proceso de aprendizaje quería que ocurriera, y la IA lo reemplazó o lo potenció?</strong></p>
+<p>Si pediste que redactaran un ensayo para que practicaran la argumentación escrita, y la IA escribió el ensayo, el aprendizaje no ocurrió. Si pediste que analizaran un caso y usaron la IA para buscar jurisprudencia pero el análisis es suyo, puede ser perfectamente válido.</p>
+<h2>Los tres niveles de uso según su impacto en el aprendizaje</h2>
+<p><strong>Uso instrumental legítimo:</strong> corrección gramatical, traducción de términos, búsqueda de sinónimos, organización de ideas propias. No compromete el aprendizaje.</p>
+<p><strong>Uso de apoyo discutible:</strong> usar IA para entender un concepto antes de hacer la tarea, pedir que revise el argumento y mejore la estructura. Depende del objetivo de la evaluación.</p>
+<p><strong>Uso sustitutivo:</strong> la IA produce el trabajo que el estudiante debía producir. Esto sí compromete el aprendizaje, independientemente de si "se nota" o no.</p>
+<p>La trampa ya no se define solo por el origen del texto, sino por si el proceso que debía generar aprendizaje realmente ocurrió.</p>
+HTML,
+
+            'ia-para-docentes_2_2' => <<<HTML
+<p>Uno de los errores más costosos que puede cometer un establecimiento es basar su política de integridad académica en detectores de IA. Estos sistemas —Turnitin AI, GPTZero, Copyleaks, y otros— tienen limitaciones fundamentales que los hacen inadecuados como base de una política justa.</p>
+<h2>Cómo funcionan los detectores de IA</h2>
+<p>Analizan patrones estadísticos en el texto: perplejidad (qué tan predecible es la secuencia de palabras) y explosividad (variabilidad en la longitud de oraciones). Los textos de IA tienden a ser más uniformes, más predecibles. Los detectores buscan esa uniformidad.</p>
+<p>El problema: estos mismos patrones aparecen en escritura humana clara y directa, en textos técnicos, en personas que escriben en su segunda lengua, en estudiantes con diferente estilo de redacción del promedio.</p>
+<h2>La evidencia sobre falsos positivos</h2>
+<p>Un estudio de la Universidad de Stanford (2023) encontró que GPTZero marcaba como IA el 61% de los ensayos escritos por estudiantes cuya lengua nativa no era el inglés. En español, estudios similares muestran tasas de error significativas con textos técnicos o formales.</p>
+<p>Turnitin ha señalado que su detector tiene una tasa de falsos positivos del 4% cuando se calibra para identificar más del 80% del contenido IA. Eso puede sonar bajo, pero en un curso de 200 estudiantes son 8 estudiantes acusados falsamente.</p>
+<h2>Lo que sí puedes hacer</h2>
+<p>Los detectores pueden ser un <strong>indicador de alerta</strong>, no una prueba de culpabilidad. Si un detector señala un texto, el paso siguiente debe ser una conversación: pedir al estudiante que defienda su trabajo, que explique su argumento, que desarrolle el razonamiento en tiempo real.</p>
+<p>Un estudiante que realmente hizo el trabajo puede hacer eso. Uno que copió y pegó sin entender, no.</p>
+<p>La defensa oral —aunque sea informal— es el detector más confiable que existe.</p>
+HTML,
+
+            'ia-para-docentes_2_3' => <<<HTML
+<p>La política de integridad académica más efectiva no es la más restrictiva: es la más clara y la más coherente con los objetivos de aprendizaje que declaras. Una política vaga aplicada de forma inconsistente genera más injusticia y más confusión que no tener ninguna.</p>
+<h2>Los cuatro elementos de una política efectiva</h2>
+<p><strong>1. Especificidad por evaluación:</strong> en lugar de una regla general de "no IA", definir para cada evaluación qué usos son permitidos. Ejemplo: "En este ensayo, puedes usar IA para revisar gramática pero no para generar ideas o estructura. Debes declarar si la usaste."</p>
+<p><strong>2. Declaración de uso:</strong> pedir que los estudiantes declaren cómo usaron (o no usaron) IA, de la misma manera que se declaran las fuentes bibliográficas. Esto crea responsabilidad explícita y normaliza la honestidad sobre el proceso.</p>
+<p><strong>3. Consecuencias proporcionales:</strong> distinguir entre un estudiante que usó IA más de lo permitido (error de juicio, consecuencia académica moderada) y uno que fabricó datos o copió trabajo de otro (deshonestidad grave). No todo merece la misma sanción.</p>
+<p><strong>4. Evaluación del proceso además del producto:</strong> pedir borradores, incluir instancias de defensa oral, exigir reflexión sobre el proceso de aprendizaje. Esto hace la política más robusta sin necesidad de detectores.</p>
+<h2>Un ejemplo concreto</h2>
+<p>Algunos docentes están adoptando el modelo de "declaración de uso de IA" al final de cada entrega: un párrafo breve donde el estudiante explica qué herramientas usó y para qué. Esta práctica, tomada del mundo científico (Nature y otras revistas ya lo exigen), educa en transparencia y responsabilidad sin prohibir.</p>
+<p>La política que funciona es la que tus estudiantes entienden, sienten como justa y pueden cumplir sin sentirse perseguidos.</p>
+HTML,
+
+            'ia-para-docentes_2_4' => <<<HTML
+<p>Ninguna política de integridad funciona si no hay una conversación real detrás. No un discurso, no un reglamento leído en voz alta: una conversación donde los estudiantes puedan hacer preguntas, expresar dudas y entender el razonamiento detrás de las reglas.</p>
+<h2>Por qué esta conversación importa</h2>
+<p>Los estudiantes que usan IA para hacer trampa rara vez lo hacen porque son deshonestos por naturaleza. Lo hacen porque están sobrepasados, porque no entienden por qué importa el proceso, porque nadie les explicó que el objetivo de la tarea no era el texto sino el aprendizaje que ocurre al escribirlo.</p>
+<p>Si la única razón que diste para no usar IA fue "porque las reglas lo dicen", esa es una razón frágil. Si explicas por qué ese proceso de aprendizaje específico importa para su desarrollo, estás construyendo algo más sólido.</p>
+<h2>Cómo estructurar la conversación</h2>
+<p><strong>Empieza con curiosidad, no con acusación:</strong> "¿Cuántos de ustedes han usado ChatGPT para alguna tarea este semestre?" Levantamiento de mano, sin consecuencias. Normalizar la honestidad.</p>
+<p><strong>Explora los usos, no los juzgues de entrada:</strong> "¿Para qué lo usaron?" Deja que describan. Probablemente descubras usos que nunca habías considerado, algunos muy legítimos.</p>
+<p><strong>Comparte tu propia experiencia con la IA:</strong> si la usas (o si la probaste y te pareció útil o decepcionante), cuéntalo. Elimina la distancia entre "yo que sé" y "ustedes que hacen trampa".</p>
+<p><strong>Construye las reglas juntos:</strong> "Dado lo que acabamos de conversar, ¿cómo creen que deberíamos manejar esto en este curso?" La participación en el diseño de la norma aumenta el compromiso con cumplirla.</p>
+<p>Esta conversación no es un evento único: es algo que debe ocurrir al inicio del año y revisarse cuando aparezcan casos concretos.</p>
+HTML,
+
+            // ── DOCENTES · MÓDULO 3 ─────────────────────────────────────────
+
+            'ia-para-docentes_3_1' => <<<HTML
+<p>La IA no solo es un desafío para la evaluación: es también una herramienta poderosa para reducir la carga de preparación que consume horas que podrías dedicar a lo que más importa: la relación con tus estudiantes y la reflexión sobre tu práctica pedagógica.</p>
+<h2>Preparar clases con IA</h2>
+<p><strong>Generar explicaciones alternativas:</strong> si tienes dificultad para que un grupo entienda un concepto, puedes pedir a la IA que lo explique de cinco formas diferentes —con analogías, con ejemplos históricos, con una metáfora visual. No todas serán útiles, pero una o dos probablemente sí.</p>
+<p><strong>Adaptar materiales por nivel:</strong> pega un texto técnico y pide que lo adapte para distintos niveles de comprensión. Útil para grupos con diferentes ritmos de aprendizaje o para preparar lecturas de introducción y lectura avanzada del mismo tema.</p>
+<p><strong>Buscar contraejemplos y casos:</strong> "Dame tres casos históricos donde esta teoría económica falló en la práctica." La IA puede generar una lista de punto de partida que luego verificas y seleccionas.</p>
+<h2>Crear materiales didácticos</h2>
+<p><strong>Presentaciones:</strong> describe el tema y el nivel, pide una estructura de presentación con puntos clave por diapositiva. No reemplaza tu diseño pedagógico, pero elimina el tiempo en blanco frente a una presentación vacía.</p>
+<p><strong>Guías de lectura:</strong> a partir de un texto, pide que genere preguntas de comprensión, de análisis y de opinión fundamentada. En diez minutos tienes una guía completa que normalmente te tomaría una hora.</p>
+<p><strong>Glosarios y resúmenes:</strong> pide que identifique los términos clave de un capítulo y los defina en lenguaje accesible para tu nivel de estudiantes.</p>
+<h2>El paso crítico: verificar siempre</h2>
+<p>La IA comete errores. No uses materiales generados por IA sin revisarlos. Pero la diferencia entre revisar un borrador y crear desde cero es enorme en términos de tiempo. Usa la IA como primer borrador, tú como editor con criterio pedagógico.</p>
+HTML,
+
+            'ia-para-docentes_3_2' => <<<HTML
+<p>Generar buenas evaluaciones es uno de los trabajos más costosos en tiempo para un docente. La IA puede reducir ese tiempo sustancialmente —pero la calidad del resultado depende de qué tan bien le describes lo que necesitas.</p>
+<h2>Cómo pedir evaluaciones útiles</h2>
+<p>Un prompt vago produce resultados genéricos. Un prompt específico produce resultados utilizables. La diferencia está en cuánta información le das al modelo.</p>
+<p><strong>Prompt débil:</strong> "Crea 10 preguntas sobre la Revolución Francesa."</p>
+<p><strong>Prompt efectivo:</strong> "Crea 10 preguntas para un examen de Historia de 2° medio sobre la Revolución Francesa. Los estudiantes ya vieron causas, etapas y consecuencias. Quiero 4 preguntas de comprensión factual, 4 de análisis causal y 2 de opinión fundamentada. El examen dura 45 minutos."</p>
+<p>Con el segundo prompt obtienes algo que puedes revisar y usar con ajustes menores.</p>
+<h2>Tipos de evaluación que puedes generar</h2>
+<p><strong>Preguntas de opción múltiple con distractores:</strong> pide que genere las alternativas incorrectas basadas en errores comunes de comprensión. Esto hace la evaluación más diagnóstica.</p>
+<p><strong>Casos para análisis:</strong> "Genera un caso ficticio pero realista sobre un conflicto ético en el lugar de trabajo para que los estudiantes de Formación Ciudadana analicen usando los criterios que vimos."</p>
+<p><strong>Rúbricas:</strong> describe el tipo de trabajo que vas a evaluar y pide una rúbrica con criterios y niveles de desempeño. Ajústala a tu contexto.</p>
+<h2>Lo que la IA no puede hacer por ti</h2>
+<p>No puede saber qué aprendieron específicamente tus estudiantes este semestre, qué ejemplos usaste en clases, qué errores conceptuales observaste en trabajos anteriores. Esa información contextual es la que transforma una evaluación genérica en una evaluación tuya. Ponla tú.</p>
+HTML,
+
+            'ia-para-docentes_3_3' => <<<HTML
+<p>Dar retroalimentación de calidad a 30 o 40 estudiantes sobre un trabajo escrito es uno de los grandes cuellos de botella de la práctica docente. La IA puede ayudarte a escalarlo sin sacrificar la personalización.</p>
+<h2>El modelo de retroalimentación asistida por IA</h2>
+<p>No se trata de que la IA escriba la retroalimentación. Se trata de que te ayude a hacerla más rápido y más consistente.</p>
+<p><strong>Paso 1 — Define tus criterios:</strong> escribe o pega la rúbrica o los criterios de evaluación que usarás.</p>
+<p><strong>Paso 2 — Pega el trabajo del estudiante:</strong> junto con los criterios, pide a la IA que identifique fortalezas y debilidades según esos criterios. No que ponga nota: que señale dónde el argumento es sólido y dónde no.</p>
+<p><strong>Paso 3 — Tú editas y personalizas:</strong> la IA te da un borrador. Tú lo ajustas con lo que conoces del estudiante, su historia de aprendizaje, el contexto de la clase.</p>
+<p>Con este modelo, lo que antes tomaba 10 minutos por trabajo puede tomar 3 o 4 —sin perder profundidad.</p>
+<h2>Retroalimentación diferenciada para grupos distintos</h2>
+<p>Si tienes estudiantes con necesidades educativas especiales o con diferentes ritmos de aprendizaje, puedes pedir a la IA que adapte la retroalimentación al nivel de lenguaje apropiado o que enfatice distintos aspectos según el perfil del estudiante.</p>
+<h2>Un uso que funciona especialmente bien</h2>
+<p>Pedir a la IA que genere "preguntas de reflexión" en lugar de solo señalar errores. En lugar de "tu argumento es débil", la IA puede generar: "¿Qué evidencia agregarías para reforzar este punto?" o "¿Cómo responderías a alguien que argumente lo contrario?" Esto convierte la retroalimentación en un diálogo, no en un juicio.</p>
+HTML,
+
+            'ia-para-docentes_3_4' => <<<HTML
+<p>Una encuesta de la OCDE encontró que los docentes dedican en promedio el 40% de su tiempo laboral a tareas administrativas: planificaciones, informes, comunicaciones, registros. La IA puede devolverte parte de ese tiempo.</p>
+<h2>Comunicaciones con familias</h2>
+<p>Redactar comunicaciones para apoderados que sean claras, respetuosas y efectivas toma tiempo. Puedes pedir a la IA que redacte una primera versión a partir de puntos clave que tú le das.</p>
+<p>Ejemplo: "Redacta una comunicación para apoderados informando que el promedio de la unidad 2 fue más bajo de lo esperado, que vamos a hacer una evaluación recuperativa el viernes y que los estudiantes pueden acercarse a consultar. Tono profesional pero cercano."</p>
+<p>Tú revisas, ajustas el tono según tu estilo y envías. Lo que antes tomaba 20 minutos, toma 5.</p>
+<h2>Informes de evaluación</h2>
+<p>Pide a la IA que te ayude a redactar observaciones cualitativas a partir de notas tuyas. "El estudiante muestra dificultades en comprensión lectora pero participa activamente en discusiones. Redacta una observación para el informe de notas en tono constructivo y orientado a la mejora."</p>
+<h2>Planificaciones y programaciones</h2>
+<p>Describe la unidad, los objetivos de aprendizaje y las semanas disponibles. Pide una propuesta de secuencia de clases. No la uses tal cual —nadie conoce tu grupo como tú— pero elimina el tiempo en blanco frente a un documento vacío.</p>
+<h2>El límite importante</h2>
+<p>Nunca pegues información personal identificable de estudiantes en herramientas de IA comerciales. Nombres, RUT, historial académico detallado, situaciones familiares. Usa descripciones genéricas ("un estudiante con dificultad en lectura") o sistemas institucionales con garantías de privacidad adecuadas.</p>
+HTML,
+
+            // ── DOCENTES · MÓDULO 4 ─────────────────────────────────────────
+
+            'ia-para-docentes_4_1' => <<<HTML
+<p>La pregunta que más libera a los docentes cuando piensan en IA y evaluación no es "¿cómo detecto si usaron IA?" sino "¿qué tipo de trabajo no puede hacer la IA por un estudiante sin que el aprendizaje ocurra de todas formas?"</p>
+<h2>El principio central</h2>
+<p>La IA es excelente en producir output a partir de conocimiento que ya existe. Es débil ante tareas que requieren experiencia vivida, posicionamiento personal fundamentado y síntesis creativa en contextos específicos e irrepetibles.</p>
+<h2>Tipos de evaluación más robustos frente a la IA</h2>
+<p><strong>Evaluación basada en experiencia propia:</strong> "Entrevista a alguien de tu familia o comunidad sobre X y analiza la entrevista usando los conceptos del módulo." La IA no puede hacer la entrevista ni describir lo que pasó en ese momento específico.</p>
+<p><strong>Trabajo situado en el contexto local:</strong> "Analiza cómo se aplica este principio económico en la empresa donde trabaja alguien de tu entorno cercano." Requiere acceso a información que no está en internet.</p>
+<p><strong>Defensa oral:</strong> cualquier evaluación que incluya una instancia donde el estudiante debe explicar su trabajo, responder preguntas, defender una posición. No se puede delegar a la IA.</p>
+<p><strong>Diario de aprendizaje o portafolio reflexivo:</strong> si pides reflexión genuina y continua sobre el proceso de aprendizaje —qué costó, qué cambió, qué conectó con la vida real— es difícil falsificarlo de forma coherente a lo largo del tiempo.</p>
+<p><strong>Producción con restricciones específicas:</strong> "Escribe un texto argumentativo usando solo los tres textos que leímos en clases, citándolos directamente." La IA no tiene acceso a esos textos específicos (a menos que el estudiante los pegue).</p>
+<h2>La conclusión práctica</h2>
+<p>No necesitas eliminar todos los trabajos escritos. Necesitas añadir una dimensión que anclé el trabajo a la experiencia real del estudiante —ya sea con una instancia oral, una reflexión sobre el proceso o un elemento de contexto local que la IA no puede inventar de forma creíble.</p>
+HTML,
+
+            'ia-para-docentes_4_2' => <<<HTML
+<p>Durante décadas, la evaluación educativa se centró en el producto: el ensayo terminado, el examen respondido, el proyecto entregado. La IA hace obsoleta esa única dimensión de evaluación, pero abre la puerta a algo más pedagógicamente valioso: evaluar el proceso de aprendizaje mismo.</p>
+<h2>Por qué el proceso importa más que nunca</h2>
+<p>Si lo que te importa es si el estudiante aprendió —no si produjo texto— entonces necesitas evidencia de que el aprendizaje ocurrió. Esa evidencia está en el proceso: las decisiones que tomó, los errores que cometió y corrigió, cómo cambió su comprensión a lo largo del trabajo.</p>
+<h2>Estrategias para evaluar el proceso</h2>
+<p><strong>Borradores progresivos:</strong> pedir versiones sucesivas de un trabajo con reflexión sobre qué cambió y por qué. Un estudiante que copió de la IA en la versión 1 tendrá dificultad para mostrar evolución coherente en las versiones 2 y 3.</p>
+<p><strong>Bitácora de trabajo:</strong> "Anota al final de cada sesión de trabajo qué hiciste, qué dificultad encontraste y cómo la resolviste." Cinco minutos por sesión, evidencia valiosa de proceso real.</p>
+<p><strong>Defensa de decisiones:</strong> no preguntar qué dice el trabajo, sino "¿por qué elegiste este argumento y no otro?" o "¿qué descartaste antes de llegar a esta conclusión?" Estas preguntas revelan si hay comprensión real detrás del texto.</p>
+<p><strong>Error productivo documentado:</strong> pedir que el estudiante incluya en la entrega un error que cometió y cómo lo resolvió. Esto valoriza la equivocación como parte del aprendizaje y hace el proceso visible.</p>
+<h2>El cambio de mentalidad necesario</h2>
+<p>Evaluar el proceso requiere confiar más en la conversación y la observación que en el texto terminado. Es un cambio que muchos docentes encuentran más rico pedagógicamente —y más justo— que la evaluación solo por producto. La IA no lo facilita solo porque complica la evaluación tradicional: lo hace necesario.</p>
+HTML,
+
+            'ia-para-docentes_4_3' => <<<HTML
+<p>Una alternativa a tratar la IA como amenaza es incorporarla explícitamente como parte de la evaluación. En lugar de preguntarte cómo evitar que los estudiantes la usen, preguntarte cómo hacer que el uso de IA sea parte del aprendizaje que evalúas.</p>
+<h2>El modelo de "IA como herramienta del trabajo"</h2>
+<p>En muchas profesiones, usar IA eficazmente ya es una competencia laboral. Enseñar a los estudiantes a usarla bien y evaluarlos en eso no es bajar el estándar: es preparar para la realidad que van a encontrar.</p>
+<h2>Ejemplos de evaluaciones que incorporan IA</h2>
+<p><strong>Análisis crítico de output de IA:</strong> "Usa ChatGPT para que genere un ensayo sobre X. Luego identifica tres errores, imprecisiones o puntos débiles del texto generado y corrígelos con fundamentación." Requiere comprensión profunda del tema para identificar los errores.</p>
+<p><strong>Prompt engineering como evaluación:</strong> "Diseña cinco prompts para obtener de la IA información útil sobre este tema. Evalúa qué tan buenas fueron las respuestas y por qué." Evalúa pensamiento crítico y comprensión del tema.</p>
+<p><strong>IA como punto de partida, análisis propio como llegada:</strong> "Parte con lo que te dio la IA sobre este tema histórico. Luego contrástalo con las fuentes primarias que leímos y señala qué añade, qué simplifica y qué distorsiona la IA." Requiere lectura real de fuentes.</p>
+<p><strong>Proyecto con declaración de uso:</strong> cualquier trabajo donde el estudiante declara qué usó de IA, cómo lo adaptó y qué aportó él. La declaración es parte de la evaluación.</p>
+<h2>La competencia que estás desarrollando</h2>
+<p>Usar IA críticamente —saber qué pedirle, evaluar la calidad de lo que devuelve, identificar sus límites— es una competencia del siglo XXI tan valiosa como leer comprensivamente o argumentar por escrito. Los estudiantes que salgan de tu aula sabiendo hacer esto tendrán ventaja.</p>
+HTML,
+
+            'ia-para-docentes_4_4' => <<<HTML
+<p>Las estrategias de evaluación no son neutrales respecto a la asignatura ni al nivel. Lo que funciona en un curso universitario de Literatura no funciona igual en matemáticas de 7° básico o en Ciencias de 4° medio. A continuación, ejemplos concretos por área.</p>
+<h2>Lenguaje y Comunicación</h2>
+<p>La IA es especialmente poderosa en producción de texto, lo que hace más urgente el rediseño. Opciones robustas: escritura en tiempo real en clases (circunstancia que elimina el uso de IA externa), debates y argumentación oral, análisis de textos específicos leídos en clases con preguntas que requieren cita directa, escritura creativa anclada en experiencia personal.</p>
+<h2>Matemáticas y Ciencias</h2>
+<p>Wolfram Alpha resuelve ecuaciones hace décadas y los modelos actuales van mucho más lejos. Opciones robustas: resolución de problemas con explicación del razonamiento paso a paso en clases, diseño de experimentos (la IA no puede hacer el experimento), problemas aplicados a datos locales o situaciones específicas del contexto del estudiante, evaluaciones de diseño donde el proceso de pensamiento es más importante que la respuesta.</p>
+<h2>Ciencias Sociales e Historia</h2>
+<p>Las preguntas factuales son las más vulnerables. Opciones robustas: análisis de fuentes primarias con preguntas que requieren lectura real, trabajo con material audiovisual que la IA no puede analizar fácilmente (documentales, entrevistas), proyectos de historia oral o memoria local, posicionamiento argumentado sobre debates historiográficos con fundamentación en fuentes específicas del curso.</p>
+<h2>Formación Ciudadana y Educación Cívica</h2>
+<p>Terreno donde el pensamiento propio importa especialmente. Opciones robustas: simulaciones de debate, análisis de casos reales actuales con toma de posición fundamentada, proyectos comunitarios con impacto real, reflexión sobre experiencias cívicas propias.</p>
+<h2>Educación Técnico-Profesional</h2>
+<p>Contexto con ventaja: muchas competencias técnicas se evalúan haciendo, no describiendo. El desafío está en los componentes teóricos y de comprensión conceptual, donde aplican estrategias similares a las demás áreas.</p>
+HTML,
+
+            // ── DOCENTES · MÓDULO 5 ─────────────────────────────────────────
+
+            'ia-para-docentes_5_1' => <<<HTML
+<p>La política de IA más efectiva para tu aula no es la del establecimiento (que puede tardar años en llegar y quizás no se adapte a tu contexto). Es la tuya: la que tú defines, comunicas y aplicas con coherencia en tus propias asignaturas.</p>
+<h2>Los cinco elementos de tu política personal</h2>
+<p><strong>1. Posición general:</strong> ¿Cuál es tu postura de base sobre el uso de IA en tus cursos? No tiene que ser única para todas las evaluaciones, pero sí coherente con tus objetivos pedagógicos.</p>
+<p><strong>2. Usos permitidos explícitos:</strong> enumera qué usos de IA son siempre aceptables en tu curso (corrección gramatical, búsqueda de términos, generación de ideas iniciales) sin importar la evaluación.</p>
+<p><strong>3. Usos que requieren declaración:</strong> qué usos son aceptables solo si el estudiante lo declara explícitamente y describe cómo lo usó.</p>
+<p><strong>4. Usos no permitidos:</strong> qué constituye uso inaceptable en tu curso, con la justificación pedagógica (no solo "porque no").</p>
+<p><strong>5. Consecuencias y proceso:</strong> qué pasa si detectas un uso no declarado o no permitido. Sé específico y proporcional.</p>
+<h2>Un template para empezar</h2>
+<p>Tu política no necesita ser un documento legal. Puede ser un párrafo en el programa del curso o un slide en la primera clase: "En este curso, la IA es una herramienta que pueden usar para [X]. No está permitido [Y]. Si usan IA de cualquier forma, deben declararlo en la entrega. El objetivo de este curso es que desarrollen [competencia], y esa es la razón detrás de cada regla."</p>
+<h2>Revisarla, no solo escribirla</h2>
+<p>Una política de IA tiene que actualizarse. Lo que escribas hoy puede ser obsoleto en seis meses porque las herramientas cambian. Ponle una fecha de revisión y ajústala con lo que aprendiste al aplicarla.</p>
+HTML,
+
+            'ia-para-docentes_5_2' => <<<HTML
+<p>La política de IA en el aula no es solo un acuerdo entre tú y tus estudiantes. En educación básica y media, también involucra a las familias. Comunicarlo bien evita malentendidos y genera alianza con los apoderados en lugar de conflicto.</p>
+<h2>Qué saben (y no saben) los apoderados sobre IA</h2>
+<p>La mayoría de los apoderados tienen una imagen de la IA formada principalmente por noticias de pánico ("la IA reemplazará todos los trabajos") o de entusiasmo acrítico ("la IA resolverá todos los problemas"). Pocas veces han pensado en cómo se aplica esto al aprendizaje de sus hijos.</p>
+<p>Eso te da la oportunidad de enmarcar la conversación desde el principio.</p>
+<h2>Cómo comunicar tu política a los apoderados</h2>
+<p><strong>En la reunión de apoderados de inicio de año:</strong> explica brevemente qué es la IA generativa, qué pueden hacer tus estudiantes con ella y cuál es tu postura. No tienes que ser exhaustivo: necesitas que entiendan el marco general.</p>
+<p><strong>Por escrito, en lenguaje accesible:</strong> evita el tecnicismo. "ChatGPT es una herramienta que puede escribir textos por ellos. En mi curso, pueden usarla para [X], pero deben declararlo. No pueden usarla para [Y], porque el objetivo es que desarrollen [competencia] que van a necesitar."</p>
+<p><strong>Anticipa las preguntas más comunes:</strong> "¿Por qué no la prohíben directamente?" (porque existe igual y es más útil aprender a usarla bien), "¿Cómo saben si la usaron?" (no siempre, pero eso no cambia la responsabilidad del estudiante), "¿Y si mi hijo no tiene acceso a IA?" (ventaja en ciertas evaluaciones, no desventaja).</p>
+<h2>El mensaje central para los apoderados</h2>
+<p>El objetivo no es que su hijo use más o menos IA: es que aprenda a hacerlo con criterio. Eso es una competencia que necesitará en cualquier carrera y trabajo que elija.</p>
+HTML,
+
+            'ia-para-docentes_5_3' => <<<HTML
+<p>Preparar a los estudiantes para el mundo laboral siempre fue parte del mandato implícito de la educación. Hoy ese mundo laboral incluye la IA como infraestructura cotidiana, y los docentes que lo ignoren están enviando a sus estudiantes con una brecha real.</p>
+<h2>Qué habilidades necesitarán en el mercado laboral</h2>
+<p><strong>Saber qué pedirle a la IA (prompting):</strong> la calidad del output depende de la calidad del input. Formular instrucciones claras, específicas y con contexto suficiente es una habilidad que se practica y que puede enseñarse.</p>
+<p><strong>Evaluar críticamente el output:</strong> saber que la IA comete errores, identificar cuáles, verificar datos, reconocer sesgos. Sin esto, la IA amplifica los errores en lugar de reducirlos.</p>
+<p><strong>Combinar IA con criterio humano:</strong> saber cuándo delegar a la IA y cuándo no. La IA es excelente para primer borrador, síntesis inicial, búsqueda de alternativas. Es débil en decisiones éticas complejas, relaciones humanas, contexto cultural específico.</p>
+<p><strong>Mantener autoría intelectual:</strong> poder explicar, defender y desarrollar las ideas que uno presenta, aunque hayan sido elaboradas con apoyo de IA. Esto requiere comprensión real, no solo edición de output.</p>
+<h2>Cómo incorporarlo en el aula</h2>
+<p>No necesitas un módulo especial sobre IA. Puedes integrar estas habilidades en tus evaluaciones existentes: pide que usen IA para una parte del trabajo, luego pide que evalúen críticamente lo que la IA produjo, luego que lo mejoren con sus propios criterios. Eso es exactamente lo que van a hacer en sus trabajos.</p>
+<h2>La meta real</h2>
+<p>No es que tus estudiantes sepan usar ChatGPT. Es que sepan pensar con claridad, comunicar con precisión y tomar decisiones fundamentadas —habilidades que la IA potencia en quien ya las tiene, y que se vuelven más urgentes exactamente porque la IA existe.</p>
+HTML,
+
+            'ia-para-docentes_5_4' => <<<HTML
+<p>Has llegado al final de este curso con un mapa claro del desafío y herramientas concretas para enfrentarlo. El último paso es saber cómo seguir aprendiendo, porque este campo cambia rápido y lo que aprendiste hoy tendrá actualizaciones en seis meses.</p>
+<h2>Recursos recomendados para docentes</h2>
+<p><strong>UNESCO — Guía de IA para educadores (2023):</strong> el documento más completo disponible en español sobre IA en educación, con marco ético y recomendaciones prácticas. Disponible gratuitamente en el sitio de UNESCO.</p>
+<p><strong>CEPPE UC — Centro de Políticas y Prácticas en Educación:</strong> produce investigación sobre educación chilena, incluyendo trabajo emergente sobre tecnología y aprendizaje.</p>
+<p><strong>Common Sense Education:</strong> recurso en inglés (con mucho material en español) orientado a docentes K-12 sobre tecnología, privacidad y pensamiento crítico digital.</p>
+<p><strong>AI for Education (aiforeducation.io):</strong> comunidad y recursos en inglés orientados a docentes, con prompts específicos por asignatura y nivel.</p>
+<h2>Comunidades de práctica en Chile</h2>
+<p>Las redes de docentes que están pensando este tema existen, aunque no siempre son visibles. Busca grupos en LinkedIn de docentes de tu área, participa en instancias de perfeccionamiento del CPEIP (Centro de Perfeccionamiento del Magisterio), y considera proponer en tu establecimiento un espacio de conversación entre docentes sobre IA —aunque sea informal.</p>
+<h2>Tu contribución</h2>
+<p>El conocimiento que generaste en este curso —sobre tu contexto específico, tus estudiantes, tus asignaturas— no está en ningún manual. Compartirlo con colegas multiplica su valor. El docente más valioso en este momento no es el que más sabe sobre IA: es el que más ha pensado en cómo integrarla con criterio pedagógico en su práctica real.</p>
+<div style="background:linear-gradient(135deg,#00c896,#38b6ff);border-radius:1rem;padding:2rem;text-align:center;margin-top:2rem;">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🎓</div>
+    <h2 style="color:#fff;font-size:1.15rem;margin-bottom:.5rem;">Curso completado</h2>
+    <p style="color:rgba(255,255,255,.9);font-size:.9rem;max-width:420px;margin:0 auto 1rem;">Terminaste <strong>IA para Docentes</strong>. Tienes ahora un marco concreto para tomar decisiones pedagógicas informadas en el aula con IA.</p>
+    <a href="/cursos" style="display:inline-block;background:#fff;color:#0f172a;font-weight:700;padding:.6rem 1.5rem;border-radius:.5rem;text-decoration:none;font-size:.88rem;">Ver otros cursos</a>
 </div>
 HTML,
 
