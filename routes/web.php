@@ -244,6 +244,10 @@ Route::get('/regulacion/{slug}', [RegulationController::class, 'show'])->name('r
 Route::get('/ia-para-todos', [IaParaTodosController::class, 'index'])->name('ia-para-todos.index');
 Route::get('/cursos', [CursosController::class, 'index'])->name('cursos.index');
 Route::get('/cursos/{slug}', [CursosController::class, 'show'])->name('cursos.show');
+Route::get('/cursos/{slug}/leccion/{module}/{lesson}', [CursosController::class, 'lesson'])
+    ->name('cursos.lesson')
+    ->middleware('auth')
+    ->where(['module' => '[0-9]+', 'lesson' => '[0-9]+']);
 Route::redirect('/proximamente/glosario', '/glosario', 301);
 Route::redirect('/proximamente/ecosistema', '/ecosistema', 301);
 Route::redirect('/proximamente/regulacion', '/regulacion', 301);

@@ -99,13 +99,28 @@
                     </div>
                     {{-- Lista de lecciones --}}
                     @foreach($module['lessons'] as $i => $lesson)
+                    @php
+                        $mNum = $loop->parent->index + 1;
+                        $lNum = $i + 1;
+                        $hasContent = \App\Http\Controllers\CursosController::lessonHasContent($course['slug'], $mNum, $lNum);
+                    @endphp
                     <div class="d-flex align-items-center gap-3 px-4 py-2" style="{{ !$loop->last ? 'border-bottom:1px solid #f1f5f9;' : '' }}">
-                        <div style="width:20px;height:20px;background:#f1f5f9;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fas fa-lock" style="color:#94a3b8;font-size:.6rem;"></i>
+                        <div style="width:20px;height:20px;background:{{ $hasContent ? $course['badge_color'] . '15' : '#f1f5f9' }};border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fas fa-{{ $hasContent ? 'play' : 'lock' }}" style="color:{{ $hasContent ? $course['badge_color'] : '#94a3b8' }};font-size:.6rem;"></i>
                         </div>
-                        <span style="color:#64748b;font-size:.85rem;flex-grow:1;">{{ $lesson }}</span>
-                        @if($loop->first)
-                        <span style="font-size:.7rem;color:#00c896;font-weight:600;white-space:nowrap;">Vista previa</span>
+                        @if($hasContent)
+                            <a href="{{ route('cursos.lesson', [$course['slug'], $mNum, $lNum]) }}"
+                               style="color:#334155;font-size:.85rem;flex-grow:1;text-decoration:none;font-weight:500;">
+                                {{ $lesson }}
+                            </a>
+                            @if($lNum === 1 && $mNum === 1)
+                            <span style="font-size:.7rem;color:#00c896;font-weight:600;white-space:nowrap;">
+                                <i class="fas fa-lock-open me-1" style="font-size:.65rem;"></i>Disponible
+                            </span>
+                            @endif
+                        @else
+                            <span style="color:#94a3b8;font-size:.85rem;flex-grow:1;">{{ $lesson }}</span>
+                            <span style="font-size:.7rem;color:#94a3b8;white-space:nowrap;">Próximamente</span>
                         @endif
                     </div>
                     @endforeach

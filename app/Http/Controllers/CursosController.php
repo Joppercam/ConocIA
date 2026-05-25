@@ -22,6 +22,167 @@ class CursosController extends Controller
         return view('cursos.show', compact('course', 'others'));
     }
 
+    public function lesson(string $slug, int $module, int $lesson)
+    {
+        $courses    = $this->coursesData();
+        $course     = collect($courses)->firstWhere('slug', $slug);
+
+        abort_if(!$course, 404);
+
+        $moduleData = $course['modules'][$module - 1] ?? null;
+        abort_if(!$moduleData, 404);
+
+        $lessonTitle = $moduleData['lessons'][$lesson - 1] ?? null;
+        abort_if($lessonTitle === null, 404);
+
+        $content = $this->lessonContent($slug, $module, $lesson);
+
+        $prevLesson = $lesson > 1
+            ? ['module' => $module, 'lesson' => $lesson - 1]
+            : ($module > 1
+                ? ['module' => $module - 1, 'lesson' => count($course['modules'][$module - 2]['lessons'])]
+                : null);
+
+        $totalLessons = count($moduleData['lessons']);
+        $nextLesson = $lesson < $totalLessons
+            ? ['module' => $module, 'lesson' => $lesson + 1]
+            : (isset($course['modules'][$module])
+                ? ['module' => $module + 1, 'lesson' => 1]
+                : null);
+
+        return view('cursos.lesson', compact(
+            'course', 'moduleData', 'lessonTitle',
+            'module', 'lesson', 'content',
+            'prevLesson', 'nextLesson'
+        ));
+    }
+
+    public static function lessonHasContent(string $slug, int $module, int $lesson): ?bool
+    {
+        $key = "{$slug}_{$module}_{$lesson}";
+        $defined = [
+            'ia-para-derecho_1_1', 'ia-para-derecho_1_2',
+            'ia-para-derecho_1_3', 'ia-para-derecho_1_4',
+        ];
+        return in_array($key, $defined) ? true : null;
+    }
+
+    private function lessonContent(string $slug, int $module, int $lesson): ?string
+    {
+        $key = "{$slug}_{$module}_{$lesson}";
+
+        $contents = [
+
+            // ── DERECHO · MÓDULO 1 ──────────────────────────────────────────
+
+            'ia-para-derecho_1_1' => <<<HTML
+<p>La inteligencia artificial lleva más de una década entrando a los despachos legales, pero el salto que ocurrió entre 2022 y 2025 no tiene precedentes. Lo que antes era una promesa de eficiencia se convirtió en una realidad que reorganiza cómo se ejerce el derecho, qué hacen los abogados junior y qué esperan los clientes de su firma.</p>
+<p>El cambio más visible está en la investigación jurídica y la revisión de documentos. Tareas que antes tomaban días a un equipo de abogados ahora se hacen en horas —o minutos— con herramientas de IA. Harvey, la startup legal de IA más financiada del mundo (más de 100 millones de dólares recaudados), ya es usada por firmas como Paul Weiss, Allen & Overy y Milbank. No es un producto experimental: es infraestructura de trabajo cotidiano.</p>
+
+<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #a78bfa;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#6d28d9;">¿Qué tan rápido está creciendo esto?</p>
+    <p style="color:#6d28d9;margin:0;font-size:.93rem;">Según McKinsey, el 23% del trabajo legal es automatizable con la tecnología actual. Goldman Sachs estimó que la IA podría desplazar el equivalente a 44.000 empleos de abogados solo en EE.UU. en los próximos años. Pero la misma investigación señala que el volumen total de trabajo legal probablemente aumente, compensando parte de ese desplazamiento.</p>
+</div>
+
+<p>En América Latina y Chile la adopción es más lenta, pero el movimiento es real. Algunas firmas grandes ya usan herramientas de revisión de contratos y due diligence asistido por IA. Las que no lo hacen están evaluando si hacerlo. Ninguna firma relevante ignora ya el tema.</p>
+<p>Para el abogado individual, el riesgo no está en desaparecer sino en quedarse obsoleto. El que entienda estas herramientas —qué pueden hacer, cuándo fallan, qué riesgos implican— va a tener ventaja sobre el que las ignore. Y el que las use con criterio va a tener ventaja sobre el que las use a ciegas.</p>
+
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:1.25rem;margin-top:1.5rem;">
+    <p class="fw-bold mb-1" style="color:#0f172a;font-size:.92rem;">📌 Para recordar</p>
+    <p style="color:#475569;margin:0;font-size:.9rem;">La IA no reemplaza el derecho. Reemplaza las tareas legales más repetitivas. Los abogados que entiendan esa distinción y la aprovechen van a ser los más valiosos de sus equipos.</p>
+</div>
+HTML,
+
+            'ia-para-derecho_1_2' => <<<HTML
+<p>Una de las confusiones más comunes al hablar de IA en el derecho es tratar la tecnología como si fuera todo o nada: o "lo hace todo" o "no puede hacer nada real". La realidad es más útil: hay tareas legales que la IA hace muy bien hoy, y hay tareas donde sigue siendo indispensable el juicio de un abogado.</p>
+
+<h2>Lo que la IA puede hacer bien</h2>
+<p><strong>Revisión y análisis de contratos.</strong> Identificar cláusulas problemáticas, comparar versiones, extraer obligaciones clave, verificar consistencia interna. Herramientas como Kira o Ironclad hacen esto más rápido y con menos errores que un equipo de abogados junior revisando cientos de páginas.</p>
+<p><strong>Investigación jurisprudencial.</strong> Buscar precedentes relevantes, identificar la tendencia de los tribunales en un tema, resumir fallos extensos. Lexis+ IA y Westlaw Precision integran modelos de lenguaje que permiten hacer preguntas en lenguaje natural y obtener respuestas fundamentadas en jurisprudencia real.</p>
+<p><strong>Due diligence en M&A.</strong> Revisar miles de documentos en poco tiempo para identificar riesgos en una transacción. Lo que antes tomaba semanas a equipos grandes ahora puede hacerse en días.</p>
+<p><strong>Primer borrador de documentos.</strong> Contratos estándar, escritos de trámite, resúmenes ejecutivos, cartas de demanda tipo. La IA genera un borrador razonable que el abogado revisa y ajusta.</p>
+
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #00c896;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#166534;">Tareas que la IA hace bien hoy</p>
+    <ul style="color:#166534;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Revisión y comparación de contratos</li>
+        <li>Investigación jurisprudencial y doctrinal</li>
+        <li>Due diligence documental en transacciones</li>
+        <li>Borradores de documentos estándar</li>
+        <li>Resúmenes de fallos y normativa</li>
+        <li>Clasificación y organización de expedientes</li>
+    </ul>
+</div>
+
+<h2>Lo que la IA no puede hacer</h2>
+<p><strong>Juicio ético en situaciones ambiguas.</strong> Cuando los hechos son complejos y los valores están en tensión, la IA no puede razonar moralmente. Puede simular el razonamiento, pero no asume responsabilidad.</p>
+<p><strong>Negociación estratégica.</strong> Leer la sala, gestionar la relación con la contraparte, adaptar la posición en tiempo real a señales no verbales. Esto sigue siendo profundamente humano.</p>
+<p><strong>Argumentos jurídicos genuinamente originales.</strong> La IA recombina lo que existe. Las teorías jurídicas nuevas que cambian la interpretación del derecho siguen viniendo de personas.</p>
+<p><strong>Representación ante tribunales.</strong> Además de las restricciones regulatorias obvias, el litigio involucra dinámica humana que la IA no puede manejar.</p>
+
+<div style="background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #f43f5e;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#9f1239;">El riesgo más subestimado: las alucinaciones</p>
+    <p style="color:#9f1239;margin:0;font-size:.93rem;">Los modelos de IA pueden inventar jurisprudencia que no existe con total confianza. En 2023, dos abogados de Nueva York fueron sancionados por presentar ante un tribunal citas de fallos inventados por ChatGPT que nadie verificó. Siempre valida la jurisprudencia que genera la IA en fuentes primarias.</p>
+</div>
+HTML,
+
+            'ia-para-derecho_1_3' => <<<HTML
+<p>Más allá de las promesas de los proveedores, vale la pena mirar qué está pasando en firmas reales con herramientas reales. Los casos concretos son más útiles que los prospectos de ventas para entender qué esperar de estas tecnologías.</p>
+
+<h2>Harvey: el caso de referencia global</h2>
+<p>Harvey es la startup de IA legal más prominente del momento. Construida sobre modelos de OpenAI pero entrenada específicamente en datos jurídicos, fue adoptada por Allen & Overy (una de las firmas más grandes del mundo, con más de 40 oficinas globales) antes de salir al mercado amplio. Hoy la usan firmas como Paul Weiss, Milbank y Macfarlanes.</p>
+<p>¿Para qué la usan? Principalmente para investigación jurídica, revisión de contratos y generación de borradores. Los abogados reportan ahorros significativos de tiempo en tareas de due diligence y análisis de documentos. Allen & Overy implementó Harvey para sus más de 3.500 abogados en todo el mundo.</p>
+
+<h2>Kira Systems: revisión de contratos a escala</h2>
+<p>Kira fue una de las primeras herramientas de IA legal en demostrar valor real en due diligence. Identifica y extrae automáticamente cláusulas clave de contratos —cambio de control, limitaciones de responsabilidad, confidencialidad, plazos— y puede procesar miles de documentos simultáneamente. KPMG, Deloitte y numerosas firmas legales la usan en procesos de M&A.</p>
+
+<h2>Luminance: e-discovery y compliance</h2>
+<p>Luminance usa IA para revisar contratos y documentos en procesos de due diligence y e-discovery. Desarrollada por matemáticos de Cambridge, analiza el lenguaje legal con modelos entrenados exclusivamente en documentos jurídicos. Más de 400 organizaciones en 60 países la usan, incluyendo Slaughter and May y Kirkland & Ellis.</p>
+
+<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #a78bfa;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#6d28d9;">¿Y en América Latina?</p>
+    <p style="color:#6d28d9;margin:0;font-size:.93rem;">La adopción es más lenta pero existe. Algunas firmas grandes de Brasil, México y Chile ya usan herramientas de revisión de contratos y research con IA. En Chile, el mercado está en etapa de exploración: los despachos medianos y grandes están evaluando, los pequeños recién se informan. Quien llegue primero con una implementación que funcione tendrá ventaja de posicionamiento frente a sus clientes corporativos.</p>
+</div>
+
+<h2>La lección de los casos reales</h2>
+<p>Lo que emerge de todos estos casos es un patrón consistente: la IA acelera el trabajo repetitivo y de alto volumen, pero el trabajo estratégico —la interpretación, la asesoría, la negociación— sigue siendo humano. Las firmas que van bien con IA son las que la usan para hacer más de lo que ya hacen bien, no para reemplazar el juicio de sus abogados.</p>
+HTML,
+
+            'ia-para-derecho_1_4' => <<<HTML
+<p>Ningún otro sector del mercado laboral ha analizado tanto su propio futuro frente a la IA como el derecho. Hay datos, proyecciones y debates intensos. Pero más allá de los números, lo que importa es entender qué significa esto para quienes ejercen hoy o estudian para ejercer mañana.</p>
+
+<h2>¿Quién está más expuesto?</h2>
+<p>El trabajo legal más expuesto a la automatización es el de los abogados junior y los paralegal: revisión de documentos, investigación jurídica, borradores estándar, organización de expedientes. Son tareas de alto volumen, relativamente predecibles y con criterios claros de éxito. Exactamente lo que la IA aprende a hacer bien.</p>
+<p>Los socios y abogados senior están menos expuestos en el corto plazo: su trabajo es mayoritariamente estratégico, relacional y de juicio. Pero incluso ellos verán cambiar su trabajo: si los junior procesan documentos con IA diez veces más rápido, la estructura de las firmas cambia. Se necesitan menos junior para el mismo volumen de trabajo, o los mismos junior producen mucho más.</p>
+
+<div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#92400e;">Los datos que circulan</p>
+    <ul style="color:#78350f;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Goldman Sachs (2023):</strong> estima que la IA podría automatizar el 44% de las tareas legales actuales en EE.UU.</li>
+        <li><strong>McKinsey (2023):</strong> el 23% del trabajo legal es altamente automatizable con tecnología existente.</li>
+        <li><strong>World Economic Forum (2023):</strong> proyecta que el derecho perderá empleos netos por IA, aunque surgirán nuevos roles.</li>
+    </ul>
+</div>
+
+<h2>Los roles que crecen</h2>
+<p>La misma transformación que comprime algunos roles crea otros. El de <strong>legal technologist</strong> —alguien que entiende tanto el derecho como las herramientas tecnológicas que lo asisten— es hoy uno de los perfiles más demandados en firmas grandes. Los abogados que saben seleccionar, evaluar y supervisar sistemas de IA son más valiosos que los que no.</p>
+<p>También crecen los roles relacionados con asesoría en regulación de IA: empresas que desarrollan o usan IA necesitan abogados que entiendan el AI Act, las implicancias de la ley de datos personales, la responsabilidad civil de los sistemas automatizados. Es un área de práctica nueva que no existía hace cinco años.</p>
+
+<h2>¿Qué deberían hacer las facultades de derecho?</h2>
+<p>Esta es la pregunta que más debate genera. La mayoría de las facultades aún no han incorporado la IA de forma sistemática en sus currículos. Harvard Law, Stanford y algunas europeas ya tienen cursos de derecho y tecnología. En Chile, el movimiento está empezando.</p>
+<p>Lo que sí es claro: los estudiantes de derecho que salgan hoy sin entender estas herramientas van a llegar a un mercado laboral que ya las usa. La alfabetización en IA no es opcional para la nueva generación de abogados.</p>
+
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:1.25rem;margin-top:1.5rem;">
+    <p class="fw-bold mb-1" style="color:#0f172a;font-size:.92rem;">📌 Para recordar</p>
+    <p style="color:#475569;margin:0;font-size:.9rem;">La IA no va a eliminar a los abogados. Va a eliminar a los abogados que no saben usarla, y va a amplificar a los que sí saben. La pregunta no es "¿me va a quitar el trabajo?" sino "¿qué voy a poder hacer yo que la IA no pueda?"</p>
+</div>
+HTML,
+
+        ];
+
+        return $contents[$key] ?? null;
+    }
+
     private function coursesData(): array
     {
         return [
