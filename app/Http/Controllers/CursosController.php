@@ -61,8 +61,11 @@ class CursosController extends Controller
     {
         $key = "{$slug}_{$module}_{$lesson}";
         $defined = [
-            'ia-para-derecho_1_1', 'ia-para-derecho_1_2',
-            'ia-para-derecho_1_3', 'ia-para-derecho_1_4',
+            'ia-para-derecho_1_1', 'ia-para-derecho_1_2', 'ia-para-derecho_1_3', 'ia-para-derecho_1_4',
+            'ia-para-derecho_2_1', 'ia-para-derecho_2_2', 'ia-para-derecho_2_3', 'ia-para-derecho_2_4',
+            'ia-para-derecho_3_1', 'ia-para-derecho_3_2', 'ia-para-derecho_3_3', 'ia-para-derecho_3_4',
+            'ia-para-derecho_4_1', 'ia-para-derecho_4_2', 'ia-para-derecho_4_3', 'ia-para-derecho_4_4',
+            'ia-para-derecho_5_1', 'ia-para-derecho_5_2', 'ia-para-derecho_5_3', 'ia-para-derecho_5_4',
         ];
         return in_array($key, $defined) ? true : null;
     }
@@ -175,6 +178,427 @@ HTML,
 <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:1.25rem;margin-top:1.5rem;">
     <p class="fw-bold mb-1" style="color:#0f172a;font-size:.92rem;">📌 Para recordar</p>
     <p style="color:#475569;margin:0;font-size:.9rem;">La IA no va a eliminar a los abogados. Va a eliminar a los abogados que no saben usarla, y va a amplificar a los que sí saben. La pregunta no es "¿me va a quitar el trabajo?" sino "¿qué voy a poder hacer yo que la IA no pueda?"</p>
+</div>
+HTML,
+
+
+            // ── DERECHO · MÓDULO 2 ──────────────────────────────────────────
+
+            'ia-para-derecho_2_1' => <<<HTML
+<p>La revisión automática de contratos no es magia: es procesamiento de lenguaje natural (NLP) aplicado a documentos legales. Entender cómo funciona ayuda a saber qué esperar de ella, cuándo confiar en sus resultados y cuándo verificar de forma independiente.</p>
+
+<h2>El proceso en tres pasos</h2>
+<p><strong>Paso 1: Ingesta y parsing.</strong> El documento se carga al sistema —PDF, Word, o directo desde el data room— y se convierte en texto estructurado. El sistema identifica la jerarquía del documento: cláusulas, subcláusulas, definiciones, anexos. Esta etapa parece trivial pero importa: un PDF escaneado mal digitalizado puede producir errores en todo lo que sigue.</p>
+<p><strong>Paso 2: Extracción y clasificación.</strong> El modelo busca cláusulas específicas según una lista predefinida: cambio de control, limitación de responsabilidad, confidencialidad, jurisdicción, plazos, penalidades, indemnización, terminación. Para cada cláusula encontrada, extrae el texto relevante y lo clasifica. Los modelos más avanzados también asignan un nivel de riesgo basado en cómo se redacta la cláusula respecto a un estándar de mercado.</p>
+<p><strong>Paso 3: Reporte y revisión humana.</strong> El sistema entrega un resumen estructurado: qué cláusulas encontró, cuáles faltan, cuáles tienen redacción inusual o riesgosa. El abogado revisa este reporte —no el documento desde cero— y decide qué merece atención profunda. Esto es lo que genera el ahorro de tiempo real.</p>
+
+<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #a78bfa;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#6d28d9;">¿Qué tan preciso es?</p>
+    <p style="color:#6d28d9;margin:0;font-size:.93rem;">Los sistemas maduros alcanzan tasas de extracción del 90-95% para cláusulas estándar en contratos en inglés. En español y en contratos atípicos, los números bajan. Ningún sistema es 100% preciso, razón por la cual el paso de revisión humana no es opcional: es parte del flujo de trabajo diseñado.</p>
+</div>
+
+<h2>Qué cambia en la práctica</h2>
+<p>En un proceso de due diligence tradicional, un equipo de abogados junior puede revisar 50-100 contratos por día. Con IA, el mismo equipo puede cubrir 500-1.000. No porque el trabajo desaparezca, sino porque el tiempo se redirige: en lugar de leer cada cláusula, el abogado analiza las excepciones y toma decisiones sobre los hallazgos que el sistema ya identificó.</p>
+<p>El resultado es que las firmas pueden ofrecer due diligence más exhaustiva en menos tiempo y a menor costo. Eso cambia las expectativas de los clientes y, eventualmente, los honorarios que se pueden cobrar por un trabajo que antes tomaba semanas.</p>
+HTML,
+
+            'ia-para-derecho_2_2' => <<<HTML
+<p>El mercado de herramientas de IA para revisión de contratos creció rápidamente y hay diferencias importantes entre productos. Conocer las opciones principales te permite evaluar cuál se adapta mejor a tu tipo de práctica antes de adoptar cualquiera.</p>
+
+<h2>Harvey</h2>
+<p>Es el sistema de IA legal de mayor perfil hoy. Construido sobre modelos de lenguaje grandes (inicialmente GPT-4, ahora modelos propios combinados), Harvey está diseñado para el trabajo legal generalista: revisión de contratos, investigación jurídica, redacción de documentos, análisis de due diligence. A diferencia de herramientas más especializadas, Harvey funciona como un asistente conversacional: le haces preguntas en lenguaje natural y responde con razonamiento legal.</p>
+<p>Su adopción por Allen & Overy, Paul Weiss y Milbank lo convirtió en el estándar de referencia para firmas grandes. Está orientado a empresas: no tiene versión libre ni precios publicados, y se vende a través de acuerdos corporativos.</p>
+
+<h2>Kira Systems (ahora parte de Litera)</h2>
+<p>Kira es más especializada: fue diseñada específicamente para extracción de cláusulas en contratos. Su punto fuerte es la precisión en contratos estándar y la posibilidad de entrenar el modelo en cláusulas específicas de tu práctica. Es la herramienta de referencia para due diligence en M&A y revisión de portfolios de contratos. La adquirió Litera en 2022, lo que la integró en una suite más amplia de tecnología legal.</p>
+
+<h2>ContractPodAi</h2>
+<p>Se orienta a la gestión del ciclo de vida completo de contratos (CLM), no solo a la revisión. Útil para departamentos legales corporativos que quieren automatizar desde la solicitud hasta el archivo de contratos. Incluye funciones de IA para extracción, análisis de riesgo y alertas de renovación.</p>
+
+<div style="background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #38b6ff;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#0369a1;">Cómo elegir</p>
+    <ul style="color:#0369a1;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Si haces due diligence M&A a escala:</strong> Kira o Luminance</li>
+        <li><strong>Si buscas un asistente legal general:</strong> Harvey o equivalentes</li>
+        <li><strong>Si gestionas contratos corporativos internos:</strong> ContractPodAi o Ironclad</li>
+        <li><strong>Si investigas jurisprudencia:</strong> Lexis+ IA o Westlaw Precision</li>
+        <li><strong>Si quieres empezar con poco presupuesto:</strong> ChatGPT Enterprise con prompts estructurados (menos preciso, pero accesible)</li>
+    </ul>
+</div>
+
+<h2>Antes de adoptar cualquier herramienta</h2>
+<p>Tres preguntas imprescindibles para cualquier proveedor: (1) ¿Cómo se tratan los datos de mis clientes — se usan para entrenar el modelo? (2) ¿Dónde se almacenan los datos y bajo qué legislación? (3) ¿Qué garantías contractuales de confidencialidad ofrecen? Si el proveedor no responde estas preguntas con claridad, es una señal de alerta.</p>
+HTML,
+
+            'ia-para-derecho_2_3' => <<<HTML
+<p>Uno de los riesgos más subestimados al implementar IA en revisión de contratos es confiar en que el sistema encontró todo lo relevante. Los sistemas actuales son poderosos, pero tienen puntos ciegos consistentes que todo abogado que los use debe conocer.</p>
+
+<h2>Ambigüedad que requiere contexto</h2>
+<p>La IA extrae texto. No entiende el contexto de la negociación, la historia de la relación entre las partes, ni las intenciones no escritas que un abogado experimentado detectaría. Una cláusula que parece estándar puede ser problemática dado el contexto específico del cliente — y ese contexto la IA no lo tiene.</p>
+<p>Ejemplo: una cláusula de confidencialidad que excluye "información públicamente disponible" puede ser perfectamente razonable en un contrato comercial pero extremadamente problemática si el cliente opera en un sector donde hay filtraciones frecuentes de información que termina siendo "pública" sin autorización. La IA marca la cláusula como estándar. El abogado con contexto la marcaría como riesgosa.</p>
+
+<h2>Inconsistencias entre documentos</h2>
+<p>En un proceso de M&A, los riesgos no siempre están dentro de un contrato: están en las tensiones entre contratos. Un contrato de arrendamiento que prohíbe el cambio de control puede invalidar una compraventa que otro contrato asume como ejecutable. Detectar estas inconsistencias entre cientos de documentos requiere un nivel de síntesis que los sistemas actuales hacen mal.</p>
+
+<h2>El problema de la confianza excesiva</h2>
+<p>Quizás el riesgo más grave no es lo que la IA no encuentra, sino la falsa confianza que genera. Un reporte de due diligence asistido por IA que dice "no se identificaron cláusulas de cambio de control" lleva al lector a asumir que revisó bien. Si el sistema lo pasó por alto, la responsabilidad sigue siendo del abogado que firmó el trabajo.</p>
+
+<div style="background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #f43f5e;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#9f1239;">Los puntos ciegos más comunes</p>
+    <ul style="color:#9f1239;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Cláusulas en idiomas distintos al idioma principal del contrato</li>
+        <li>Obligaciones incorporadas por referencia a otros documentos</li>
+        <li>Anexos o schedules que modifican el cuerpo principal</li>
+        <li>Redacción ambigua que la IA clasifica como estándar por su forma, no por su efecto</li>
+        <li>Riesgos que dependen de hechos externos al contrato</li>
+    </ul>
+</div>
+
+<h2>El protocolo correcto</h2>
+<p>La IA debe usarse para identificar dónde mirar, no para concluir que ya se miró todo. El flujo correcto es: IA identifica y prioriza → abogado revisa los hallazgos de alto riesgo con profundidad → abogado hace un muestreo adicional de lo que la IA marcó como sin riesgo. Este último paso es el que más se omite y el más importante para mantener la calidad del trabajo.</p>
+HTML,
+
+            'ia-para-derecho_2_4' => <<<HTML
+<p>Cuando la IA comete un error en un trabajo legal — y tarde o temprano lo hará — la pregunta central es: ¿quién responde? La respuesta bajo el derecho actual es clara: el abogado. El software no tiene responsabilidad profesional. El profesional que lo usó, sí.</p>
+
+<h2>El deber de competencia tecnológica</h2>
+<p>Las reglas éticas de la profesión legal en la mayoría de los países exigen que el abogado mantenga competencia en su área de práctica. En EE.UU., el Comentario 8 de la Regla 1.1 del ABA Model Rules establece explícitamente que esa competencia incluye "los beneficios y riesgos de la tecnología relevante". En Chile, el Código de Ética del Colegio de Abogados no menciona la IA directamente, pero el deber de diligencia profesional abarca el uso adecuado de todas las herramientas disponibles.</p>
+<p>La implicancia práctica es que un abogado no puede exculparse diciendo "la herramienta me lo dijo". Si la herramienta era inadecuada para la tarea, si no se verificó su output o si el abogado no tenía suficiente conocimiento para supervisarla, la responsabilidad es del abogado.</p>
+
+<h2>Documentación: tu mejor protección</h2>
+<p>Cuando usas IA en un trabajo, documenta: qué sistema usaste, en qué etapa del trabajo, qué verificación hiciste del output. No porque esto elimine tu responsabilidad, sino porque en caso de disputa demuestra que el proceso fue razonable y supervisado. Un proceso bien documentado es evidencia de diligencia profesional.</p>
+
+<div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#92400e;">Lo que debes documentar</p>
+    <ul style="color:#78350f;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Nombre y versión de la herramienta de IA utilizada</li>
+        <li>Fecha y tipo de tarea realizada con IA</li>
+        <li>Qué verificación adicional realizaste sobre el output</li>
+        <li>Si informaste al cliente del uso de IA (y su consentimiento)</li>
+        <li>Cualquier limitación del sistema que afectó el alcance del trabajo</li>
+    </ul>
+</div>
+
+<h2>¿Y el proveedor del software?</h2>
+<p>Los contratos de licencia de herramientas de IA legal casi universalmente excluyen la responsabilidad del proveedor por errores en el output. Harvey, Kira, y todos los demás tienen cláusulas que hacen recaer la responsabilidad del uso en el cliente. Esto no va a cambiar pronto. La regulación de IA en la UE (AI Act) introduce algunas obligaciones de transparencia, pero la responsabilidad profesional del abogado sigue siendo del abogado.</p>
+<p>Conclusión práctica: usa IA con el mismo rigor con que usarías cualquier otra herramienta de trabajo. Si delegarías una tarea a un practicante, necesitas supervisarla. Si la delegas a una IA, también.</p>
+HTML,
+
+            // ── DERECHO · MÓDULO 3 ──────────────────────────────────────────
+
+            'ia-para-derecho_3_1' => <<<HTML
+<p>El AI Act europeo, promulgado en 2024 y aplicable de forma escalonada hasta 2027, es la primera regulación integral de inteligencia artificial del mundo. Para los abogados, entenderlo es urgente por dos razones: los sistemas de IA que usan en su práctica pueden estar sujetos a él, y sus clientes van a necesitar asesoría sobre cómo cumplirlo.</p>
+
+<h2>La lógica del enfoque por riesgo</h2>
+<p>El AI Act no regula toda la IA de la misma manera. Clasifica los sistemas según el riesgo que representan y establece obligaciones proporcionales. Cuatro categorías:</p>
+<ul>
+<li><strong>Riesgo inaceptable:</strong> prohibidos directamente. Incluyen sistemas de puntuación social por parte de gobiernos, manipulación subliminal, identificación biométrica en tiempo real en espacios públicos (con excepciones).</li>
+<li><strong>Riesgo alto:</strong> permitidos pero con requisitos estrictos. Aquí están los sistemas de IA en el ámbito de justicia, recursos humanos, crédito y servicios esenciales.</li>
+<li><strong>Riesgo limitado:</strong> obligaciones de transparencia. Chatbots deben identificarse como IA.</li>
+<li><strong>Riesgo mínimo:</strong> sin restricciones específicas. La mayoría de las aplicaciones de IA caen aquí.</li>
+</ul>
+
+<h2>Los sistemas legales son de "alto riesgo"</h2>
+<p>El Anexo III del AI Act incluye en la categoría de alto riesgo los sistemas de IA "utilizados en la administración de justicia y procesos democráticos". Específicamente: sistemas que asisten a autoridades judiciales en la investigación y resolución de disputas, y sistemas de predicción de riesgos en personas acusadas.</p>
+
+<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #a78bfa;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#6d28d9;">Obligaciones para sistemas de alto riesgo</p>
+    <ul style="color:#6d28d9;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Sistema de gestión de riesgos</strong> durante todo el ciclo de vida</li>
+        <li><strong>Datos de entrenamiento de calidad</strong>, representativos y sin sesgos no intencionados</li>
+        <li><strong>Documentación técnica</strong> detallada del sistema</li>
+        <li><strong>Supervisión humana</strong> efectiva — el sistema no puede tomar decisiones finales autónomamente</li>
+        <li><strong>Exactitud, robustez y ciberseguridad</strong> verificadas</li>
+        <li><strong>Registro en base de datos de la UE</strong> antes de comercializarse</li>
+    </ul>
+</div>
+
+<h2>Implicancias para abogados en Chile</h2>
+<p>Si trabajas con clientes europeos o en transacciones que involucran la UE, el AI Act ya te afecta. Si tu firma usa herramientas de IA desarrolladas por empresas europeas o que procesan datos de ciudadanos europeos, también. Para los demás, el AI Act es la señal más clara de hacia dónde va la regulación global: Chile y otros países latinoamericanos van a seguir este modelo. Entenderlo hoy es prepararse para asesorar bien mañana.</p>
+HTML,
+
+            'ia-para-derecho_3_2' => <<<HTML
+<p>Que una IA ayude a un juez a decidir una sentencia no es ciencia ficción: es una realidad en varios países, y un debate muy activo en casi todos los demás. Para el abogado, este debate importa porque eventualmente afectará cómo se preparan los argumentos, qué recursos son relevantes y cómo se protegen los derechos de los clientes.</p>
+
+<h2>Qué existe hoy</h2>
+<p><strong>EE.UU.:</strong> COMPAS (Correctional Offender Management Profiling for Alternative Sanctions) es el caso más documentado. Se usa para predecir la probabilidad de reincidencia en decisiones de libertad condicional y sentencia. En 2016, ProPublica publicó un análisis mostrando que el sistema clasificaba incorrectamente a personas negras como de alto riesgo a una tasa dos veces mayor que a personas blancas. El debate sobre su uso continúa en varios estados.</p>
+<p><strong>Estonia:</strong> desarrolló un prototipo de "juez robótico" para causas menores (disputas de menos de 7.000 euros). El sistema toma una decisión automatizada que cualquiera de las partes puede apelar ante un juez humano. En 2019 fue piloteado; el debate sobre escalarlo sigue abierto.</p>
+<p><strong>China:</strong> los tribunales chinos usan sistemas de IA para análisis de casos y asistencia en redacción de sentencias. La transparencia sobre el alcance de la autonomía de estos sistemas es limitada.</p>
+
+<div style="background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #f43f5e;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#9f1239;">Los problemas del fondo</p>
+    <ul style="color:#9f1239;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Opacidad:</strong> el acusado o su abogado no pueden interrogar al algoritmo como interrogarían a un perito.</li>
+        <li><strong>Sesgos históricos:</strong> si los datos de entrenamiento reflejan discriminación pasada, el sistema la replica.</li>
+        <li><strong>Dificultad de apelación:</strong> "el algoritmo lo dijo" no es un fundamento recurrible de la misma forma que un razonamiento jurídico explícito.</li>
+        <li><strong>Responsabilidad difusa:</strong> si la IA influye en una sentencia injusta, ¿quién responde?</li>
+    </ul>
+</div>
+
+<h2>Chile y el poder judicial</h2>
+<p>El Poder Judicial chileno ha avanzado en digitalización pero no en IA decisional. La Corte Suprema y los tribunales inferiores usan sistemas de gestión de casos y búsqueda de jurisprudencia, pero no sistemas que asistan en la decisión de fondo. El debate sobre si hacerlo está en etapa académica y de política pública. Como abogado, vale la pena seguirlo: los sistemas que se adopten en los próximos años van a afectar cómo se litiga.</p>
+HTML,
+
+            'ia-para-derecho_3_3' => <<<HTML
+<p>Chile tiene hoy una de las leyes de protección de datos más antiguas de América Latina: la Ley N° 19.628, promulgada en 1999. Fue diseñada para un mundo sin redes sociales, sin smartphones y sin IA generativa. Su actualización lleva años en tramitación y el proyecto que está más avanzado introduce cambios fundamentales que los abogados deben conocer.</p>
+
+<h2>El problema con la ley actual</h2>
+<p>La Ley 19.628 tiene limitaciones severas para el contexto actual: no contempla el concepto de "responsable del tratamiento" con las obligaciones modernas, no regula la transferencia internacional de datos de forma robusta, no establece una autoridad de control con facultades sancionatorias reales, y no aborda decisiones automatizadas. Es estructuralmente incapaz de regular el uso de datos personales en sistemas de IA.</p>
+
+<h2>El proyecto en tramitación</h2>
+<p>El nuevo proyecto de ley (Boletín 11144-07 y sus modificaciones) introduce un modelo similar al GDPR europeo. Los elementos más relevantes:</p>
+
+<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #a78bfa;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#6d28d9;">Principales novedades del proyecto</p>
+    <ul style="color:#6d28d9;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Agencia de Protección de Datos Personales:</strong> entidad autónoma con facultades fiscalizadoras y sancionatorias (multas de hasta 20.000 UTM).</li>
+        <li><strong>Bases de licitud ampliadas:</strong> consentimiento, interés legítimo, contrato, obligación legal.</li>
+        <li><strong>Derechos ARCO ampliados:</strong> acceso, rectificación, cancelación, oposición y nuevos derechos de portabilidad y oposición a decisiones automatizadas.</li>
+        <li><strong>Transferencia internacional:</strong> restricciones para países sin nivel adecuado de protección.</li>
+        <li><strong>Delegado de Protección de Datos:</strong> obligatorio para ciertos responsables de tratamiento.</li>
+    </ul>
+</div>
+
+<h2>Implicancias para tu práctica</h2>
+<p>Cuando la ley entre en vigor — y está cerca — varias cosas cambian para los despachos legales. Primero, los propios abogados son responsables del tratamiento de los datos personales de sus clientes: expedientes, comunicaciones, información incluida en los encargos. Segundo, las herramientas de IA que usen para procesar esa información van a requerir análisis de cumplimiento. Tercero, la asesoría en protección de datos va a ser un área de práctica de alta demanda.</p>
+<p>El mejor momento para prepararse es antes de que la ley esté vigente. Los clientes que lleguen con problemas de cumplimiento después de la promulgación van a necesitar abogados que ya entiendan bien el marco.</p>
+HTML,
+
+            'ia-para-derecho_3_4' => <<<HTML
+<p>Cada vez más clientes llegan con preguntas sobre IA: quieren implementar un chatbot de atención al cliente, usar IA para tomar decisiones de crédito, automatizar la revisión de documentos o simplemente entender qué riesgos tienen con las herramientas que ya usan. Asesorar bien en este contexto requiere un marco de análisis claro.</p>
+
+<h2>Los escenarios más comunes</h2>
+<p><strong>Cliente que quiere implementar IA en su empresa.</strong> Las preguntas relevantes: ¿qué datos va a usar el sistema y de quién son? ¿Está procesando datos personales de chilenos o europeos? ¿El sistema toma decisiones que afectan a personas? ¿Hay riesgo de discriminación algorítmica? ¿Qué pasa si el sistema falla?</p>
+<p><strong>Cliente que va a contratar un servicio de IA a un tercero.</strong> El contrato de servicio de IA tiene cláusulas críticas que hay que revisar: propiedad de los datos, qué puede hacer el proveedor con ellos, qué garantías de confidencialidad existen, quién responde si el sistema causa daños, qué auditorías son posibles.</p>
+<p><strong>Cliente que recibió una decisión automatizada que lo perjudica.</strong> ¿Tiene derecho a explicación? ¿Puede impugnar? ¿Hay responsabilidad del operador del sistema? Estas son preguntas de derecho que todavía están evolucionando en Chile.</p>
+
+<div style="background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #38b6ff;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#0369a1;">Preguntas de due diligence para contratos de IA</p>
+    <ul style="color:#0369a1;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>¿Qué datos personales procesa el sistema y bajo qué base de licitud?</li>
+        <li>¿Dónde se almacenan los datos y se transfieren internacionalmente?</li>
+        <li>¿El proveedor usa los datos del cliente para entrenar sus modelos?</li>
+        <li>¿Qué mecanismos de auditoría e inspección están disponibles?</li>
+        <li>¿Cómo se maneja un incidente de seguridad o una brecha de datos?</li>
+        <li>¿Qué garantías de exactitud ofrece el proveedor y cuáles excluye?</li>
+        <li>¿Qué cláusula de responsabilidad aplica si el sistema causa daño a terceros?</li>
+    </ul>
+</div>
+
+<h2>La oportunidad de práctica</h2>
+<p>La asesoría en IA es una práctica emergente que todavía tiene poco expertise consolidado en Chile. Los abogados que desarrollen conocimiento en la intersección entre tecnología, privacidad de datos y responsabilidad civil van a tener ventaja de posicionamiento en los próximos años. No hace falta ser un experto técnico: hace falta entender el suficiente marco tecnológico para hacer las preguntas correctas y traducir los riesgos en términos legales que los clientes entiendan.</p>
+HTML,
+
+            // ── DERECHO · MÓDULO 4 ──────────────────────────────────────────
+
+            'ia-para-derecho_4_1' => <<<HTML
+<p>El secreto profesional del abogado es uno de los pilares del ejercicio legal. Cuando empiezas a usar herramientas de IA con información de tus clientes, ese pilar enfrenta riesgos nuevos que no existían hace cinco años. Ignorarlos no los hace desaparecer.</p>
+
+<h2>Qué pasa con la información que ingresas a una IA</h2>
+<p>Cuando usas ChatGPT en su versión gratuita o standard para redactar un escrito o analizar un contrato, la información que ingresas puede ser usada por OpenAI para mejorar sus modelos. Eso está en los términos de servicio. La mayoría de los abogados no los leyeron, y la mayoría de los que los leyeron no cambiaron su comportamiento.</p>
+<p>En versiones empresariales (ChatGPT Enterprise, Azure OpenAI con acuerdo corporativo), los datos del cliente están contractualmente protegidos: no se usan para entrenamiento, se almacenan en entornos aislados y el proveedor asume obligaciones de confidencialidad. La diferencia entre el servicio gratuito y el empresarial no es solo de funcionalidades: es de marco jurídico.</p>
+
+<div style="background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #f43f5e;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#9f1239;">Nunca ingreses esto en una IA de uso general</p>
+    <ul style="color:#9f1239;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Datos identificatorios del cliente (nombre, RUT, domicilio)</li>
+        <li>Hechos confidenciales del caso tal como los relató el cliente</li>
+        <li>Estrategia procesal o negocial</li>
+        <li>Documentos firmados o en proceso de firma</li>
+        <li>Comunicaciones privilegiadas cliente-abogado</li>
+    </ul>
+</div>
+
+<h2>El secreto profesional en la nube</h2>
+<p>El problema no es nuevo: existe desde que los abogados empezaron a usar servicios de correo electrónico, almacenamiento en la nube y software de gestión de casos. La lógica regulatoria establece que el abogado debe tomar medidas razonables para proteger la confidencialidad, incluyendo evaluar los sistemas que usa. Eso mismo aplica a la IA.</p>
+
+<h2>Protocolo de uso seguro</h2>
+<p>Un protocolo mínimo razonable: (1) anonimiza los documentos antes de subirlos a herramientas de IA (reemplaza nombres por "Cliente A", "Empresa B"); (2) usa versiones empresariales o locales para trabajo sensible; (3) revisa las políticas de privacidad de cada herramienta que adoptes; (4) informa a tu cliente si usas IA en su asunto y obtén su consentimiento. Este último punto todavía no está regulado en Chile, pero es una práctica de ética que se está convirtiendo en estándar en otros mercados.</p>
+HTML,
+
+            'ia-para-derecho_4_2' => <<<HTML
+<p>Los sistemas de IA aprenden de datos históricos. Si esos datos reflejan desigualdades — en acceso a la justicia, en cómo los tribunales trataron a distintos grupos, en qué casos llegaron a ser registrados — el sistema aprende esas desigualdades y las replica. Para el abogado, esto tiene consecuencias directas.</p>
+
+<h2>El caso COMPAS: la referencia obligada</h2>
+<p>COMPAS es un sistema de evaluación de riesgos usado en el sistema penal de varios estados de EE.UU. para informar decisiones de libertad condicional, fianza y sentencia. En 2016, ProPublica analizó 7.000 casos en Florida y encontró que el sistema clasificaba incorrectamente a acusados negros como de alto riesgo el doble de veces que a acusados blancos con perfiles similares.</p>
+<p>La empresa desarrolladora (Equivant) rechazó la metodología de ProPublica. El debate académico sobre cómo medir el sesgo en estos sistemas continúa. Pero el punto importante no es quién tiene razón metodológicamente: es que el sistema produce resultados dispares por raza y eso es suficiente para que sea un problema de justicia.</p>
+
+<h2>¿Cómo entra el sesgo?</h2>
+<p>El sesgo en sistemas legales de IA no suele ser intencional: surge de los datos. Si históricamente ciertos grupos fueron más arrestados, más procesados, más condenados — aunque no sean más culpables — los datos reflejan ese patrón y el modelo lo aprende como predictivo. El sistema no discrimina por diseño: discrimina porque los datos que lo entrenaron describen un sistema que discriminó.</p>
+
+<div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#92400e;">Lo que el abogado defensor necesita saber</p>
+    <ul style="color:#78350f;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Tienes derecho a saber si un sistema de IA influyó en decisiones del fiscal o del tribunal en el caso de tu cliente.</li>
+        <li>Puedes solicitar la metodología del sistema como parte del descubrimiento probatorio.</li>
+        <li>El argumento de "opacidad del algoritmo" puede sustentar recursos de nulidad en jurisdicciones que reconocen el derecho a conocer la base de las decisiones.</li>
+        <li>Existen peritos especializados en auditoría de sistemas de IA que pueden apoyar un caso de este tipo.</li>
+    </ul>
+</div>
+
+<h2>Chile y el futuro</h2>
+<p>Chile no usa actualmente sistemas de predicción de reincidencia como COMPAS en su sistema penal. Pero el debate sobre digitalización del poder judicial está avanzando. Los abogados que entiendan hoy los problemas de sesgo algorítmico van a estar mejor posicionados para defender a sus clientes cuando estos sistemas lleguen, y para participar en el debate regulatorio sobre cómo deben diseñarse.</p>
+HTML,
+
+            'ia-para-derecho_4_3' => <<<HTML
+<p>Los errores de IA en la práctica legal ya han producido consecuencias disciplinarias reales. Conocer estos casos es la mejor vacuna contra repetirlos.</p>
+
+<h2>Mata v. Avianca: el caso que lo cambió todo</h2>
+<p>En junio de 2023, el juez federal Kevin Castel de la Corte del Distrito Sur de Nueva York sancionó a dos abogados —Steven Schwartz y Peter LoDuca— por presentar escritos que citaban jurisprudencia inexistente. Los casos habían sido "investigados" con ChatGPT, que los inventó con nombres, tribunales, años y citas plausibles pero completamente ficticios. Los abogados no los verificaron en Westlaw ni Lexis antes de presentarlos.</p>
+<p>La sanción incluyó multas y la publicación de la resolución — una de las peores consecuencias de reputación posibles. El juez fue explícito: "La firma de un escrito por un abogado certifica que, en la medida de su conocimiento y creencia razonable, las alegaciones fácticas tienen respaldo probatorio y las argumentaciones legales tienen sustento en la ley existente o en un argumento no frívolo para su modificación."</p>
+
+<div style="background:#fff1f2;border:1px solid #fecdd3;border-left:4px solid #f43f5e;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#9f1239;">Qué salió mal en Mata v. Avianca</p>
+    <ul style="color:#9f1239;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Usaron ChatGPT (versión pública) para investigación jurisprudencial</li>
+        <li>No verificaron las citas en fuentes primarias</li>
+        <li>Cuando la contraparte cuestionó las citas, le preguntaron a ChatGPT si eran reales — y ChatGPT confirmó que sí</li>
+        <li>No informaron a la corte del error cuando lo descubrieron internamente</li>
+    </ul>
+</div>
+
+<h2>Otros casos documentados</h2>
+<p>El caso de Mata v. Avianca fue el más resonado, pero no el único. En el Reino Unido, el Solicitors Regulation Authority documentó múltiples casos de abogados que presentaron jurisprudencia inventada por IA. En Australia y Canadá hay casos similares. La tendencia es clara: a medida que más abogados usan IA para investigación, más ocurren estos errores.</p>
+
+<h2>La regla que no falla</h2>
+<p>Cualquier cita jurisprudencial generada por IA debe verificarse en la fuente original antes de ser usada en un documento judicial o extrajudicial. No existe atajos válidos aquí. Las herramientas especializadas en investigación legal (Lexis+ IA, Westlaw Precision) tienen mecanismos de verificación integrados precisamente porque los proveedores generales (ChatGPT, Claude, Gemini) no están diseñados para garantizar la existencia de las fuentes que citan.</p>
+HTML,
+
+            'ia-para-derecho_4_4' => <<<HTML
+<p>La ética profesional del abogado no se diseñó pensando en IA. Pero sus principios fundamentales — competencia, diligencia, confidencialidad, transparencia con el cliente, independencia — son perfectamente aplicables al uso de estas herramientas. Lo que hace falta es traducirlos.</p>
+
+<h2>El deber de competencia</h2>
+<p>No saber que existe una herramienta relevante para tu práctica puede ser una falla de competencia. No saber usarla adecuadamente, también. A medida que la IA se convierte en parte del estándar de la industria legal, los colegios de abogados van a ir precisando estas obligaciones. El ABA en EE.UU. ya lo hizo. En Chile todavía no hay guías formales del Colegio de Abogados, pero la interpretación razonable del deber de diligencia incluye mantenerse al día con las herramientas disponibles.</p>
+
+<h2>Transparencia con el cliente</h2>
+<p>¿Debes decirle a tu cliente que usaste IA en su asunto? Esta pregunta no tiene una respuesta legal definitiva en Chile hoy. Pero hay argumentos éticos fuertes a favor de la transparencia: el cliente tiene derecho a saber cómo se trabaja su caso, especialmente cuando eso involucra tecnología que procesa su información confidencial.</p>
+<p>La tendencia global es hacia exigir esta transparencia. Algunos colegios en EE.UU. y Europa ya tienen guías que recomiendan o exigen informar al cliente. En Chile conviene adoptar esta práctica ahora, antes de que sea obligatoria: genera confianza y evita conflictos futuros.</p>
+
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #00c896;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#166534;">Principios éticos para el uso de IA en derecho</p>
+    <ul style="color:#166534;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Supervisión efectiva:</strong> tú eres responsable del output, no la IA. Revisa siempre.</li>
+        <li><strong>Confidencialidad activa:</strong> elige herramientas que garanticen protección de datos de clientes.</li>
+        <li><strong>Transparencia con el cliente:</strong> informa del uso de IA cuando sea relevante para su asunto.</li>
+        <li><strong>Verificación de fuentes:</strong> nunca uses jurisprudencia o doctrina generada por IA sin verificarla.</li>
+        <li><strong>Actualización continua:</strong> la tecnología cambia rápido; el deber de competencia exige mantenerse al día.</li>
+    </ul>
+</div>
+
+<h2>La independencia profesional</h2>
+<p>Un riesgo más sutil: la IA puede influir en el juicio profesional si se le da demasiada autoridad. Si tu análisis legal comienza con "la IA dice que...", estás subvirtiendo el proceso. La IA debe ser insumo, no conclusión. El juicio legal sigue siendo tuyo: eso es lo que el cliente contrata y lo que la ética exige.</p>
+HTML,
+
+            // ── DERECHO · MÓDULO 5 ──────────────────────────────────────────
+
+            'ia-para-derecho_5_1' => <<<HTML
+<p>La investigación jurisprudencial es una de las tareas donde la IA aporta más valor de forma más inmediata. Lo que antes tomaba horas de búsqueda en bases de datos ahora puede completarse en minutos, con mayor cobertura y resúmenes automáticos. Pero el cómo importa tanto como el qué.</p>
+
+<h2>Cómo funciona la investigación legal con IA</h2>
+<p>Los sistemas tradicionales de búsqueda jurisprudencial (Westlaw, Lexis, en Chile el buscador del Poder Judicial) requieren que construyas la consulta en términos jurídicos precisos: búsqueda por palabras clave, por norma citada, por tribunal, por fecha. El resultado es una lista de documentos que debes leer y evaluar.</p>
+<p>Los sistemas de IA modernos permiten consultas en lenguaje natural: "¿Cuál es la tendencia de la Corte de Apelaciones de Santiago en casos de responsabilidad contractual por productos defectuosos en los últimos cinco años?" El sistema procesa la pregunta, busca en su base de datos y entrega un resumen con las conclusiones y las fuentes que las sustentan.</p>
+
+<h2>Herramientas disponibles</h2>
+<p><strong>Lexis+ AI:</strong> integra IA generativa sobre la base de datos de LexisNexis. Incluye un asistente conversacional que responde preguntas legales citando casos reales verificables. Disponible principalmente en EE.UU. y Reino Unido, con cobertura limitada para Chile.</p>
+<p><strong>Westlaw Precision:</strong> similar de Thomson Reuters, con integración de IA para síntesis de jurisprudencia. Misma limitación geográfica.</p>
+<p><strong>Harvey para research:</strong> permite hacer investigación legal conversacional con contexto más amplio.</p>
+<p><strong>Para Chile específicamente:</strong> el buscador del Poder Judicial (pjud.cl) y el buscador del BCN (bcn.cl) no tienen IA integrada aún, pero son las fuentes primarias para verificar cualquier resultado que obtengas de otra herramienta.</p>
+
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-1" style="color:#0f172a;font-size:.92rem;">📌 Flujo de trabajo recomendado</p>
+    <ol style="color:#475569;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Formula la pregunta de investigación en lenguaje natural en la herramienta de IA</li>
+        <li>Revisa el resumen y las fuentes que cita el sistema</li>
+        <li>Verifica cada caso citado en la fuente primaria (pjud.cl, BCN, Westlaw, Lexis)</li>
+        <li>Lee los fallos completos de los más relevantes para el caso</li>
+        <li>Construye tu análisis desde los documentos verificados, no desde el resumen de IA</li>
+    </ol>
+</div>
+HTML,
+
+            'ia-para-derecho_5_2' => <<<HTML
+<p>La redacción de documentos legales es una de las tareas más consumidoras de tiempo en la práctica del derecho. La IA puede acelerar significativamente el primer borrador — pero el resultado final sigue dependiendo del criterio del abogado.</p>
+
+<h2>Qué produce bien la IA en redacción legal</h2>
+<p><strong>Contratos estándar.</strong> NDA, contratos de prestación de servicios, acuerdos de confidencialidad, contratos de compraventa de bienes estándar. Para contratos con mucha negociación o términos inusuales, el valor de la IA baja.</p>
+<p><strong>Borradores de escritos de trámite.</strong> Solicitudes de prórroga, escritos de acompañamiento de documentos, recursos formales estándar. Donde hay poca creatividad requerida y mucho formato.</p>
+<p><strong>Resúmenes ejecutivos.</strong> La IA es muy buena condensando documentos largos en versiones cortas. Un contrato de 80 páginas puede convertirse en un resumen de dos páginas con las cláusulas clave identificadas.</p>
+<p><strong>Cláusulas modelo.</strong> Si necesitas redactar una cláusula de limitación de responsabilidad y quieres ver variantes del mercado, la IA puede generar varias opciones con distintos niveles de protección para discutir con el cliente.</p>
+
+<h2>El proceso correcto</h2>
+<p>El error más común es usar el borrador de la IA como documento final con pequeños ajustes. El proceso correcto es: (1) usa la IA para generar un borrador estructurado, (2) revisa cada cláusula con criterio propio, (3) ajusta según el contexto específico del cliente y la transacción, (4) verifica que el conjunto sea coherente internamente, (5) revisa bajo el derecho aplicable.</p>
+
+<div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#92400e;">Errores frecuentes en documentos generados por IA</p>
+    <ul style="color:#78350f;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Cláusulas que asumen el derecho de otro país (la IA mezcla jurisdicciones)</li>
+        <li>Definiciones inconsistentes entre distintas partes del documento</li>
+        <li>Omisión de cláusulas esenciales para el tipo de transacción</li>
+        <li>Lenguaje que suena legal pero es ambiguo o vacío de contenido</li>
+        <li>Referencia a normativa desactualizada</li>
+    </ul>
+</div>
+HTML,
+
+            'ia-para-derecho_5_3' => <<<HTML
+<p>El due diligence es quizás el área donde la IA genera el mayor impacto mensurable en la práctica legal. Los números son contundentes: lo que tomaba semanas a equipos grandes ahora puede hacerse en días, con mayor cobertura y trazabilidad.</p>
+
+<h2>Cómo la IA transforma el due diligence</h2>
+<p>En una transacción M&A, el data room puede contener miles de documentos: contratos comerciales, laborales, inmobiliarios, societarios, regulatorios, ambientales. El equipo de due diligence debe revisar todos para identificar riesgos que afecten el precio, la estructura o la decisión de comprar.</p>
+<p>Tradicionalmente, esto se hacía con equipos de abogados junior leyendo cada documento. Con IA, el sistema hace la primera pasada en horas: extrae cláusulas clave, identifica riesgos (cambio de control, limitaciones de responsabilidad, plazos próximos a vencer), y genera un reporte estructurado. Los abogados se concentran en revisar los hallazgos de alto riesgo y tomar decisiones sobre ellos.</p>
+
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #00c896;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#166534;">Qué hace la IA en due diligence</p>
+    <ul style="color:#166534;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li>Clasificar y organizar documentos por tipo y relevancia</li>
+        <li>Extraer cláusulas clave (cambio de control, no competencia, confidencialidad)</li>
+        <li>Identificar contratos con plazos próximos a vencer</li>
+        <li>Marcar cláusulas inusuales o que se desvían del estándar de mercado</li>
+        <li>Generar resúmenes por contrato y resumen ejecutivo del portfolio</li>
+        <li>Identificar inconsistencias entre documentos</li>
+    </ul>
+</div>
+
+<h2>Lo que sigue siendo humano</h2>
+<p>La síntesis estratégica. El due diligence no termina en identificar los riesgos: termina en evaluar su materialidad para la transacción, negociar representaciones y garantías que los cubran, y recomendar al cliente si la transacción tiene sentido a la luz de lo encontrado. Todo eso requiere juicio que la IA no tiene.</p>
+
+<h2>Implicancias en Chile</h2>
+<p>Las firmas chilenas que participan en M&A de tamaño relevante ya están adoptando estas herramientas o evaluando hacerlo. Los clientes corporativos que hacen due diligence frecuente van a empezar a preguntar por qué su asesor legal cobra las mismas horas si puede hacer el trabajo en menos tiempo con IA. La conversación sobre honorarios y eficiencia tecnológica va a llegar.</p>
+HTML,
+
+            'ia-para-derecho_5_4' => <<<HTML
+<p>Terminaste el curso. Ahora la pregunta práctica: ¿cómo integras esto en tu trabajo real, con los recursos que tienes, a partir de la próxima semana?</p>
+
+<h2>Paso 1: identifica tu punto de entrada</h2>
+<p>No intentes adoptar IA en toda tu práctica al mismo tiempo. Elige una tarea específica donde el potencial de ahorro de tiempo es claro y el riesgo de un error es bajo: investigación preliminar de temas, redacción de borradores de escritos no críticos, resúmenes de documentos extensos. Empieza ahí.</p>
+
+<h2>Paso 2: elige una herramienta y aprende a usarla bien</h2>
+<p>La proliferación de herramientas es parte del problema. No necesitas probar todas. Elige una herramienta general (ChatGPT Enterprise, Claude, o Microsoft Copilot si tu firma usa Office 365) y úsala con regularidad durante un mes. El aprendizaje viene de la práctica frecuente, no de probar muchas herramientas una vez.</p>
+<p>Invierte tiempo en aprender a escribir buenos prompts para el trabajo legal. La calidad del output depende directamente de la calidad de la instrucción que le das al sistema.</p>
+
+<h2>Paso 3: establece tu protocolo</h2>
+<p>Define tus reglas antes de necesitarlas: qué información nunca ingresarás a una IA de uso general, cómo documentarás el uso de IA en los expedientes, cómo verificarás los outputs antes de usarlos en documentos finales. Escríbelas. Si tienes equipo, compártelas.</p>
+
+<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #a78bfa;border-radius:.5rem;padding:1.25rem;margin:1.5rem 0;">
+    <p class="fw-bold mb-2" style="color:#6d28d9;">Tu hoja de ruta en 90 días</p>
+    <ul style="color:#6d28d9;margin:0;font-size:.93rem;padding-left:1.2rem;">
+        <li><strong>Días 1-15:</strong> elige una herramienta, crea una cuenta, completa un tutorial básico</li>
+        <li><strong>Días 15-30:</strong> úsala en una tarea real de bajo riesgo, evalúa el output críticamente</li>
+        <li><strong>Días 30-60:</strong> amplía a una segunda tarea, establece tu protocolo por escrito</li>
+        <li><strong>Días 60-90:</strong> evalúa qué ahorro real de tiempo has logrado, decide si ampliar el uso</li>
+    </ul>
+</div>
+
+<h2>Mantenerse al día</h2>
+<p>El campo evoluciona rápido. Las herramientas de hoy no son las de hace un año, y las de dentro de un año serán distintas. Reserva tiempo mensual para revisar novedades: qué nuevas herramientas aparecen, qué decisiones regulatorias afectan su uso, qué errores están documentando tus colegas. ConocIA y publicaciones especializadas como Law Technology Today o Artificial Lawyer son buenos puntos de partida.</p>
+
+<div style="background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #bbf7d0;border-radius:.75rem;padding:1.75rem;margin-top:2rem;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:.75rem;">🎓</div>
+    <h3 class="fw-bold" style="color:#166534;font-size:1.1rem;margin-bottom:.5rem;">Completaste IA para Profesionales del Derecho</h3>
+    <p style="color:#166534;font-size:.92rem;margin:0 0 1.25rem;">Tienes ahora una base sólida para entender, usar y asesorar sobre IA en el ámbito legal. El campo sigue evolucionando — vuelve pronto.</p>
+    <a href="{{ route('cursos.index') }}" class="btn btn-sm" style="background:#00c896;color:white;font-size:.85rem;border:none;padding:.5rem 1.25rem;border-radius:.5rem;text-decoration:none;">
+        Ver otros cursos
+    </a>
 </div>
 HTML,
 
