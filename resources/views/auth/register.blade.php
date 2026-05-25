@@ -6,11 +6,19 @@
         <div class="col-md-5 col-lg-4">
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body p-4">
+                    @if($fromCourse)
+                    <div class="text-center mb-4 p-3" style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.25);border-radius:.75rem;">
+                        <div style="font-size:1.4rem;margin-bottom:.4rem;">🎓</div>
+                        <p class="fw-semibold mb-1" style="color:#0f172a;font-size:.9rem;">Registro gratuito para acceder al curso</p>
+                        <p class="mb-0" style="color:#64748b;font-size:.8rem;">Sin costo. Sin tarjeta de crédito. Acceso inmediato.</p>
+                    </div>
+                    @else
                     <div class="text-center mb-4">
                         <i class="fas fa-brain fa-2x mb-2" style="color:var(--primary-color);"></i>
                         <h4 class="fw-bold mb-0">Crear cuenta</h4>
                         <p class="text-muted" style="font-size:.85rem;">Únete a la comunidad ConocIA</p>
                     </div>
+                    @endif
 
                     <form method="POST" action="{{ route('register') }}">
                         @csrf

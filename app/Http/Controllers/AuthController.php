@@ -59,7 +59,9 @@ class AuthController extends Controller
      */
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        $intended = session('url.intended', '');
+        $fromCourse = str_contains($intended, '/cursos/');
+        return view('auth.register', compact('fromCourse', 'intended'));
     }
     
     /**
@@ -68,33 +70,40 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
+            'name'  => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-        
+
+        // Generar username único a partir del email
+        $base = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', explode('@', $validated['email'])[0]));
+        $username = $base;
+        $i = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $base . $i++;
+        }
+
         // Obtener el rol de usuario normal
         $userRole = Role::where('slug', 'user')->first();
-        
+
         if (!$userRole) {
             return back()->withErrors(['error' => 'Error al registrar usuario. Contacta al administrador.']);
         }
-        
+
         $user = User::create([
-            'name' => $validated['name'],
-            'username' => $validated['username'],
-            'email' => $validated['email'],
+            'name'     => $validated['name'],
+            'username' => $username,
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role_id' => $userRole->id,
+            'role_id'  => $userRole->id,
             'is_active' => true,
         ]);
-        
+
         event(new Registered($user));
-        
+
         Auth::login($user);
-        
-        return redirect('/');
+
+        return redirect()->intended('/');
     }
     
     /**
