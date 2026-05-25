@@ -30,7 +30,7 @@
 
         {{-- ── Sidebar ─────────────────────────────────────────── --}}
         <div class="col-lg-3 d-none d-lg-block">
-            <nav class="sticky-top sidebar-nav" style="top:80px;">
+            <nav class="sidebar-nav" style="position:sticky;top:88px;z-index:10;">
                 <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:.75rem;">En esta página</p>
                 <ul style="list-style:none;padding:0;margin:0;" class="d-flex flex-column gap-1">
                     <li>
