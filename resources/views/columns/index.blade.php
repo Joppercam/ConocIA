@@ -226,7 +226,10 @@
                     <div class="d-flex justify-content-between align-items-center mt-auto pt-3 col-card-footer">
                         <div class="col-byline">
                             <span class="col-author">{{ $column->author->name ?? 'Redacción' }}</span>
-                            <span class="col-reading">{{ $column->reading_time ?? '?' }} min de lectura</span>
+                            <span class="col-reading">
+                                {{ $column->reading_time ?? '?' }} min
+                                &middot; <i class="fas fa-eye"></i> {{ number_format($column->views ?? 0) }}
+                            </span>
                         </div>
                         <a href="{{ route('columns.show', $column->slug) }}"
                            class="col-read-link">

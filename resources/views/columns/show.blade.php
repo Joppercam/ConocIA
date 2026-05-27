@@ -104,8 +104,9 @@
                         <div style="color:#666;font-size:.8rem;margin-top:.1rem;">
                             {{ $column->published_at?->locale('es')->isoFormat('D MMMM, YYYY') }}
                             @if($column->reading_time)
-                            · <i class="far fa-clock me-1"></i>{{ $column->reading_time }} min de lectura
+                            &middot; <i class="far fa-clock me-1"></i>{{ $column->reading_time }} min de lectura
                             @endif
+                            &middot; <i class="fas fa-eye me-1"></i>{{ number_format($column->views ?? 0) }} lecturas
                         </div>
                     </div>
                     {{-- Inline share (desktop) --}}
