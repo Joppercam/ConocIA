@@ -457,6 +457,30 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
             Route::patch('/{task}/descartar', [\App\Http\Controllers\Admin\EditorialAgentController::class, 'reject'])->name('reject');
         });
         
+        // Briefing diario
+        Route::get('briefing', function () {
+            $briefing = \App\Models\DailyBriefing::orderByDesc('date')->first();
+            return view('admin.briefing.index', compact('briefing'));
+        })->name('briefing.index');
+
+        Route::post('briefing/generate', function (\Illuminate\Http\Request $request) {
+            $force = $request->boolean('force');
+            $service = app(\App\Services\DailyBriefingService::class);
+            $briefing = $service->generate(force: $force);
+            if ($briefing) {
+                return back()->with('success', 'Briefing generado correctamente para ' . $briefing->date->toDateString() . ($briefing->audio_url ? ' (con audio).' : ' (sin audio MP3, revisar GOOGLE_TTS_KEY).'));
+            }
+            return back()->with('error', 'No se pudo generar el briefing. Revisa los logs.');
+        })->name('briefing.generate');
+
+        Route::post('briefing/audio', function () {
+            $briefing = \App\Models\DailyBriefing::orderByDesc('date')->first();
+            if (!$briefing) return back()->with('error', 'No hay briefing para generar audio.');
+            $result = app(\App\Services\BriefingAudioService::class)->generate($briefing);
+            if ($result === true) return back()->with('success', 'Audio MP3 generado correctamente.');
+            return back()->with('error', 'Error de audio: ' . $result);
+        })->name('briefing.audio');
+
         // Cerrar sesión
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 

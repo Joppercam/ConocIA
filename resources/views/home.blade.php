@@ -576,6 +576,104 @@
     </div>
 
 
+    {{-- ═══ APRENDE CON CONOCIA ═══ --}}
+    <section class="py-5" style="background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+        <div class="container">
+
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:4px;height:22px;background:var(--primary-color);border-radius:2px;"></div>
+                    <h3 class="mb-0 fw-bold" style="font-size:1.05rem;color:#0f172a;">Aprende con ConocIA</h3>
+                    <span style="color:#64748b;font-size:.8rem;">— Educación en IA para todos los niveles</span>
+                </div>
+                <a href="{{ route('cursos.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 d-none d-md-inline-flex" style="font-size:.75rem;">
+                    Ver todos los cursos <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="row g-4">
+
+                {{-- IA para Todos --}}
+                <div class="col-lg-4">
+                    <a href="{{ route('ia-para-todos.index') }}" class="text-decoration-none d-block h-100">
+                        <div class="rounded-3 h-100 p-4 d-flex flex-column"
+                             style="background:linear-gradient(135deg,#0a1020 0%,#16213e 100%);border:1px solid rgba(0,200,150,.2);transition:border-color .2s,transform .2s;"
+                             onmouseenter="this.style.borderColor='rgba(0,200,150,.5)';this.style.transform='translateY(-3px)'"
+                             onmouseleave="this.style.borderColor='rgba(0,200,150,.2)';this.style.transform='none'">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div style="width:44px;height:44px;background:rgba(0,200,150,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="fas fa-graduation-cap" style="color:#00c896;font-size:1.1rem;"></i>
+                                </div>
+                                <div>
+                                    <span class="badge px-2 py-1" style="background:rgba(0,200,150,.2);color:#00c896;font-size:.65rem;letter-spacing:.06em;border-radius:20px;">GRATIS · SIN REGISTRO</span>
+                                </div>
+                            </div>
+                            <h4 class="fw-bold text-white mb-2" style="font-size:1.05rem;line-height:1.2;">IA para Todos</h4>
+                            <p style="color:#94a3b8;font-size:.85rem;line-height:1.6;flex-grow:1;">
+                                Curso de alfabetización en IA para ciudadanos. 5 módulos, 20 lecciones. Sin jerga técnica, sin requisitos previos.
+                            </p>
+                            <div class="d-flex align-items-center gap-3 mt-3">
+                                <span style="color:#00c896;font-size:.78rem;"><i class="fas fa-book-open me-1"></i>5 módulos</span>
+                                <span style="color:#64748b;font-size:.78rem;"><i class="fas fa-clock me-1"></i>20 lecciones</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                {{-- Cursos especializados --}}
+                <div class="col-lg-5">
+                    <div class="h-100 d-flex flex-column">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="fw-semibold" style="color:#0f172a;font-size:.88rem;">Cursos especializados</span>
+                            <span class="badge rounded-pill" style="background:#f1f5f9;color:#475569;font-size:.65rem;">Registro gratis</span>
+                        </div>
+                        <div class="row g-2 flex-grow-1">
+                            @foreach($coursesTeaser as $c)
+                            <div class="col-6">
+                                <a href="{{ route('cursos.show', $c['slug']) }}" class="text-decoration-none d-block h-100">
+                                    <div class="rounded-2 p-3 h-100 d-flex align-items-center gap-2"
+                                         style="background:#fff;border:1px solid #e2e8f0;transition:border-color .15s,transform .15s;"
+                                         onmouseenter="this.style.borderColor='{{ $c['color'] }}';this.style.transform='translateY(-2px)'"
+                                         onmouseleave="this.style.borderColor='#e2e8f0';this.style.transform='none'">
+                                        <div style="width:32px;height:32px;background:{{ $c['color'] }}18;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            <i class="fas {{ $c['icon'] }}" style="color:{{ $c['color'] }};font-size:.78rem;"></i>
+                                        </div>
+                                        <span class="fw-semibold" style="color:#1e293b;font-size:.82rem;line-height:1.25;">{{ $c['badge'] }}</span>
+                                    </div>
+                                </a>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Glosario CTA --}}
+                <div class="col-lg-3">
+                    <a href="{{ route('glosario.index') }}" class="text-decoration-none d-block h-100">
+                        <div class="rounded-3 h-100 p-4 d-flex flex-column justify-content-between"
+                             style="background:#fff;border:1px solid #e2e8f0;transition:border-color .2s,transform .2s;"
+                             onmouseenter="this.style.borderColor='rgba(56,182,255,.4)';this.style.transform='translateY(-3px)'"
+                             onmouseleave="this.style.borderColor='#e2e8f0';this.style.transform='none'">
+                            <div>
+                                <div style="width:44px;height:44px;background:rgba(56,182,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+                                    <i class="fas fa-book" style="color:var(--primary-color);font-size:1.1rem;"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2" style="color:#0f172a;font-size:.97rem;">Glosario de IA</h5>
+                                <p style="color:#64748b;font-size:.82rem;line-height:1.6;">
+                                    30+ términos clave de inteligencia artificial explicados de forma simple y accesible.
+                                </p>
+                            </div>
+                            <span style="color:var(--primary-color);font-size:.8rem;font-weight:600;">
+                                Explorar glosario <i class="fas fa-arrow-right ms-1"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     {{-- ═══ CONOCIA TV SPOTLIGHT ═══ --}}
     <section style="background:linear-gradient(135deg,#0d1117 0%,#0f1b2d 60%,#0d1117 100%);border-top:1px solid #1a1a2e;border-bottom:1px solid #1a1a2e;" class="py-5">
         <div class="container">
@@ -707,6 +805,153 @@
         </div>
     </section>
 
+
+    {{-- ═══ HUB IA EN CHILE ═══ --}}
+    <section class="py-5" style="background:linear-gradient(135deg,#0a1020 0%,#0f1b2d 100%);border-top:1px solid rgba(56,182,255,.1);">
+        <div class="container">
+
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:4px;height:22px;background:#e63946;border-radius:2px;"></div>
+                    <h3 class="mb-0 fw-bold text-white" style="font-size:1.05rem;">IA en Chile</h3>
+                    <span style="color:#64748b;font-size:.8rem;">— Ecosistema, regulación y actores locales</span>
+                </div>
+                <a href="{{ route('chile.index') }}" class="btn btn-sm rounded-pill px-3 d-none d-md-inline-flex"
+                   style="font-size:.75rem;background:rgba(230,57,70,.15);color:#f87171;border:1px solid rgba(230,57,70,.3);">
+                    Noticias Chile <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="row g-4">
+
+                {{-- Panel Ecosistema --}}
+                <div class="col-lg-4">
+                    <a href="{{ route('ecosistema.index') }}" class="text-decoration-none d-block h-100">
+                        <div class="rounded-3 h-100 p-4"
+                             style="background:rgba(255,255,255,.04);border:1px solid rgba(56,182,255,.15);transition:border-color .2s,transform .2s;"
+                             onmouseenter="this.style.borderColor='rgba(56,182,255,.4)';this.style.transform='translateY(-3px)'"
+                             onmouseleave="this.style.borderColor='rgba(56,182,255,.15)';this.style.transform='none'">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div style="width:44px;height:44px;background:rgba(56,182,255,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="fas fa-map-marked-alt" style="color:var(--primary-color);font-size:1.1rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-white" style="font-size:.97rem;line-height:1.2;">Mapa del Ecosistema</div>
+                                    <div style="color:#64748b;font-size:.75rem;margin-top:1px;">Actores clave de la IA en Chile</div>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-4">
+                                <div class="col-6">
+                                    <div class="text-center p-2 rounded-2" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);">
+                                        <div class="fw-bold text-white" style="font-size:1.6rem;line-height:1;">{{ $ecosistemaStats['total'] }}</div>
+                                        <div style="color:#64748b;font-size:.68rem;margin-top:2px;">actores mapeados</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-2 rounded-2" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);">
+                                        <div class="fw-bold" style="color:#00c896;font-size:1.6rem;line-height:1;">{{ $ecosistemaStats['startups'] }}</div>
+                                        <div style="color:#64748b;font-size:.68rem;margin-top:2px;">startups IA</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-2 rounded-2" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);">
+                                        <div class="fw-bold" style="color:#38b6ff;font-size:1.6rem;line-height:1;">{{ $ecosistemaStats['universidades'] }}</div>
+                                        <div style="color:#64748b;font-size:.68rem;margin-top:2px;">universidades</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-2 rounded-2" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);">
+                                        <div class="fw-bold" style="color:#f59e0b;font-size:1.6rem;line-height:1;">{{ $ecosistemaStats['gobierno'] }}</div>
+                                        <div style="color:#64748b;font-size:.68rem;margin-top:2px;">organismos gov.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span style="color:var(--primary-color);font-size:.8rem;font-weight:600;">
+                                Ver mapa completo <i class="fas fa-arrow-right ms-1"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+
+                {{-- Panel Regulación --}}
+                <div class="col-lg-4">
+                    <div class="rounded-3 h-100 p-4" style="background:rgba(255,255,255,.04);border:1px solid rgba(245,158,11,.15);">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width:44px;height:44px;background:rgba(245,158,11,.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fas fa-balance-scale" style="color:#f59e0b;font-size:1.1rem;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size:.97rem;line-height:1.2;">Observatorio Regulatorio</div>
+                                <div style="color:#64748b;font-size:.75rem;margin-top:1px;">Legislación y políticas de IA</div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            @forelse($homeRegulations as $reg)
+                            <a href="{{ route('regulacion.show', $reg->slug) }}" class="text-decoration-none d-flex align-items-start gap-2 p-2 rounded-2"
+                               style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:border-color .15s;"
+                               onmouseenter="this.style.borderColor='rgba(245,158,11,.3)'"
+                               onmouseleave="this.style.borderColor='rgba(255,255,255,.06)'">
+                                <span class="flex-shrink-0 mt-1 rounded-1 px-1" style="font-size:.6rem;font-weight:700;letter-spacing:.05em;
+                                    background:{{ $reg->status === 'vigente' ? 'rgba(0,200,150,.2)' : ($reg->status === 'en_tramite' ? 'rgba(245,158,11,.2)' : 'rgba(100,116,139,.2)') }};
+                                    color:{{ $reg->status === 'vigente' ? '#00c896' : ($reg->status === 'en_tramite' ? '#f59e0b' : '#94a3b8') }};">
+                                    {{ strtoupper($reg->status === 'en_tramite' ? 'En trámite' : $reg->status) }}
+                                </span>
+                                <span style="color:#cbd5e1;font-size:.8rem;line-height:1.35;">{{ Str::limit($reg->title, 65) }}</span>
+                            </a>
+                            @empty
+                            <div style="color:#64748b;font-size:.82rem;" class="py-2">Sin regulaciones recientes.</div>
+                            @endforelse
+                        </div>
+                        <a href="{{ route('regulacion.index') }}" style="color:#f59e0b;font-size:.8rem;font-weight:600;text-decoration:none;">
+                            Ver observatorio completo <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Panel Radar Regulatorio --}}
+                <div class="col-lg-4">
+                    <div class="h-100 d-flex flex-column gap-3">
+
+                        <a href="{{ route('radar.index') }}" class="text-decoration-none flex-fill">
+                            <div class="rounded-3 p-4 h-100"
+                                 style="background:linear-gradient(135deg,rgba(230,57,70,.08) 0%,rgba(230,57,70,.03) 100%);border:1px solid rgba(230,57,70,.2);transition:border-color .2s,transform .2s;"
+                                 onmouseenter="this.style.borderColor='rgba(230,57,70,.5)';this.style.transform='translateY(-2px)'"
+                                 onmouseleave="this.style.borderColor='rgba(230,57,70,.2)';this.style.transform='none'">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fas fa-satellite-dish" style="color:#f87171;font-size:1rem;"></i>
+                                    <span class="fw-bold text-white" style="font-size:.92rem;">Radar Regulatorio</span>
+                                </div>
+                                <p style="color:#94a3b8;font-size:.82rem;line-height:1.55;margin:0;">
+                                    Seguimiento en tiempo real de proyectos de ley, reglamentos y políticas públicas sobre IA en Chile y el mundo.
+                                </p>
+                                <div class="mt-3" style="color:#f87171;font-size:.78rem;font-weight:600;">
+                                    Ver radar <i class="fas fa-arrow-right ms-1"></i>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="{{ route('ecosistema.index') }}" class="text-decoration-none">
+                            <div class="rounded-3 p-3 d-flex align-items-center gap-3"
+                                 style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);transition:border-color .2s;"
+                                 onmouseenter="this.style.borderColor='rgba(56,182,255,.3)'"
+                                 onmouseleave="this.style.borderColor='rgba(255,255,255,.08)'">
+                                <div style="width:36px;height:36px;background:rgba(56,182,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="fas fa-network-wired" style="color:var(--primary-color);font-size:.85rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-white" style="font-size:.85rem;">Explora el ecosistema completo</div>
+                                    <div style="color:#64748b;font-size:.75rem;">Universidades, startups, gobierno y más</div>
+                                </div>
+                                <i class="fas fa-chevron-right ms-auto" style="color:#475569;font-size:.7rem;"></i>
+                            </div>
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
 
     <!-- ═══ BARRA DE IMPACTO ═══ -->
     <section class="py-5" style="background:linear-gradient(135deg,#08090f 0%,#0d1220 60%,#080e1a 100%);border-top:1px solid rgba(56,182,255,.12);">

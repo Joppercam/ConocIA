@@ -12,6 +12,8 @@ use App\Models\AnalisisFondo;
 use App\Models\ConocIaPaper;
 use App\Models\EstadoArte;
 use App\Models\Startup;
+use App\Models\EcosystemActor;
+use App\Models\Regulation;
 use App\Mail\ContactFormMail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -99,6 +101,32 @@ class HomeController extends Controller
             ];
         });
 
+        $ecosistemaStats = Cache::remember('home_ecosistema_stats', 3600, function () {
+            $total = EcosystemActor::count();
+            $tipos = EcosystemActor::selectRaw('type, count(*) as cnt')
+                ->groupBy('type')
+                ->pluck('cnt', 'type');
+            return [
+                'total'         => $total,
+                'universidades' => $tipos['universidad'] ?? 0,
+                'startups'      => $tipos['startup'] ?? 0,
+                'gobierno'      => $tipos['gobierno'] ?? 0,
+            ];
+        });
+
+        $homeRegulations = Cache::remember('home_regulations_preview', 3600, fn() =>
+            Regulation::orderByDesc('updated_at')->limit(3)->get(['id', 'title', 'slug', 'status', 'scope', 'updated_at'])
+        );
+
+        $coursesTeaser = [
+            ['slug' => 'ia-para-derecho',     'badge' => 'Derecho',     'icon' => 'fa-balance-scale',       'color' => '#a78bfa'],
+            ['slug' => 'ia-para-docentes',    'badge' => 'Educación',   'icon' => 'fa-chalkboard-teacher',  'color' => '#00c896'],
+            ['slug' => 'ia-para-periodistas', 'badge' => 'Periodismo',  'icon' => 'fa-newspaper',           'color' => '#38b6ff'],
+            ['slug' => 'ia-para-rrhh',        'badge' => 'RRHH',        'icon' => 'fa-users-cog',           'color' => '#f59e0b'],
+            ['slug' => 'ia-para-salud',       'badge' => 'Salud',       'icon' => 'fa-heartbeat',           'color' => '#f472b6'],
+            ['slug' => 'ia-para-pymes',       'badge' => 'PyMEs',       'icon' => 'fa-store',               'color' => '#34d399'],
+        ];
+
         $getImageUrl      = $this->imageUrlHelper();
         $getCategoryStyle = fn($cat) => $cat && isset($cat->color)
             ? 'background-color: ' . $cat->color . ';'
@@ -128,7 +156,10 @@ class HomeController extends Controller
             'startupOfWeek',
             'recentStartups',
             'chileNews',
-            'homeStats'
+            'homeStats',
+            'ecosistemaStats',
+            'homeRegulations',
+            'coursesTeaser'
         ))->with([
             'getImageUrl'      => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,
