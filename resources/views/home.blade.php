@@ -4,7 +4,7 @@
 @section('content')
 
     <!-- ═══ BANNER INSTITUCIONAL ═══ -->
-    <section style="background:linear-gradient(135deg,#08090f 0%,#0d1220 50%,#080e1a 100%);border-bottom:1px solid rgba(56,182,255,.12);" class="py-3">
+    <section style="background:linear-gradient(135deg,#08090f 0%,#0d1220 50%,#080e1a 100%);border-bottom:1px solid rgba(56,182,255,.12);" class="py-3 d-none d-lg-block">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <div class="d-flex align-items-center gap-3">
@@ -128,7 +128,7 @@
 
                     {{-- ── IA en Chile (columna editorial central) ── --}}
                     @php $chileTop = ($chileNews ?? collect())->first(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
-                    <div class="col-lg-4">
+                    <div class="col-lg-4 d-none d-lg-flex flex-column">
                         <div class="d-flex flex-column gap-2 h-100">
 
                             {{-- Header Chile --}}
@@ -142,9 +142,9 @@
                                 <a href="{{ route('chile.index') }}" style="color:#f87171;font-size:.72rem;text-decoration:none;">Ver todo →</a>
                             </div>
 
-                            {{-- Chile top card con imagen --}}
+                            {{-- Chile top card con imagen (solo desktop) --}}
                             @if($chileTop)
-                            <a href="{{ route('news.show', $chileTop->slug ?? $chileTop->id) }}" class="text-decoration-none flex-shrink-0">
+                            <a href="{{ route('news.show', $chileTop->slug ?? $chileTop->id) }}" class="text-decoration-none flex-shrink-0 d-none d-lg-block">
                                 <div class="editorial-card position-relative rounded-3 overflow-hidden" style="min-height:140px;">
                                     <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($chileTop->image, 'news') }}"
                                          class="editorial-img" alt="{{ $chileTop->title }}" loading="lazy">
@@ -234,7 +234,7 @@
                     </div>
 
                     {{-- ── Sidebar: Cursos + Ecosistema + Columnas ── --}}
-                    <div class="col-lg-3 d-flex flex-column gap-2">
+                    <div class="col-lg-3 d-none d-lg-flex flex-column gap-2">
 
                         {{-- Cursos: grilla completa --}}
                         <div class="rounded-3 overflow-hidden flex-shrink-0" style="background:#0d1526;border:1px solid rgba(56,182,255,.2);">
@@ -270,8 +270,8 @@
                             </div>
                         </div>
 
-                        {{-- Ecosistema IA Chile --}}
-                        <a href="{{ route('ecosistema.index') }}" class="text-decoration-none rounded-3 overflow-hidden flex-shrink-0"
+                        {{-- Ecosistema IA Chile (solo desktop) --}}
+                        <a href="{{ route('ecosistema.index') }}" class="text-decoration-none rounded-3 overflow-hidden flex-shrink-0 d-none d-lg-block"
                            style="background:#0d1526;border:1px solid rgba(56,182,255,.18);">
                             <div class="d-flex align-items-center gap-1 px-2 py-1" style="background:rgba(56,182,255,.08);border-bottom:1px solid rgba(56,182,255,.12);">
                                 <i class="fas fa-network-wired" style="color:var(--primary-color);font-size:.63rem;"></i>
@@ -293,8 +293,8 @@
                             </div>
                         </a>
 
-                        {{-- Últimas Columnas --}}
-                        <div class="rounded-3 overflow-hidden flex-grow-1" style="background:#fff;border:1px solid #e2e8f0;min-height:0;">
+                        {{-- Últimas Columnas (solo desktop) --}}
+                        <div class="rounded-3 overflow-hidden flex-grow-1 d-none d-lg-block" style="background:#fff;border:1px solid #e2e8f0;min-height:0;">
                             <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:var(--primary-color);border-bottom:1px solid rgba(255,255,255,.15);">
                                 <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.78rem;">
                                     <i class="fas fa-feather-alt" style="font-size:.65rem;"></i>Últimas Columnas
@@ -328,6 +328,70 @@
             </div>{{-- /container --}}
         </div>{{-- /hero-overlay --}}
     </section>
+
+    {{-- ═══ MOBILE: IA en Chile + Cursos (d-lg-none) ═══ --}}
+    <div class="d-lg-none" style="background:var(--dark-bg);border-top:1px solid rgba(255,255,255,.07);">
+
+        {{-- Chile noticias: scroll horizontal --}}
+        @if(isset($chileNews) && $chileNews->isNotEmpty())
+        <div class="border-bottom" style="border-color:rgba(255,255,255,.07) !important;">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between py-2">
+                    <span class="fw-bold text-white d-flex align-items-center gap-2" style="font-size:.82rem;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#e63946;border-radius:5px;">
+                            <i class="fas fa-map-marker-alt text-white" style="font-size:.55rem;"></i>
+                        </span>
+                        IA en Chile
+                    </span>
+                    <a href="{{ route('chile.index') }}" style="color:#f87171;font-size:.72rem;text-decoration:none;">Ver todo →</a>
+                </div>
+            </div>
+            <div class="d-flex gap-2 overflow-auto hide-scrollbar px-3 pb-3" style="-webkit-overflow-scrolling:touch;">
+                @foreach(($chileNews ?? collect())->take(5) as $chile)
+                @php $chImg = \App\Helpers\ImageHelper::getImageUrlOrNull($chile->image, 'news'); @endphp
+                <a href="{{ route('news.show', $chile->slug ?? $chile->id) }}"
+                   class="text-decoration-none flex-shrink-0"
+                   style="width:160px;">
+                    <div class="rounded-3 overflow-hidden position-relative" style="height:100px;background:#1a1a1a;">
+                        @if($chImg)
+                        <img src="{{ $chImg }}" alt="{{ $chile->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 50%);"></div>
+                        @endif
+                        <div style="position:absolute;bottom:0;left:0;right:0;padding:.5rem;">
+                            <div class="text-white lh-sm" style="font-size:.68rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;">{{ $chile->title }}</div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- Cursos: grid compacto --}}
+        <div class="container py-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-bold text-white" style="font-size:.82rem;">
+                    <i class="fas fa-graduation-cap me-1" style="color:var(--primary-color);"></i>
+                    IA Aplicada a tu Profesión
+                </span>
+                <a href="{{ route('cursos.index') }}" style="color:var(--primary-color);font-size:.72rem;text-decoration:none;">Ver cursos →</a>
+            </div>
+            <div class="row g-2">
+                @foreach($coursesTeaser as $curso)
+                <div class="col-4">
+                    <a href="{{ route('cursos.show', $curso['slug']) }}" class="text-decoration-none d-flex flex-column align-items-center gap-1 rounded-2 py-2 px-1 text-center"
+                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);">
+                        <div style="width:28px;height:28px;background:{{ $curso['color'] }}22;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas {{ $curso['icon'] }}" style="color:{{ $curso['color'] }};font-size:.65rem;"></i>
+                        </div>
+                        <span style="color:#cbd5e1;font-size:.65rem;font-weight:500;line-height:1.2;">{{ $curso['badge'] }}</span>
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+    </div>
 
     {{-- ═══ PAPER DESTACADO ═══ --}}
     @include('partials.featured-paper-strip')
@@ -1547,46 +1611,30 @@
     }
 }
 
+@media (max-width: 991px) {
+    /* Hero principal más compacto en mobile/tablet */
+    .editorial-card-main { min-height: 240px !important; }
+    .editorial-card-main .editorial-body { padding: 0.75rem !important; }
+    .editorial-card-main h1 { font-size: 1rem !important; }
+
+    /* Chile news list: más compacta */
+    .chile-list-item { padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; }
+}
+
 @media (max-width: 768px) {
-    .hero-news-section {
-        padding: 1.2rem 0;
-    }
-    
-    .hero-news-item {
-        height: 420px;
-        margin-bottom: 15px;
-    }
-    
-    .hero-news-item img {
-        height: 220px;
-    }
-    
-    .hero-columns-section {
-        margin-bottom: 1rem;
-    }
+    .hero-news-section { padding: 0.75rem 0; }
+    .hero-news-item { height: 420px; margin-bottom: 15px; }
+    .hero-news-item img { height: 220px; }
+    .hero-columns-section { margin-bottom: 1rem; }
 }
 
 @media (max-width: 576px) {
-    .hero-news-item {
-        height: 380px;
-    }
-    
-    .hero-news-item img {
-        height: 200px;
-    }
-    
-    .hero-news-content {
-        padding: 1rem;
-    }
-    
-    .hero-news-title {
-        font-size: 1rem;
-    }
-    
-    .hero-news-excerpt {
-        font-size: 0.75rem;
-        margin-bottom: 0.7rem;
-    }
+    .editorial-card-main { min-height: 200px !important; }
+    .hero-news-item { height: 380px; }
+    .hero-news-item img { height: 200px; }
+    .hero-news-content { padding: 1rem; }
+    .hero-news-title { font-size: 1rem; }
+    .hero-news-excerpt { font-size: 0.75rem; margin-bottom: 0.7rem; }
 }
 </style>
 @endpush
