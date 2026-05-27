@@ -315,7 +315,7 @@
                                          style="object-fit:cover;" loading="lazy">
                                     <div class="overflow-hidden">
                                         <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.74rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $column->title }}</div>
-                                        <div style="color:#94a3b8;font-size:.63rem;margin-top:2px;">{{ $authorName }} · {{ $column->created_at->locale('es')->diffForHumans() }}</div>
+                                        <div style="color:#94a3b8;font-size:.63rem;margin-top:2px;">{{ $authorName }} · {{ $column->created_at->locale('es')->diffForHumans() }} · <i class="far fa-eye"></i> {{ number_format($column->views ?? 0) }}</div>
                                     </div>
                                 </a>
                                 @endforeach
