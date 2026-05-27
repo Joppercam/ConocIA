@@ -301,8 +301,8 @@
                                 </span>
                                 <a href="{{ route('columns.index') }}" class="text-white" style="font-size:.65rem;text-decoration:none;opacity:.85;">Ver todas →</a>
                             </div>
-                            <div style="overflow-y:auto;max-height:200px;">
-                                @foreach(($latestColumns ?? collect())->take(3) as $column)
+                            <div style="overflow-y:auto;max-height:300px;">
+                                @foreach(($latestColumns ?? collect())->take(4) as $column)
                                 @php
                                     $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor');
                                     $avatarPath = is_object($column->author) ? $column->author->photo_url : asset('images/defaults/user-profile.jpg');
@@ -323,42 +323,6 @@
                         </div>
 
                     </div>{{-- /col sidebar --}}
-
-
-                    {{-- ── Segunda fila: 4 columnas de opinión ── --}}
-                    <div class="col-12">
-                        <div class="row g-2 mt-0">
-                            @foreach(($latestColumnsSectionFeatured ?? collect())->take(4) as $col)
-                            @php
-                                $colAuthor = is_object($col->author) ? $col->author->name : ($col->author ?? 'Autor');
-                                $colAvatar = is_object($col->author) ? $col->author->photo_url : asset('images/defaults/user-profile.jpg');
-                                $colExcerpt = news_editorial_teaser($col->summary ?? null, $col->excerpt ?? null, $col->content ?? null, 140);
-                            @endphp
-                            <div class="col-md-3">
-                                <a href="{{ route('columns.show', $col->slug ?? $col->id) }}" class="text-decoration-none d-block h-100">
-                                    <div class="rounded-3 px-3 py-2 h-100 d-flex gap-3 align-items-start"
-                                         style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);transition:background .15s;"
-                                         onmouseenter="this.style.background='rgba(255,255,255,.07)'"
-                                         onmouseleave="this.style.background='rgba(255,255,255,.04)'">
-                                        <img src="{{ $colAvatar }}" alt="{{ $colAuthor }}"
-                                             class="rounded-circle flex-shrink-0 mt-1" width="36" height="36"
-                                             style="object-fit:cover;border:2px solid rgba(56,182,255,.3);">
-                                        <div class="overflow-hidden">
-                                            <div class="d-flex align-items-center gap-2 mb-1">
-                                                <span class="fw-semibold" style="color:var(--primary-color);font-size:.7rem;">{{ $colAuthor }}</span>
-                                                <span style="color:#475569;font-size:.65rem;">· {{ $col->created_at->locale('es')->diffForHumans() }}</span>
-                                            </div>
-                                            <div class="fw-bold text-white lh-sm mb-1" style="font-size:.85rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $col->title }}</div>
-                                            @if($colExcerpt)
-                                            <div style="color:#94a3b8;font-size:.75rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $colExcerpt }}</div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
 
                 </div>{{-- /row --}}
             </div>{{-- /container --}}
