@@ -38,7 +38,7 @@
     </section>
 
     <!-- ═══ BREAKING NEWS TICKER ═══ -->
-    <div class="breaking-ticker" style="background:#1a1a1a; border-bottom:2px solid var(--primary-color);">
+    <div class="breaking-ticker d-none d-lg-block" style="background:#1a1a1a; border-bottom:2px solid var(--primary-color);">
         <div class="d-flex align-items-center overflow-hidden" style="height:36px;">
             <div class="flex-shrink-0 d-flex align-items-center px-3 py-1 h-100"
                  style="background:var(--primary-color); min-width:110px; gap:.4rem;">
