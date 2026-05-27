@@ -235,20 +235,39 @@
                     {{-- ── Sidebar: Cursos + Ecosistema + Columnas ── --}}
                     <div class="col-lg-3 d-flex flex-column gap-2">
 
-                        {{-- Cursos CTA compacto --}}
-                        <a href="{{ route('cursos.index') }}" class="text-decoration-none rounded-3 px-3 py-2 d-flex align-items-center gap-2"
-                           style="background:linear-gradient(135deg,rgba(56,182,255,.12) 0%,rgba(56,182,255,.06) 100%);border:1px solid rgba(56,182,255,.25);transition:border-color .15s;"
-                           onmouseenter="this.style.borderColor='rgba(56,182,255,.5)'"
-                           onmouseleave="this.style.borderColor='rgba(56,182,255,.25)'">
-                            <div style="width:30px;height:30px;background:var(--primary-color);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <i class="fas fa-graduation-cap text-white" style="font-size:.72rem;"></i>
+                        {{-- Cursos: grilla completa --}}
+                        <div class="rounded-3 overflow-hidden flex-shrink-0" style="background:#0d1526;border:1px solid rgba(56,182,255,.2);">
+                            <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:rgba(56,182,255,.12);border-bottom:1px solid rgba(56,182,255,.18);">
+                                <span class="fw-bold d-flex align-items-center gap-1" style="color:#e2e8f0;font-size:.78rem;">
+                                    <i class="fas fa-graduation-cap" style="color:var(--primary-color);font-size:.68rem;"></i>
+                                    IA Aplicada a tu Profesión
+                                </span>
+                                <a href="{{ route('cursos.index') }}" style="color:var(--primary-color);font-size:.63rem;text-decoration:none;">Ver cursos →</a>
                             </div>
-                            <div>
-                                <div class="fw-bold text-white" style="font-size:.78rem;line-height:1.2;">Cursos gratuitos de IA</div>
-                                <div style="color:#64748b;font-size:.68rem;">Derecho, Educación, Salud y más</div>
+                            <div class="p-2">
+                                <div class="row g-1">
+                                    @foreach($coursesTeaser as $curso)
+                                    <div class="col-6">
+                                        <a href="{{ route('cursos.show', $curso['slug']) }}" class="text-decoration-none d-flex align-items-center gap-2 rounded-2 px-2 py-1"
+                                           style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);transition:background .15s;"
+                                           onmouseenter="this.style.background='rgba(255,255,255,.1)'"
+                                           onmouseleave="this.style.background='rgba(255,255,255,.05)'">
+                                            <div style="width:22px;height:22px;background:{{ $curso['color'] }}22;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                <i class="fas {{ $curso['icon'] }}" style="color:{{ $curso['color'] }};font-size:.55rem;"></i>
+                                            </div>
+                                            <span style="color:#cbd5e1;font-size:.68rem;line-height:1.2;font-weight:500;">{{ $curso['badge'] }}</span>
+                                        </a>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="text-center mt-2">
+                                    <a href="{{ route('cursos.index') }}" class="btn btn-sm rounded-pill px-3"
+                                       style="font-size:.68rem;background:var(--primary-color);color:#fff;border:none;">
+                                        Ver todos los cursos gratuitos
+                                    </a>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right ms-auto" style="color:#38b6ff;font-size:.65rem;"></i>
-                        </a>
+                        </div>
 
                         {{-- Ecosistema IA Chile --}}
                         <a href="{{ route('ecosistema.index') }}" class="text-decoration-none rounded-3 overflow-hidden flex-shrink-0"
