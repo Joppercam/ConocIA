@@ -126,75 +126,114 @@
                     </div>
                     @endif
 
-                    {{-- ── Grid 2x2 de secundarias ── --}}
-                    @php $secNews = $featuredNews->filter(fn($n) => $n->id !== ($hero?->id) && \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
-                    @if($secNews->count() > 0)
-                    <div class="col-lg-4 col-md-5">
+                    {{-- ── IA en Chile (columna editorial central) ── --}}
+                    @php $chileTop = ($chileNews ?? collect())->first(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
+                    <div class="col-lg-4">
                         <div class="d-flex flex-column gap-2 h-100">
-                            @foreach($secNews->take(2) as $sec)
-                            <a href="{{ route('news.show', $sec->slug ?? $sec->id) }}" class="text-decoration-none flex-fill">
-                                <div class="editorial-card position-relative rounded-3 overflow-hidden h-100" style="min-height:160px;">
-                                    <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($sec->image, 'news') }}"
-                                         class="editorial-img"
-                                         alt="{{ $sec->title }}"
-                                         loading="lazy">
-                                    <div class="editorial-gradient"></div>
-                                    @if(in_array($sec->id, $trendingIds ?? []))
-                                    <span class="badge-trending" style="top:6px;left:6px;padding:1px 5px;font-size:.6rem;">
-                                        <i class="fas fa-fire"></i>
+
+                            {{-- Header Chile --}}
+                            <div class="d-flex align-items-center justify-content-between px-1">
+                                <span class="fw-bold text-white d-flex align-items-center gap-2" style="font-size:.85rem;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#e63946;border-radius:6px;">
+                                        <i class="fas fa-map-marker-alt text-white" style="font-size:.6rem;"></i>
                                     </span>
-                                    @endif
+                                    IA en Chile
+                                </span>
+                                <a href="{{ route('chile.index') }}" style="color:#f87171;font-size:.72rem;text-decoration:none;">Ver todo →</a>
+                            </div>
+
+                            {{-- Chile top card con imagen --}}
+                            @if($chileTop)
+                            <a href="{{ route('news.show', $chileTop->slug ?? $chileTop->id) }}" class="text-decoration-none flex-shrink-0">
+                                <div class="editorial-card position-relative rounded-3 overflow-hidden" style="min-height:140px;">
+                                    <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($chileTop->image, 'news') }}"
+                                         class="editorial-img" alt="{{ $chileTop->title }}" loading="lazy">
+                                    <div class="editorial-gradient"></div>
                                     <div class="editorial-body p-2 text-white">
-                                        @if(isset($sec->category))
-                                        <span class="badge mb-1" style="{{ $getCategoryStyle($sec->category) }}; font-size:.6rem;">
-                                            {{ $sec->category->name }}
+                                        <span class="badge mb-1" style="background:#e63946;font-size:.6rem;">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Chile
                                         </span>
-                                        @endif
-                                        <h6 class="fw-bold lh-sm mb-1" style="font-size:.82rem;">
-                                            {{ $sec->title }}
-                                        </h6>
+                                        <h6 class="fw-bold lh-sm mb-1" style="font-size:.83rem;">{{ $chileTop->title }}</h6>
                                         <div style="font-size:.65rem;opacity:.7;">
-                                            <i class="far fa-clock me-1"></i>{{ $sec->created_at->locale('es')->diffForHumans() }}
+                                            <i class="far fa-clock me-1"></i>{{ $chileTop->published_at?->locale('es')->diffForHumans() ?? $chileTop->created_at->locale('es')->diffForHumans() }}
                                         </div>
                                     </div>
                                 </div>
                             </a>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
+                            @endif
 
-                    {{-- ── Sidebar: IA en Chile + Cursos + Columnas ── --}}
-                    <div class="col-lg-3 d-flex flex-column gap-2">
-
-                        {{-- IA en Chile --}}
-                        <div class="rounded-3 overflow-hidden flex-shrink-0" style="background:#1a0a0c;border:1px solid rgba(230,57,70,.3);">
-                            <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:rgba(230,57,70,.18);border-bottom:1px solid rgba(230,57,70,.25);">
-                                <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.78rem;">
-                                    <i class="fas fa-map-marker-alt" style="color:#f87171;font-size:.65rem;"></i>IA en Chile
-                                </span>
-                                <a href="{{ route('chile.index') }}" style="color:#f87171;font-size:.65rem;text-decoration:none;">Ver todo →</a>
-                            </div>
-                            <div class="px-2 py-1">
-                                @forelse(($chileNews ?? collect())->take(4) as $chile)
+                            {{-- Lista de noticias Chile --}}
+                            <div class="rounded-3 overflow-hidden flex-shrink-0" style="background:#1a0a0c;border:1px solid rgba(230,57,70,.25);">
+                                @forelse(($chileNews ?? collect())->filter(fn($n) => !$chileTop || $n->id !== $chileTop->id)->take(3) as $chile)
                                 <a href="{{ route('news.show', $chile->slug ?? $chile->id) }}"
-                                   class="d-flex gap-2 text-decoration-none py-1 {{ !$loop->last ? 'border-bottom' : '' }}"
+                                   class="d-flex gap-2 text-decoration-none px-2 py-2 {{ !$loop->last ? 'border-bottom' : '' }}"
                                    style="border-color:rgba(255,255,255,.06) !important;">
                                     @php $chImg = \App\Helpers\ImageHelper::getImageUrlOrNull($chile->image, 'news'); @endphp
                                     @if($chImg)
                                     <img src="{{ $chImg }}" alt="" class="flex-shrink-0 rounded-1"
-                                         style="width:44px;height:36px;object-fit:cover;" loading="lazy">
+                                         style="width:44px;height:38px;object-fit:cover;" loading="lazy">
                                     @endif
                                     <div class="overflow-hidden">
-                                        <div class="text-white lh-sm" style="font-size:.73rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $chile->title }}</div>
+                                        <div class="text-white lh-sm" style="font-size:.74rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $chile->title }}</div>
                                         <div style="color:#6b7a90;font-size:.63rem;margin-top:2px;">{{ $chile->published_at?->locale('es')->diffForHumans() ?? $chile->created_at->locale('es')->diffForHumans() }}</div>
                                     </div>
                                 </a>
                                 @empty
-                                <div style="color:#6b7a90;font-size:.78rem;" class="py-2 text-center">Sin noticias recientes</div>
+                                <div style="color:#6b7a90;font-size:.78rem;" class="py-2 text-center px-2">
+                                    Sin noticias recientes.<br>
+                                    <a href="{{ route('chile.index') }}" style="color:#f87171;font-size:.7rem;">Explorar →</a>
+                                </div>
                                 @endforelse
                             </div>
+
+                            {{-- Regulación IA Chile --}}
+                            @if(isset($homeRegulations) && $homeRegulations->isNotEmpty())
+                            <div class="rounded-3 overflow-hidden flex-grow-1" style="background:#0d1526;border:1px solid rgba(56,182,255,.18);">
+                                <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:rgba(56,182,255,.1);border-bottom:1px solid rgba(56,182,255,.15);">
+                                    <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.75rem;">
+                                        <i class="fas fa-gavel" style="color:var(--primary-color);font-size:.63rem;"></i>
+                                        Regulación IA
+                                    </span>
+                                    <a href="{{ route('regulacion.index') }}" style="color:var(--primary-color);font-size:.63rem;text-decoration:none;">Ver todo →</a>
+                                </div>
+                                @foreach($homeRegulations->take(2) as $reg)
+                                @php
+                                    $regColor = match($reg->status ?? '') {
+                                        'vigente'    => '#4ade80',
+                                        'en_tramite' => '#facc15',
+                                        'proyecto'   => '#60a5fa',
+                                        default      => '#94a3b8',
+                                    };
+                                    $regLabel = match($reg->status ?? '') {
+                                        'vigente'    => 'Vigente',
+                                        'en_tramite' => 'En trámite',
+                                        'proyecto'   => 'Proyecto',
+                                        default      => ucfirst($reg->status ?? 'Pendiente'),
+                                    };
+                                @endphp
+                                <a href="{{ route('regulacion.show', $reg->slug) }}"
+                                   class="d-flex flex-column gap-1 text-decoration-none px-2 py-2 {{ !$loop->last ? 'border-bottom' : '' }}"
+                                   style="border-color:rgba(255,255,255,.06) !important;">
+                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                        <span class="badge rounded-pill px-2" style="background:{{ $regColor }}22;color:{{ $regColor }};border:1px solid {{ $regColor }}44;font-size:.58rem;">
+                                            {{ $regLabel }}
+                                        </span>
+                                        @if($reg->scope)
+                                        <span style="color:#64748b;font-size:.6rem;">{{ $reg->scope }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-white lh-sm" style="font-size:.74rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $reg->title }}</div>
+                                    <div style="color:#475569;font-size:.6rem;">{{ $reg->updated_at->locale('es')->isoFormat('D MMM') }}</div>
+                                </a>
+                                @endforeach
+                            </div>
+                            @endif
+
                         </div>
+                    </div>
+
+                    {{-- ── Sidebar: Cursos + Ecosistema + Columnas ── --}}
+                    <div class="col-lg-3 d-flex flex-column gap-2">
 
                         {{-- Cursos CTA compacto --}}
                         <a href="{{ route('cursos.index') }}" class="text-decoration-none rounded-3 px-3 py-2 d-flex align-items-center gap-2"
@@ -211,6 +250,29 @@
                             <i class="fas fa-chevron-right ms-auto" style="color:#38b6ff;font-size:.65rem;"></i>
                         </a>
 
+                        {{-- Ecosistema IA Chile --}}
+                        <a href="{{ route('ecosistema.index') }}" class="text-decoration-none rounded-3 overflow-hidden flex-shrink-0"
+                           style="background:#0d1526;border:1px solid rgba(56,182,255,.18);">
+                            <div class="d-flex align-items-center gap-1 px-2 py-1" style="background:rgba(56,182,255,.08);border-bottom:1px solid rgba(56,182,255,.12);">
+                                <i class="fas fa-network-wired" style="color:var(--primary-color);font-size:.63rem;"></i>
+                                <span class="fw-bold text-white" style="font-size:.75rem;">Ecosistema IA Chile</span>
+                            </div>
+                            <div class="d-flex justify-content-around px-2 py-2">
+                                <div class="text-center">
+                                    <div class="fw-bold text-white" style="font-size:1rem;">{{ $ecosistemaStats['total'] ?? 0 }}</div>
+                                    <div style="color:#64748b;font-size:.6rem;">Actores</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-bold" style="font-size:1rem;color:#60a5fa;">{{ $ecosistemaStats['startups'] ?? 0 }}</div>
+                                    <div style="color:#64748b;font-size:.6rem;">Startups</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-bold" style="font-size:1rem;color:#4ade80;">{{ $ecosistemaStats['universidades'] ?? 0 }}</div>
+                                    <div style="color:#64748b;font-size:.6rem;">Univers.</div>
+                                </div>
+                            </div>
+                        </a>
+
                         {{-- Últimas Columnas --}}
                         <div class="rounded-3 overflow-hidden flex-grow-1" style="background:#fff;border:1px solid #e2e8f0;min-height:0;">
                             <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:var(--primary-color);border-bottom:1px solid rgba(255,255,255,.15);">
@@ -219,8 +281,8 @@
                                 </span>
                                 <a href="{{ route('columns.index') }}" class="text-white" style="font-size:.65rem;text-decoration:none;opacity:.85;">Ver todas →</a>
                             </div>
-                            <div style="overflow-y:auto;max-height:230px;">
-                                @foreach(($latestColumns ?? collect())->take(4) as $column)
+                            <div style="overflow-y:auto;max-height:200px;">
+                                @foreach(($latestColumns ?? collect())->take(3) as $column)
                                 @php
                                     $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor');
                                     $avatarPath = is_object($column->author) ? $column->author->photo_url : asset('images/defaults/user-profile.jpg');
