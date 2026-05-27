@@ -325,16 +325,16 @@
                     </div>{{-- /col sidebar --}}
 
 
-                    {{-- ── Segunda fila: 2 columnas de opinión ── --}}
+                    {{-- ── Segunda fila: 4 columnas de opinión ── --}}
                     <div class="col-12">
                         <div class="row g-2 mt-0">
-                            @foreach(($latestColumnsSectionFeatured ?? collect())->take(2) as $col)
+                            @foreach(($latestColumnsSectionFeatured ?? collect())->take(4) as $col)
                             @php
                                 $colAuthor = is_object($col->author) ? $col->author->name : ($col->author ?? 'Autor');
                                 $colAvatar = is_object($col->author) ? $col->author->photo_url : asset('images/defaults/user-profile.jpg');
                                 $colExcerpt = news_editorial_teaser($col->summary ?? null, $col->excerpt ?? null, $col->content ?? null, 140);
                             @endphp
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <a href="{{ route('columns.show', $col->slug ?? $col->id) }}" class="text-decoration-none d-block h-100">
                                     <div class="rounded-3 px-3 py-2 h-100 d-flex gap-3 align-items-start"
                                          style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);transition:background .15s;"
