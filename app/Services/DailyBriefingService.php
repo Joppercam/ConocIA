@@ -39,22 +39,24 @@ class DailyBriefingService
             return null;
         }
 
-        // Orden: Claude primero (no comparte quota con fetch de noticias),
-        // Gemini segundo, OpenAI como último recurso.
-        $script = $this->callClaude($content);
+        // Intentar con IA solo si hay claves configuradas; siempre hay fallback con Google TTS.
+        $script = '';
 
-        if (empty($script)) {
-            Log::warning('DailyBriefing: Claude no disponible o falló, intentando Gemini.');
+        if (app(ClaudeService::class)->isAvailable()) {
+            $script = $this->callClaude($content);
+        }
+
+        if (empty($script) && !empty($this->geminiKey)) {
             $script = $this->callGemini($content);
         }
 
-        if (empty($script)) {
-            Log::warning('DailyBriefing: Gemini falló, intentando OpenAI.');
+        if (empty($script) && app(OpenAIService::class)->isAvailable()) {
             $script = $this->callOpenAI($content);
         }
 
+        // Fallback garantizado: construir guion desde titulares + summaries (Google TTS directo)
         if (empty($script)) {
-            Log::warning('DailyBriefing: todos los providers de IA fallaron. Usando fallback directo desde noticias.');
+            Log::info('DailyBriefing: usando fallback directo desde noticias (Google TTS).');
             $script = $this->buildFallbackScript($content);
         }
 
