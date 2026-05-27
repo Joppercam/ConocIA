@@ -94,7 +94,7 @@
                     {{-- ── Noticia principal (grande) ── --}}
                     @php $hero = $featuredNews->first(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
                     @if($hero)
-                    <div class="col-lg-5 col-md-7">
+                    <div class="col-lg-4 col-md-7">
                         <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
                             <div class="editorial-card editorial-card-main position-relative rounded-3 overflow-hidden h-100">
                                 <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($hero->image, 'news') }}"
@@ -128,7 +128,7 @@
 
                     {{-- ── IA en Chile (columna editorial central) ── --}}
                     @php $chileTop = ($chileNews ?? collect())->first(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <div class="d-flex flex-column gap-2 h-100">
 
                             {{-- Header Chile --}}
@@ -186,49 +186,49 @@
                                 @endforelse
                             </div>
 
-                            {{-- Regulación IA Chile --}}
-                            @if(isset($homeRegulations) && $homeRegulations->isNotEmpty())
-                            <div class="rounded-3 overflow-hidden flex-grow-1" style="background:#0d1526;border:1px solid rgba(56,182,255,.18);">
-                                <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:rgba(56,182,255,.1);border-bottom:1px solid rgba(56,182,255,.15);">
-                                    <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.75rem;">
-                                        <i class="fas fa-gavel" style="color:var(--primary-color);font-size:.63rem;"></i>
-                                        Regulación IA
-                                    </span>
-                                    <a href="{{ route('regulacion.index') }}" style="color:var(--primary-color);font-size:.63rem;text-decoration:none;">Ver todo →</a>
-                                </div>
-                                @foreach($homeRegulations->take(2) as $reg)
-                                @php
-                                    $regColor = match($reg->status ?? '') {
-                                        'vigente'    => '#4ade80',
-                                        'en_tramite' => '#facc15',
-                                        'proyecto'   => '#60a5fa',
-                                        default      => '#94a3b8',
-                                    };
-                                    $regLabel = match($reg->status ?? '') {
-                                        'vigente'    => 'Vigente',
-                                        'en_tramite' => 'En trámite',
-                                        'proyecto'   => 'Proyecto',
-                                        default      => ucfirst($reg->status ?? 'Pendiente'),
-                                    };
-                                @endphp
-                                <a href="{{ route('regulacion.show', $reg->slug) }}"
-                                   class="d-flex flex-column gap-1 text-decoration-none px-2 py-2 {{ !$loop->last ? 'border-bottom' : '' }}"
-                                   style="border-color:rgba(255,255,255,.06) !important;">
-                                    <div class="d-flex align-items-center gap-1 flex-wrap">
-                                        <span class="badge rounded-pill px-2" style="background:{{ $regColor }}22;color:{{ $regColor }};border:1px solid {{ $regColor }}44;font-size:.58rem;">
-                                            {{ $regLabel }}
-                                        </span>
-                                        @if($reg->scope)
-                                        <span style="color:#64748b;font-size:.6rem;">{{ $reg->scope }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="text-white lh-sm" style="font-size:.74rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $reg->title }}</div>
-                                    <div style="color:#475569;font-size:.6rem;">{{ $reg->updated_at->locale('es')->isoFormat('D MMM') }}</div>
-                                </a>
-                                @endforeach
-                            </div>
-                            @endif
 
+                        </div>
+                    </div>
+
+                    {{-- ── Regulación IA (columna propia) ── --}}
+                    <div class="col-lg-2">
+                        <div class="rounded-3 overflow-hidden h-100" style="background:#0d1526;border:1px solid rgba(56,182,255,.18);">
+                            <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:rgba(56,182,255,.1);border-bottom:1px solid rgba(56,182,255,.15);">
+                                <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.72rem;">
+                                    <i class="fas fa-gavel" style="color:var(--primary-color);font-size:.6rem;"></i>
+                                    Regulación IA
+                                </span>
+                                <a href="{{ route('regulacion.index') }}" style="color:var(--primary-color);font-size:.6rem;text-decoration:none;">Ver →</a>
+                            </div>
+                            @if(isset($homeRegulations) && $homeRegulations->isNotEmpty())
+                            @foreach($homeRegulations->take(3) as $reg)
+                            @php
+                                $regColor = match($reg->status ?? '') {
+                                    'vigente'    => '#4ade80',
+                                    'en_tramite' => '#facc15',
+                                    'proyecto'   => '#60a5fa',
+                                    default      => '#94a3b8',
+                                };
+                                $regLabel = match($reg->status ?? '') {
+                                    'vigente'    => 'Vigente',
+                                    'en_tramite' => 'En trámite',
+                                    'proyecto'   => 'Proyecto',
+                                    default      => ucfirst($reg->status ?? 'Pendiente'),
+                                };
+                            @endphp
+                            <a href="{{ route('regulacion.show', $reg->slug) }}"
+                               class="d-flex flex-column gap-1 text-decoration-none px-2 py-2 {{ !$loop->last ? 'border-bottom' : '' }}"
+                               style="border-color:rgba(255,255,255,.06) !important;">
+                                <span class="badge rounded-pill px-2 align-self-start" style="background:{{ $regColor }}22;color:{{ $regColor }};border:1px solid {{ $regColor }}44;font-size:.56rem;">
+                                    {{ $regLabel }}
+                                </span>
+                                <div class="text-white lh-sm" style="font-size:.71rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ $reg->title }}</div>
+                                <div style="color:#475569;font-size:.58rem;">{{ $reg->updated_at->locale('es')->isoFormat('D MMM') }}</div>
+                            </a>
+                            @endforeach
+                            @else
+                            <div class="px-2 py-3 text-center" style="color:#475569;font-size:.72rem;">Sin regulaciones recientes</div>
+                            @endif
                         </div>
                     </div>
 
