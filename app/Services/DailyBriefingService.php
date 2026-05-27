@@ -39,26 +39,8 @@ class DailyBriefingService
             return null;
         }
 
-        // Intentar con IA solo si hay claves configuradas; siempre hay fallback con Google TTS.
-        $script = '';
-
-        if (app(ClaudeService::class)->isAvailable()) {
-            $script = $this->callClaude($content);
-        }
-
-        if (empty($script) && !empty($this->geminiKey)) {
-            $script = $this->callGemini($content);
-        }
-
-        if (empty($script) && app(OpenAIService::class)->isAvailable()) {
-            $script = $this->callOpenAI($content);
-        }
-
-        // Fallback garantizado: construir guion desde titulares + summaries (Google TTS directo)
-        if (empty($script)) {
-            Log::info('DailyBriefing: usando fallback directo desde noticias (Google TTS).');
-            $script = $this->buildFallbackScript($content);
-        }
+        // Guion construido directo desde titulares + summaries → Google TTS
+        $script = $this->buildFallbackScript($content);
 
         if (empty($script)) {
             Log::error('DailyBriefing: sin contenido suficiente para generar briefing.');
