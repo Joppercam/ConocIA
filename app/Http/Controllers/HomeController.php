@@ -306,7 +306,7 @@ class HomeController extends Controller
     {
         try {
             $latestColumns = Cache::remember('latest_columns', 1800,
-                fn() => Column::with('author')->where('featured', true)->latest()->take(2)->get()
+                fn() => Column::with('author')->where('featured', true)->latest()->take(4)->get()
             );
 
             $latestColumnsSectionFeatured = Cache::remember('latest_columns_section_featured', 1800,
