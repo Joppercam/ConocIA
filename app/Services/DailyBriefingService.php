@@ -54,7 +54,12 @@ class DailyBriefingService
         }
 
         if (empty($script)) {
-            Log::error('DailyBriefing: todos los providers fallaron. Sin briefing para hoy.');
+            Log::warning('DailyBriefing: todos los providers de IA fallaron. Usando fallback directo desde noticias.');
+            $script = $this->buildFallbackScript($content);
+        }
+
+        if (empty($script)) {
+            Log::error('DailyBriefing: sin contenido suficiente para generar briefing.');
             return null;
         }
 
@@ -310,5 +315,55 @@ PROMPT;
         }
 
         return $openai->generateText($this->buildPrompt($content), 2500, 0.75);
+    }
+
+    /**
+     * Fallback: construye el guion directamente desde el contenido de noticias,
+     * sin necesitar ningún proveedor de IA externo. Mismo enfoque que PodcastService.
+     */
+    protected function buildFallbackScript(array $content): string
+    {
+        $today = Carbon::today()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY');
+        $lines = [];
+
+        $lines[] = "Bienvenidos al briefing de ConocIA del {$today}.";
+        $lines[] = "Hoy les traigo las noticias más importantes del mundo de la inteligencia artificial.";
+        $lines[] = '';
+
+        foreach ($content['news'] as $i => $news) {
+            $summary = strip_tags($news->excerpt ?? $news->summary ?? mb_substr($news->content ?? '', 0, 300));
+            $summary = html_entity_decode(preg_replace('/\s+/', ' ', trim($summary)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+            if ($i === 0) {
+                $lines[] = "La noticia principal de hoy: {$news->title}.";
+                if ($summary) $lines[] = $summary;
+            } else {
+                $lines[] = "Además, {$news->title}.";
+                if ($summary) $lines[] = mb_substr($summary, 0, 200) . '.';
+            }
+            $lines[] = '';
+        }
+
+        if ($content['papers']->isNotEmpty()) {
+            $paper = $content['papers']->first();
+            $paperSummary = strip_tags($paper->excerpt ?? mb_substr($paper->content ?? $paper->original_abstract ?? '', 0, 200));
+            $lines[] = "En cuanto a investigación, destacamos el paper: {$paper->title}. {$paperSummary}";
+            $lines[] = '';
+        }
+
+        if ($content['conceptos']->isNotEmpty()) {
+            $concepto = $content['conceptos']->first();
+            $def = strip_tags($concepto->definition ?? $concepto->excerpt ?? '');
+            if ($def) {
+                $lines[] = "Y el concepto del día: {$concepto->title}. {$def}";
+                $lines[] = '';
+            }
+        }
+
+        $lines[] = "Eso es todo por hoy. Seguí leyendo en ConocIA punto cl.";
+
+        $script = implode(' ', array_filter($lines, fn($l) => $l !== ''));
+
+        return mb_strlen($script) > 100 ? $script : '';
     }
 }

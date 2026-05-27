@@ -22,7 +22,7 @@ class ClaudeService
     public function __construct()
     {
         $this->apiKey = config('services.anthropic.api_key', '');
-        $this->model  = config('services.anthropic.model', 'claude-3-5-sonnet-20241022');
+        $this->model  = config('services.anthropic.model', 'claude-sonnet-4-6');
     }
 
     public function isAvailable(): bool

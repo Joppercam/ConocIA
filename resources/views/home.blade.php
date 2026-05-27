@@ -164,126 +164,81 @@
                     </div>
                     @endif
 
-                    {{-- ── Sidebar columnas ── --}}
-                    <div class="col-lg-3">
+                    {{-- ── Sidebar: IA en Chile + Cursos + Columnas ── --}}
+                    <div class="col-lg-3 d-flex flex-column gap-2">
 
-
-
-
-
-                        <!-- Sección de Últimas Columnas -->
-                        <div class="hero-columns-section h-100 shadow-lg rounded overflow-hidden">
-                            <!-- Header compacto -->
-                            <div class="hero-columns-header bg-primary text-white py-1 px-2 d-flex justify-content-between align-items-center">
-                                <h3 class="hero-columns-title mb-0 d-flex align-items-center fs-6">
-                                    <i class="fas fa-feather-alt me-1"></i>Últimas Columnas
-                                </h3>
-                                <span class="badge bg-white text-primary rounded-pill px-1 fs-9">
-                                    {{ $latestColumns->count() }} artículos
+                        {{-- IA en Chile --}}
+                        <div class="rounded-3 overflow-hidden flex-shrink-0" style="background:#1a0a0c;border:1px solid rgba(230,57,70,.3);">
+                            <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:rgba(230,57,70,.18);border-bottom:1px solid rgba(230,57,70,.25);">
+                                <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.78rem;">
+                                    <i class="fas fa-map-marker-alt" style="color:#f87171;font-size:.65rem;"></i>IA en Chile
                                 </span>
+                                <a href="{{ route('chile.index') }}" style="color:#f87171;font-size:.65rem;text-decoration:none;">Ver todo →</a>
                             </div>
-                            
-                            <div class="hero-columns-content" style="max-height: 340px;">
-                                @if($latestColumns->count() > 0)
-                                    @foreach($latestColumns as $column)
-                                    <!-- Columna con extracto más largo -->
-                                    <a href="{{ route('columns.show', $column->slug ?? $column->id) }}" class="hero-column-item d-block text-decoration-none text-dark transition py-1 px-2">
-                                        
-                                    
-                                        <!-- Reemplaza el bloque original con este código actualizado -->
-                                        <div class="hero-column-author d-flex align-items-center">
-                                            @php
-                                                // Determina el nombre del autor de forma segura
-                                                $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor');
-                                                
-                                                $avatarPath = is_object($column->author) ? $column->author->photo_url : asset('images/defaults/user-profile.jpg');
-                                            @endphp
-                                            
-                                            <img src="{{ $avatarPath }}" 
-                                                class="hero-column-avatar rounded-circle border border-1 border-light" 
-                                                width="32" height="32"
-                                                loading="lazy"
-                                                alt="{{ $authorName }}">
-                                            
-                                            <div class="hero-column-author-info ms-1">
-                                                <h4 class="hero-column-author-name fw-semibold text-primary mb-0 fs-7">{{ $authorName }}</h4>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="hero-column-date text-muted fs-9">{{ $column->created_at->locale('es')->diffForHumans() }}</span>
-                                                    <span class="text-muted fs-9 ms-1 ps-1 border-start">
-                                                        <i class="far fa-clock me-1"></i>{{ ceil(str_word_count($column->content ?? '') / 200) ?? 5 }} min
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- Título algo más corto para dar espacio al resumen -->
-                                        <h5 class="hero-column-title mt-1 mb-0 fw-bold fs-7">{{ Str::limit($column->title, 100) }}</h5>
-                                        
-                                        <!-- Extracto más largo con diseño de truncamiento visual -->
-                                        <p class="text-muted mb-0 fs-9 line-clamp-2">{{ $column->excerpt ?? 'Extracto no disponible para esta publicación. Haga clic para leer el artículo completo.' }}</p>
-                                        
-                                        <!-- Estadísticas mínimas -->
-                                        <div class="d-flex align-items-center text-muted fs-9">
-                                            <span class="me-2"><i class="far fa-eye me-1"></i>{{ $column->views ?? 0 }}</span>
-                                            <span><i class="far fa-comment me-1"></i>{{ $column->comments_count ?? 0 }}</span>
-                                        </div>
-                                        
-                                        @if(!$loop->last)
-                                        <hr class="my-1 text-muted opacity-25">
-                                        @endif
-                                    </a>
-                                    @endforeach
-                                @else
-                                    <!-- Noticias secundarias con extractos más largos -->
-                                    @foreach($secondaryNews as $secondary)
-                                    <a href="{{ route('news.show', $secondary->slug ?? $secondary->id) }}" class="hero-column-item d-block text-decoration-none text-dark transition py-1 px-2">
-                                        <div class="hero-column-content">
-                                            @if(isset($secondary->category))
-                                            <span class="hero-column-category badge mb-1 d-inline-block fs-9" style="{{ $getCategoryStyle($secondary->category) }}">
-                                                <i class="fas {{ $getCategoryIcon($secondary->category) }} me-1"></i>
-                                                {{ $secondary->category->name }}
-                                            </span>
-                                            @endif
-                                            <h5 class="hero-column-title fw-bold fs-7 mb-0">{{ Str::limit($secondary->title, 50) }}</h5>
-                                            <p class="hero-column-excerpt text-muted mb-0 fs-9 line-clamp-2">{{ $secondary->excerpt }}</p>
-                                            
-                                            <div class="d-flex align-items-center text-muted fs-9">
-                                                <span class="me-2"><i class="far fa-calendar-alt me-1"></i>{{ $secondary->created_at->format('d M') }}</span>
-                                                <span><i class="far fa-eye me-1"></i>{{ number_format($secondary->views ?? rand(500, 2000)) }}</span>
-                                            </div>
-                                            
-                                            @if(!$loop->last)
-                                            <hr class="my-1 text-muted opacity-25">
-                                            @endif
-                                        </div>
-                                    </a>
-                                    @endforeach
-                                @endif
-                            </div>
-                            
-                            @if($latestColumns->count() > 0)
-                            <!-- Footer ultra compacto -->
-                            <div class="hero-columns-footer bg-light p-1 border-top d-flex justify-content-between align-items-center">
-                                <span class="text-muted ms-1 fs-9">
-                                    <i class="fas fa-rss me-1"></i>Actualizado
-                                </span>
-                                <a href="{{ route('columns.index') }}" class="btn btn-sm btn-outline-primary py-0 px-2 fs-9">
-                                    Ver todas <i class="fas fa-external-link-alt ms-1"></i>
+                            <div class="px-2 py-1">
+                                @forelse(($chileNews ?? collect())->take(4) as $chile)
+                                <a href="{{ route('news.show', $chile->slug ?? $chile->id) }}"
+                                   class="d-flex gap-2 text-decoration-none py-1 {{ !$loop->last ? 'border-bottom' : '' }}"
+                                   style="border-color:rgba(255,255,255,.06) !important;">
+                                    @php $chImg = \App\Helpers\ImageHelper::getImageUrlOrNull($chile->image, 'news'); @endphp
+                                    @if($chImg)
+                                    <img src="{{ $chImg }}" alt="" class="flex-shrink-0 rounded-1"
+                                         style="width:44px;height:36px;object-fit:cover;" loading="lazy">
+                                    @endif
+                                    <div class="overflow-hidden">
+                                        <div class="text-white lh-sm" style="font-size:.73rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $chile->title }}</div>
+                                        <div style="color:#6b7a90;font-size:.63rem;margin-top:2px;">{{ $chile->published_at?->locale('es')->diffForHumans() ?? $chile->created_at->locale('es')->diffForHumans() }}</div>
+                                    </div>
                                 </a>
+                                @empty
+                                <div style="color:#6b7a90;font-size:.78rem;" class="py-2 text-center">Sin noticias recientes</div>
+                                @endforelse
                             </div>
-                            @endif
                         </div>
 
+                        {{-- Cursos CTA compacto --}}
+                        <a href="{{ route('cursos.index') }}" class="text-decoration-none rounded-3 px-3 py-2 d-flex align-items-center gap-2"
+                           style="background:linear-gradient(135deg,rgba(56,182,255,.12) 0%,rgba(56,182,255,.06) 100%);border:1px solid rgba(56,182,255,.25);transition:border-color .15s;"
+                           onmouseenter="this.style.borderColor='rgba(56,182,255,.5)'"
+                           onmouseleave="this.style.borderColor='rgba(56,182,255,.25)'">
+                            <div style="width:30px;height:30px;background:var(--primary-color);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fas fa-graduation-cap text-white" style="font-size:.72rem;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size:.78rem;line-height:1.2;">Cursos gratuitos de IA</div>
+                                <div style="color:#64748b;font-size:.68rem;">Derecho, Educación, Salud y más</div>
+                            </div>
+                            <i class="fas fa-chevron-right ms-auto" style="color:#38b6ff;font-size:.65rem;"></i>
+                        </a>
 
-
-
-
-
-
-
-
-
+                        {{-- Últimas Columnas --}}
+                        <div class="rounded-3 overflow-hidden flex-grow-1" style="background:#fff;border:1px solid #e2e8f0;min-height:0;">
+                            <div class="d-flex align-items-center justify-content-between px-2 py-1" style="background:var(--primary-color);border-bottom:1px solid rgba(255,255,255,.15);">
+                                <span class="fw-bold text-white d-flex align-items-center gap-1" style="font-size:.78rem;">
+                                    <i class="fas fa-feather-alt" style="font-size:.65rem;"></i>Últimas Columnas
+                                </span>
+                                <a href="{{ route('columns.index') }}" class="text-white" style="font-size:.65rem;text-decoration:none;opacity:.85;">Ver todas →</a>
+                            </div>
+                            <div style="overflow-y:auto;max-height:230px;">
+                                @foreach(($latestColumns ?? collect())->take(4) as $column)
+                                @php
+                                    $authorName = is_object($column->author) ? $column->author->name : ($column->author ?? 'Autor');
+                                    $avatarPath = is_object($column->author) ? $column->author->photo_url : asset('images/defaults/user-profile.jpg');
+                                @endphp
+                                <a href="{{ route('columns.show', $column->slug ?? $column->id) }}"
+                                   class="d-flex gap-2 text-decoration-none px-2 py-2 {{ !$loop->last ? 'border-bottom' : '' }}"
+                                   style="border-color:#f1f5f9 !important;">
+                                    <img src="{{ $avatarPath }}" alt="{{ $authorName }}"
+                                         class="rounded-circle flex-shrink-0" width="26" height="26"
+                                         style="object-fit:cover;" loading="lazy">
+                                    <div class="overflow-hidden">
+                                        <div class="fw-semibold lh-sm" style="color:#1e293b;font-size:.74rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $column->title }}</div>
+                                        <div style="color:#94a3b8;font-size:.63rem;margin-top:2px;">{{ $authorName }} · {{ $column->created_at->locale('es')->diffForHumans() }}</div>
+                                    </div>
+                                </a>
+                                @endforeach
+                            </div>
+                        </div>
 
                     </div>{{-- /col sidebar --}}
 
