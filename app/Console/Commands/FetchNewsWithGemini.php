@@ -41,6 +41,7 @@ class FetchNewsWithGemini extends Command
         'ia-en-salud'             => 'IA en Salud',
         'robotica'                => 'Robótica',
         'etica-de-la-ia'          => 'Ética de la IA',
+        'ia-en-chile'             => 'IA en Chile',
     ];
 
     protected array $categoryColors = [
@@ -54,6 +55,7 @@ class FetchNewsWithGemini extends Command
         'ia-en-salud'             => '#4CAF50',
         'robotica'                => '#795548',
         'etica-de-la-ia'          => '#FF5722',
+        'ia-en-chile'             => '#D62B2B',
     ];
 
     protected array $categoryIcons = [
@@ -67,6 +69,12 @@ class FetchNewsWithGemini extends Command
         'ia-en-salud'             => 'fa-heartbeat',
         'robotica'                => 'fa-robot',
         'etica-de-la-ia'          => 'fa-balance-scale',
+        'ia-en-chile'             => 'fa-map-marker-alt',
+    ];
+
+    // Queries de búsqueda personalizadas por categoría (sobreescribe el $name genérico)
+    protected array $categoryQueries = [
+        'ia-en-chile' => 'inteligencia artificial Chile startups empresas investigación universidades política pública noticias recientes',
     ];
 
     public function __construct(protected SimpleImageDownloader $imageDownloader)
@@ -220,12 +228,13 @@ class FetchNewsWithGemini extends Command
     ): array {
         $model = config('services.gemini.model', 'gemini-2.0-flash');
 
-        $today     = now()->format('d/m/Y');
-        $sinceDate = now()->subDays($days)->format('d/m/Y');
+        $today       = now()->format('d/m/Y');
+        $sinceDate   = now()->subDays($days)->format('d/m/Y');
+        $searchQuery = $this->categoryQueries[$slug] ?? $name;
 
         // ── Paso 1: Search Grounding — buscar y resumir (sin artículo completo) ──
         $searchPrompt = <<<PROMPT
-Usa Google Search para encontrar las {$count} noticias más recientes e importantes sobre "{$name}" publicadas entre el {$sinceDate} y el {$today}.
+Usa Google Search para encontrar las {$count} noticias más recientes e importantes sobre "{$searchQuery}" publicadas entre el {$sinceDate} y el {$today}.
 
 Devuelve SOLO un JSON con array "articles". Cada elemento debe tener:
 - title: string (título en español, SEO-friendly, máx 100 chars)
