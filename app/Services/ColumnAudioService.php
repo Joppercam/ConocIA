@@ -30,8 +30,8 @@ class ColumnAudioService
                     'input' => ['text' => $text],
                     'voice' => [
                         'languageCode' => 'es-US',
-                        'name'         => 'es-US-Neural2-A',
-                        'ssmlGender'   => 'FEMALE',
+                        'name'         => 'es-US-Neural2-B',
+                        'ssmlGender'   => 'MALE',
                     ],
                     'audioConfig' => [
                         'audioEncoding' => 'MP3',
