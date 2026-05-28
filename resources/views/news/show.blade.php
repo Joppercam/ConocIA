@@ -163,6 +163,81 @@ $articleSummary = news_editorial_teaser($article->summary ?? null, $article->exc
 
             @include('components.podcast-player', ['episode' => $article->podcastEpisode ?? null])
 
+            {{-- Audio TTS player --}}
+            @if(!empty($article->audio_path))
+            <div class="col-audio-player mb-4" id="newsAudioPlayer">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:3px;height:16px;background:var(--primary-color);border-radius:2px;"></div>
+                    <span style="font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--primary-color);text-transform:uppercase;">Escuchar noticia</span>
+                </div>
+                <div class="col-audio-wrap d-flex align-items-center gap-3">
+                    <button id="newsAudioPlayBtn" onclick="toggleNewsAudio()" class="col-audio-play-btn" aria-label="Reproducir">
+                        <i class="fas fa-play" id="newsAudioPlayIcon"></i>
+                    </button>
+                    <div class="flex-grow-1">
+                        <div class="col-audio-progress-wrap" onclick="seekNewsAudio(event)" id="newsAudioProgressWrap">
+                            <div class="col-audio-progress-bar" id="newsAudioProgressBar"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="col-audio-time" id="newsAudioCurrent">0:00</span>
+                            <span class="col-audio-time" id="newsAudioDuration">--:--</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <button onclick="changeNewsSpeed()" class="col-audio-speed-btn" id="newsAudioSpeedBtn" title="Velocidad">1×</button>
+                    </div>
+                </div>
+                <audio id="newsAudio" preload="none">
+                    <source src="{{ $article->audio_path }}" type="audio/mpeg">
+                </audio>
+            </div>
+            @push('scripts')
+            <script>
+            (function() {
+                const audio = document.getElementById('newsAudio');
+                const playIcon = document.getElementById('newsAudioPlayIcon');
+                const progress = document.getElementById('newsAudioProgressBar');
+                const current = document.getElementById('newsAudioCurrent');
+                const duration = document.getElementById('newsAudioDuration');
+                const speedBtn = document.getElementById('newsAudioSpeedBtn');
+                const speeds = [1, 1.25, 1.5, 1.75, 2];
+                let speedIdx = 0;
+
+                function fmt(s) {
+                    const m = Math.floor(s / 60);
+                    return m + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+                }
+
+                window.toggleNewsAudio = function() {
+                    if (audio.paused) { audio.play(); } else { audio.pause(); }
+                };
+
+                window.seekNewsAudio = function(e) {
+                    const rect = document.getElementById('newsAudioProgressWrap').getBoundingClientRect();
+                    audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+                };
+
+                window.changeNewsSpeed = function() {
+                    speedIdx = (speedIdx + 1) % speeds.length;
+                    audio.playbackRate = speeds[speedIdx];
+                    speedBtn.textContent = speeds[speedIdx] + '×';
+                };
+
+                audio.addEventListener('play', () => playIcon.className = 'fas fa-pause');
+                audio.addEventListener('pause', () => playIcon.className = 'fas fa-play');
+                audio.addEventListener('ended', () => { playIcon.className = 'fas fa-play'; progress.style.width = '0%'; });
+                audio.addEventListener('loadedmetadata', () => duration.textContent = fmt(audio.duration));
+                audio.addEventListener('timeupdate', () => {
+                    if (audio.duration) {
+                        progress.style.width = (audio.currentTime / audio.duration * 100) + '%';
+                        current.textContent = fmt(audio.currentTime);
+                    }
+                });
+            })();
+            </script>
+            @endpush
+            @endif
+
             <!-- Verificación de imagen mejorada con rutas alternativas -->
             @php
                 // Variable para controlar si mostrar o no la imagen

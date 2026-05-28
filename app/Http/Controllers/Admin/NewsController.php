@@ -7,6 +7,7 @@ use App\Jobs\GeneratePodcastEpisode;
 use App\Models\News;
 use App\Models\Category;
 use App\Models\Tag;
+use App\Services\NewsAudioService;
 use App\Support\AdminDashboardCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -434,6 +435,23 @@ class NewsController extends Controller
             'featured' => $featured,
             'remove_image' => $request->boolean('remove_image'),
         ]);
+    }
+
+    public function generateAudio(News $news, NewsAudioService $audioService)
+    {
+        $result = $audioService->generate($news);
+
+        if ($result === true) {
+            return back()->with('success', 'Audio generado exitosamente.');
+        }
+
+        return back()->with('error', $result);
+    }
+
+    public function deleteAudio(News $news, NewsAudioService $audioService)
+    {
+        $audioService->delete($news);
+        return back()->with('success', 'Audio eliminado.');
     }
 
     private function syncTags(News $news, array $validated): void

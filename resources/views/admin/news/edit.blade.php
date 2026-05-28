@@ -182,6 +182,61 @@
             </form>
         </div>
     </div>
+
+    {{-- Audio --}}
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+            <h5 class="mb-0"><i class="fas fa-headphones me-2 text-primary"></i>Audio de la noticia</h5>
+            @if($news->audio_generated_at)
+            <span class="badge bg-success">Generado {{ $news->audio_generated_at->diffForHumans() }}</span>
+            @endif
+        </div>
+        <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if($news->audio_path)
+                <div class="mb-3">
+                    <audio controls class="w-100">
+                        <source src="{{ $news->audio_path }}" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div class="d-flex gap-2">
+                    <form action="{{ route('admin.news.generate-audio', $news) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-sync-alt me-1"></i>Regenerar audio
+                        </button>
+                    </form>
+                    <form action="{{ route('admin.news.delete-audio', $news) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar el audio de esta noticia?')">
+                            <i class="fas fa-trash me-1"></i>Eliminar audio
+                        </button>
+                    </form>
+                </div>
+            @else
+                <p class="text-muted mb-3">Esta noticia todavía no tiene audio. Generalo con Google TTS (voz Neural2-B).</p>
+                <form action="{{ route('admin.news.generate-audio', $news) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-microphone me-1"></i>Generar audio
+                    </button>
+                </form>
+            @endif
+        </div>
+    </div>
 </div>
 @endsection
 

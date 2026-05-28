@@ -39,6 +39,8 @@ class News extends Model implements Feedable
         'published_at',
         'reading_time',
         'difficulty_level',
+        'audio_path',
+        'audio_generated_at',
     ];
 
       /**
@@ -52,8 +54,9 @@ class News extends Model implements Feedable
         'is_premium' => 'boolean',
         'views' => 'integer',
         'reading_time' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'created_at'         => 'datetime',
+        'updated_at'         => 'datetime',
+        'audio_generated_at' => 'datetime',
     ];
     
     protected static function booted(): void

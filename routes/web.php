@@ -492,7 +492,9 @@ Route::prefix('cp-conocia')->name('admin.')->group(function () {
         Route::get('news/export', [AdminNewsController::class, 'export'])->name('news.export');
         Route::post('news/upload-image', [AdminNewsController::class, 'uploadImage'])->name('news.upload-image');
         Route::get('news/preview/{news}', [AdminNewsController::class, 'preview'])->name('news.preview');
-        
+        Route::post('news/{news}/generate-audio', [AdminNewsController::class, 'generateAudio'])->name('news.generate-audio');
+        Route::delete('news/{news}/audio', [AdminNewsController::class, 'deleteAudio'])->name('news.delete-audio');
+
         // Gestión de investigaciones
         Route::resource('research', AdminResearchController::class);
         Route::post('research/bulk-actions', [AdminResearchController::class, 'bulkActions'])->name('research.bulk-actions');
