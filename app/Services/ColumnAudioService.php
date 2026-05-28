@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Column;
+use App\Services\TtsTextCleaner;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -82,13 +83,13 @@ class ColumnAudioService
 
     private function buildText(Column $column): string
     {
-        $content = strip_tags($column->content ?? '');
-        $content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $content = preg_replace('/\s+/', ' ', $content);
-        $content = trim($content);
+        // Quitar la sección de fuentes/footnotes (tras <hr>) antes de limpiar
+        $raw = preg_replace('/<hr\s*\/?>.*/si', '', $column->content ?? '');
 
-        $prefix  = "ConocIA. {$column->title}. ";
-        $suffix  = '. Para leer la columna completa, visitá ConocIA punto cl.';
+        $content = TtsTextCleaner::clean($raw);
+
+        $prefix   = "Conocia. {$column->title}. ";
+        $suffix   = '. Para leer la columna completa, visitá Conocia punto cl.';
         $maxBytes = 4800;
         $available = $maxBytes - strlen($prefix) - strlen($suffix);
 

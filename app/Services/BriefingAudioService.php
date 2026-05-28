@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DailyBriefing;
+use App\Services\TtsTextCleaner;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -85,9 +86,7 @@ class BriefingAudioService
 
     private function prepareText(string $script): string
     {
-        $text = html_entity_decode(strip_tags($script), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $text = preg_replace('/\s+/', ' ', $text);
-        return trim($text);
+        return TtsTextCleaner::clean($script);
     }
 
     /**
