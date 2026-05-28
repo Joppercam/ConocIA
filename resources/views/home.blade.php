@@ -329,8 +329,48 @@
         </div>{{-- /hero-overlay --}}
     </section>
 
-    {{-- ═══ MOBILE: IA en Chile + Cursos (d-lg-none) ═══ --}}
+    {{-- ═══ MOBILE: Galerías + Cursos (d-lg-none) ═══ --}}
     <div class="d-lg-none" style="background:var(--dark-bg);border-top:1px solid rgba(255,255,255,.07);">
+
+        {{-- Últimas noticias: scroll horizontal --}}
+        @if(isset($recentNews) && $recentNews->isNotEmpty())
+        <div class="border-bottom" style="border-color:rgba(255,255,255,.07) !important;">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between py-2">
+                    <span class="fw-bold text-white d-flex align-items-center gap-2" style="font-size:.82rem;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:var(--primary-color);border-radius:5px;">
+                            <i class="fas fa-bolt text-white" style="font-size:.55rem;"></i>
+                        </span>
+                        Últimas Noticias
+                    </span>
+                    <a href="{{ route('news.index') }}" style="color:var(--primary-color);font-size:.72rem;text-decoration:none;">Ver todo →</a>
+                </div>
+            </div>
+            <div class="d-flex gap-2 overflow-auto hide-scrollbar px-3 pb-3" style="-webkit-overflow-scrolling:touch;">
+                @foreach($recentNews->take(8) as $item)
+                @php $nImg = \App\Helpers\ImageHelper::getImageUrlOrNull($item->image, 'news'); @endphp
+                <a href="{{ route('news.show', $item->slug ?? $item->id) }}"
+                   class="text-decoration-none flex-shrink-0"
+                   style="width:160px;">
+                    <div class="rounded-3 overflow-hidden position-relative" style="height:100px;background:#1a1a1a;">
+                        @if($nImg)
+                        <img src="{{ $nImg }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
+                        @endif
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 55%);"></div>
+                        @if($item->category)
+                        <div style="position:absolute;top:.4rem;left:.4rem;">
+                            <span class="badge" style="background:{{ $item->category->color ?? 'var(--primary-color)' }};font-size:.55rem;padding:.2rem .4rem;">{{ $item->category->name }}</span>
+                        </div>
+                        @endif
+                        <div style="position:absolute;bottom:0;left:0;right:0;padding:.5rem;">
+                            <div class="text-white lh-sm" style="font-size:.68rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;">{{ $item->title }}</div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         {{-- Chile noticias: scroll horizontal --}}
         @if(isset($chileNews) && $chileNews->isNotEmpty())
@@ -360,6 +400,50 @@
                         <div style="position:absolute;bottom:0;left:0;right:0;padding:.5rem;">
                             <div class="text-white lh-sm" style="font-size:.68rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;">{{ $chile->title }}</div>
                         </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- Columnas de opinión: scroll horizontal --}}
+        @if(isset($latestColumns) && $latestColumns->isNotEmpty())
+        <div class="border-bottom" style="border-color:rgba(255,255,255,.07) !important;">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between py-2">
+                    <span class="fw-bold text-white d-flex align-items-center gap-2" style="font-size:.82rem;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#8b5cf6;border-radius:5px;">
+                            <i class="fas fa-feather-alt text-white" style="font-size:.55rem;"></i>
+                        </span>
+                        Columnas de Opinión
+                    </span>
+                    <a href="{{ route('columns.index') }}" style="color:#a78bfa;font-size:.72rem;text-decoration:none;">Ver todas →</a>
+                </div>
+            </div>
+            <div class="d-flex gap-2 overflow-auto hide-scrollbar px-3 pb-3" style="-webkit-overflow-scrolling:touch;">
+                @foreach($latestColumns->take(4) as $col)
+                @php
+                    $colAuthorName = is_object($col->author) ? $col->author->name : ($col->author ?? 'Autor');
+                    $colAvatar = is_object($col->author) ? ($col->author->photo_url ?? asset('images/defaults/user-profile.jpg')) : asset('images/defaults/user-profile.jpg');
+                @endphp
+                <a href="{{ route('columns.show', $col->slug ?? $col->id) }}"
+                   class="text-decoration-none flex-shrink-0 d-flex flex-column"
+                   style="width:200px;background:rgba(255,255,255,.05);border:1px solid rgba(139,92,246,.25);border-radius:12px;padding:.75rem;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img src="{{ $colAvatar }}" alt="{{ $colAuthorName }}"
+                             class="rounded-circle flex-shrink-0"
+                             width="28" height="28"
+                             style="object-fit:cover;"
+                             onerror="this.src='{{ asset('images/defaults/user-profile.jpg') }}';">
+                        <span style="color:#a78bfa;font-size:.65rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $colAuthorName }}</span>
+                    </div>
+                    <div class="text-white lh-sm flex-grow-1" style="font-size:.75rem;font-weight:600;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">{{ $col->title }}</div>
+                    @if($col->excerpt)
+                    <div style="color:#94a3b8;font-size:.65rem;margin-top:.4rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ $col->excerpt }}</div>
+                    @endif
+                    <div style="color:#64748b;font-size:.62rem;margin-top:.5rem;">
+                        <i class="far fa-eye me-1"></i>{{ number_format($col->views ?? 0) }}
                     </div>
                 </a>
                 @endforeach
