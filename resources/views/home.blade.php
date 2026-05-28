@@ -95,7 +95,9 @@
                     @php $hero = $featuredNews->first(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news')); @endphp
                     @if($hero)
                     <div class="col-lg-5 col-md-7">
-                        <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-block h-100">
+
+                        {{-- Desktop: tarjeta única --}}
+                        <a href="{{ route('news.show', $hero->slug ?? $hero->id) }}" class="text-decoration-none d-none d-lg-block h-100">
                             <div class="editorial-card editorial-card-main position-relative rounded-3 overflow-hidden h-100">
                                 <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($hero->image, 'news') }}"
                                      class="editorial-img"
@@ -123,6 +125,51 @@
                                 </div>
                             </div>
                         </a>
+
+                        {{-- Mobile: carrusel de noticias destacadas --}}
+                        <div id="heroCarousel" class="carousel slide d-lg-none" data-bs-ride="false" data-bs-touch="true">
+                            <div class="carousel-inner rounded-3 overflow-hidden" style="height:260px;">
+                                @foreach($featuredNews->filter(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news'))->take(5) as $fn)
+                                <div class="carousel-item {{ $loop->first ? 'active' : '' }} h-100">
+                                    <a href="{{ route('news.show', $fn->slug ?? $fn->id) }}" class="text-decoration-none d-block h-100">
+                                        <div class="position-relative h-100">
+                                            <img src="{{ \App\Helpers\ImageHelper::getImageUrlOrNull($fn->image, 'news') }}"
+                                                 class="w-100 h-100"
+                                                 style="object-fit:cover;"
+                                                 alt="{{ $fn->title }}"
+                                                 loading="{{ $loop->first ? 'eager' : 'lazy' }}">
+                                            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.2) 55%,transparent 100%);"></div>
+                                            @if(in_array($fn->id, $trendingIds ?? []))
+                                            <span class="badge-trending" style="top:10px;left:10px;"><i class="fas fa-fire me-1"></i>Trending</span>
+                                            @endif
+                                            <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white">
+                                                @if($fn->category)
+                                                <span class="badge mb-1" style="{{ $getCategoryStyle($fn->category) }};font-size:.6rem;">
+                                                    <i class="fas {{ $getCategoryIcon($fn->category) }} me-1"></i>{{ $fn->category->name }}
+                                                </span>
+                                                @endif
+                                                <h2 class="fw-bold lh-sm mb-1" style="font-size:1rem;">{{ $fn->title }}</h2>
+                                                <div class="d-flex gap-3" style="font-size:.68rem;opacity:.7;">
+                                                    <span><i class="far fa-clock me-1"></i>{{ $fn->created_at->locale('es')->diffForHumans() }}</span>
+                                                    <span><i class="far fa-eye me-1"></i>{{ number_format($fn->views) }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                @endforeach
+                            </div>
+                            {{-- Indicadores de puntos --}}
+                            <div class="carousel-indicators" style="bottom:6px;">
+                                @foreach($featuredNews->filter(fn($n) => \App\Helpers\ImageHelper::getImageUrlOrNull($n->image, 'news'))->take(5) as $fn)
+                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $loop->index }}"
+                                        class="{{ $loop->first ? 'active' : '' }}"
+                                        style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);"
+                                        aria-label="Noticia {{ $loop->iteration }}"></button>
+                                @endforeach
+                            </div>
+                        </div>
+
                     </div>
                     @endif
 
@@ -331,46 +378,6 @@
 
     {{-- ═══ MOBILE: Galerías + Cursos (d-lg-none) ═══ --}}
     <div class="d-lg-none" style="background:var(--dark-bg);border-top:1px solid rgba(255,255,255,.07);">
-
-        {{-- Últimas noticias: scroll horizontal --}}
-        @if(isset($recentNews) && $recentNews->isNotEmpty())
-        <div class="border-bottom" style="border-color:rgba(255,255,255,.07) !important;">
-            <div class="container">
-                <div class="d-flex align-items-center justify-content-between py-2">
-                    <span class="fw-bold text-white d-flex align-items-center gap-2" style="font-size:.82rem;">
-                        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:var(--primary-color);border-radius:5px;">
-                            <i class="fas fa-bolt text-white" style="font-size:.55rem;"></i>
-                        </span>
-                        Últimas Noticias
-                    </span>
-                    <a href="{{ route('news.index') }}" style="color:var(--primary-color);font-size:.72rem;text-decoration:none;">Ver todo →</a>
-                </div>
-            </div>
-            <div class="d-flex gap-2 overflow-auto hide-scrollbar px-3 pb-3" style="-webkit-overflow-scrolling:touch;">
-                @foreach($recentNews->take(8) as $item)
-                @php $nImg = \App\Helpers\ImageHelper::getImageUrlOrNull($item->image, 'news'); @endphp
-                <a href="{{ route('news.show', $item->slug ?? $item->id) }}"
-                   class="text-decoration-none flex-shrink-0"
-                   style="width:160px;">
-                    <div class="rounded-3 overflow-hidden position-relative" style="height:100px;background:#1a1a1a;">
-                        @if($nImg)
-                        <img src="{{ $nImg }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit:cover;" loading="lazy">
-                        @endif
-                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 55%);"></div>
-                        @if($item->category)
-                        <div style="position:absolute;top:.4rem;left:.4rem;">
-                            <span class="badge" style="background:{{ $item->category->color ?? 'var(--primary-color)' }};font-size:.55rem;padding:.2rem .4rem;">{{ $item->category->name }}</span>
-                        </div>
-                        @endif
-                        <div style="position:absolute;bottom:0;left:0;right:0;padding:.5rem;">
-                            <div class="text-white lh-sm" style="font-size:.68rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;">{{ $item->title }}</div>
-                        </div>
-                    </div>
-                </a>
-                @endforeach
-            </div>
-        </div>
-        @endif
 
         {{-- Chile noticias: scroll horizontal --}}
         @if(isset($chileNews) && $chileNews->isNotEmpty())
