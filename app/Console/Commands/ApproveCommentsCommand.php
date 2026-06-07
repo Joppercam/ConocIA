@@ -31,7 +31,7 @@ class ApproveCommentsCommand extends Command
      */
     public function handle(CommentValidationService $validator)
     {
-        $pendingComments = Comment::pending()->get();
+        $pendingComments = Comment::pending()->limit(50)->get();
         
         if ($pendingComments->isEmpty()) {
             $this->info('No pending comments to process.');
