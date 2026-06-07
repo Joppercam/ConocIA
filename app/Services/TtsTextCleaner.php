@@ -15,21 +15,30 @@ class TtsTextCleaner
 
         // Marca: "ConocIA.cl" / "ConocIA" → pronunciación natural en español
         $text = str_replace(
-            ['ConocIA.cl', 'ConocIA.cl', 'conocia.cl', 'ConocIA', 'CONOCIA'],
-            ['Conocia punto cl', 'Conocia punto cl', 'conocia punto cl', 'Conocia', 'Conocia'],
+            ['ConocIA.cl', 'conocia.cl', 'ConocIA', 'CONOCIA'],
+            ['Conocia punto cl', 'conocia punto cl', 'Conocia', 'Conocia'],
             $text
         );
 
-        // Sección de fuentes/footnotes: eliminar todo tras <hr>, ---,  o "Fuentes"
-        // (aplica sobre el texto ya sin HTML, así que el <hr> ya fue removido → buscar el patrón textual)
+        // Sección de fuentes/footnotes: eliminar todo tras "Fuentes", "Referencias", "Sources"
         $text = preg_replace('/\n?\s*(Fuentes|Referencias|Sources)\s*\n.*/su', '', $text);
 
-        // Eliminar URLs completas (http/https)
+        // Code blocks triple backtick (antes que nada, pueden contener URLs y JSON)
+        $text = preg_replace('/```[\s\S]*?```/u', '', $text);
+
+        // Markdown links: [texto](url) → conservar solo el texto
+        $text = preg_replace('/\[([^\]]*)\]\([^)]*\)/u', '$1', $text);
+
+        // Eliminar URLs con protocolo (http/https/ftp)
         $text = preg_replace('/https?:\/\/[^\s\]})>"\']+/u', '', $text);
+        $text = preg_replace('/ftp:\/\/[^\s\]})>"\']+/u', '', $text);
+
+        // Eliminar URLs sin protocolo: www.algo.tld
+        $text = preg_replace('/\bwww\.[a-z0-9.-]+\.[a-z]{2,}\b/iu', '', $text);
 
         // Eliminar JSON inline: objetos { } y arrays [ ] que claramente son datos
-        $text = preg_replace('/\{[^{}]{0,500}\}/s', '', $text);
-        $text = preg_replace('/\[[^\[\]]{0,500}\]/s', '', $text);
+        $text = preg_replace('/\{[^{}]{0,1000}\}/s', '', $text);
+        $text = preg_replace('/\[[^\[\]]{0,1000}\]/s', '', $text);
 
         // Eliminar markdown: **, *, ##, -, numeraciones, backticks
         $text = preg_replace('/\*\*([^*]+)\*\*/u', '$1', $text);
@@ -45,8 +54,16 @@ class TtsTextCleaner
         // Números de nota sueltos pegados a palabras: "... IA.1 ..." → "... IA. ..."
         $text = preg_replace('/([.!?,;:])(\d+)(\s)/u', '$1$3', $text);
 
-        // Dominios sueltos que quedaron tras quitar URLs: "example.com" → "example punto com"
-        $text = preg_replace('/\b([a-z0-9-]+)\.(cl|com|org|net|io|ai)\b/i', '$1 punto $2', $text);
+        // Dominios sueltos que quedaron: "example.com" → "example punto com"
+        // TLDs ampliados para cubrir más casos reales
+        $text = preg_replace(
+            '/\b([a-z0-9-]+)\.(cl|com|org|net|io|ai|es|ar|uk|edu|gov|info|co|mx|br|de|fr|jp)\b/iu',
+            '$1 punto $2',
+            $text
+        );
+
+        // Paréntesis y corchetes vacíos que quedan tras limpiar URLs y código
+        $text = preg_replace('/\(\s*\)|\[\s*\]/u', '', $text);
 
         // Símbolos comunes
         $text = str_replace(['%', '&amp;', '&gt;', '&lt;', '&'], [' por ciento', ' y ', '>', '<', ' y '], $text);
