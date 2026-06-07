@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\PodcastEpisode;
+use App\Services\DifficultyClassifierService;
 use App\Support\AdminDashboardCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -61,6 +62,15 @@ class News extends Model implements Feedable
     
     protected static function booted(): void
     {
+        static::creating(function (News $news) {
+            if (empty($news->difficulty_level)) {
+                $news->difficulty_level = DifficultyClassifierService::classify(
+                    $news->title ?? '',
+                    $news->content ?? ''
+                );
+            }
+        });
+
         static::saved(function () {
             static::clearHomeCache();
             AdminDashboardCache::clear();
