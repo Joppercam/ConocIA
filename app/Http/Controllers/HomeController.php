@@ -211,7 +211,7 @@ class HomeController extends Controller
         $news = Cache::remember('home_hero_news_pool_v3', 600, function () {
             return News::with('category')
                 ->where('status', 'published')
-                ->where('published_at', '>=', now()->subDays(30))
+                ->where('published_at', '>=', now()->subDays(7))
                 ->whereNotNull('image')
                 ->where(function ($q) {
                     $q->where('image', '!=', '')
