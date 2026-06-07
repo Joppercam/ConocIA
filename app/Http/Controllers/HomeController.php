@@ -208,9 +208,10 @@ class HomeController extends Controller
 
     private function fetchFeaturedNews()
     {
-        $news = Cache::remember('home_hero_news_pool_v1', 600, function () {
+        $news = Cache::remember('home_hero_news_pool_v3', 600, function () {
             return News::with('category')
                 ->where('status', 'published')
+                ->where('published_at', '>=', now()->subDays(30))
                 ->whereNotNull('image')
                 ->where(function ($q) {
                     $q->where('image', '!=', '')
@@ -219,8 +220,8 @@ class HomeController extends Controller
                       ->whereRaw("image NOT LIKE '%default%'")
                       ->whereRaw("image NOT LIKE '%placeholder%'");
                 })
-                ->orderByDesc('featured')
                 ->orderByDesc('published_at')
+                ->orderByDesc('featured')
                 ->take(12)
                 ->get();
         });
