@@ -66,6 +66,12 @@ return [
         'model'   => env('ANTHROPIC_MODEL', 'claude-sonnet-4-5'),
     ],
 
+    // Groq — LLM gratuito (llama3-70b), 14.400 req/día sin tarjeta de crédito
+    'groq' => [
+        'api_key' => env('GROQ_API_KEY', ''),
+        'model'   => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+    ],
+
     
     'text_analysis' => [
         'api_key' => env('TEXT_ANALYSIS_API_KEY'),

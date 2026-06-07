@@ -521,7 +521,19 @@ Responde SOLO en JSON con estas claves: title, content, excerpt.
 PROMPT;
 
         $guard = app(GeminiQuotaGuard::class);
+        $groq  = app(\App\Services\GroqService::class);
 
+        // 1. Groq — gratuito, llama3-70b, sin tarjeta de crédito
+        try {
+            if ($groq->isAvailable()) {
+                $data = $groq->generateJson($prompt, 4000, 0.7);
+                if (!empty($data['title']) && !empty($data['content'])) {
+                    return $data;
+                }
+            }
+        } catch (\Exception) {}
+
+        // 2. OpenAI
         try {
             if ($openai->isAvailable()) {
                 $data = $openai->generateJson($prompt, 3500, 0.7);

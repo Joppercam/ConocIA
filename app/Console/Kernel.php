@@ -52,28 +52,28 @@ class Kernel extends ConsoleKernel
         // no el producto principal. Cada fuente corre 1x/día.
         // ══════════════════════════════════════════════════════════════
 
-        // Gemini Search Grounding — 1x/día, 2 noticias (antes: 2x con 2 c/u = 4/día)
-        $schedule->command('news:fetch-gemini --all --count=2 --days=2')
-            ->dailyAt('08:00')
-            ->withoutOverlapping(90)
-            ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
+        // Gemini Search Grounding — desactivado hasta activar billing en GCP
+        // Reactivar cuando GEMINI_API_KEY tenga billing activo en console.cloud.google.com
+        // $schedule->command('news:fetch-gemini --all --count=2 --days=2')
+        //     ->dailyAt('08:00')
+        //     ->withoutOverlapping(90)
+        //     ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
 
-        // NewsAPI — 1x/día, 1 noticia por categoría (antes: 2x/día)
-        $schedule->command('news:fetch-all --count=1')
-            ->dailyAt('10:00')
+        // NewsAPI — 2x/día, 2 noticias por categoría
+        $schedule->command('news:fetch-all --count=2')
+            ->twiceDaily(9, 16)
             ->withoutOverlapping(60)
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
 
-        // RSS curado — 1x/día, 1 artículo (antes: 2x/día con 2 c/u = 4/día)
-        $schedule->command('news:fetch-rss --limit=1')
-            ->dailyAt('12:00')
+        // RSS curado — 2x/día, 3 artículos (usa Groq gratis como primera opción)
+        $schedule->command('news:fetch-rss --limit=3')
+            ->twiceDaily(8, 14)
             ->withoutOverlapping(30)
             ->appendOutputTo(storage_path('logs/fetch-rss.log'));
 
-        // The Guardian API — 3x/semana, 2 artículos c/u (antes: 2x/día con 3 c/u = 6/día)
-        $schedule->command('news:fetch-guardian --limit=2')
-            ->weekdays()->at('14:00')
-            ->days([1, 3, 5]) // lunes, miércoles, viernes
+        // The Guardian API — todos los días hábiles, 3 artículos
+        $schedule->command('news:fetch-guardian --limit=3')
+            ->weekdays()->at('11:00')
             ->withoutOverlapping(20)
             ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
 
