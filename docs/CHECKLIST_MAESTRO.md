@@ -93,7 +93,7 @@
 - [x] Aplicar migración a tablas: news, researches, columns, conceptos_ia (completado: 2026-05-23)
 - [x] Crear badge visual (Básico / Intermedio / Avanzado) (completado: 2026-05-23)
 - [x] Agregar badge en cards de Noticias, Investigación, Conceptos (completado: 2026-05-23)
-- [ ] Agregar filtro por nivel en páginas de listado (Noticias, Investigación)
+- [x] Agregar filtro por nivel en páginas de listado (Noticias, Investigación) (completado: 2026-06-07)
 - [ ] Etiquetar contenido existente con niveles apropiados
 
 ### 2.6 Mejoras al footer (Fase 6)

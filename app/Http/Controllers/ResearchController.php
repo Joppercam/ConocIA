@@ -26,11 +26,16 @@ class ResearchController extends Controller
      */
     public function index()
     {
-        // Usar una única clave de caché para todos los datos de la página
-        $viewData = Cache::remember('research_page_data', self::CACHE_TIME, function () {
-            // Obtener artículos de investigación PUBLICADOS con un scope
+        $nivel = request('nivel');
+        $niveles = ['basico', 'intermedio', 'avanzado'];
+        $nivel = in_array($nivel, $niveles) ? $nivel : null;
+
+        $cacheKey = 'research_page_data' . ($nivel ? "_nivel_{$nivel}" : '');
+
+        $viewData = Cache::remember($cacheKey, self::CACHE_TIME, function () use ($nivel) {
             $researches = Research::with(['category', 'author', 'tags'])
                 ->published()
+                ->when($nivel, fn($q) => $q->where('difficulty_level', $nivel))
                 ->latest('published_at')
                 ->paginate(12);
                 
@@ -101,13 +106,14 @@ class ResearchController extends Controller
         };
             
         return view('research.index', compact(
-            'researches', 
-            'categories', 
+            'researches',
+            'categories',
             'featuredResearch'
         ))->with([
-            'getImageUrl' => $getImageUrl,
+            'nivelActivo'      => $nivel,
+            'getImageUrl'      => $getImageUrl,
             'getCategoryStyle' => $getCategoryStyle,
-            'getCategoryIcon' => $getCategoryIcon
+            'getCategoryIcon'  => $getCategoryIcon,
         ]);
     }
 

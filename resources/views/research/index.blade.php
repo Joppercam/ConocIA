@@ -42,6 +42,25 @@
 
         {{-- ── Main content ── --}}
         <div class="col-lg-8">
+
+            {{-- Filtro por nivel de complejidad --}}
+            @php $filtroBase = request()->except('nivel', 'page'); @endphp
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+                <span class="text-muted" style="font-size:.8rem;">Nivel:</span>
+                <a href="{{ route('research.index', $filtroBase) }}"
+                   class="badge rounded-pill text-decoration-none {{ is_null($nivelActivo ?? null) ? 'bg-primary text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;">Todos</a>
+                <a href="{{ route('research.index', array_merge($filtroBase, ['nivel' => 'basico'])) }}"
+                   class="badge rounded-pill text-decoration-none {{ ($nivelActivo ?? null) === 'basico' ? 'text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;{{ ($nivelActivo ?? null) === 'basico' ? 'background:#28a745;' : '' }}">Básico</a>
+                <a href="{{ route('research.index', array_merge($filtroBase, ['nivel' => 'intermedio'])) }}"
+                   class="badge rounded-pill text-decoration-none {{ ($nivelActivo ?? null) === 'intermedio' ? 'text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;{{ ($nivelActivo ?? null) === 'intermedio' ? 'background:#fd7e14;' : '' }}">Intermedio</a>
+                <a href="{{ route('research.index', array_merge($filtroBase, ['nivel' => 'avanzado'])) }}"
+                   class="badge rounded-pill text-decoration-none {{ ($nivelActivo ?? null) === 'avanzado' ? 'text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;{{ ($nivelActivo ?? null) === 'avanzado' ? 'background:#dc3545;' : '' }}">Avanzado</a>
+            </div>
+
             <div class="d-flex flex-column gap-3">
                 @forelse($researches as $research)
                 @if($research->status === 'published' || $research->status === 'active')

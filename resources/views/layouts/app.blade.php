@@ -836,6 +836,13 @@
                                         <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Legislación y políticas públicas</div>
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ route('radar.index') }}">
+                                        <i class="fas fa-satellite-dish me-2" style="color:var(--primary-color);"></i>
+                                        <strong>Radar Regulatorio</strong>
+                                        <div class="text-muted" style="font-size:.72rem;padding-left:1.4rem;">Hitos y avances en regulación IA Chile</div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
