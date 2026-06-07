@@ -24,9 +24,16 @@ class NewsController extends Controller
 {
     public function index()
     {
-        $news = Cache::remember('news_index_list', 1800, fn() =>
+        $nivel = request('nivel');
+        $niveles = ['basico', 'intermedio', 'avanzado'];
+        $nivel = in_array($nivel, $niveles) ? $nivel : null;
+
+        $cacheKey = 'news_index_list' . ($nivel ? "_nivel_{$nivel}" : '');
+
+        $news = Cache::remember($cacheKey, 1800, fn() =>
             News::with(['category', 'author'])
                 ->where('status', 'published')
+                ->when($nivel, fn($q) => $q->where('difficulty_level', $nivel))
                 ->orderBy('published_at', 'desc')
                 ->paginate(10)
         );
@@ -37,6 +44,7 @@ class NewsController extends Controller
 
         return view('news.index', [
             'news'             => $news,
+            'nivelActivo'      => $nivel,
             'categories'       => $this->sidebarCategories(),
             'mostReadArticles' => $this->sidebarMostRead(),
             'popularTags'      => $this->sidebarPopularTags(),

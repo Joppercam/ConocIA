@@ -1,7 +1,7 @@
 # CONOCIA.CL — CHECKLIST MAESTRO DE PENDIENTES
 # Estado del proyecto: En transformación hacia plataforma de divulgación
 # Objetivo final: Postulación Concurso Nacional Ciencia Pública 2027
-# Última actualización: 23 de mayo de 2026
+# Última actualización: 07 de junio de 2026
 
 ---
 
@@ -18,24 +18,23 @@
 ## 1. FORMALIZACIÓN LEGAL (URGENTE — SEMANA 1)
 
 ### 1.1 Constitución SpA
-- [ ] Entrar a empresasenundia.cl con ClaveÚnica
-- [ ] Constituir "ConocIA SpA" con los siguientes datos:
-  - Nombre: ConocIA SpA
-  - Accionista único: [COMPLETAR NOMBRE]
-  - Capital social: $100.000 CLP
-  - Objeto social: "Divulgación científica y tecnológica a través de medios digitales; creación, producción, edición y distribución de contenido periodístico, educativo y multimedia en formato digital; desarrollo, operación y administración de plataformas web y aplicaciones tecnológicas orientadas a la comunicación del conocimiento; prestación de servicios de consultoría, capacitación y asesoría en tecnología, inteligencia artificial y transformación digital; organización de eventos, seminarios y actividades de difusión científica; y en general, cualquier actividad relacionada con la comunicación, educación y divulgación en ciencia y tecnología."
-- [ ] Descargar y guardar certificado de vigencia (PDF)
-- [ ] Anotar RUT de la empresa: _______________
+- [x] Entrar a empresasenundia.cl con ClaveÚnica (completado: 2026-06-07)
+- [x] Constituir "ConocIA SpA" (completado: 2026-06-07)
+  - RUT: 78.441.343-8
+  - CVE certificado: ACH4xfWFKjnQ
+  - Fecha actuación: 07-06-2026
+- [x] Descargar y guardar certificado de vigencia PDF (completado: 2026-06-07)
 
 ### 1.2 Inicio de actividades SII
-- [ ] Entrar a sii.cl con clave tributaria
-- [ ] Seleccionar RUT de ConocIA SpA
-- [ ] Completar formulario 4415
-- [ ] Elegir régimen tributario: Pro PyME General (14D N°3)
-- [ ] Agregar códigos de actividad económica:
-  - [ ] Servicios de publicación de contenido digital
-  - [ ] Actividades de medios de comunicación
-  - [ ] Servicios de tecnología de la información
+- [x] Obtener clave tributaria empresa (completado: 2026-06-07)
+- [x] Seleccionar opción "Emitir facturas" (completado: 2026-06-07)
+- [x] Seleccionar actividades económicas (completado: 2026-06-07):
+  - 631200 Portales web
+  - 591300 Distribución audiovisual
+  - 620900 Otras actividades TI
+- [ ] Adjuntar documentos pendientes para completar trámite:
+  - [ ] Certificado de constitución SpA (ya disponible, CVE: ACH4xfWFKjnQ)
+  - [ ] Declaración de autorización de domicilio firmada por pareja (Quilicura, rol 079-01070-016)
 - [ ] Confirmar aprobación del SII (1-5 días hábiles)
 
 ### 1.3 Cuenta bancaria empresarial (SEMANA 2-3)
@@ -62,8 +61,8 @@
 - [x] Cambiar meta description global (completado: 2026-05-23)
 - [x] Actualizar Open Graph tags (og:site_name, og:title, og:description) (completado: 2026-05-23)
 - [x] Actualizar Twitter Card tags (completado: 2026-05-23)
-- [ ] Cambiar eslogan: "El futuro del conocimiento..." → "Democratizando el conocimiento en IA..."
-- [ ] Actualizar keywords con términos de divulgación científica
+- [x] Cambiar eslogan: "El futuro del conocimiento..." → "Democratizando el conocimiento en IA..." (completado: 2026-05-23)
+- [x] Actualizar keywords con términos de divulgación científica (completado: 2026-05-23)
 - [x] Actualizar footer con nueva descripción (completado: 2026-05-23)
 - [x] Verificar cambios en producción con `curl` o inspeccionando código fuente (completado: 2026-05-23)
 - [x] Limpiar caché de Laravel: `php artisan optimize:clear` (completado: 2026-05-23)
@@ -233,14 +232,16 @@
 | 2026-05-23 | Fases 1-8 implementadas | Branding, páginas, nav, accesibilidad, home, niveles |
 | 2026-05-23 | Catálogos de contenido expandidos | AnalisisFondo: 30 temas; ConceptosIA: 76 conceptos |
 | 2026-05-23 | Radar Regulatorio Chile creado | /radar-regulatorio con timeline y ficha técnica |
+| 2026-06-07 | ConocIA SpA constituida | RUT 78.441.343-8, CVE ACH4xfWFKjnQ |
+| 2026-06-07 | Inicio de actividades SII iniciado | Pendiente adjuntar documentos de domicilio |
 
 ### Decisiones pendientes
 | Tema | Opciones | Decisión | Fecha |
 |---|---|---|---|
-| Nombre empresa | ConocIA SpA / ConocIA Medios SpA | | |
-| Régimen tributario | Pro PyME General / Pro PyME Transparente | | |
-| Banco | Banco Estado / BCI / Banco de Chile | | |
-| Antigüedad PJ | Esperar respuesta CTCI | | |
+| Nombre empresa | ConocIA SpA / ConocIA Medios SpA | ConocIA SpA | 2026-06-07 |
+| Régimen tributario | Pro PyME General / Pro PyME Transparente | Por definir con contador | |
+| Banco | Banco Estado / BCI / Banco de Chile | Por definir | |
+| Antigüedad PJ | Esperar respuesta CTCI | Pendiente consulta | |
 
 ### Contactos importantes
 | Entidad | Contacto | Email/Teléfono | Estado |

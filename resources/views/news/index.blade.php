@@ -77,6 +77,24 @@
         {{-- ── Main content ── --}}
         <div class="col-lg-8">
 
+            {{-- Filtro por nivel de complejidad --}}
+            @php $filtroBase = request()->except('nivel', 'page'); @endphp
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+                <span class="text-muted" style="font-size:.8rem;">Nivel:</span>
+                <a href="{{ route('news.index', $filtroBase) }}"
+                   class="badge rounded-pill text-decoration-none {{ is_null($nivelActivo) ? 'bg-primary text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;">Todos</a>
+                <a href="{{ route('news.index', array_merge($filtroBase, ['nivel' => 'basico'])) }}"
+                   class="badge rounded-pill text-decoration-none {{ $nivelActivo === 'basico' ? 'text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;{{ $nivelActivo === 'basico' ? 'background:#28a745;' : '' }}">Básico</a>
+                <a href="{{ route('news.index', array_merge($filtroBase, ['nivel' => 'intermedio'])) }}"
+                   class="badge rounded-pill text-decoration-none {{ $nivelActivo === 'intermedio' ? 'text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;{{ $nivelActivo === 'intermedio' ? 'background:#fd7e14;' : '' }}">Intermedio</a>
+                <a href="{{ route('news.index', array_merge($filtroBase, ['nivel' => 'avanzado'])) }}"
+                   class="badge rounded-pill text-decoration-none {{ $nivelActivo === 'avanzado' ? 'text-white' : 'bg-light text-secondary border' }}"
+                   style="font-size:.78rem;{{ $nivelActivo === 'avanzado' ? 'background:#dc3545;' : '' }}">Avanzado</a>
+            </div>
+
             @foreach($news as $article)
             @php
                 $imageSrc = \App\Helpers\ImageHelper::getImageUrlOrNull($article->image, 'news');
