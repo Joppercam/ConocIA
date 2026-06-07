@@ -167,6 +167,12 @@ class FetchNewsWithGemini extends Command
                 continue;
             }
 
+            // Filtro de relevancia: descartar contenido claramente off-topic
+            if ($this->isOffTopic($article['title'] . ' ' . ($article['summary'] ?? ''))) {
+                $this->warn("  · Descartada por off-topic: {$article['title']}");
+                continue;
+            }
+
             $articleSlug = Str::slug($article['title']);
 
             if (News::where('slug', $articleSlug)->exists()) {
@@ -236,6 +242,8 @@ class FetchNewsWithGemini extends Command
         $searchPrompt = <<<PROMPT
 Usa Google Search para encontrar las {$count} noticias más recientes e importantes sobre "{$searchQuery}" publicadas entre el {$sinceDate} y el {$today}.
 
+REQUISITO OBLIGATORIO: Las noticias deben estar directamente relacionadas con inteligencia artificial, aprendizaje automático, modelos de lenguaje, automatización inteligente o tecnología de IA aplicada. NO incluir noticias sobre guerra, conflictos armados, política electoral, deportes, entretenimiento, economía general o cualquier tema que no tenga relación directa con IA.
+
 Devuelve SOLO un JSON con array "articles". Cada elemento debe tener:
 - title: string (título en español, SEO-friendly, máx 100 chars)
 - summary: string (resumen de los hechos principales, 3-4 párrafos, texto plano)
@@ -244,7 +252,7 @@ Devuelve SOLO un JSON con array "articles". Cada elemento debe tener:
 - source_url: string (URL del artículo si la tienes, sino "")
 - image_url: string (URL de imagen si la tienes, sino "")
 
-Si no encuentras {$count} noticias recientes, devuelve las que puedas. Responde SOLO con el JSON, sin texto adicional.
+Si no encuentras {$count} noticias recientes sobre IA, devuelve solo las que sí sean relevantes. Responde SOLO con el JSON, sin texto adicional.
 PROMPT;
 
         try {
@@ -491,5 +499,44 @@ EXPAND;
                 $this->info("  ✓ Imagen guardada para noticia #{$newsId}");
             }
         }
+    }
+
+    private function isOffTopic(string $text): bool
+    {
+        $text = mb_strtolower($text);
+
+        // Señales de contenido claramente off-topic
+        $offTopicTerms = [
+            'guerra', 'conflicto armado', 'misil', 'bomba', 'ataque militar',
+            'soldado', 'ejercito', 'fuerzas armadas', 'ucrania', 'rusia',
+            'gaza', 'israel', 'hamas', 'hezbollah', 'otan', 'nato',
+            'elecciones', 'candidato', 'campaña política', 'partido político',
+            'fútbol', 'baloncesto', 'deporte', 'mundial', 'copa',
+            'farándula', 'celebrity', 'actor', 'actriz',
+        ];
+
+        foreach ($offTopicTerms as $term) {
+            if (str_contains($text, $term)) {
+                return true;
+            }
+        }
+
+        // Debe contener al menos una señal de IA para ser aceptada
+        $aiTerms = [
+            'inteligencia artificial', 'machine learning', 'aprendizaje automático',
+            'modelo de lenguaje', 'ia ', ' ai ', 'gpt', 'claude', 'gemini',
+            'openai', 'anthropic', 'google ai', 'meta ai', 'deepmind',
+            'robot', 'automatización', 'algoritmo', 'neural', 'chatbot',
+            'llm', 'deep learning', 'computer vision', 'nlp',
+        ];
+
+        foreach ($aiTerms as $term) {
+            if (str_contains($text, $term)) {
+                return false;
+            }
+        }
+
+        // Si no contiene señales de IA, descartar
+        return true;
     }
 }

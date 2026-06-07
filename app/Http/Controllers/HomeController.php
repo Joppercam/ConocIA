@@ -208,22 +208,31 @@ class HomeController extends Controller
 
     private function fetchFeaturedNews()
     {
-        $news = Cache::remember('home_hero_news_pool_v3', 600, function () {
-            return News::with('category')
+        $news = Cache::remember('home_hero_news_pool_v4', 600, function () {
+            $imageFilter = function ($q) {
+                $q->where('image', '!=', '')
+                  ->where('image', '!=', 'null')
+                  ->where('image', '!=', 'default.jpg')
+                  ->whereRaw("image NOT LIKE '%default%'")
+                  ->whereRaw("image NOT LIKE '%placeholder%'");
+            };
+
+            $base = News::with('category')
                 ->where('status', 'published')
-                ->where('published_at', '>=', now()->subDays(7))
                 ->whereNotNull('image')
-                ->where(function ($q) {
-                    $q->where('image', '!=', '')
-                      ->where('image', '!=', 'null')
-                      ->where('image', '!=', 'default.jpg')
-                      ->whereRaw("image NOT LIKE '%default%'")
-                      ->whereRaw("image NOT LIKE '%placeholder%'");
-                })
+                ->where($imageFilter)
                 ->orderByDesc('published_at')
-                ->orderByDesc('featured')
-                ->take(12)
-                ->get();
+                ->orderByDesc('featured');
+
+            // Intentar últimos 7 días
+            $recent = (clone $base)->where('published_at', '>=', now()->subDays(7))->take(12)->get();
+
+            // Fallback a 30 días si hay menos de 5 artículos
+            if ($recent->count() < 5) {
+                return (clone $base)->where('published_at', '>=', now()->subDays(30))->take(12)->get();
+            }
+
+            return $recent;
         });
 
         return $this->rotateHeroNews($news)->take(5)->values();
