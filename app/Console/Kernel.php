@@ -59,32 +59,27 @@ class Kernel extends ConsoleKernel
         //     ->withoutOverlapping(90)
         //     ->appendOutputTo(storage_path('logs/fetch-gemini-news.log'));
 
-        // NewsAPI — 2x/día, 2 noticias por categoría
+        // NewsAPI — 1x/día, 2 noticias por categoría
         $schedule->command('news:fetch-all --count=2')
-            ->twiceDaily(9, 16)
+            ->dailyAt('10:00')
             ->withoutOverlapping(60)
             ->appendOutputTo(storage_path('logs/fetch-all-news.log'));
 
-        // RSS curado — 2x/día, 3 artículos (usa Groq gratis como primera opción)
+        // RSS curado — 1x/día, 3 artículos (usa Groq gratis como primera opción)
         $schedule->command('news:fetch-rss --limit=3')
-            ->twiceDaily(8, 14)
+            ->dailyAt('08:00')
             ->withoutOverlapping(30)
             ->appendOutputTo(storage_path('logs/fetch-rss.log'));
 
-        // The Guardian API — todos los días hábiles, 3 artículos
+        // The Guardian API — lunes, miércoles, viernes
         $schedule->command('news:fetch-guardian --limit=3')
-            ->weekdays()->at('11:00')
+            ->weekdays()->days([1, 3, 5])->at('12:00')
             ->withoutOverlapping(20)
             ->appendOutputTo(storage_path('logs/fetch-guardian.log'));
 
-        // Pexels: rellenar imágenes faltantes
-        // ORIGINAL: ->dailyAt('07:30') y ->dailyAt('17:30')
-        $schedule->command('news:fetch-missing-images --limit=30')
-            ->dailyAt('07:30')
-            ->withoutOverlapping(15)
-            ->appendOutputTo(storage_path('logs/fetch-missing-images.log'));
-        $schedule->command('news:fetch-missing-images --limit=30')
-            ->dailyAt('17:30')
+        // Pexels: rellenar imágenes faltantes — 1x/día
+        $schedule->command('news:fetch-missing-images --limit=20')
+            ->dailyAt('13:00')
             ->withoutOverlapping(15)
             ->appendOutputTo(storage_path('logs/fetch-missing-images.log'));
    
